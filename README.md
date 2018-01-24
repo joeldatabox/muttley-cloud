@@ -1,0 +1,2 @@
+# Muttley-cloud
+O projeto **Muttely Cloud** visa acelerar o desenvolvimento de projetos em cloud utilizando a arquitetura [Spring Cloud Netflix](https://cloud.spring.io/spring-cloud-netflix/) mediante a utilização de recursos já pré implementados.
