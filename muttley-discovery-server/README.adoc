@@ -1,0 +1,50 @@
+## Configurando seu "discovery-config"
+
+Adicione a dependência em seu serviço de configuração;
+[source,java,indent=0]
+----
+    <dependency>
+        <groupId>br.com.muttley</groupId>
+        <artifactId>muttley-discovery-server</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+----
+
+Configure sua classe main  como está no exemplo abaixo:
+
+[source,java,indent=0]
+----
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.cloud.config.server.EnableConfigServer;
+    import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+    import org.springframework.context.annotation.ComponentScan;
+
+    @SpringBootApplication
+    @EnableEurekaServer
+    public class DiscoveryServerApplication {
+    
+        public static void main(String[] args) {
+            SpringApplication.run(DiscoveryServerApplication.class, args);
+        }
+    }
+----
+
+Não se esqueça de configurar também em seu resource as seguintes variáveis de ambiente:
+[source,java,indent=0]
+----
+    #nome da aplicação
+    spring.cloud.config.name=discovery
+    #endereco do servidor de configuração
+    spring.cloud.config.uri=http://localhost:8081
+    #role padrão
+    spring.cloud.config.role=SYSTEM
+
+    #eureka.server.eviction-interval-timer-in-ms=1000
+    eureka.client.register-with-eureka=false
+    eureka.client.fetch-registry=false
+    eureka.server.enable-self-preservation=false
+
+----
+
+Essas variáveis serão utilizadas para que os demais serviços possa se comunicar com o serviço de configuração de manera segura;
