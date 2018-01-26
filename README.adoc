@@ -1,0 +1,10 @@
+# Muttley-cloud
+O projeto **Muttely Cloud** visa acelerar o desenvolvimento de projetos em cloud utilizando a arquitetura [Spring Cloud Netflix](https://cloud.spring.io/spring-cloud-netflix/) mediante a utilização de recursos já pré implementados.
+
+##Modulos disponiveis
+
+[cols="1a,2m,2"]
+|===
+|Módulo | Descrição | Docs
+|muttley-config-server| Módulo para serviço de configuração| https://github.com/joeldatabox/muttley-cloud/tree/develop/muttley-config-server[README]
+|---
