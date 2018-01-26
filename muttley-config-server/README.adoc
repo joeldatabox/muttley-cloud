@@ -35,9 +35,25 @@ Para poder ativar a configuração basica de segurança no serviço faça em sua
 Não se esqueça de configurar também em seu resource as seguintes variáveis de ambiente:
 [source,java,indent=0]
 ----
-    muttley.config-server.security.user.name
-    muttley.config-server.security.user.password
-    muttley.config-server.security.user.role
+    #porta do serviço de configuração
+    server.port=8081
+    #nome da aplicação
+    spring.application.name=config
+    #uri do repositório git
+    spring.cloud.config.server.git.uri=/home/user/application-config
+    #o sistema irá clonar o repositório assim que for startado
+    #spring.cloud.config.server.git.clone-on-start=true
+    #utilizando na região padrão
+    eureka.client.region=default
+    #Intervalo para atulização
+    eureka.client.registryFetchIntervalSeconds=10
+    eureka.client.serviceUrl.defaultZone=http://discUser:discPassword@localhost:8082/eureka/
+    #usuário de seguranca
+    security.user.name=configUser
+    #senha de seguranca
+    security.user.password=configPassword
+    #Role padrao
+    security.user.role=SYSTEM
 ----
 
 Essas variáveis serão utilizadas para que os demais serviços possa se comunicar com o serviço de configuração de manera segura;
