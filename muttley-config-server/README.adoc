@@ -49,11 +49,11 @@ Não se esqueça de configurar também em seu resource as seguintes variáveis d
     eureka.client.registryFetchIntervalSeconds=10
     eureka.client.serviceUrl.defaultZone=http://discUser:discPassword@localhost:8082/eureka/
     #usuário de seguranca
-    security.user.name=configUser
+    muttley.config-server.security.user.name=configUser
     #senha de seguranca
-    security.user.password=configPassword
+    muttley.config-server.security.user.password=configPassword
     #Role padrao
-    security.user.role=SYSTEM
+    muttley.config-server.security.user.role=SYSTEM
 ----
 
 Essas variáveis serão utilizadas para que os demais serviços possa se comunicar com o serviço de configuração de manera segura;
