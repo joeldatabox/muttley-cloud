@@ -32,6 +32,7 @@
         <module>muttley-model</module>
         <module>muttley-redis</module>
         <module>muttley-security</module>
+        <module>muttley-mongo</module>
     </modules>
 
     <dependencies>
@@ -89,6 +90,12 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-security</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-mongo</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
