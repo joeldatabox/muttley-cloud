@@ -1,0 +1,20 @@
+package br.com.muttley.exception.throwables;
+
+import org.springframework.http.HttpStatus;
+
+/**
+ * @author Joel Rodrigues Moreira on 14/01/18.
+ * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
+ * @project spring-cloud
+ */
+
+public class MuttleyNotFoundException extends MuttleyException {
+
+    public MuttleyNotFoundException(final Throwable cause) {
+        super(cause);
+    }
+
+    public MuttleyNotFoundException(final Class clazz, final String field, final String message) {
+        super("AbstractResource Not Found", HttpStatus.NOT_FOUND, clazz, field, message);
+    }
+}
