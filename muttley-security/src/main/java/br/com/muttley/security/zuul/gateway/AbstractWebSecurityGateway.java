@@ -35,9 +35,9 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
 
     @Autowired
     public AbstractWebSecurityGateway(
-            @Value("${springboot.security.jwt.controller.loginEndPoint}") final String loginEndPoint,
-            @Value("${springboot.security.jwt.controller.refreshEndPoint}") final String refreshTokenEndPoin,
-            @Value("${springboot.security.jwt.controller.createEndPoint}") final String createEndPoint,
+            @Value("${muttley.security.jwt.controller.loginEndPoint}") final String loginEndPoint,
+            @Value("${muttley.security.jwt.controller.refreshEndPoint}") final String refreshTokenEndPoin,
+            @Value("${muttley.security.jwt.controller.createEndPoint}") final String createEndPoint,
             final UnauthorizedHandler unauthorizedHandler,
             final UserDetailsService userDetailsService,
             final AuthenticationTokenFilterGateway authenticationTokenFilterGateway) {

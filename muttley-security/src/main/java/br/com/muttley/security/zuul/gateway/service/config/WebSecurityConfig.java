@@ -31,13 +31,13 @@ public class WebSecurityConfig {
     public AuthenticationTokenFilterGateway createAuthenticationTokenFilter(
             final UserDetailsService detailsService,
             final JwtTokenUtil tokenUtil,
-            @Value("${springboot.security.jwt.controller.tokenHeader}") final String tokenHeader,
+            @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
             final CacheUserAuthenticationService cacheAuth) {
         return new AuthenticationTokenFilterGateway(detailsService, tokenUtil, tokenHeader, cacheAuth);
     }
 
     @Bean
-    public UnauthorizedHandler createUnauthorizedHandler(@Value("${springboot.security.jwt.controller.loginEndPoint}") final String urlLogin) {
+    public UnauthorizedHandler createUnauthorizedHandler(@Value("${muttley.security.jwt.controller.loginEndPoint}") final String urlLogin) {
         return new UnauthorizedHandler(urlLogin);
     }
 
@@ -66,7 +66,7 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public UserService createUserService(final UserRepository repository, @Value("${springboot.security.jwt.controller.tokenHeader}") final String tokenHeader) {
+    public UserService createUserService(final UserRepository repository, @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
         return new UserServiceImpl(repository, tokenHeader);
     }
 }

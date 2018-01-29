@@ -48,7 +48,7 @@ public class AuthenticationRestController {
         this.userDetailsService = userDetailsService;
     }
 
-    @RequestMapping(value = "${springboot.security.jwt.controller.loginEndPoint}", method = RequestMethod.POST)
+    @RequestMapping(value = "${muttley.security.jwt.controller.loginEndPoint}", method = RequestMethod.POST)
     public ResponseEntity createAuthenticationToken(@RequestBody Map<String, String> payload, Device device, HttpServletRequest request) {
         if (payload.isEmpty() || payload.size() < 2 || !payload.containsKey(USERNAME) || !payload.containsKey(PASSWORD)) {
             throw new MuttleySecurityBadRequestException(User.class, null, "Informe os campos de usuário e senha")
@@ -85,7 +85,7 @@ public class AuthenticationRestController {
         }
     }
 
-    @RequestMapping(value = "${springboot.security.jwt.controller.refreshEndPoint}", method = RequestMethod.GET)
+    @RequestMapping(value = "${muttley.security.jwt.controller.refreshEndPoint}", method = RequestMethod.GET)
     public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
         String token = request.getHeader(tokenHeader);
         String username = jwtTokenUtil.getUsernameFromToken(token);

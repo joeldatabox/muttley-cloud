@@ -34,7 +34,7 @@ public class CreateUserController {
         this.service = service;
     }
 
-    @RequestMapping(value = "${springboot.security.jwt.controller.createEndPoint}", method = RequestMethod.POST)
+    @RequestMapping(value = "${muttley.security.jwt.controller.createEndPoint}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void save(@RequestBody Map<String, String> payload, HttpServletResponse response) {
         if (payload.isEmpty() || payload.size() < 3 || !payload.containsKey(NOME) || !payload.containsKey(EMAIL) || !payload.containsKey(PASSWD)) {

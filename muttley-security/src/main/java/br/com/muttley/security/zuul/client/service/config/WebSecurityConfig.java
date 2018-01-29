@@ -24,14 +24,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class WebSecurityConfig {
     @Bean
-    public UnauthorizedHandler createUnauthorizedHandler(@Value("${springboot.security.jwt.controller.loginEndPoint}") final String urlLogin) {
+    public UnauthorizedHandler createUnauthorizedHandler(@Value("${muttley.security.jwt.controller.loginEndPoint}") final String urlLogin) {
         return new UnauthorizedHandler(urlLogin);
     }
 
     @Bean
     @Autowired
     public AuthenticationTokenFilterClient createAuthenticationTokenFilterClient(
-            @Value("${springboot.security.jwt.controller.tokenHeader}") final String tokenHeader,
+            @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
             final CacheUserAuthenticationService cacheAuth,
             final JwtTokenUtil tokenUtil) {
         return new AuthenticationTokenFilterClient(tokenHeader, cacheAuth, tokenUtil);
@@ -57,7 +57,7 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public UserService createUserService(final UserRepository repository, @Value("${springboot.security.jwt.controller.tokenHeader}") final String tokenHeader) {
+    public UserService createUserService(final UserRepository repository, @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
         return new UserServiceImpl(repository, tokenHeader);
     }
 

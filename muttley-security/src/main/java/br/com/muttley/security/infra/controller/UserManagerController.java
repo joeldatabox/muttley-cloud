@@ -29,7 +29,7 @@ public class UserManagerController {
         this.service = service;
     }
 
-    @RequestMapping(value = "${springboot.security.jwt.controller.managerUserEndPoint}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "${muttley.security.jwt.controller.managerUserEndPoint}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity update(@RequestBody User user) {
         user.setId(this.service.getCurrentUser().getId());
@@ -37,13 +37,13 @@ public class UserManagerController {
         return ResponseEntity.ok(other);
     }
 
-    @RequestMapping(value = "${springboot.security.jwt.controller.managerUserEndPoint}", method = RequestMethod.GET, consumes = MediaType.ALL_VALUE)
+    @RequestMapping(value = "${muttley.security.jwt.controller.managerUserEndPoint}", method = RequestMethod.GET, consumes = MediaType.ALL_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public UserResource get() {
         return new UserResource(this.service.getCurrentUser());
     }
 
-    @RequestMapping(value = "${springboot.security.jwt.controller.managerUserEndPoint}/password", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "${muttley.security.jwt.controller.managerUserEndPoint}/password", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity updatePasswd(@RequestBody @Valid Passwd passwd) {
         passwd.setId(this.service.getCurrentUser().getId());
