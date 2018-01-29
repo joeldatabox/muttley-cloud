@@ -31,6 +31,7 @@
         <module>muttley-exception</module>
         <module>muttley-model</module>
         <module>muttley-redis</module>
+        <module>muttley-security</module>
     </modules>
 
     <dependencies>
@@ -82,6 +83,12 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-redis</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-security</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
