@@ -29,6 +29,7 @@
         <module>muttley-config-server</module>
         <module>muttley-discovery-server</module>
         <module>muttley-exception</module>
+        <module>muttley-model</module>
     </modules>
 
     <dependencies>
@@ -68,6 +69,12 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-exception</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-model</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
