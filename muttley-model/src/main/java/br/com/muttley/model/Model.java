@@ -1,11 +1,9 @@
 package br.com.muttley.model;
 
 import br.com.muttley.model.security.model.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author Joel Rodrigues Moreira on 29/01/18.
@@ -14,25 +12,17 @@ import java.util.Date;
 public interface Model<T> extends Serializable {
     T getId();
 
-    Model setId(T id);
+    Model setId(final T id);
 
-    Model setDtCreate(Date dtCreate);
+    Model setOwner(final User user);
 
-    Date getDtCreate();
+    Model setOwner(final Owner owner);
 
-    Model setLastUpdate(Date dtUpdate);
+    Owner getOwner();
 
-    Date getLastUpdate();
+    Model setHistoric(final Historic historic);
 
-    Model setOwner(User user);
-
-    User getOwner();
-
-    Model setCreatedBy(User user);
-
-    @JsonIgnore
-    User getCreatedBy();
-
+    Historic getHistoric();
     /*ResourceSupport toResource();*/
 
     default String toJson() {
