@@ -11,7 +11,7 @@
 
     <groupId>br.com.muttley</groupId>
     <artifactId>muttley-cloud</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>muttley-cloud</name>
@@ -62,55 +62,55 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-config-server</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-discovery-server</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-exception</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-model</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-redis</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-security</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-mongo</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-rest</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-domain-service</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>

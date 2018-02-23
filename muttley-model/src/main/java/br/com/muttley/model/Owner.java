@@ -1,5 +1,6 @@
 package br.com.muttley.model;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -12,9 +13,9 @@ import java.io.Serializable;
  */
 @Document(collection = "owners")
 public interface Owner extends Serializable {
-    public String getId();
+    public ObjectId getId();
 
-    public Owner setId(final String id);
+    public Owner setId(final ObjectId id);
 
     public String getDescription();
 

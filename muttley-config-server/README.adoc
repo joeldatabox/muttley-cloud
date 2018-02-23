@@ -1,4 +1,4 @@
-## Configurando seu "service-config"
+## Configurando seu "domainService-config"
 
 Adicione a dependência em seu serviço de configuração;
 [source,java,indent=0]
@@ -6,7 +6,7 @@ Adicione a dependência em seu serviço de configuração;
     <dependency>
         <groupId>br.com.br</groupId>
         <artifactId>muttley-config-server</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-SNAPSHOT</version>
     </dependency>
 ----
 
@@ -23,7 +23,7 @@ Para poder ativar a configuração basica de segurança no serviço faça em sua
     @SpringBootApplication
     @EnableConfigServer
     @EnableEurekaClient
-    @ComponentScan(basePackages = {"br.com.muttley.configserver.service"})
+    @ComponentScan(basePackages = {"br.com.muttley.configserver.domainService"})
     public class ConfigServerApplication {
     
         public static void main(String[] args) {

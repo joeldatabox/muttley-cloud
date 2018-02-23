@@ -1,9 +1,10 @@
 package br.com.muttley.mongo.service.repository.impl;
 
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullException;
-import br.com.muttley.exception.throwables.repository.MuttleyRepositoryUserNotInformedException;
+import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
+import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
-import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.Owner;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -12,7 +13,6 @@ import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +24,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.newA
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends Serializable> extends SimpleMongoRepository<T, ID> implements br.com.muttley.mongo.service.repository.CustomMongoRepository<T, ID> {
+public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId> extends SimpleMongoRepository<T, ID> implements br.com.muttley.mongo.service.repository.CustomMongoRepository<T, ID> {
     protected final MongoOperations operations;
     private final Class<T> CLASS;
     private final String COLLECTION;
@@ -37,45 +37,61 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends Serializa
     }
 
     @Override
-    public final T save(final User user, final T value) {
-        validateUser(user);
-        value.setOwner(user);
+    public final T save(final Owner owner, final T value) {
+        validateOwner(owner);
+        value.setOwner(owner);
         return super.save(value);
     }
 
     @Override
-    public final T findOne(final User user, final ID id) {
-        validateUser(user);
+    public final T findOne(final Owner owner, final ID id) {
+        validateOwner(owner);
         validateId(id);
-        return operations.findOne(new Query(where("user").is(user).and("id").is(id)), CLASS);
+        return operations.findOne(
+                new Query(
+                        where("owner.$id").is(owner.getId())
+                                .and("id").is(id)
+                ), CLASS
+        );
     }
 
     @Override
-    public T findFirst(final User user) {
-        validateUser(user);
-        return operations.findOne(new Query(where("user").is(user)), CLASS);
+    public T findFirst(final Owner owner) {
+        validateOwner(owner);
+        return operations
+                .findOne(
+                        new Query(
+                                where("owner.$id").is(owner.getId())
+                        ), CLASS
+                );
     }
 
     @Override
-    public final void delete(final User user, final ID id) {
-        validateUser(user);
+    public final void delete(final Owner user, final ID id) {
+        validateOwner(user);
         validateId(id);
-        operations.remove(new Query(where("user").is(user).and("id").is(id)), CLASS);
+        operations.remove(
+                new Query(
+                        where("owner.$id").is(user.getId())
+                                .and("id").is(id)
+                ), CLASS
+        );
     }
 
     @Override
-    public final void delete(final User user, final T value) {
-        delete(user, value.getId());
+    public final void delete(final Owner owner, final T value) {
+        delete(owner, value.getId());
     }
 
     @Override
-    public final List<T> findAll(final User user, final Map<String, Object> queryParams) {
-        validateUser(user);
+
+    public final List<T> findAll(final Owner owner, final Map<String, Object> queryParams) {
+        validateOwner(owner);
         return operations.aggregate(
                 newAggregation(
                         createAggregations(
                                 CLASS,
-                                new HashMap<>(addUserQueryParam(user, queryParams))
+                                new HashMap<>(addOwnerQueryParam(owner, queryParams))
                         )
                 ),
                 COLLECTION, CLASS)
@@ -83,43 +99,50 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends Serializa
     }
 
     @Override
-    public final long count(final User user, final Map<String, Object> queryParams) {
-        validateUser(user);
+    public final long count(final Owner owner, final Map<String, Object> queryParams) {
+        validateOwner(owner);
         final AggregationResults result = operations.aggregate(
                 newAggregation(
                         createAggregationsCount(
                                 CLASS,
-                                new HashMap<>(addUserQueryParam(user, queryParams))
+                                new HashMap<>(addOwnerQueryParam(owner, queryParams))
                         )),
                 COLLECTION, ResultCount.class);
         return result.getUniqueMappedResult() != null ? ((ResultCount) result.getUniqueMappedResult()).count : 0;
     }
 
     @Override
-    public final boolean exists(final User user, final T value) {
-        return exists(user, value.getId());
+    public final boolean exists(final Owner owner, final T value) {
+        return exists(owner, value.getId());
     }
 
     @Override
-    public final boolean exists(final User user, final ID id) {
-        validateUser(user);
-        return operations.exists(new Query(where("user").is(user).and("id").is(id)), CLASS);
+    public final boolean exists(final Owner owner, final ID id) {
+        validateOwner(owner);
+        return operations.exists(
+                new Query(
+                        where("owner.$id").is(owner.getId())
+                                .and("id").is(id)
+                ), CLASS
+        );
     }
 
     @Override
-    public Date dtCreateFrom(final User user, final T value) {
-        return dtCreateFrom(user, value.getId());
+    public Historic loadHistoric(final Owner owner, final T value) {
+        return this.loadHistoric(owner, value.getId());
     }
 
     @Override
-    public Date dtCreateFrom(final User user, final ID value) {
+    public Historic loadHistoric(final Owner owner, final ID id) {
         final AggregationResults result = operations.aggregate(
                 newAggregation(
-                        match(where("user.$id").is(new ObjectId(user.getId())).and("id").is(new ObjectId((String) value))),
-                        project().and("dtCreate").as("dtResult")
-                ), COLLECTION, ResultDate.class);
+                        match(where("owner.$id").is(owner.getId())
+                                .and("id").is(id)
+                        ),
+                        project().and("historic").as("historic")
+                ), COLLECTION, Historic.class);
 
-        return result.getUniqueMappedResult() != null ? ((ResultDate) result.getUniqueMappedResult()).getDtResult() : null;
+        return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
     }
 
     private final void validateId(final ID id) {
@@ -128,15 +151,15 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends Serializa
         }
     }
 
-    private final void validateUser(final User user) {
-        if (user == null) {
-            throw new MuttleyRepositoryUserNotInformedException(this.CLASS);
+    private final void validateOwner(final Owner owner) {
+        if (owner == null) {
+            throw new MuttleyRepositoryOwnerNotInformedException(this.CLASS);
         }
     }
 
-    private final Map<String, Object> addUserQueryParam(final User user, final Map<String, Object> queryParams) {
+    private final Map<String, Object> addOwnerQueryParam(final Owner owner, final Map<String, Object> queryParams) {
         final Map<String, Object> query = new HashMap<>(1);
-        query.put("user.$id.$is", new ObjectId(user.getId()));
+        query.put("owner.$id.$is", owner.getId());
         if (queryParams != null) {
             query.putAll(queryParams);
         }
@@ -152,19 +175,6 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends Serializa
 
         public ResultCount setCount(final Long count) {
             this.count = count;
-            return this;
-        }
-    }
-
-    private final class ResultDate {
-        private Date dtResult;
-
-        public Date getDtResult() {
-            return dtResult;
-        }
-
-        public ResultDate setDtResult(final Date dtResult) {
-            this.dtResult = dtResult;
             return this;
         }
     }

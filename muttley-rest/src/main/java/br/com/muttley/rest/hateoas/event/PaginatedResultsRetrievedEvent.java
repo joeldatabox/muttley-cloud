@@ -1,5 +1,6 @@
 package br.com.muttley.rest.hateoas.event;
 
+import br.com.muttley.rest.hateoas.resource.MetadataPageable;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -33,6 +34,20 @@ public class PaginatedResultsRetrievedEvent<T extends Serializable> extends Appl
         this.pageSize = pageSize;
         this.totalPages = totalPages;
         this.totalRecords = totalRecords;
+    }
+
+    public PaginatedResultsRetrievedEvent(
+            final Object source,
+            final UriComponentsBuilder uriBuilder,
+            final HttpServletResponse response,
+            final MetadataPageable metadataPageable) {
+        super(source);
+        this.uriBuilder = uriBuilder;
+        this.response = response;
+        this.page = metadataPageable.getPage();
+        this.pageSize = metadataPageable.getPageSize();
+        this.totalPages = metadataPageable.getTotalPages();
+        this.totalRecords = metadataPageable.getTotalRecords();
     }
 
     public UriComponentsBuilder getUriBuilder() {

@@ -14,6 +14,8 @@ public interface Document<T extends Serializable> extends Serializable {
 
     Document setId(final T id);
 
+    Document setId(final String id);
+
     Document setHistoric(final Historic historic);
 
     Historic getHistoric();
