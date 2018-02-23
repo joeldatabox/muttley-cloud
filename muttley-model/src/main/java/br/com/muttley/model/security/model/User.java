@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * Created by joel on 16/01/17.
@@ -199,6 +200,21 @@ public class User implements Serializable {
 
     public final boolean inRole(final Authorities role) {
         return getAuthorities().contains(new Authority(role));
+    }
+
+    public final boolean inAnyRole(final String... roles) {
+        return inAnyRole(
+                Stream.of(roles).map(r -> Authorities.valueOf(r))
+        );
+    }
+
+    public final boolean inAnyRole(final Authorities... roles) {
+        return inAnyRole(Stream.of(roles));
+    }
+
+    public final boolean inAnyRole(final Stream<Authorities> roles) {
+        return roles
+                .anyMatch(getAuthorities()::contains);
     }
 
     @Override

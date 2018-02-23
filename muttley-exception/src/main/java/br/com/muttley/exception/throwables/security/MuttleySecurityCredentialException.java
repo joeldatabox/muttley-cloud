@@ -12,4 +12,8 @@ public class MuttleySecurityCredentialException extends MuttleySecurityUnauthori
     public MuttleySecurityCredentialException(final String message, String authority) {
         super(message, HttpStatus.FORBIDDEN, null, "authorities", (authority != null ? authority : ""));
     }
+
+    public MuttleySecurityCredentialException(final String message) {
+        super(message, HttpStatus.FORBIDDEN);
+    }
 }
