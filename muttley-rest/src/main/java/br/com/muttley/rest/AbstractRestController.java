@@ -1,8 +1,8 @@
 package br.com.muttley.rest;
 
-import br.com.muttley.domain.service.ModelService;
+import br.com.muttley.domain.service.Service;
 import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
-import br.com.muttley.model.Model;
+import br.com.muttley.model.Document;
 import br.com.muttley.model.security.model.enumeration.Authorities;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.infra.service.UserService;
@@ -27,13 +27,13 @@ import static java.util.Objects.isNull;
  * @author Joel Rodrigues Moreira on 30/01/18.
  * @project muttley-cloud
  */
-public abstract class ModelRestController<T extends Model, ID extends Serializable> implements RestResource, RestController<T, ID> {
-    private final ModelService<T, ID> modelService;
+public abstract class AbstractRestController<T extends Document, ID extends Serializable> implements RestResource, RestController<T, ID> {
+    private final Service<T, ID> service;
     private final UserService userService;
     private final ApplicationEventPublisher eventPublisher;
 
-    public ModelRestController(final ModelService modelService, final UserService userService, final ApplicationEventPublisher eventPublisher) {
-        this.modelService = modelService;
+    public AbstractRestController(final Service service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
+        this.service = service;
         this.userService = userService;
         this.eventPublisher = eventPublisher;
     }
@@ -43,7 +43,7 @@ public abstract class ModelRestController<T extends Model, ID extends Serializab
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity save(@RequestBody final T value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
         this.checkRoleCreate();
-        final T record = modelService.save(this.userService.getCurrentUser(), value);
+        final T record = service.save(this.userService.getCurrentUser(), value);
 
         publishCreateResourceEvent(this.eventPublisher, response, record);
 
@@ -59,7 +59,7 @@ public abstract class ModelRestController<T extends Model, ID extends Serializab
     public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final T model) {
         checkRoleUpdate();
         model.setId(id);
-        return ResponseEntity.ok(modelService.update(this.userService.getCurrentUser(), model));
+        return ResponseEntity.ok(service.update(this.userService.getCurrentUser(), model));
     }
 
     @Override
@@ -67,7 +67,7 @@ public abstract class ModelRestController<T extends Model, ID extends Serializab
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity deleteById(@PathVariable("id") final ID id) {
         checkRoleDelete();
-        modelService.deleteById(this.userService.getCurrentUser(), id);
+        service.deleteById(this.userService.getCurrentUser(), id);
         return ResponseEntity.ok().build();
     }
 
@@ -79,7 +79,7 @@ public abstract class ModelRestController<T extends Model, ID extends Serializab
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
-        return ResponseEntity.ok(modelService.findById(this.userService.getCurrentUser(), id));
+        return ResponseEntity.ok(service.findById(this.userService.getCurrentUser(), id));
     }
 
     @Override
@@ -87,18 +87,18 @@ public abstract class ModelRestController<T extends Model, ID extends Serializab
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity first(final HttpServletResponse response) {
         checkRoleRead();
-        final T value = modelService.findFirst(this.userService.getCurrentUser());
+        final T value = service.findFirst(this.userService.getCurrentUser());
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
-        return ResponseEntity.ok(modelService.findFirst(this.userService.getCurrentUser()));
+        return ResponseEntity.ok(service.findFirst(this.userService.getCurrentUser()));
     }
 
     @Override
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams) {
         checkRoleRead();
-        return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.modelService, this.userService.getCurrentUser(), allRequestParams));
+        return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, this.userService.getCurrentUser(), allRequestParams));
     }
 
     @Override
@@ -106,7 +106,7 @@ public abstract class ModelRestController<T extends Model, ID extends Serializab
     @ResponseStatus(HttpStatus.OK)
     public final ResponseEntity<String> count(final Map<String, Object> allRequestParams) {
         checkRoleRead();
-        return ResponseEntity.ok(String.valueOf(modelService.count(this.userService.getCurrentUser(), allRequestParams)));
+        return ResponseEntity.ok(String.valueOf(service.count(this.userService.getCurrentUser(), allRequestParams)));
     }
 
     protected String[] getCreateRoles() {

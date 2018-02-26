@@ -1,5 +1,6 @@
 package br.com.muttley.domain.service;
 
+import br.com.muttley.model.Document;
 import br.com.muttley.model.security.model.User;
 
 import java.io.Serializable;
@@ -11,7 +12,7 @@ import java.util.Map;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface Service<T, ID extends Serializable> {
+public interface Service<T extends Document, ID extends Serializable> {
     /**
      * Salva um novo registro no banco de dados,
      * garantindo sempre que ele esteja relacionado a um usuário/owner.

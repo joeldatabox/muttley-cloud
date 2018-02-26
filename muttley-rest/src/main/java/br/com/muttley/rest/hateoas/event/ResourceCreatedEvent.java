@@ -1,6 +1,6 @@
 package br.com.muttley.rest.hateoas.event;
 
-import br.com.muttley.model.Model;
+import br.com.muttley.model.Document;
 import org.springframework.context.ApplicationEvent;
 
 import javax.servlet.http.HttpServletResponse;
@@ -11,9 +11,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class ResourceCreatedEvent extends ApplicationEvent {
     private final HttpServletResponse response;
-    private final Model model;
+    private final Document model;
 
-    public ResourceCreatedEvent(final Object source, final HttpServletResponse response, final Model model) {
+    public ResourceCreatedEvent(final Object source, final HttpServletResponse response, final Document model) {
         super(source);
         this.response = response;
         this.model = model;
@@ -23,7 +23,7 @@ public class ResourceCreatedEvent extends ApplicationEvent {
         return response;
     }
 
-    public Model getModel() {
+    public Document getModel() {
         return model;
     }
 }

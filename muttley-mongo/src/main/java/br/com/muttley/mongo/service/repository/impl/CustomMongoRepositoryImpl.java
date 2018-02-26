@@ -1,6 +1,5 @@
 package br.com.muttley.mongo.service.repository.impl;
 
-import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
@@ -10,9 +9,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
-import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,16 +21,10 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.newA
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId> extends SimpleMongoRepository<T, ID> implements br.com.muttley.mongo.service.repository.CustomMongoRepository<T, ID> {
-    protected final MongoOperations operations;
-    private final Class<T> CLASS;
-    private final String COLLECTION;
+public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId> extends DocumentMongoRepositoryImpl<T, ID> implements br.com.muttley.mongo.service.repository.CustomMongoRepository<T, ID> {
 
     public CustomMongoRepositoryImpl(final MongoEntityInformation<T, ID> metadata, final MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
-        this.operations = mongoOperations;
-        this.CLASS = metadata.getJavaType();
-        this.COLLECTION = metadata.getCollectionName();
     }
 
     @Override
@@ -91,7 +82,7 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId>
                 newAggregation(
                         createAggregations(
                                 CLASS,
-                                new HashMap<>(addOwnerQueryParam(owner, queryParams))
+                                new HashMap<>(addOwnerQueryParam(owner, ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())))
                         )
                 ),
                 COLLECTION, CLASS)
@@ -105,10 +96,10 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId>
                 newAggregation(
                         createAggregationsCount(
                                 CLASS,
-                                new HashMap<>(addOwnerQueryParam(owner, queryParams))
+                                new HashMap<>(addOwnerQueryParam(owner, ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())))
                         )),
                 COLLECTION, ResultCount.class);
-        return result.getUniqueMappedResult() != null ? ((ResultCount) result.getUniqueMappedResult()).count : 0;
+        return result.getUniqueMappedResult() != null ? ((ResultCount) result.getUniqueMappedResult()).getCount() : 0;
     }
 
     @Override
@@ -145,12 +136,6 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId>
         return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
     }
 
-    private final void validateId(final ID id) {
-        if (id == null) {
-            throw new MuttleyRepositoryIdIsNullException(this.CLASS);
-        }
-    }
-
     private final void validateOwner(final Owner owner) {
         if (owner == null) {
             throw new MuttleyRepositoryOwnerNotInformedException(this.CLASS);
@@ -164,18 +149,5 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId>
             query.putAll(queryParams);
         }
         return query;
-    }
-
-    private final class ResultCount {
-        private Long count;
-
-        public Long getCount() {
-            return count;
-        }
-
-        public ResultCount setCount(final Long count) {
-            this.count = count;
-            return this;
-        }
     }
 }

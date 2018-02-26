@@ -3,6 +3,7 @@ package br.com.muttley.rest;
 import br.com.muttley.domain.service.Service;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyPageableRequestException;
+import br.com.muttley.model.Document;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.model.User;
 import br.com.muttley.mongo.service.infra.Operators;
@@ -34,7 +35,7 @@ public interface RestResource {
      * @param response       -> objeto response
      * @param model          -> objeto criado
      */
-    default void publishCreateResourceEvent(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final Model model) {
+    default void publishCreateResourceEvent(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final Document model) {
         eventPublisher.publishEvent(new ResourceCreatedEvent(this, response, model));
     }
 
