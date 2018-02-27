@@ -14,27 +14,7 @@ import java.io.Serializable;
 public class PaginatedResultsRetrievedEvent<T extends Serializable> extends ApplicationEvent {
     private final UriComponentsBuilder uriBuilder;
     private final HttpServletResponse response;
-    private final Long page;
-    private final Long pageSize;
-    private final Long totalPages;
-    private final Long totalRecords;
-
-    public PaginatedResultsRetrievedEvent(
-            final Object source,
-            final UriComponentsBuilder uriBuilder,
-            final HttpServletResponse response,
-            final Long page,
-            final Long pageSize,
-            final Long totalPages,
-            final Long totalRecords) {
-        super(source);
-        this.uriBuilder = uriBuilder;
-        this.response = response;
-        this.page = page;
-        this.pageSize = pageSize;
-        this.totalPages = totalPages;
-        this.totalRecords = totalRecords;
-    }
+    private final MetadataPageable metadataPageable;
 
     public PaginatedResultsRetrievedEvent(
             final Object source,
@@ -44,10 +24,7 @@ public class PaginatedResultsRetrievedEvent<T extends Serializable> extends Appl
         super(source);
         this.uriBuilder = uriBuilder;
         this.response = response;
-        this.page = metadataPageable.getPage();
-        this.pageSize = metadataPageable.getPageSize();
-        this.totalPages = metadataPageable.getTotalPages();
-        this.totalRecords = metadataPageable.getTotalRecords();
+        this.metadataPageable = metadataPageable;
     }
 
     public UriComponentsBuilder getUriBuilder() {
@@ -58,20 +35,8 @@ public class PaginatedResultsRetrievedEvent<T extends Serializable> extends Appl
         return response;
     }
 
-    public Long getPage() {
-        return page;
-    }
-
-    public Long getPageSize() {
-        return pageSize;
-    }
-
-    public Long getTotalPages() {
-        return totalPages;
-    }
-
-    public Long getTotalRecords() {
-        return totalRecords;
+    public MetadataPageable getMetadataPageable() {
+        return metadataPageable;
     }
 
     /**

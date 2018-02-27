@@ -1,5 +1,6 @@
 package br.com.muttley.rest.hateoas.resource;
 
+import br.com.muttley.rest.util.LinkUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -73,9 +74,9 @@ public class MetadataPageable {
     }
 
     private void addNextPage(final UriComponentsBuilder componentsBuilder) {
-        if ((skip + limit) < totalRecords) {
+        if (containsNextPage()) {
             links.add(new LinkResource(
-                    "next",
+                    LinkUtil.REL_NEXT,
                     componentsBuilder
                             .replaceQueryParam(SKIP, skip + limit)
                             .replaceQueryParam(LIMIT, limit)
@@ -87,10 +88,23 @@ public class MetadataPageable {
         }
     }
 
+    @JsonIgnore
+    public boolean containsNextPage() {
+        return (skip + limit) < totalRecords;
+    }
+
+    @JsonIgnore
+    public LinkResource getNextPage() {
+        return this.links.stream()
+                .filter(l -> LinkUtil.REL_NEXT.equals(l.getRel()))
+                .findFirst()
+                .get();
+    }
+
     private void addPreviusPage(final UriComponentsBuilder componentsBuilder) {
-        if (page > 1) {
+        if (containsPreviusPage()) {
             links.add(new LinkResource(
-                    "prev",
+                    LinkUtil.REL_PREV,
                     componentsBuilder
                             .replaceQueryParam(SKIP, skip - limit)
                             .replaceQueryParam(LIMIT, limit)
@@ -101,8 +115,21 @@ public class MetadataPageable {
         }
     }
 
+    @JsonIgnore
+    public boolean containsPreviusPage() {
+        return page > 1;
+    }
+
+    @JsonIgnore
+    public LinkResource getPreviusPage() {
+        return this.links.stream()
+                .filter(l -> LinkUtil.REL_PREV.equals(l.getRel()))
+                .findFirst()
+                .get();
+    }
+
     private void addFirstPage(final UriComponentsBuilder componentsBuilder) {
-        if (page > 1) {
+        if (containsFirstPage()) {
             links.add(new LinkResource(
                     "first",
                     componentsBuilder
@@ -115,8 +142,21 @@ public class MetadataPageable {
         }
     }
 
+    @JsonIgnore
+    public boolean containsFirstPage() {
+        return page > 1;
+    }
+
+    @JsonIgnore
+    public LinkResource getFirstPage() {
+        return this.links.stream()
+                .filter(l -> LinkUtil.REL_FIRST.equals(l.getRel()))
+                .findFirst()
+                .get();
+    }
+
     private void addLastPage(final UriComponentsBuilder componentsBuilder) {
-        if ((skip + limit) < totalRecords) {
+        if (containsLastPage()) {
             //final Long skip = String.valueOf(limit * (totalPages - 1)).substring(0,)
             long skip = 0;
             if (skip > 9) {
@@ -133,7 +173,7 @@ public class MetadataPageable {
                 skip = limit * (totalPages - 1);
             }
             links.add(new LinkResource(
-                    "last",
+                    LinkUtil.REL_LAST,
                     componentsBuilder
                             //.replaceQueryParam(SKIP, limit * (totalPages - 1))
                             .replaceQueryParam(SKIP, skip)
@@ -143,5 +183,18 @@ public class MetadataPageable {
                             .toUriString()
             ));
         }
+    }
+
+    @JsonIgnore
+    public boolean containsLastPage() {
+        return (skip + limit) < totalRecords;
+    }
+
+    @JsonIgnore
+    public LinkResource getLastPage() {
+        return this.links.stream()
+                .filter(l -> LinkUtil.REL_LAST.equals(l.getRel()))
+                .findFirst()
+                .get();
     }
 }
