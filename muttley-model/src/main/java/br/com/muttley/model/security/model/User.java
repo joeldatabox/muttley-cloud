@@ -2,13 +2,11 @@ package br.com.muttley.model.security.model;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.Owner;
-import br.com.muttley.model.security.model.enumeration.Authorities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -23,6 +21,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -46,10 +45,10 @@ public class User implements Serializable {
 
     @Id
     private String id;
-    @NotEmpty(message = "Informe o owner do registro")
-    private Set<Owner> owners;
     @Transient
-    private Owner currentOwner;
+    private Set<WorkTeam> workTeams;//os workteam devem ser carregados separadamente
+    @Transient
+    private WorkTeam currentWorkTeam;
     @NotBlank(message = "O campo nome não pode ser nulo!")
     @Size(min = 4, max = 200, message = "O campo nome deve ter de 4 a 200 caracteres!")
     private String nome;
@@ -60,13 +59,14 @@ public class User implements Serializable {
     private String passwd;
     private Date lastPasswordResetDate;
     private Boolean enable;
-    private Set<Authority> authorities;
+    @Transient
+    private Set<Authority> authorities;//Os authorities devem ser repassado pelo workteam corrente
 
     public User() {
-        this.authorities = new HashSet();
+        this.authorities = new LinkedHashSet();
         this.enable = true;
         this.lastPasswordResetDate = Date.from(Instant.now());
-        this.owners = new HashSet();
+        this.workTeams = new HashSet();
     }
 
 
@@ -74,30 +74,42 @@ public class User implements Serializable {
         return id;
     }
 
-    public void setId(final String id) {
+    public User setId(final String id) {
         this.id = id;
-    }
-
-    public Set<Owner> getOwners() {
-        return owners;
-    }
-
-    public User setOwners(final Set<Owner> owners) {
-        this.owners = owners;
         return this;
     }
 
-    public User addOwners(final Set<Owner> owners) {
-        this.owners.addAll(owners);
+    public Set<WorkTeam> getWorkTeams() {
+        return workTeams;
+    }
+
+    public User setWorkTeams(final Set<WorkTeam> workTeams) {
+        this.workTeams = workTeams;
+        return this;
+    }
+
+    public User addWorkTeam(final Collection<WorkTeam> workTeams) {
+        this.workTeams.addAll(workTeams);
+        return this;
+    }
+
+    public User addWorkTeam(final WorkTeam... workTeams) {
+        for (WorkTeam work : workTeams) {
+            this.workTeams.add(work);
+        }
         return this;
     }
 
     public Owner getCurrentOwner() {
-        return currentOwner;
+        return getCurrentWorkTeam().getOwner();
     }
 
-    public User setCurrentOwner(final Owner currentOwner) {
-        this.currentOwner = currentOwner;
+    public WorkTeam getCurrentWorkTeam() {
+        return currentWorkTeam;
+    }
+
+    public User setCurrentWorkTeam(final WorkTeam currentWorkTeam) {
+        this.currentWorkTeam = currentWorkTeam;
         return this;
     }
 
@@ -133,15 +145,17 @@ public class User implements Serializable {
         return this;
     }
 
-    public void setPasswd(final User user) {
+    public User setPasswd(final User user) {
         this.passwd = user.passwd;
+        return this;
     }
 
-    public void setPasswd(final Passwd passwd) {
+    public User setPasswd(final Passwd passwd) {
         if (!checkPasswd(passwd.getActualPasswd())) {
             throw new MuttleySecurityBadRequestException(User.class, "passwd", "A senha atual informada é invalida!").setStatus(HttpStatus.NOT_ACCEPTABLE);
         }
         this.passwd = new BCryptPasswordEncoder(SALT).encode(passwd.getNewPasswd());
+        return this;
     }
 
     public boolean checkPasswd(final String passwd) {
@@ -161,8 +175,9 @@ public class User implements Serializable {
         return enable;
     }
 
-    public void setEnable(final Boolean enable) {
+    public User setEnable(final Boolean enable) {
         this.enable = enable;
+        return this;
     }
 
     public Set<Authority> getAuthorities() {
@@ -170,49 +185,55 @@ public class User implements Serializable {
     }
 
     public User setAuthorities(final Set<Authority> authorities) {
+        authorities.forEach(a -> checkAuthority(a));
         this.authorities = authorities;
         return this;
     }
 
-    public void addAuthority(final Authority authority) {
+    public User addAuthority(final Authority authority) {
+        checkAuthority(authority);
         this.authorities.add(authority);
+        return this;
     }
 
-    public void addAuthorities(final Collection<Authority> authorities) {
+    public User addAuthorities(final Collection<Authority> authorities) {
+        authorities.forEach(a -> checkAuthority(a));
         this.authorities.addAll(authorities);
+        return this;
     }
 
     public Date getLastPasswordResetDate() {
         return lastPasswordResetDate;
     }
 
-    public void setLastPasswordResetDate(final Date lastPasswordResetDate) {
+    public User setLastPasswordResetDate(final Date lastPasswordResetDate) {
         this.lastPasswordResetDate = lastPasswordResetDate;
+        return this;
     }
 
     public final boolean inRole(final String role) {
         try {
-            return role == null ? false : inRole(Authorities.valueOf(role));
+            return role == null ? false : inRole(new AuthorityImpl(role));
         } catch (IllegalArgumentException iex) {
             return false;
         }
     }
 
-    public final boolean inRole(final Authorities role) {
-        return getAuthorities().contains(new Authority(role));
+    public final boolean inRole(final Authority role) {
+        return getAuthorities().contains(role);
     }
 
     public final boolean inAnyRole(final String... roles) {
         return inAnyRole(
-                Stream.of(roles).map(r -> Authorities.valueOf(r))
+                Stream.of(roles).map(r -> new AuthorityImpl(r))
         );
     }
 
-    public final boolean inAnyRole(final Authorities... roles) {
+    public final boolean inAnyRole(final Authority... roles) {
         return inAnyRole(Stream.of(roles));
     }
 
-    public final boolean inAnyRole(final Stream<Authorities> roles) {
+    public final boolean inAnyRole(final Stream<Authority> roles) {
         return roles
                 .anyMatch(getAuthorities()::contains);
     }
@@ -256,5 +277,14 @@ public class User implements Serializable {
         final Pattern pattern = Pattern.compile(EMAIL_PATTERN, Pattern.CASE_INSENSITIVE);
         final Matcher matcher = pattern.matcher(email);
         return matcher.matches();
+    }
+
+    /**
+     * Para evitar bugs com o Mongodb, é necessário garantirmos que não sera salvo um enum como Authority
+     */
+    private void checkAuthority(Authority authority) {
+        if (authority instanceof Enum) {
+            throw new IllegalArgumentException("Um authority não pode ser instancia de Enum: [" + authority.toString() + "]");
+        }
     }
 }

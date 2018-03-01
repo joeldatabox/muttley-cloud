@@ -1,38 +1,39 @@
 package br.com.muttley.model.security.model;
 
-import br.com.muttley.model.security.model.enumeration.Authorities;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+public interface Authority {
 
-import javax.validation.constraints.NotNull;
-import java.beans.Transient;
-import java.util.Objects;
+    String getName();
 
-public class Authority {
+    String getDescription();
 
-    @NotNull
-    private Authorities name;
+    /*private String name;
+    private String descricao;
 
     public Authority() {
     }
 
-    public Authority(final Authorities name) {
+    public Authority(final String name) {
         this();
         this.name = name;
     }
 
-    public Authorities getName() {
+    public Authority(final Authorities name) {
+        this(name.name());
+    }
+
+    public String getName() {
         return name;
     }
 
     public Authority setName(final Authorities name) {
-        this.name = name;
+        this.name = name.getDescription();
         return this;
     }
 
     @JsonIgnore
     @Transient
     public String getDescricao() {
-        return this.name.getDescription();
+        return this.name;
     }
 
     @Override
@@ -46,5 +47,5 @@ public class Authority {
     @Override
     public int hashCode() {
         return Objects.hash(name, 87);
-    }
+    }*/
 }

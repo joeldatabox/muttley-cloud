@@ -17,6 +17,10 @@ public interface Owner extends Serializable {
 
     public Owner setId(final ObjectId id);
 
+    public String getName();
+
+    public Owner setName(final String name);
+
     public String getDescription();
 
     public Owner setDescription(final String description);

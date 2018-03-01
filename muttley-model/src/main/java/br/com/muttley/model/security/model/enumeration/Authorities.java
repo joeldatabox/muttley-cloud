@@ -1,19 +1,25 @@
 package br.com.muttley.model.security.model.enumeration;
 
 
-public enum Authorities {
-    ROLE_USER {
-        @Override
-        public String getDescription() {
-            return "ROLE_USER";
-        }
-    },
-    ROLE_ADMIN {
-        @Override
-        public String getDescription() {
-            return "ROLE_ADMIN";
-        }
-    };
+import br.com.muttley.model.security.model.Authority;
 
-    public abstract String getDescription();
+public enum Authorities implements Authority {
+    ROLE_USER("Permissão simples de usuário"),
+    ROLE_ADMIN("Permissão de administrador");
+
+    private final String description;
+
+    Authorities(final String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String getName() {
+        return this.name();
+    }
+
+    @Override
+    public String getDescription() {
+        return this.description;
+    }
 }
