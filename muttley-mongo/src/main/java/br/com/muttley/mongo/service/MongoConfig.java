@@ -2,6 +2,7 @@ package br.com.muttley.mongo.service;
 
 import br.com.muttley.mongo.service.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.service.converters.Decimal128ToBigDecimalConverter;
+import br.com.muttley.mongo.service.converters.MuttleyCustomConversions;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
@@ -11,10 +12,8 @@ import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.mongodb.MongoCredential.createCredential;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 /**
@@ -31,9 +30,7 @@ import static java.util.Collections.singletonList;
  */
 //@Configuration
 //@EnableMongoRepositories(basePackages = "br.com", repositoryBaseClass = CustomMongoRepositoryImpl.class)
-public class MongoConfig extends AbstractMongoConfiguration {
-    private final CustomConversions converters;
-
+public abstract class MongoConfig extends AbstractMongoConfiguration {
     protected final String dataBaseName;
     protected final String hostDataBase;
     protected final String portDataBase;
@@ -51,12 +48,6 @@ public class MongoConfig extends AbstractMongoConfiguration {
         this.portDataBase = portDataBase;
         this.userName = userName;
         this.password = password;
-
-        final List listConverters = new ArrayList(2);
-        listConverters.add(new BigDecimalToDecimal128Converter());
-        listConverters.add(new Decimal128ToBigDecimalConverter());
-
-        this.converters = new CustomConversions(listConverters);
     }
 
     @Override
@@ -72,10 +63,24 @@ public class MongoConfig extends AbstractMongoConfiguration {
                 singletonList(createCredential(this.userName, this.dataBaseName, password.toCharArray())));
     }
 
+    /**
+     * Por padrão já é adicionado os converters
+     * {@link BigDecimalToDecimal128Converter} e também
+     * {@link Decimal128ToBigDecimalConverter}
+     */
     @Override
-    public CustomConversions customConversions() {
-        return this.converters;
+    public final CustomConversions customConversions() {
+        return new CustomConversions(
+                asList(
+                        new BigDecimalToDecimal128Converter(),
+                        new Decimal128ToBigDecimalConverter()
+                        //getMuttleyCustomConversions().getAuthorityToDocumentConverter(),
+                        //getMuttleyCustomConversions().getDocumentToAuthorityConverter()
+                )
+        );
     }
+
+    //protected abstract MuttleyCustomConversions getMuttleyCustomConversions();
 
     @Bean
     public MongoRepositoryFactory getMongoRepositoryFactory() {
