@@ -1,7 +1,9 @@
 package br.com.muttley.exception.service;
 
+import br.com.muttley.exception.service.serializer.HttpStatusSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,10 +19,12 @@ import java.util.Map;
  * @project spring-cloud
  */
 public final class ErrorMessage {
+    @JsonSerialize(using = HttpStatusSerializer.class)
     protected HttpStatus status;
     protected String message;
     protected String objectName;
     protected final Map<String, Object> details;
+    private static final String RESPONSE_HEADER = "ERROR-MESSAGE";
 
     public ErrorMessage() {
         this.details = new HashMap<>();
@@ -57,6 +61,7 @@ public final class ErrorMessage {
     protected ResponseEntity<ErrorMessage> toResponseEntity() {
         final HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString());
+        headers.add(RESPONSE_HEADER,"error-message.model.ts");
         return new ResponseEntity(this, headers, this.status);
     }
 }
