@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 public class MuttleySecurityConflictException extends MuttleySecurityUnauthorizedException {
 
     public MuttleySecurityConflictException(final Class clazz, final String field, final String message) {
-        super("Conflict", HttpStatus.CONFLICT, clazz, field, message);
+        super(message, HttpStatus.CONFLICT, clazz, field, "Conflict");
         /*this.message = "Conflict";
         this.status = HttpStatus.CONFLICT;
         this.objectName = clazz.getSimpleName().toLowerCase();

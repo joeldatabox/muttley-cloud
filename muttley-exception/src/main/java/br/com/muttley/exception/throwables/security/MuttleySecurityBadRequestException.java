@@ -10,6 +10,6 @@ import org.springframework.http.HttpStatus;
 public class MuttleySecurityBadRequestException extends MuttleySecurityUnauthorizedException {
 
     public MuttleySecurityBadRequestException(final Class clazz, final String field, final String message) {
-        super("Bad Request", HttpStatus.BAD_REQUEST, clazz, field, message);
+        super(message, HttpStatus.BAD_REQUEST, clazz, field, "Bad Request");
     }
 }

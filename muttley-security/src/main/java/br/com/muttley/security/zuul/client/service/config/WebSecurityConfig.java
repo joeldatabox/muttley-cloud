@@ -5,6 +5,7 @@ import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.component.util.JwtTokenUtil;
+import br.com.muttley.security.infra.repository.UserPreferencesRepository;
 import br.com.muttley.security.infra.repository.UserRepository;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import br.com.muttley.security.infra.service.UserService;
@@ -57,8 +58,8 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public UserService createUserService(final UserRepository repository, @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
-        return new UserServiceImpl(repository, tokenHeader);
+    public UserService createUserService(final UserRepository repository, final UserPreferencesRepository preferencesRepository, @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
+        return new UserServiceImpl(repository, preferencesRepository, tokenHeader);
     }
 
 }

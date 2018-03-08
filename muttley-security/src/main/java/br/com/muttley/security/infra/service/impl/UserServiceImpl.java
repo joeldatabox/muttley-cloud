@@ -6,6 +6,8 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundExcep
 import br.com.muttley.model.security.jwt.JwtUser;
 import br.com.muttley.model.security.model.Passwd;
 import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.security.model.UserPreferences;
+import br.com.muttley.security.infra.repository.UserPreferencesRepository;
 import br.com.muttley.security.infra.repository.UserRepository;
 import br.com.muttley.security.infra.response.JwtTokenResponse;
 import br.com.muttley.security.infra.service.UserService;
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -28,11 +32,15 @@ import java.util.Map;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
+    private final UserPreferencesRepository preferencesRepository;
     private final String tokenHeader;
 
     @Autowired
-    public UserServiceImpl(final UserRepository repository, @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+    public UserServiceImpl(final UserRepository repository,
+                           final UserPreferencesRepository preferencesRepository,
+                           @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
         this.repository = repository;
+        this.preferencesRepository = preferencesRepository;
         this.tokenHeader = tokenHeader;
     }
 
@@ -107,6 +115,11 @@ public class UserServiceImpl implements UserService {
         return getCurrentJwtUser().getOriginUser();
     }
 
+    @Override
+    public UserPreferences loadPreference(final User user) {
+        return this.preferencesRepository.findByUser(user.getId());
+    }
+
     private User merge(final User user) {
         if (user.getNome() == null || user.getNome().length() < 4) {
             throw new MuttleySecurityBadRequestException(User.class, "nome", "O campo nome deve ter de 4 a 200 caracteres!");
@@ -151,5 +164,17 @@ public class UserServiceImpl implements UserService {
     public List<User> findAll(final User user, final Map<String, Object> allRequestParams) {
         throw new UnsupportedOperationException("Implemente o methodo");
         //return repository.findAll(allRequestParams);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        final User user = repository.findByEmail(username);
+        //devemos carregar as preferencias de usuários
+        user.setPreferences(loadPreference(user));
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        } else {
+            return new JwtUser(user);
+        }
     }
 }

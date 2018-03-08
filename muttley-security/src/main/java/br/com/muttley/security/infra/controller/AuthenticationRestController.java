@@ -4,9 +4,11 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestExc
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
 import br.com.muttley.model.security.jwt.JwtUser;
 import br.com.muttley.security.infra.component.util.JwtTokenUtil;
+import br.com.muttley.security.infra.events.UserLoggedEvent;
 import br.com.muttley.security.infra.response.JwtTokenResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,31 +38,25 @@ public class AuthenticationRestController {
     protected static final String USERNAME = "username";
     protected static final String PASSWORD = "password";
 
+    protected final ApplicationEventPublisher eventPublisher;
     protected final AuthenticationManager authenticationManager;
     protected final JwtTokenUtil jwtTokenUtil;
     protected final UserDetailsService userDetailsService;
 
     @Autowired
-    public AuthenticationRestController(final @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") String tokenHeader, final AuthenticationManager authenticationManager, final JwtTokenUtil jwtTokenUtil, final UserDetailsService userDetailsService) {
+    public AuthenticationRestController(final @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") String tokenHeader, final AuthenticationManager authenticationManager, final JwtTokenUtil jwtTokenUtil, final UserDetailsService userDetailsService, final ApplicationEventPublisher eventPublisher) {
         this.tokenHeader = tokenHeader;
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;
         this.userDetailsService = userDetailsService;
+        this.eventPublisher = eventPublisher;
     }
 
     @RequestMapping(value = "${muttley.security.jwt.controller.loginEndPoint}", method = RequestMethod.POST)
-    public ResponseEntity createAuthenticationToken(@RequestBody Map<String, String> payload, Device device, HttpServletRequest request) {
-        if (payload.isEmpty() || payload.size() < 2 || !payload.containsKey(USERNAME) || !payload.containsKey(PASSWORD)) {
-            throw new MuttleySecurityBadRequestException(User.class, null, "Informe os campos de usuário e senha")
-                    .addDetails(USERNAME, "algum usuário válido")
-                    .addDetails(PASSWORD, "uma senha válida!");
-        }
+    public ResponseEntity createAuthenticationToken(@RequestBody final Map<String, String> payload, Device device, HttpServletRequest request) {
+        checkPayloadContainsUserNameAndPasswdOndy(payload);
 
-        if (payload.size() > 2) {
-            throw new MuttleySecurityBadRequestException(User.class, null, "Por favor informe somente os campos de usuário e senha")
-                    .addDetails(USERNAME, "algum usuário válido")
-                    .addDetails(PASSWORD, "uma senha válida!");
-        }
+        checkPayloadSize(payload);
 
         try {
             final Authentication authentication = authenticationManager.authenticate(
@@ -79,6 +75,9 @@ public class AuthenticationRestController {
             JwtTokenResponse token = new JwtTokenResponse(jwtTokenUtil.generateToken(userDetails, device));
             //notificando que o token foi gerado
             this.afterGeneratedToken(userDetails, token);
+            //lançando evento de usuário logado
+            this.eventPublisher.publishEvent(new UserLoggedEvent(userDetails.getOriginUser()));
+            //devolvendo token gerado
             return ResponseEntity.ok(token);
         } catch (BadCredentialsException ex) {
             throw new MuttleySecurityUserNameOrPasswordInvalidException();
@@ -105,5 +104,21 @@ public class AuthenticationRestController {
      * @param token -> token gerado
      */
     protected void afterGeneratedToken(final JwtUser user, final JwtTokenResponse token) {
+    }
+
+    private final void checkPayloadContainsUserNameAndPasswdOndy(final Map<String, String> payload) {
+        if (payload.isEmpty() || payload.size() < 2 || !payload.containsKey(USERNAME) || !payload.containsKey(PASSWORD)) {
+            throw new MuttleySecurityBadRequestException(User.class, null, "Informe os campos de usuário e senha")
+                    .addDetails(USERNAME, "algum usuário válido")
+                    .addDetails(PASSWORD, "uma senha válida!");
+        }
+    }
+
+    private final void checkPayloadSize(final Map<String, String> payload) {
+        if (payload.size() > 2) {
+            throw new MuttleySecurityBadRequestException(User.class, null, "Por favor informe somente os campos de usuário e senha")
+                    .addDetails(USERNAME, "algum usuário válido")
+                    .addDetails(PASSWORD, "uma senha válida!");
+        }
     }
 }

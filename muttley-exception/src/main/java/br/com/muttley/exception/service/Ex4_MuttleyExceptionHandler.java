@@ -2,6 +2,7 @@ package br.com.muttley.exception.service;
 
 import br.com.muttley.exception.throwables.MuttleyException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -31,12 +32,6 @@ public class Ex4_MuttleyExceptionHandler {
         this.errorMessageBuilder = errorMessageBuilder;
     }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(value = Exception.class)
-    public ResponseEntity exception(final Exception ex) {
-        return errorMessageBuilder.build(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
-    }
-
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
     @ExceptionHandler(value = HttpMediaTypeNotSupportedException.class)
     public ResponseEntity httpMediaTypeNotSupportedException(final HttpMediaTypeNotSupportedException ex) {
@@ -59,5 +54,36 @@ public class Ex4_MuttleyExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity validationException(final MethodArgumentNotValidException ex) {
         return errorMessageBuilder.build(ex).toResponseEntity();
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = NullPointerException.class)
+    public ResponseEntity exceptionNullPointerException(final NullPointerException ex) {
+        return errorMessageBuilder.build(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
+    }
+
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = SerializationException.class)
+    public ResponseEntity exceptionSerializationException(final SerializationException ex) {
+        return errorMessageBuilder.build(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity exception(final Exception ex) {
+        return errorMessageBuilder.build(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = RuntimeException.class)
+    public ResponseEntity exceptionRuntime(final RuntimeException ex) {
+        return errorMessageBuilder.build(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = Throwable.class)
+    public ResponseEntity exceptionThrowable(final Throwable ex) {
+        return errorMessageBuilder.build(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
     }
 }

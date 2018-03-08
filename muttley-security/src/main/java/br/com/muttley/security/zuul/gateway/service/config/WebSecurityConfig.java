@@ -5,11 +5,11 @@ import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.component.util.JwtTokenUtil;
+import br.com.muttley.security.infra.repository.UserPreferencesRepository;
 import br.com.muttley.security.infra.repository.UserRepository;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import br.com.muttley.security.infra.service.UserService;
 import br.com.muttley.security.infra.service.impl.CacheUserAuthenticationServiceImpl;
-import br.com.muttley.security.infra.service.impl.UserDetailServiceImpl;
 import br.com.muttley.security.infra.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,19 +54,13 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public UserDetailsService createUserDetailsService(final UserRepository repository) {
-        return new UserDetailServiceImpl(repository);
-    }
-
-    @Bean
-    @Autowired
     public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService) {
         return new CacheUserAuthenticationServiceImpl(redisService);
     }
 
     @Bean
     @Autowired
-    public UserService createUserService(final UserRepository repository, @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
-        return new UserServiceImpl(repository, tokenHeader);
+    public UserService createUserService(final UserRepository repository, final UserPreferencesRepository preferencesRepository, @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
+        return new UserServiceImpl(repository, preferencesRepository, tokenHeader);
     }
 }

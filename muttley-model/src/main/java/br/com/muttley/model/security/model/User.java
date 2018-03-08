@@ -28,6 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static java.util.Objects.isNull;
+
 /**
  * Created by joel on 16/01/17.
  */
@@ -61,6 +63,8 @@ public class User implements Serializable {
     private Boolean enable;
     @Transient
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo workteam corrente
+    @Transient
+    private UserPreferences preferences;
 
     public User() {
         this.authorities = new LinkedHashSet();
@@ -101,6 +105,9 @@ public class User implements Serializable {
     }
 
     public Owner getCurrentOwner() {
+        if (isNull(getCurrentWorkTeam())) {
+            return null;
+        }
         return getCurrentWorkTeam().getOwner();
     }
 
@@ -236,6 +243,19 @@ public class User implements Serializable {
     public final boolean inAnyRole(final Stream<Authority> roles) {
         return roles
                 .anyMatch(getAuthorities()::contains);
+    }
+
+    public UserPreferences getPreferences() {
+        return preferences;
+    }
+
+    public User setPreferences(final UserPreferences preferences) {
+        this.preferences = preferences;
+        return this;
+    }
+
+    public boolean containsPreference(final String keyPreference) {
+        return this.preferences.contains(keyPreference);
     }
 
     @Override
