@@ -61,7 +61,7 @@ public final class ErrorMessage {
     protected ResponseEntity<ErrorMessage> toResponseEntity() {
         final HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString());
-        headers.add(RESPONSE_HEADER,"error-message.model.ts");
+        headers.add(RESPONSE_HEADER, "error-message.model.ts");
         return new ResponseEntity(this, headers, this.status);
     }
 }

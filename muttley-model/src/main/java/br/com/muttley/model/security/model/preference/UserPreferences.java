@@ -1,8 +1,8 @@
-package br.com.muttley.model.security.model;
+package br.com.muttley.model.security.model.preference;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import com.google.common.base.Objects;
+import br.com.muttley.model.security.model.User;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -11,6 +11,9 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import static org.springframework.util.Assert.notNull;
 
 /**
  * @author Joel Rodrigues Moreira on 07/03/18.
@@ -22,6 +25,7 @@ import java.util.Set;
         @CompoundIndex(name = "user_index_unique", def = "{'user' : 1}", unique = true)
 })
 public class UserPreferences implements Document<ObjectId> {
+    public static final String WORK_TEAM_PREFERENCE = "WorkTeamPreference";
     @Id
     private ObjectId id;
     @DBRef
@@ -31,6 +35,18 @@ public class UserPreferences implements Document<ObjectId> {
 
     public UserPreferences() {
         this.preferences = new HashSet<>();
+    }
+
+    public UserPreferences(Preference... preferences) {
+        notNull(preferences, "preferences is null");
+        this.preferences = new HashSet<>();
+        Stream.of(preferences)
+                .map(p -> {
+                    if (!p.isValid()) {
+                        throw new IllegalArgumentException("key não pode ser nulla ou vazia");
+                    }
+                    return p;
+                }).forEach(p -> set(p));
     }
 
     @Override
@@ -98,31 +114,5 @@ public class UserPreferences implements Document<ObjectId> {
     public UserPreferences set(final String key, final Object value) {
         this.preferences.add(new Preference(key, value));
         return this;
-    }
-}
-
-class Preference {
-    protected String key;
-    protected Object value;
-
-    public Preference() {
-    }
-
-    public Preference(final String key, final Object value) {
-        this.key = key;
-        this.value = value;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Preference)) return false;
-        final Preference that = (Preference) o;
-        return Objects.equal(key, that.key);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(key, 2, 3);
     }
 }

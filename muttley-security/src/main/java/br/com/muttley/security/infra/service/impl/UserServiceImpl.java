@@ -6,7 +6,7 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundExcep
 import br.com.muttley.model.security.jwt.JwtUser;
 import br.com.muttley.model.security.model.Passwd;
 import br.com.muttley.model.security.model.User;
-import br.com.muttley.model.security.model.UserPreferences;
+import br.com.muttley.model.security.model.preference.UserPreferences;
 import br.com.muttley.security.infra.repository.UserPreferencesRepository;
 import br.com.muttley.security.infra.repository.UserRepository;
 import br.com.muttley.security.infra.response.JwtTokenResponse;
@@ -47,6 +47,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User save(final User user) {
         return merge(user);
+    }
+
+    @Override
+    public void save(final User user, final UserPreferences preferences) {
+        preferences.setUser(user);
+        this.preferencesRepository.save(preferences);
     }
 
     @Override
@@ -169,8 +175,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final User user = repository.findByEmail(username);
-        //devemos carregar as preferencias de usuários
-        user.setPreferences(loadPreference(user));
         if (user == null) {
             throw new UsernameNotFoundException("Usuário não encontrado");
         } else {

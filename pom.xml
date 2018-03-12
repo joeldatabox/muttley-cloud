@@ -26,7 +26,6 @@
     </properties>
 
     <modules>
-        <module>muttley-tools</module>
         <module>muttley-config-server</module>
         <module>muttley-discovery-server</module>
         <module>muttley-exception</module>
@@ -39,11 +38,7 @@
     </modules>
 
     <dependencies>
-        <dependency>
-            <groupId>br.com.muttley</groupId>
-            <artifactId>muttley-tools</artifactId>
-        </dependency>
-        
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -64,13 +59,6 @@
 
     <dependencyManagement>
         <dependencies>
-
-            <dependency>
-                <groupId>br.com.muttley</groupId>
-                <artifactId>muttley-tools</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
-            </dependency>
-
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-config-server</artifactId>

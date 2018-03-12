@@ -4,6 +4,7 @@ import br.com.muttley.model.security.jwt.JwtUser;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
@@ -18,10 +19,12 @@ import java.util.Map;
 public class CacheUserAuthenticationServiceImpl implements CacheUserAuthenticationService {
 
     private final RedisService redisService;
+    private final int expiration;
 
     @Autowired
-    public CacheUserAuthenticationServiceImpl(final RedisService redisService) {
+    public CacheUserAuthenticationServiceImpl(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration) {
         this.redisService = redisService;
+        this.expiration = expiration;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class CacheUserAuthenticationServiceImpl implements CacheUserAuthenticati
         mapJwtUser.put("lastPasswordResetDate", user.getLastPasswordResetDate());
         mapJwtUser.put("originUser", user.getOriginUser());
         mapJwtUser.put("username", user.getUsername());
-        this.redisService.set(token, mapJwtUser, 3600000);
+        this.redisService.set(token, mapJwtUser, expiration);
     }
 
     @Override

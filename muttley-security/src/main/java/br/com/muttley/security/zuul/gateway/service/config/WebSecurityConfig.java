@@ -13,6 +13,7 @@ import br.com.muttley.security.infra.service.impl.CacheUserAuthenticationService
 import br.com.muttley.security.infra.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -32,8 +33,9 @@ public class WebSecurityConfig {
             final UserDetailsService detailsService,
             final JwtTokenUtil tokenUtil,
             @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
-            final CacheUserAuthenticationService cacheAuth) {
-        return new AuthenticationTokenFilterGateway(detailsService, tokenUtil, tokenHeader, cacheAuth);
+            final CacheUserAuthenticationService cacheAuth,
+            final ApplicationEventPublisher eventPublisher) {
+        return new AuthenticationTokenFilterGateway(detailsService, tokenUtil, tokenHeader, cacheAuth, eventPublisher);
     }
 
     @Bean
@@ -54,8 +56,8 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService) {
-        return new CacheUserAuthenticationServiceImpl(redisService);
+    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration) {
+        return new CacheUserAuthenticationServiceImpl(redisService, expiration);
     }
 
     @Bean

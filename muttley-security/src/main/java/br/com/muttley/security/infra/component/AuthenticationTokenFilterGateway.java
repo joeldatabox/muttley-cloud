@@ -1,10 +1,12 @@
 package br.com.muttley.security.infra.component;
 
-import br.com.muttley.security.infra.component.util.JwtTokenUtil;
-import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import br.com.muttley.model.security.jwt.JwtUser;
+import br.com.muttley.security.infra.component.util.JwtTokenUtil;
+import br.com.muttley.security.infra.events.UserBeforeCacheSaveEvent;
+import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,17 +31,20 @@ public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
     protected final JwtTokenUtil tokenUtil;
     protected final String tokenHeader;
     protected final CacheUserAuthenticationService cacheAuth;
+    protected final ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public AuthenticationTokenFilterGateway(
             final UserDetailsService userDetailsService,
             final JwtTokenUtil tokenUtil,
             @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader,
-            final CacheUserAuthenticationService cacheAuth) {
+            final CacheUserAuthenticationService cacheAuth,
+            final ApplicationEventPublisher eventPublisher) {
         this.userDetailsService = userDetailsService;
         this.tokenUtil = tokenUtil;
         this.tokenHeader = tokenHeader;
         this.cacheAuth = cacheAuth;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -61,6 +66,9 @@ public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
                     final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    //notificando que será salvo um usuário no cache do sistema
+                    this.eventPublisher.publishEvent(new UserBeforeCacheSaveEvent(userDetails.getOriginUser()));
+                    //salvando no cache
                     this.cacheAuth.set(authToken, userDetails);
                 }
             }

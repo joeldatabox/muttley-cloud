@@ -2,6 +2,7 @@ package br.com.muttley.model.security.model;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.Owner;
+import br.com.muttley.model.security.model.preference.UserPreferences;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,8 +88,8 @@ public class User implements Serializable {
         return workTeams;
     }
 
-    public User setWorkTeams(final Set<WorkTeam> workTeams) {
-        this.workTeams = workTeams;
+    public User setWorkTeams(final Collection<? extends WorkTeam> workTeams) {
+        this.workTeams = new HashSet<>(workTeams);
         return this;
     }
 

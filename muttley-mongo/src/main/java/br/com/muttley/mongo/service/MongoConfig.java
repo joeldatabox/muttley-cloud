@@ -2,19 +2,19 @@ package br.com.muttley.mongo.service;
 
 import br.com.muttley.mongo.service.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.service.converters.Decimal128ToBigDecimalConverter;
-import br.com.muttley.mongo.service.converters.MuttleyCustomConversions;
-import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 
-import static com.mongodb.MongoCredential.createCredential;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 
 /**
  * Classe de configuração de conexão do mongodb<br/>
@@ -57,10 +57,22 @@ public abstract class MongoConfig extends AbstractMongoConfiguration {
 
     @Override
     @Bean
-    public Mongo mongo() throws Exception {
-        return new MongoClient(
-                singletonList(new ServerAddress(this.hostDataBase, Integer.valueOf(this.portDataBase))),
-                singletonList(createCredential(this.userName, this.dataBaseName, password.toCharArray())));
+    public MongoDbFactory mongoDbFactory() {
+        //final ServerAddress serverAddress = new ServerAddress(this.hostDataBase, Integer.parseInt(this.portDataBase));
+        //final MongoCredential credential = MongoCredential.createCredential(this.userName, this.dataBaseName, password.toCharArray());
+
+        // Mongo Client
+        //MongoClient mongoClient = new MongoClient(serverAddress, credential, MongoClientOptions.builder().build());
+
+        // Mongo DB Factory
+        //return new SimpleMongoDbFactory(mongoClient, getDatabaseName());
+
+        return new SimpleMongoDbFactory(
+                new MongoClient(
+                        new ServerAddress(this.hostDataBase, Integer.parseInt(this.portDataBase)),
+                        asList(MongoCredential.createCredential(this.userName, this.dataBaseName, password.toCharArray())),
+                        MongoClientOptions.builder().build()
+                ), getDatabaseName());
     }
 
     /**

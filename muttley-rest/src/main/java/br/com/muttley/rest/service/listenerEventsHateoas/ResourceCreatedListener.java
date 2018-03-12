@@ -1,7 +1,6 @@
 package br.com.muttley.rest.service.listenerEventsHateoas;
 
 
-
 import br.com.muttley.rest.hateoas.event.ResourceCreatedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.http.HttpHeaders;

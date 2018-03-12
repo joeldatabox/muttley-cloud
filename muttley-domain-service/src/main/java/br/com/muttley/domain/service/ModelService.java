@@ -1,7 +1,6 @@
 package br.com.muttley.domain.service;
 
 import br.com.muttley.model.Model;
-import org.bson.types.ObjectId;
 
 import java.io.Serializable;
 

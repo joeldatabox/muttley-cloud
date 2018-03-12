@@ -1,6 +1,7 @@
 package br.com.muttley.redis.service;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Joel Rodrigues Moreira on 08/01/18.
@@ -25,7 +26,7 @@ public interface RedisService {
      * @param value -> valor a ser salvo
      * @param time  -> tempo em segundos para se expirar o registro
      */
-    void set(Object value, long time);
+    void set(Map value, long time);
 
     /**
      * Salva um objeto qualquer com uma chave especifica
@@ -40,9 +41,9 @@ public interface RedisService {
      *
      * @param key   -> chave desejada
      * @param value -> valor a ser salvo
-     * @param time  -> tempo em segundos para se expirar o registro
+     * @param time  -> tempo em milisegundos para se expirar o registro
      */
-    void set(String key, Object value, long time);
+    void set(String key, Map value, long time);
 
     /**
      * Recupera um determinado valor qualquer do banco

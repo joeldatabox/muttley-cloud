@@ -31,7 +31,7 @@ public class RedisConfig {
 
     @Bean
     public RedisService createService(
-            @Value("${muttley.redis.prefixHash:cache}") final String prefixHash,
+            @Value("${muttley.redis.prefixHash:muttley-cloud}") final String prefixHash,
             @Autowired RedisTemplate redisTemplate) {
         return new RedisServiceImpl(prefixHash, redisTemplate);
     }

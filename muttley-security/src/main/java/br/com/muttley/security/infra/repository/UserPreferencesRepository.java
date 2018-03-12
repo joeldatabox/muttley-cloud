@@ -1,6 +1,6 @@
 package br.com.muttley.security.infra.repository;
 
-import br.com.muttley.model.security.model.UserPreferences;
+import br.com.muttley.model.security.model.preference.UserPreferences;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
