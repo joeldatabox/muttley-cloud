@@ -4,6 +4,7 @@ import br.com.muttley.domain.service.ModelService;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.model.User;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
@@ -54,6 +55,10 @@ public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> ext
         if (value.getId() == null) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível alterar um registro sem informar um id válido");
         }
+        //verificando se o registro realmente existe
+        if (!this.repository.exists((ID) value.getId())) {
+            throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
+        }
         value.setOwner(user);
         //gerando histórico de alteração
         value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(user.getCurrentOwner(), value)));
@@ -89,6 +94,24 @@ public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> ext
             throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
         }
         return result;
+    }
+
+    @Override
+    public Historic loadHistoric(final User user, final ID id) {
+        final Historic historic = repository.loadHistoric(user.getCurrentOwner(), id);
+        if (isNull(historic)) {
+            throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
+        }
+        return historic;
+    }
+
+    @Override
+    public Historic loadHistoric(final User user, final T value) {
+        final Historic historic = repository.loadHistoric(user.getCurrentOwner(), value);
+        if (isNull(historic)) {
+            throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
+        }
+        return historic;
     }
 
     @Override

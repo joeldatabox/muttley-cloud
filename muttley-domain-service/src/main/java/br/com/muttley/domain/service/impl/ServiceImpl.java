@@ -62,6 +62,10 @@ public abstract class ServiceImpl<T extends Document, ID extends ObjectId> imple
         if (value.getId() == null) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível alterar um registro sem informar um id válido");
         }
+        //verificando se o registro realmente existe
+        if (!this.repository.exists((ID) value.getId())) {
+            throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
+        }
         //gerando histórico de alteração
         value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(value)));
         //validando dados
@@ -96,6 +100,20 @@ public abstract class ServiceImpl<T extends Document, ID extends ObjectId> imple
             throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
         }
         return result;
+    }
+
+    @Override
+    public Historic loadHistoric(final User user, final ID id) {
+        final Historic historic = this.repository.loadHistoric(id);
+        if (isNull(historic)) {
+            throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
+        }
+        return historic;
+    }
+
+    @Override
+    public Historic loadHistoric(final User user, final T value) {
+        return this.loadHistoric(user, (ID) value.getId());
     }
 
     @Override

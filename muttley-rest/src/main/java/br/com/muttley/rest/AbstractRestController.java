@@ -3,6 +3,7 @@ package br.com.muttley.rest;
 import br.com.muttley.domain.service.Service;
 import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.model.Document;
+import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.model.enumeration.Authorities;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.infra.service.UserService;
@@ -65,21 +66,22 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     @Override
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity deleteById(@PathVariable("id") final ID id) {
+    public ResponseEntity deleteById(@PathVariable("id") final String id) {
         checkRoleDelete();
-        service.deleteById(this.userService.getCurrentUser(), id);
+        service.deleteById(this.userService.getCurrentUser(), deserializerId(id));
         return ResponseEntity.ok().build();
     }
 
     @Override
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity findById(@PathVariable("id") final ID id, final HttpServletResponse response) {
+    public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response) {
         checkRoleRead();
+        final T value = service.findById(this.userService.getCurrentUser(), deserializerId(id));
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
-        return ResponseEntity.ok(service.findById(this.userService.getCurrentUser(), id));
+        return ResponseEntity.ok(value);
     }
 
     @Override
@@ -91,7 +93,19 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
-        return ResponseEntity.ok(service.findFirst(this.userService.getCurrentUser()));
+        return ResponseEntity.ok(value);
+    }
+
+    @Override
+    @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity loadHistoric(@PathVariable("id")final String id, final HttpServletResponse response) {
+        checkRoleRead();
+        final Historic historic = service.loadHistoric(this.userService.getCurrentUser(), deserializerId(id));
+
+        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
+
+        return ResponseEntity.ok(historic);
     }
 
     @Override
@@ -159,4 +173,6 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
                     .addDetails("isNecessary", roles);
         }
     }
+
+    protected abstract ID deserializerId(final String id);
 }

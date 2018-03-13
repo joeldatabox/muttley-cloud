@@ -31,15 +31,19 @@ public interface RestController<T, ID extends Serializable> {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity deleteById(@PathVariable("id") ID id);
+    ResponseEntity deleteById(@PathVariable("id") String id);
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity findById(@PathVariable("id") ID id, HttpServletResponse response);
+    ResponseEntity findById(@PathVariable("id") String id, HttpServletResponse response);
 
     @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity first(HttpServletResponse response);
+
+    @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    ResponseEntity loadHistoric(@PathVariable("id") String id, HttpServletResponse response);
 
     @RequestMapping(method = RequestMethod.GET)
     ResponseEntity<PageableResource> list(HttpServletResponse response, @RequestParam Map<String, String> allRequestParams);

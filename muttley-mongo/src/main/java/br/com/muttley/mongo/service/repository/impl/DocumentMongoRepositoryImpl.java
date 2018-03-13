@@ -80,8 +80,12 @@ public class DocumentMongoRepositoryImpl<T extends Document<ID>, ID extends Obje
         final AggregationResults result = operations.aggregate(
                 newAggregation(
                         match(
-                                where("id").is(id)
-                        ), project().and("historic").as("historic")
+                                where("_id").is(id)
+                        ), project().and("$historic.createdBy").as("createdBy")
+                                .and("$historic.dtCreate").as("dtCreate")
+                                .and("$historic.dtChange").as("dtChange")
+
+
                 ), COLLECTION, Historic.class);
 
         return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;

@@ -2,6 +2,8 @@ package br.com.muttley.mongo.service.infra;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import com.mongodb.BasicDBObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.LimitOperation;
@@ -193,7 +195,12 @@ public final class Aggregate {
         //organizando os parametros
         queryParams.forEach((key, value) -> {
             final String keyTrimap = createKey(key);
-            switch (Operators.of(key)) {
+            Operators operator = Operators.of(key);
+            if (operator == null) {
+                operator = Operators.IS;
+                LogFactory.getLog(Aggregate.class).error("Atenção, operador de agregação não encontrado. Será adicionado o .$is");
+            }
+            switch (operator) {
                 case CONTAINS:
                     addParam(trimap, keyTrimap, Operators.CONTAINS, value);
                     break;

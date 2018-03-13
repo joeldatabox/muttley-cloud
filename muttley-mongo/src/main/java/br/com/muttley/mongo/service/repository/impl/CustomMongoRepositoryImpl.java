@@ -128,9 +128,10 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId>
         final AggregationResults result = operations.aggregate(
                 newAggregation(
                         match(where("owner.$id").is(owner.getId())
-                                .and("id").is(id)
-                        ),
-                        project().and("historic").as("historic")
+                                .and("_id").is(id)
+                        ), project().and("$historic.createdBy").as("createdBy")
+                                .and("$historic.dtCreate").as("dtCreate")
+                                .and("$historic.dtChange").as("dtChange")
                 ), COLLECTION, Historic.class);
 
         return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;

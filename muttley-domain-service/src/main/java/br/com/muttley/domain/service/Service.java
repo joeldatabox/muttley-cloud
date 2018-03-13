@@ -1,6 +1,7 @@
 package br.com.muttley.domain.service;
 
 import br.com.muttley.model.Document;
+import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.model.User;
 
 import java.io.Serializable;
@@ -71,6 +72,24 @@ public interface Service<T extends Document, ID extends Serializable> {
      * @param user -> usuário da requisição corrente
      */
     T findFirst(User user);
+
+    /**
+     * Busca o histórico de um determinado registro
+     *
+     * @param user -> usuário da requisição corrente
+     * @param id   -> id do registro a ser buscado
+     * @return Historic
+     */
+    Historic loadHistoric(User user, ID id);
+
+    /**
+     * Busca o histórico de um determinado registro
+     *
+     * @param user  -> usuário da requisição corrente
+     * @param value -> instancia do registro a ser buscado
+     * @return Historic
+     */
+    Historic loadHistoric(User user, T value);
 
     /**
      * Deleta um registro pelo id
