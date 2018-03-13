@@ -1,5 +1,6 @@
 package br.com.muttley.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.Serializable;
@@ -10,6 +11,7 @@ import java.io.Serializable;
  * @project muttley-cloud
  */
 public interface Document<T extends Serializable> extends Serializable {
+
     T getId();
 
     Document setId(final T id);
@@ -18,6 +20,7 @@ public interface Document<T extends Serializable> extends Serializable {
 
     Document setHistoric(final Historic historic);
 
+    @JsonIgnore
     Historic getHistoric();
 
     default String toJson() {

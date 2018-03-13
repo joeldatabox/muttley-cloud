@@ -56,4 +56,9 @@ public class CacheUserAuthenticationServiceImpl implements CacheUserAuthenticati
         }
         return null;
     }
+
+    @Override
+    public boolean contains(final String token) {
+        return redisService.hasKey(token);
+    }
 }

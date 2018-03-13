@@ -66,10 +66,12 @@ public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
                     final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    //notificando que será salvo um usuário no cache do sistema
-                    this.eventPublisher.publishEvent(new UserBeforeCacheSaveEvent(userDetails.getOriginUser()));
-                    //salvando no cache
-                    this.cacheAuth.set(authToken, userDetails);
+                    if (!this.cacheAuth.contains(authToken)) {
+                        //notificando que será salvo um usuário no cache do sistema
+                        this.eventPublisher.publishEvent(new UserBeforeCacheSaveEvent(userDetails.getOriginUser()));
+                        //salvando no cache
+                        this.cacheAuth.set(authToken, userDetails);
+                    }
                 }
             }
         }

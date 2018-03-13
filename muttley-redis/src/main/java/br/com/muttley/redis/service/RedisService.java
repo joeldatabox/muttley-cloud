@@ -71,4 +71,9 @@ public interface RedisService {
      */
     void clearAll();
 
+    /**
+     * Verifica se existe uma determinada chave no banco
+     */
+    boolean hasKey(final String key);
+
 }

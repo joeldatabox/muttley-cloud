@@ -91,6 +91,11 @@ public class RedisServiceImpl implements RedisService {
     public void clearAll() {
         this.hashOps.delete(getBasicKey(), this.hashOps.keys(this.getBasicKey()));
     }
+
+    @Override
+    public boolean hasKey(final String key) {
+        return this.redisTemplate.hasKey(getBasicKey() + ":" + key);
+    }
 }
 
 class JsonRedisSerializer implements RedisSerializer<Object> {
