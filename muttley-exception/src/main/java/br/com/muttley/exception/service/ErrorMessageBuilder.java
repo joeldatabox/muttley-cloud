@@ -21,6 +21,8 @@ import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.util.StringUtils.isEmpty;
+
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -32,6 +34,7 @@ public class ErrorMessageBuilder {
     private ErrorMessage message;
     private final boolean STACK_TRACE;
     private final boolean RESPONSE_EXCEPTION;
+    private final String LINE_SEPARATOR = System.getProperty("line.separator");
 
     public ErrorMessageBuilder(@Value("${muttley.print.stackTrace:false}") final boolean STACK_TRACE, @Value("${muttley.print.responseException:false}") final boolean RESPONSE_EXCEPTION) {
         this.STACK_TRACE = STACK_TRACE;
@@ -59,13 +62,16 @@ public class ErrorMessageBuilder {
         for (ConstraintViolation violation : ex.getConstraintViolations()) {
             if (!cont) {
                 setObjectName(violation.getLeafBean().getClass().getSimpleName().toLowerCase());
+                setMessage(violation.getMessage());
                 cont = true;
             }
             String[] path = violation.getPropertyPath().toString().split("arg");
             if (path.length > 1) {
                 addDetails(this.message.objectName + "." + path[1].substring(path[1].indexOf(".") + 1), violation.getMessage());
+                //this.concatMessage(violation.getMessage());
             } else {
                 addDetails(this.message.objectName + "." + path[0], violation.getMessage());
+                //this.concatMessage(violation.getMessage());
             }
         }
         printException(ex);
@@ -157,6 +163,15 @@ public class ErrorMessageBuilder {
 
     public ErrorMessageBuilder setMessage(final String message) {
         this.message.message = message;
+        return this;
+    }
+
+    public ErrorMessageBuilder concatMessage(final String message) {
+        if (isEmpty(this.message.message)) {
+            this.message.message = message;
+        } else {
+            this.message.message += LINE_SEPARATOR + message;
+        }
         return this;
     }
 
