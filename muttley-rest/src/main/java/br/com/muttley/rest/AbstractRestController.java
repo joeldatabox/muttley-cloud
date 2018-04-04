@@ -29,9 +29,9 @@ import static java.util.Objects.isNull;
  * @project muttley-cloud
  */
 public abstract class AbstractRestController<T extends Document, ID extends Serializable> implements RestResource, RestController<T, ID> {
-    private final Service<T, ID> service;
-    private final UserService userService;
-    private final ApplicationEventPublisher eventPublisher;
+    protected final Service<T, ID> service;
+    protected final UserService userService;
+    protected final ApplicationEventPublisher eventPublisher;
 
     public AbstractRestController(final Service service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
         this.service = service;
@@ -99,7 +99,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     @Override
     @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity loadHistoric(@PathVariable("id")final String id, final HttpServletResponse response) {
+    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
         checkRoleRead();
         final Historic historic = service.loadHistoric(this.userService.getCurrentUser(), deserializerId(id));
 
