@@ -1,6 +1,7 @@
 package br.com.muttley.model;
 
 import br.com.muttley.model.security.model.User;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.util.Date;
@@ -12,9 +13,11 @@ import java.util.Date;
 public class Historic {
     @DBRef
     private User createdBy;
+    @Indexed
     private Date dtCreate;
     @DBRef
     private User lastChangeBy;
+    @Indexed
     private Date dtChange;
 
     public Historic() {
