@@ -1,19 +1,21 @@
 package br.com.muttley.redis.service.impl;
 
 import br.com.muttley.redis.service.RedisService;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
+import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY;
+import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
+import static com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL;
 
 /**
  * @author Joel Rodrigues Moreira on 08/01/18.
@@ -87,19 +89,19 @@ public class RedisServiceImpl<T> implements RedisService<T> {
     }
 }
 
- class JsonRedisSerializer implements RedisSerializer<Object> {
+class JsonRedisSerializer implements RedisSerializer<Object> {
 
-    private final ObjectMapper om;
+    private final ObjectMapper objectMapper;
 
     public JsonRedisSerializer() {
-        this.om = new ObjectMapper().enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        this.objectMapper = new ObjectMapper().enableDefaultTyping(NON_FINAL, PROPERTY).setVisibility(FIELD, ANY);
     }
 
     @Override
     public byte[] serialize(final Object t) throws SerializationException {
         try {
-            return om.writeValueAsBytes(t);
-        } catch (JsonProcessingException e) {
+            return objectMapper.writeValueAsBytes(t);
+        } catch (final JsonProcessingException e) {
             throw new SerializationException(e.getMessage(), e);
         }
     }
@@ -107,13 +109,13 @@ public class RedisServiceImpl<T> implements RedisService<T> {
     @Override
     public Object deserialize(final byte[] bytes) throws SerializationException {
 
-        if(bytes == null){
+        if (bytes == null) {
             return null;
         }
 
         try {
-            return om.readValue(bytes, Object.class);
-        } catch (Exception e) {
+            return objectMapper.readValue(bytes, Object.class);
+        } catch (final Exception e) {
             throw new SerializationException(e.getMessage(), e);
         }
     }
