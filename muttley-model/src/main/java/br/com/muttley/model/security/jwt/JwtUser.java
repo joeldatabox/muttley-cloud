@@ -2,7 +2,9 @@ package br.com.muttley.model.security.jwt;
 
 import br.com.muttley.model.security.model.Authority;
 import br.com.muttley.model.security.model.User;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,6 +52,26 @@ public class JwtUser implements UserDetails {
         this.enabled = userBuilder.enabled;
         this.lastPasswordResetDate = userBuilder.lastPasswordResetDate;
         this.originUser = userBuilder.originUser;
+    }
+
+    @JsonCreator
+    public JwtUser(
+            @JsonProperty("id") final String id,
+            @JsonProperty("name") final String name,
+            @JsonProperty("password") final String password,
+            @JsonProperty("username") final String userName,
+            @JsonProperty("authorities") final Collection<? extends GrantedAuthority> authorities,
+            @JsonProperty("enabled") final boolean enabled,
+            @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
+            @JsonProperty("originUser") final User originUser) {
+        this.id = id;
+        this.name = name;
+        this.password = password;
+        this.email = userName;
+        this.authorities = authorities;
+        this.enabled = enabled;
+        this.lastPasswordResetDate = lastPasswordResetDate;
+        this.originUser = originUser;
     }
 
     @JsonIgnore

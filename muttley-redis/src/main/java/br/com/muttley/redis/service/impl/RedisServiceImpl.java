@@ -1,27 +1,25 @@
 package br.com.muttley.redis.service.impl;
 
 import br.com.muttley.redis.service.RedisService;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
 import javax.annotation.PostConstruct;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Joel Rodrigues Moreira on 08/01/18.
  * @project demo
  */
-public class RedisServiceImpl implements RedisService {
+public class RedisServiceImpl<T> implements RedisService<T> {
     private final RedisTemplate<String, Object> redisTemplate;
     private HashOperations hashOps;
     private final String basicKey;
@@ -30,8 +28,7 @@ public class RedisServiceImpl implements RedisService {
     public RedisServiceImpl(final String basicKey, final RedisTemplate redisTemplate) {
         this.basicKey = basicKey;
         this.redisTemplate = redisTemplate;
-        //this.redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer<Object>(Object.class));
-        this.redisTemplate.setHashValueSerializer(new JsonRedisSerializer());
+        this.redisTemplate.setValueSerializer(new JsonRedisSerializer());
     }
 
     @PostConstruct
@@ -45,70 +42,63 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public void set(final Object value) {
-        this.set(String.valueOf(value.hashCode()), value);
+    public RedisService set(final String key, final T value) {
+        //redisTemplate.opsForHash().put(getBasicKey(), key, value);
+        redisTemplate.opsForValue().set(createKey(key), value);
+        return this;
     }
 
     @Override
-    public void set(final Map value, final long time) {
-        this.set(String.valueOf(value.hashCode()), value, time);
+    public RedisService set(final String key, final T value, final long time) {
+        final String keyValue = createKey(key);
+        this.redisTemplate.opsForValue().set(createKey(key), value, time, TimeUnit.MILLISECONDS);
+        return this;
     }
 
     @Override
-    public void set(final String key, final Object value) {
-        this.hashOps.put(this.getBasicKey(), key, value);
+    public T get(final String key) {
+        return (T) this.redisTemplate.opsForValue().get(createKey(key));
     }
 
     @Override
-    public void set(final String key, final Map value, final long time) {
-        final String keyValue = getBasicKey() + ":" + key;
-        this.hashOps.putAll(keyValue, value);
-        this.redisTemplate.expireAt(
-                keyValue,
-                Date.from(
-                        Instant.now()
-                                .plus(time, ChronoUnit.MILLIS)
-                )
-        );
+    public RedisService delete(final String key) {
+        this.redisTemplate.delete(createKey(key));
+        return this;
     }
 
     @Override
-    public Object get(final String key) {
-        return this.hashOps.get(this.getBasicKey(), key);
+    public Collection<T> list() {
+        return (Collection<T>) this.redisTemplate.opsForValue().multiGet(this.redisTemplate.keys(getBasicKey()));
     }
 
     @Override
-    public void delete(final String key) {
-        this.hashOps.delete(getBasicKey(), key);
-    }
-
-    @Override
-    public Collection<Object> list() {
-        return (List<Object>) this.hashOps.multiGet(getBasicKey(), this.hashOps.keys(getBasicKey()));
-    }
-
-    @Override
-    public void clearAll() {
-        this.hashOps.delete(getBasicKey(), this.hashOps.keys(this.getBasicKey()));
+    public RedisService clearAll() {
+        this.redisTemplate.delete(this.redisTemplate.keys(getBasicKey()));
+        return this;
     }
 
     @Override
     public boolean hasKey(final String key) {
-        return this.redisTemplate.hasKey(getBasicKey() + ":" + key);
+        return this.redisTemplate.hasKey(createKey(key));
+    }
+
+    private String createKey(final String key) {
+        return this.getBasicKey() + ":" + key;
     }
 }
 
-class JsonRedisSerializer implements RedisSerializer<Object> {
+ class JsonRedisSerializer implements RedisSerializer<Object> {
+
     private final ObjectMapper om;
 
     public JsonRedisSerializer() {
-        this.om = new ObjectMapper().configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);
+        this.om = new ObjectMapper().enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
     }
 
     @Override
-    public byte[] serialize(final Object value) throws SerializationException {
+    public byte[] serialize(final Object t) throws SerializationException {
         try {
-            return om.writeValueAsBytes(value);
+            return om.writeValueAsBytes(t);
         } catch (JsonProcessingException e) {
             throw new SerializationException(e.getMessage(), e);
         }
@@ -116,7 +106,8 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
 
     @Override
     public Object deserialize(final byte[] bytes) throws SerializationException {
-        if (bytes == null) {
+
+        if(bytes == null){
             return null;
         }
 
@@ -127,3 +118,4 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
         }
     }
 }
+

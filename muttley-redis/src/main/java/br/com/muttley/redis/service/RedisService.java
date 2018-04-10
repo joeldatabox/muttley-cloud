@@ -1,32 +1,16 @@
 package br.com.muttley.redis.service;
 
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * @author Joel Rodrigues Moreira on 08/01/18.
  * @project demo
  */
-public interface RedisService {
+public interface RedisService<T> {
     /**
      * @return String -> prefixo da chave usada
      */
     String getBasicKey();
-
-    /**
-     * Salva um objeto qualquer
-     *
-     * @param value -> valor a ser salvo
-     */
-    void set(Object value);
-
-    /**
-     * Salva um objeto qualquer de maneira temporaria
-     *
-     * @param value -> valor a ser salvo
-     * @param time  -> tempo em segundos para se expirar o registro
-     */
-    void set(Map value, long time);
 
     /**
      * Salva um objeto qualquer com uma chave especifica
@@ -34,7 +18,7 @@ public interface RedisService {
      * @param key   -> chave desejada
      * @param value -> valor a ser salvo
      */
-    void set(String key, Object value);
+    RedisService set(String key, T value);
 
     /**
      * Salva um objeto qualquer de maneira temporaria
@@ -43,33 +27,33 @@ public interface RedisService {
      * @param value -> valor a ser salvo
      * @param time  -> tempo em milisegundos para se expirar o registro
      */
-    void set(String key, Map value, long time);
+    RedisService set(String key, T value, long time);
 
     /**
      * Recupera um determinado valor qualquer do banco
      *
      * @param key -> chave desejada
      */
-    Object get(String key);
+    T get(String key);
 
     /**
      * Remove um objeto
      *
      * @param key -> key do objeto a ser removido
      */
-    void delete(String key);
+    RedisService delete(String key);
 
     /**
      * lista todos os itens cujo a chave tenha o prefixo {@link #getBasicKey()}
      *
      * @return {@link Collection<Object>}
      */
-    Collection<Object> list();
+    Collection<T> list();
 
     /**
      * Limpa todos os itens
      */
-    void clearAll();
+    RedisService clearAll();
 
     /**
      * Verifica se existe uma determinada chave no banco

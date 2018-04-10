@@ -3,6 +3,7 @@ package br.com.muttley.model.security.model;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.Owner;
 import br.com.muttley.model.security.model.preference.UserPreferences;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -74,6 +75,29 @@ public class User implements Serializable {
         this.workTeams = new HashSet();
     }
 
+    @JsonCreator
+    public User(
+            @JsonProperty("id") final String id,
+            @JsonProperty("workTeams") final Set<WorkTeam> workTeams,
+            @JsonProperty("currentWorkTeam") final WorkTeam currentWorkTeam,
+            @JsonProperty("nome") final String nome,
+            @JsonProperty("email") final String email,
+            @JsonProperty("passwd") final String passwd,
+            @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
+            @JsonProperty("enable") final Boolean enable,
+            @JsonProperty("authorities") final Set<Authority> authorities,
+            @JsonProperty("preferences") final UserPreferences preferences) {
+        this.id = id;
+        this.workTeams = workTeams;
+        this.currentWorkTeam = currentWorkTeam;
+        this.nome = nome;
+        this.email = email;
+        this.passwd = passwd;
+        this.lastPasswordResetDate = lastPasswordResetDate;
+        this.enable = enable;
+        this.authorities = authorities;
+        this.preferences = preferences;
+    }
 
     public String getId() {
         return id;
