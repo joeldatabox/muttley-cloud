@@ -3,8 +3,6 @@ package br.com.muttley.model;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
-
 /**
  * Interface utilizada pra implementação de multi tenancy no sistema
  *
@@ -12,11 +10,7 @@ import java.io.Serializable;
  * @project muttley-cloud
  */
 @Document(collection = "owners")
-public interface Owner extends Serializable {
-    public ObjectId getId();
-
-    public Owner setId(final ObjectId id);
-
+public interface Owner extends br.com.muttley.model.Document<ObjectId> {
     public String getName();
 
     public Owner setName(final String name);

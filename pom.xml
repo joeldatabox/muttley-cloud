@@ -26,6 +26,7 @@
     </properties>
 
     <modules>
+        <module>muttley-security-server</module>
         <module>muttley-config-server</module>
         <module>muttley-discovery-server</module>
         <module>muttley-exception</module>
@@ -60,6 +61,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-security-server</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-config-server</artifactId>

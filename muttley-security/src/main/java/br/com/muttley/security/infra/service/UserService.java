@@ -21,6 +21,8 @@ public interface UserService extends UserDetailsService {
 
     boolean remove(final User user);
 
+    boolean removeByEmail(final String email);
+
     User update(final User user);
 
     User updatePasswd(final Passwd user);

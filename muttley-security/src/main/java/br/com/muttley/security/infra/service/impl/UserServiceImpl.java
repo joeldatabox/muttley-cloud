@@ -63,6 +63,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean removeByEmail(final String email) {
+        return this.remove(findByEmail(email));
+    }
+
+    @Override
     public User update(final User user) {
         return merge(user);
     }
