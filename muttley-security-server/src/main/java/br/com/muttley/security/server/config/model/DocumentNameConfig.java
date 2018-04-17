@@ -18,11 +18,11 @@ public class DocumentNameConfig {
     private final String nameCollectionWorkTeam;
 
     public DocumentNameConfig(
-            @Value("${br.com.muttley.security.server.owner-document:cerberus-owners}") final String nameCollectionOwner,
-            @Value("${br.com.muttley.security.server.user-document:cerberus-users}") final String nameCollectionUser,
-            @Value("${br.com.muttley.security.server.access-plan-document:cerberus-access-plans}") final String nameCollectionAccessPlan,
-            @Value("${br.com.muttley.security.server.user-preference-document:cerberus-users-preferences}") final String nameCollectionUserPreferences,
-            @Value("${br.com.muttley.security.server.work-team-document:cerberus-work-teams}") final String nameCollectionWorkTeam) {
+            @Value("${br.com.muttley.security.server.owner-document:muttley-owners}") final String nameCollectionOwner,
+            @Value("${br.com.muttley.security.server.user-document:muttley-users}") final String nameCollectionUser,
+            @Value("${br.com.muttley.security.server.access-plan-document:muttley-access-plans}") final String nameCollectionAccessPlan,
+            @Value("${br.com.muttley.security.server.user-preference-document:muttley-users-preferences}") final String nameCollectionUserPreferences,
+            @Value("${br.com.muttley.security.server.work-team-document:muttley-work-teams}") final String nameCollectionWorkTeam) {
         this.nameCollectionOwner = nameCollectionOwner;
         this.nameCollectionUser = nameCollectionUser;
         this.nameCollectionAccessPlan = nameCollectionAccessPlan;
