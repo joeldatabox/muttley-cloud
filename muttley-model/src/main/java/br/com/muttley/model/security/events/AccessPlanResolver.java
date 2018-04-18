@@ -1,4 +1,4 @@
-package br.com.muttley.model.security.event;
+package br.com.muttley.model.security.events;
 
 import br.com.muttley.model.jackson.converter.event.DocumentEventResolver;
 import br.com.muttley.model.security.AccessPlan;

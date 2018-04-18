@@ -1,4 +1,4 @@
-package br.com.muttley.security.infra.events;
+package br.com.muttley.model.security.events;
 
 import br.com.muttley.model.security.User;
 import org.springframework.context.ApplicationEvent;
