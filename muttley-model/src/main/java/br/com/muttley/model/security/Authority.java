@@ -1,4 +1,4 @@
-package br.com.muttley.model.security.model;
+package br.com.muttley.model.security;
 
 public interface Authority {
 

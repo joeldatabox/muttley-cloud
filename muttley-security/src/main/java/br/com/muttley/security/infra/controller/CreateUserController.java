@@ -1,7 +1,7 @@
 package br.com.muttley.security.infra.controller;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
-import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.security.User;
 import br.com.muttley.security.infra.events.UserCreatedEvent;
 import br.com.muttley.security.infra.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

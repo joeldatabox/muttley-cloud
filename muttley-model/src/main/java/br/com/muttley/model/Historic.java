@@ -1,6 +1,8 @@
 package br.com.muttley.model;
 
-import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.security.User;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
@@ -23,7 +25,12 @@ public class Historic {
     public Historic() {
     }
 
-    public Historic(final User createdBy, final Date dtCreate, final User lastChangeBy, final Date dtChange) {
+    @JsonCreator
+    public Historic(
+            @JsonProperty("createdBy") final User createdBy,
+            @JsonProperty("dtCreate") final Date dtCreate,
+            @JsonProperty("lastChangeBy") final User lastChangeBy,
+            @JsonProperty("dtChange") final Date dtChange) {
         this();
         this.createdBy = createdBy;
         this.dtCreate = dtCreate;

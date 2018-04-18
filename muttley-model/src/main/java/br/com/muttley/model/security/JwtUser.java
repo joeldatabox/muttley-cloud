@@ -1,7 +1,5 @@
-package br.com.muttley.model.security.jwt;
+package br.com.muttley.model.security;
 
-import br.com.muttley.model.security.model.Authority;
-import br.com.muttley.model.security.model.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

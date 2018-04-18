@@ -1,8 +1,8 @@
-package br.com.muttley.model.security.model;
+package br.com.muttley.model.security;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.Owner;
-import br.com.muttley.model.security.model.preference.UserPreferences;
+import br.com.muttley.model.security.preference.UserPreferences;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

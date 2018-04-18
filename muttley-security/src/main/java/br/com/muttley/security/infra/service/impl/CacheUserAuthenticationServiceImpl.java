@@ -1,6 +1,6 @@
 package br.com.muttley.security.infra.service.impl;
 
-import br.com.muttley.model.security.jwt.JwtUser;
+import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;

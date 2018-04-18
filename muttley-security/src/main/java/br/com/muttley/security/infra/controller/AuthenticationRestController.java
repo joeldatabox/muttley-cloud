@@ -2,7 +2,7 @@ package br.com.muttley.security.infra.controller;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
-import br.com.muttley.model.security.jwt.JwtUser;
+import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.security.infra.component.util.JwtTokenUtil;
 import br.com.muttley.security.infra.events.UserLoggedEvent;
 import br.com.muttley.security.infra.response.JwtTokenResponse;

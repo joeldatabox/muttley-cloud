@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.service;
 
-import br.com.muttley.model.security.model.AccessPlan;
+import br.com.muttley.model.security.AccessPlan;
 import org.bson.types.ObjectId;
 
 /**

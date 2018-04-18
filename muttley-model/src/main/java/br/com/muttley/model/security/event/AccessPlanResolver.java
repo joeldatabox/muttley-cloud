@@ -1,7 +1,7 @@
 package br.com.muttley.model.security.event;
 
 import br.com.muttley.model.jackson.converter.event.DocumentEventResolver;
-import br.com.muttley.model.security.model.AccessPlan;
+import br.com.muttley.model.security.AccessPlan;
 
 /**
  * @author Joel Rodrigues Moreira on 17/04/18.

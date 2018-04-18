@@ -1,7 +1,7 @@
-package br.com.muttley.model.security.model.enumeration;
+package br.com.muttley.model.security.enumeration;
 
 
-import br.com.muttley.model.security.model.Authority;
+import br.com.muttley.model.security.Authority;
 
 public enum Authorities implements Authority {
     ROLE_USER("Permissão simples de usuário"),

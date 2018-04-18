@@ -1,6 +1,6 @@
 package br.com.muttley.security.infra.component.util;
 
-import br.com.muttley.model.security.jwt.JwtUser;
+import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.service.SecretService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

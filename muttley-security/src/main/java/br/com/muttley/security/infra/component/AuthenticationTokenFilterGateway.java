@@ -1,6 +1,6 @@
 package br.com.muttley.security.infra.component;
 
-import br.com.muttley.model.security.jwt.JwtUser;
+import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.security.infra.component.util.JwtTokenUtil;
 import br.com.muttley.security.infra.events.UserBeforeCacheSaveEvent;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;

@@ -1,7 +1,7 @@
 package br.com.muttley.security.server.controller;
 
 import br.com.muttley.exception.throwables.MuttleyException;
-import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.security.User;
 import br.com.muttley.rest.RestController;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.infra.service.UserService;

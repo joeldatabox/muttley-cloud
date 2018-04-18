@@ -1,8 +1,8 @@
 package br.com.muttley.security.infra.controller;
 
-import br.com.muttley.model.security.model.Passwd;
-import br.com.muttley.model.security.model.User;
-import br.com.muttley.model.security.model.resource.UserResource;
+import br.com.muttley.model.security.Passwd;
+import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.resource.UserResource;
 import br.com.muttley.security.infra.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

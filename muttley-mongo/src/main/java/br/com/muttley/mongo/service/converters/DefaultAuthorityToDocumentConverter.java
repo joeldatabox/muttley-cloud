@@ -1,6 +1,6 @@
 package br.com.muttley.mongo.service.converters;
 
-import br.com.muttley.model.security.model.Authority;
+import br.com.muttley.model.security.Authority;
 import org.bson.Document;
 import org.springframework.core.convert.converter.Converter;
 

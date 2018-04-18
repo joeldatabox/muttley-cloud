@@ -1,6 +1,6 @@
 package br.com.muttley.security.infra.service;
 
-import br.com.muttley.model.security.jwt.JwtUser;
+import br.com.muttley.model.security.JwtUser;
 
 /**
  * @author Joel Rodrigues Moreira on 09/01/18.

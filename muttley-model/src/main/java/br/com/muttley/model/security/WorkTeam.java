@@ -1,4 +1,4 @@
-package br.com.muttley.model.security.model;
+package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Owner;

@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.controller;
 
-import br.com.muttley.model.security.model.AccessPlan;
+import br.com.muttley.model.security.AccessPlan;
 import br.com.muttley.security.server.service.AccessPlanService;
 import br.com.muttley.rest.AbstractRestController;
 import br.com.muttley.security.infra.service.UserService;

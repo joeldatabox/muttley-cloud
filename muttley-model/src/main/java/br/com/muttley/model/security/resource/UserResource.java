@@ -1,7 +1,7 @@
-package br.com.muttley.model.security.model.resource;
+package br.com.muttley.model.security.resource;
 
-import br.com.muttley.model.security.jwt.JwtUser;
-import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
@@ -18,8 +18,6 @@ public class UserResource extends ResourceSupport {
 
     public UserResource(final User user) {
         this.user = new Resource<>(user);
-
-        //this.user.add(linkTo(methodOn(UserManagerController.class).get()).withRel("self"));
         this.user.add(getSelfLink());
     }
 

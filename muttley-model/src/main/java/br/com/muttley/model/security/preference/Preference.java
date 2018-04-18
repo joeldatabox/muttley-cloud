@@ -1,5 +1,7 @@
-package br.com.muttley.model.security.model.preference;
+package br.com.muttley.model.security.preference;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 import static org.springframework.util.StringUtils.isEmpty;
@@ -10,13 +12,13 @@ import static org.springframework.util.StringUtils.isEmpty;
  * @project muttley-cloud
  */
 public class Preference {
-    protected String key;
-    protected Object value;
+    protected final String key;
+    protected final Object value;
 
-    public Preference() {
-    }
-
-    public Preference(final String key, final Object value) {
+    @JsonCreator
+    public Preference(
+            @JsonProperty("key") final String key,
+            @JsonProperty("value") final Object value) {
         this.key = key;
         this.value = value;
     }

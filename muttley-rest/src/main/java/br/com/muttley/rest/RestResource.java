@@ -4,7 +4,7 @@ import br.com.muttley.domain.service.Service;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyPageableRequestException;
 import br.com.muttley.model.Document;
-import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.infra.Operators;
 import br.com.muttley.rest.hateoas.event.PaginatedResultsRetrievedEvent;
 import br.com.muttley.rest.hateoas.event.ResourceCreatedEvent;

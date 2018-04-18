@@ -1,8 +1,10 @@
-package br.com.muttley.model.security.model.preference;
+package br.com.muttley.model.security.preference;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.security.User;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -47,6 +49,18 @@ public class UserPreferences implements Document<ObjectId> {
                     }
                     return p;
                 }).forEach(p -> set(p));
+    }
+
+    @JsonCreator
+    public UserPreferences(
+            @JsonProperty("id") ObjectId id,
+            @JsonProperty("user") User user,
+            @JsonProperty("historic") Historic historic,
+            @JsonProperty("preferences") Set<Preference> preferences) {
+        this.id = id;
+        this.user = user;
+        this.historic = historic;
+        this.preferences = preferences;
     }
 
     @Override

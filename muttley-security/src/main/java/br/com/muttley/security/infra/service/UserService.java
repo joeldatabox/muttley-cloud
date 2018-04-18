@@ -1,9 +1,9 @@
 package br.com.muttley.security.infra.service;
 
-import br.com.muttley.model.security.jwt.JwtUser;
-import br.com.muttley.model.security.model.Passwd;
-import br.com.muttley.model.security.model.User;
-import br.com.muttley.model.security.model.preference.UserPreferences;
+import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.Passwd;
+import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.infra.response.JwtTokenResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
