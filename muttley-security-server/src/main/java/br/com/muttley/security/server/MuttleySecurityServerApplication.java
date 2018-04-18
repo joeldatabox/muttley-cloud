@@ -12,11 +12,11 @@ import org.springframework.context.annotation.ComponentScan;
 //Packages onde existem componentes, serviços e configurações
 @ComponentScan(basePackages = {
         //Injeções internas do projeto
-        "br.com.muttley.security.server",
+        //"br.com.muttley.security.server",
         //Configuração de serviços
-        "br.com.muttley.domain.service",
+        "br.com.muttley.security.server",
         //Configurações de segurança para o gateway
-        "br.com.muttley.security.zuul.gateway.service",
+        //"br.com.muttley.security.zuul.gateway.service",
         //Configurações do serviço de cache
         "br.com.muttley.redis.service",
         //Configurações de exceptions

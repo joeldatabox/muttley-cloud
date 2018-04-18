@@ -1,9 +1,9 @@
 package br.com.muttley.security.server.controller;
 
 import br.com.muttley.model.security.AccessPlan;
-import br.com.muttley.security.server.service.AccessPlanService;
 import br.com.muttley.rest.AbstractRestController;
 import br.com.muttley.security.infra.service.UserService;
+import br.com.muttley.security.server.service.AccessPlanService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;

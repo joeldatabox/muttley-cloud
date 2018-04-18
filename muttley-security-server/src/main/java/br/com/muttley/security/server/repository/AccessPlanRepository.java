@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
  * @project agrifocus-cloud
  */
 @Repository
-public interface AccessPlanRepository extends DocumentMongoRepository<AccessPlan, ObjectId> {
+public interface AccessPlanRepository<T extends AccessPlan> extends DocumentMongoRepository<T, ObjectId> {
     AccessPlan findByDescription(final String name);
 }

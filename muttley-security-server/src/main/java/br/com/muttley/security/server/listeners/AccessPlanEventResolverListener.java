@@ -1,8 +1,8 @@
 package br.com.muttley.security.server.listeners;
 
 import br.com.muttley.model.security.event.AccessPlanResolver;
-import br.com.muttley.security.server.service.AccessPlanService;
 import br.com.muttley.security.infra.service.UserService;
+import br.com.muttley.security.server.service.AccessPlanService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;

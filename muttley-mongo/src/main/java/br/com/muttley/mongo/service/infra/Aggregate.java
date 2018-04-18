@@ -2,7 +2,6 @@ package br.com.muttley.mongo.service.infra;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import com.mongodb.BasicDBObject;
-import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;

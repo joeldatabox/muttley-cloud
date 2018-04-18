@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  * Realiza a configuração do mongo db
  */
 @Configuration
-@EnableMongoRepositories(basePackages = {"br.com.muttley.security.infra.repository", "br.com.maxxsoft.odinserver.repository"}, repositoryBaseClass = DocumentMongoRepositoryImpl.class)
+@EnableMongoRepositories(basePackages = {"br.com.muttley.security.server.repository"}, repositoryBaseClass = DocumentMongoRepositoryImpl.class)
 public class MongoConfig extends br.com.muttley.mongo.service.MongoConfig {
 
     public MongoConfig(@Value("${spring.data.mongodb.database}") final String dataBaseName,
