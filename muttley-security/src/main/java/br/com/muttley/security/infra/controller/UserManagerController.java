@@ -1,14 +1,16 @@
 package br.com.muttley.security.infra.controller;
 
+import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.resource.UserResource;
-import br.com.muttley.security.infra.service.UserService;
+import br.com.muttley.security.client.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -22,16 +24,16 @@ import javax.validation.Valid;
  */
 public class UserManagerController {
 
-    protected UserService service;
+    protected UserServiceClient service;
 
     @Autowired
-    public UserManagerController(UserService service) {
+    public UserManagerController(final UserServiceClient service) {
         this.service = service;
     }
 
     @RequestMapping(value = "${muttley.security.jwt.controller.managerUserEndPoint}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity update(@RequestBody User user) {
+    public ResponseEntity update(@RequestBody User user, final @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") String tokenHeader) {
         user.setId(this.service.getCurrentUser().getId());
         User other = service.update(user);
         return ResponseEntity.ok(other);
@@ -45,9 +47,11 @@ public class UserManagerController {
 
     @RequestMapping(value = "${muttley.security.jwt.controller.managerUserEndPoint}/password", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity updatePasswd(@RequestBody @Valid Passwd passwd) {
-        passwd.setId(this.service.getCurrentUser().getId());
-        return ResponseEntity.ok().body(service.updatePasswd(passwd));
+    public ResponseEntity updatePasswd(@RequestBody @Valid Passwd passwd, final @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") String tokenHeader) {
+        passwd.setToken(new JwtToken(tokenHeader));
+        service.updatePasswd(passwd);
+        return ResponseEntity.ok().build();
+
     }
 
 }

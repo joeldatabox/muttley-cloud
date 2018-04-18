@@ -17,8 +17,6 @@ import org.springframework.context.annotation.ComponentScan;
         "br.com.muttley.security.server",
         //Configurações de segurança para o gateway
         //"br.com.muttley.security.zuul.gateway.service",
-        //Configurações do serviço de cache
-        "br.com.muttley.redis.service",
         //Configurações de exceptions
         "br.com.muttley.exception.service",
         //Configurações de serialização

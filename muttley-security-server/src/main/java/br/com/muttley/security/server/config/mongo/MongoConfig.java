@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 /**
  * @author Joel Rodrigues Moreira on 22/02/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
- * @project agrifocus-cloud
+ * @project muttley-cloud
  * <p>
  * Realiza a configuração do mongo db
  */

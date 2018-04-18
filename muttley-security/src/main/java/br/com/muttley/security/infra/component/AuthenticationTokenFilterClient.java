@@ -24,7 +24,6 @@ public class AuthenticationTokenFilterClient extends OncePerRequestFilter {
 
     private final String tokenHeader;
     private final CacheUserAuthenticationService cacheAuth;
-    private final JwtTokenUtil tokenUtil;
 
     public AuthenticationTokenFilterClient(
             @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader,

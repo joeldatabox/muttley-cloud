@@ -1,13 +1,11 @@
-package br.com.muttley.security.infra.controller;
+package br.com.muttley.security.server.controller.auth;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
-import br.com.muttley.model.security.UserPayLoadLogin;
 import br.com.muttley.model.security.events.UserLoggedEvent;
-import br.com.muttley.security.client.auth.AuthenticationRestServiceClient;
-import br.com.muttley.security.client.auth.AuthenticationTokenServiceClient;
+import br.com.muttley.security.server.service.impl.JwtTokenUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -17,22 +15,29 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+
 /**
- * RestController responsavel por despachar novas requisições de token
+ * RestController responsavel por criar tokens para serviços client-s
  *
  * @author Joel Rodrigues Moreira on 14/01/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project spring-cloud
  */
+@RestController
+@RequestMapping(value = "/api/v1/users/authentication", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
 public class AuthenticationRestController {
 
     protected final String tokenHeader;
@@ -41,68 +46,57 @@ public class AuthenticationRestController {
 
     protected final ApplicationEventPublisher eventPublisher;
     protected final AuthenticationManager authenticationManager;
-    protected final AuthenticationRestServiceClient authenticationRestService;
-    protected final AuthenticationTokenServiceClient authenticationTokenService;
+    protected final JwtTokenUtilService jwtTokenUtil;
+    protected final UserDetailsService userDetailsService;
 
     @Autowired
-    public AuthenticationRestController(
-            final @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") String tokenHeader,
-            final AuthenticationManager authenticationManager,
-            final AuthenticationRestServiceClient authenticationRestService,
-            final AuthenticationTokenServiceClient authenticationTokenService,
-            final ApplicationEventPublisher eventPublisher) {
+    public AuthenticationRestController(final @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") String tokenHeader, final AuthenticationManager authenticationManager, final JwtTokenUtilService jwtTokenUtil, final UserDetailsService userDetailsService, final ApplicationEventPublisher eventPublisher) {
         this.tokenHeader = tokenHeader;
         this.authenticationManager = authenticationManager;
-        this.authenticationRestService = authenticationRestService;
-        this.authenticationTokenService = authenticationTokenService;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.userDetailsService = userDetailsService;
         this.eventPublisher = eventPublisher;
     }
 
-    @RequestMapping(value = "${muttley.security.jwt.controller.loginEndPoint}", method = RequestMethod.POST)
+    @RequestMapping(value = "/login", method = POST)
     public ResponseEntity createAuthenticationToken(@RequestBody final Map<String, String> payload, Device device, HttpServletRequest request) {
         checkPayloadContainsUserNameAndPasswdOndy(payload);
 
         checkPayloadSize(payload);
 
         try {
-
-            //pegando o token do serviço de usuários
-            final JwtToken jwtToken = this.authenticationRestService.createAuthenticationToken(new UserPayLoadLogin(payload.get(USERNAME), payload.get(PASSWORD)));
-            //pegando usuário do token
-            final JwtUser userDetails = this.authenticationTokenService.getUserFromToken(jwtToken);
-
-
             final Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities())
+                    new UsernamePasswordAuthenticationToken(
+                            payload.get(USERNAME),
+                            payload.get(PASSWORD)
+                    )
             );
 
-            //despachando a requisição para a validação do spring
-            SecurityContextHolder.getContext().setAuthentication(authentication);
             //se chegou até aqui é sinal que o usuário e senha é valido
-            //notificando que o token foi gerado
-            this.afterGeneratedToken(userDetails, jwtToken);
+            final JwtUser userDetails = (JwtUser) userDetailsService.loadUserByUsername(payload.get(USERNAME));
+            //gerando o token de autorização
+            JwtToken token = new JwtToken(jwtTokenUtil.generateToken(userDetails, device));
+
             //lançando evento de usuário logado
             this.eventPublisher.publishEvent(new UserLoggedEvent(userDetails.getOriginUser()));
             //devolvendo token gerado
-            return ResponseEntity.ok(jwtToken);
+            return ResponseEntity.ok(token);
         } catch (BadCredentialsException ex) {
             throw new MuttleySecurityUserNameOrPasswordInvalidException();
         }
     }
 
-    @RequestMapping(value = "${muttley.security.jwt.controller.refreshEndPoint}", method = RequestMethod.GET)
-    public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
-        JwtToken token = new JwtToken(request.getHeader(tokenHeader));
-        return ResponseEntity.ok(this.authenticationRestService.refreshAndGetAuthenticationToken(token));
-    }
+    @RequestMapping(value = "/refresh", method = POST)
+    public ResponseEntity<?> refreshAndGetAuthenticationToken(@RequestBody JwtToken token) {
 
-    /**
-     * O Metodo é notificado toda vez que um token é gerado para um determinado usuário
-     *
-     * @param user  -> usuário do token gerado
-     * @param token -> token gerado
-     */
-    protected void afterGeneratedToken(final JwtUser user, final JwtToken token) {
+        String username = jwtTokenUtil.getUsernameFromToken(token.getToken());
+        JwtUser user = (JwtUser) userDetailsService.loadUserByUsername(username);
+
+        if (jwtTokenUtil.canTokenBeRefreshed(token.getToken(), user.getLastPasswordResetDate())) {
+            String refreshedToken = jwtTokenUtil.refreshToken(token.getToken());
+            return ResponseEntity.ok(new JwtToken(refreshedToken));
+        }
+        throw new MuttleySecurityBadRequestException(null, null, "Token invalido. Faça login novamente");
     }
 
     private final void checkPayloadContainsUserNameAndPasswdOndy(final Map<String, String> payload) {

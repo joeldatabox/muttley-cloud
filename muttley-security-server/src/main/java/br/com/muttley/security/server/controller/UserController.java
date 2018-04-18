@@ -1,10 +1,12 @@
 package br.com.muttley.security.server.controller;
 
 import br.com.muttley.exception.throwables.MuttleyException;
+import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
 import br.com.muttley.rest.RestController;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
-import br.com.muttley.security.infra.service.UserService;
+import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,6 +34,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
+@org.springframework.web.bind.annotation.RestController
+@RequestMapping(value = "/api/v1/users", produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
 public class UserController implements RestController<User, String> {
 
     private UserService service;
@@ -60,6 +64,13 @@ public class UserController implements RestController<User, String> {
         return ResponseEntity.ok(service.update(user));
     }
 
+    @RequestMapping(value = "/passwd", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
+    public ResponseEntity updatePasswd(@RequestBody final Passwd passwd) {
+        service.updatePasswd(passwd);
+        return ResponseEntity.ok().build();
+    }
+
     /**
      * Faz a deleção por email ao invez de ID
      */
@@ -81,21 +92,31 @@ public class UserController implements RestController<User, String> {
         return ResponseEntity.ok(service.findByEmail(email));
     }
 
+    @RequestMapping(value = "/user-from-token", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<User> getUserFromToken(@RequestBody final JwtToken token) {
+        return ResponseEntity.ok(this.service.getUserFromToken(token));
+    }
+
+    @Deprecated
     @Override
     public ResponseEntity first(final HttpServletResponse response) {
         throw new MuttleyException("Not Implemented", HttpStatus.NOT_IMPLEMENTED);
     }
 
+    @Deprecated
     @Override
     public ResponseEntity loadHistoric(final String id, final HttpServletResponse response) {
         throw new MuttleyException("Not Implemented", HttpStatus.NOT_IMPLEMENTED);
     }
 
+    @Deprecated
     @Override
     public ResponseEntity<PageableResource> list(final HttpServletResponse response, final Map<String, String> allRequestParams) {
         throw new MuttleyException("Not Implemented", HttpStatus.NOT_IMPLEMENTED);
     }
 
+    @Deprecated
     @Override
     public ResponseEntity<String> count(final Map<String, Object> allRequestParams) {
         throw new MuttleyException("Not Implemented", HttpStatus.NOT_IMPLEMENTED);

@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author Joel Rodrigues Moreira on 26/02/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
- * @project agrifocus-cloud
+ * @project muttley-cloud
  */
 public interface WorkTeamService extends Service<WorkTeam, ObjectId> {
     WorkTeam findByName(final Owner owner, final String name);

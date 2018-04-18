@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author Joel Rodrigues Moreira on 26/02/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
- * @project agrifocus-cloud
+ * @project muttley-cloud
  */
 @Service
 public class AccessPlanServiceImpl extends SecurityServiceImpl<AccessPlan, ObjectId> implements AccessPlanService {

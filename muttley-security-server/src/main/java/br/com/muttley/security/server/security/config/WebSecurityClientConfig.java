@@ -1,14 +1,13 @@
 package br.com.muttley.security.server.security.config;
 
-import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
-import br.com.muttley.security.infra.component.UnauthorizedHandler;
-import br.com.muttley.security.zuul.gateway.AbstractWebSecurityGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
@@ -19,29 +18,43 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityGatewayConfig extends AbstractWebSecurityGateway {
+public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
+    private final String userName;
+    private final String passWord;
+    private final String role;
 
-    @Autowired
-    public WebSecurityGatewayConfig(
-            @Value("${muttley.security.jwt.controller.loginEndPoint}") final String loginEndPoint,
-            @Value("${muttley.security.jwt.controller.refreshEndPoint}") final String refreshTokenEndPoin,
-            @Value("${muttley.security.jwt.controller.createEndPoint}") final String createEndPoint,
-            final UnauthorizedHandler unauthorizedHandler,
-            final UserDetailsService userDetailsService,
-            final AuthenticationTokenFilterGateway authenticationTokenFilterGateway) {
-        super(loginEndPoint, refreshTokenEndPoin, createEndPoint, unauthorizedHandler, userDetailsService, authenticationTokenFilterGateway);
+    public WebSecurityClientConfig(
+            @Value("${muttley.security-server.user.name:}") final String userName,
+            @Value("${muttley.security-server.user.password}") final String passWord,
+            @Value("${muttley.security-server.user.role}") final String role) {
+        this.userName = userName;
+        this.passWord = passWord;
+        this.role = role;
     }
 
+    /**
+     * Configurando usuário e senha necessário para autenticação no serviço
+     */
+    @Autowired
+    public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
+        auth.inMemoryAuthentication()
+                .withUser(this.userName)
+                .password(this.passWord)
+                .roles(this.role);
+    }
+
+    /**
+     * Configurando a segurança exigida para acessar o serviço
+     */
     @Override
-    protected String[] endPointPermitAllToGet() {
-        return new String[]{
-                "/",
-                "/*.html",
-                "/**/*.{png,jpg,jpeg,svg.ico}",
-                "/**/*.{html,css,js,svg,woff,woff2}",
-                //endpoit padrão da aplicação
-                "/login",
-                "/create-user",
-                "/home/**"};
+    protected void configure(final HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+                .anyRequest()
+                .hasRole(this.role)
+                .and()
+                .httpBasic()
+                .and()
+                .csrf()
+                .disable();
     }
 }

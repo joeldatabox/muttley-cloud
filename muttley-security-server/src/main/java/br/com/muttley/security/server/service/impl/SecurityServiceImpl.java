@@ -9,7 +9,7 @@ import org.bson.types.ObjectId;
 /**
  * @author Joel Rodrigues Moreira on 22/02/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
- * @project agrifocus-cloud
+ * @project muttley-cloud
  */
 public class SecurityServiceImpl<T extends Document, ID extends ObjectId> extends ServiceImpl<T, ID> implements SecurityService<T, ID> {
     public SecurityServiceImpl(final DocumentMongoRepository<T, ID> repository, final Class<T> clazz) {

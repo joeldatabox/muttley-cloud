@@ -1,8 +1,8 @@
 package br.com.muttley.security.server.listeners;
 
-import br.com.muttley.model.security.event.AccessPlanResolver;
-import br.com.muttley.security.infra.service.UserService;
+import br.com.muttley.model.security.events.AccessPlanResolver;
 import br.com.muttley.security.server.service.AccessPlanService;
+import br.com.muttley.security.server.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author Joel Rodrigues Moreira on 29/03/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
- * @project agrifocus-cloud
+ * @project muttley-cloud
  */
 @Component
 public class AccessPlanEventResolverListener implements ApplicationListener<AccessPlanResolver> {
