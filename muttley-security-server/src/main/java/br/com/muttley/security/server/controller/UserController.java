@@ -1,26 +1,26 @@
 package br.com.muttley.security.server.controller;
 
-import br.com.muttley.exception.throwables.MuttleyException;
+import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
-import br.com.muttley.rest.RestController;
-import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.UserService;
+import br.com.muttley.security.server.service.impl.JwtTokenUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
@@ -36,7 +36,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  */
 @org.springframework.web.bind.annotation.RestController
 @RequestMapping(value = "/api/v1/users", produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-public class UserController implements RestController<User, String> {
+public class UserController {
 
     private UserService service;
 
@@ -45,7 +45,6 @@ public class UserController implements RestController<User, String> {
         this.service = service;
     }
 
-    @Override
     @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(CREATED)
     public ResponseEntity save(@RequestBody final User value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
@@ -56,11 +55,23 @@ public class UserController implements RestController<User, String> {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Override
     @RequestMapping(value = "/{email}", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity update(@PathVariable("email") final String email, @RequestBody final User user) {
-        user.setEmail(email);
+    public ResponseEntity update(@PathVariable("email") final String email, @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String token, @RequestBody final User user, final JwtTokenUtilService tokenUtil) {
+        if (isNullOrEmpty(token)) {
+            throw new MuttleyBadRequestException(null, null, "informe um token válido");
+        }
+
+        final String emailFromToken = tokenUtil.getUsernameFromToken(token);
+
+        if (isNullOrEmpty(emailFromToken)) {
+            throw new MuttleyBadRequestException(null, null, "informe um token válido");
+        }
+
+        if (!emailFromToken.equals(email)) {
+            throw new MuttleyBadRequestException(null, null, "O token informado não contem o email " + email);
+        }
+        user.setId(service.findByEmail(email).getId());
         return ResponseEntity.ok(service.update(user));
     }
 
@@ -74,10 +85,9 @@ public class UserController implements RestController<User, String> {
     /**
      * Faz a deleção por email ao invez de ID
      */
-    @Override
     @RequestMapping(value = "/{email}", method = DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity deleteById(@PathVariable("email") final String email) {
+    public ResponseEntity deleteByEmail(@PathVariable("email") final String email) {
         service.removeByEmail(email);
         return ResponseEntity.ok().build();
     }
@@ -85,10 +95,9 @@ public class UserController implements RestController<User, String> {
     /**
      * Faz a pesquisa pelo email ao invez do ID
      */
-    @Override
     @RequestMapping(value = "/{email}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<User> findById(@PathVariable("email") final String email, final HttpServletResponse response) {
+    public ResponseEntity<User> findByEmail(@PathVariable("email") final String email, final HttpServletResponse response) {
         return ResponseEntity.ok(service.findByEmail(email));
     }
 
@@ -98,27 +107,4 @@ public class UserController implements RestController<User, String> {
         return ResponseEntity.ok(this.service.getUserFromToken(token));
     }
 
-    @Deprecated
-    @Override
-    public ResponseEntity first(final HttpServletResponse response) {
-        throw new MuttleyException("Not Implemented", HttpStatus.NOT_IMPLEMENTED);
-    }
-
-    @Deprecated
-    @Override
-    public ResponseEntity loadHistoric(final String id, final HttpServletResponse response) {
-        throw new MuttleyException("Not Implemented", HttpStatus.NOT_IMPLEMENTED);
-    }
-
-    @Deprecated
-    @Override
-    public ResponseEntity<PageableResource> list(final HttpServletResponse response, final Map<String, String> allRequestParams) {
-        throw new MuttleyException("Not Implemented", HttpStatus.NOT_IMPLEMENTED);
-    }
-
-    @Deprecated
-    @Override
-    public ResponseEntity<String> count(final Map<String, Object> allRequestParams) {
-        throw new MuttleyException("Not Implemented", HttpStatus.NOT_IMPLEMENTED);
-    }
 }

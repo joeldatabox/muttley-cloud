@@ -4,17 +4,20 @@ import br.com.muttley.domain.service.Service;
 import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.enumeration.Authorities;
-import br.com.muttley.rest.RestController;
 import br.com.muttley.rest.RestResource;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,10 +34,12 @@ import static java.util.Objects.isNull;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public abstract class AbstractRestController<T extends Document, ID extends Serializable> implements RestResource, RestController<T, ID> {
+public abstract class AbstractRestController<T extends Document, ID extends Serializable> implements RestResource {
     protected final Service<T, ID> service;
     protected final UserService userService;
     protected final ApplicationEventPublisher eventPublisher;
+    @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}")
+    private String tokenHeader;
 
     public AbstractRestController(final Service service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
         this.service = service;
@@ -42,12 +47,17 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
         this.eventPublisher = eventPublisher;
     }
 
-    @Override
     @RequestMapping(method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity save(@RequestBody final T value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
-        this.checkRoleCreate();
-        final T record = service.save(this.userService.getCurrentUser(), value);
+    public ResponseEntity save(
+            @RequestBody final T value,
+            final HttpServletResponse response,
+            @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity,
+            @RequestHeader("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        this.checkRoleCreate(user);
+        final T record = service.save(user, value);
 
         publishCreateResourceEvent(this.eventPublisher, response, record);
 
@@ -57,73 +67,89 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Override
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final T model) {
-        checkRoleUpdate();
+    public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final T model,
+                                 @RequestHeader("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        checkRoleUpdate(user);
         model.setId(id);
-        return ResponseEntity.ok(service.update(this.userService.getCurrentUser(), model));
+        return ResponseEntity.ok(service.update(user, model));
     }
 
-    @Override
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity deleteById(@PathVariable("id") final String id) {
-        checkRoleDelete();
-        service.deleteById(this.userService.getCurrentUser(), deserializerId(id));
+    public ResponseEntity deleteById(@PathVariable("id") final String id,
+                                     @RequestHeader("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        checkRoleDelete(user);
+        service.deleteById(user, deserializerId(id));
         return ResponseEntity.ok().build();
     }
 
-    @Override
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response) {
-        checkRoleRead();
-        final T value = service.findById(this.userService.getCurrentUser(), deserializerId(id));
+    public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response,
+                                   @RequestHeader("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        checkRoleRead(user);
+        final T value = service.findById(user, deserializerId(id));
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
         return ResponseEntity.ok(value);
     }
 
-    @Override
     @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity first(final HttpServletResponse response) {
-        checkRoleRead();
-        final T value = service.findFirst(this.userService.getCurrentUser());
+    public ResponseEntity first(final HttpServletResponse response,
+                                @RequestHeader("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        checkRoleRead(user);
+        final T value = service.findFirst(user);
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
         return ResponseEntity.ok(value);
     }
 
-    @Override
     @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
-        checkRoleRead();
-        final Historic historic = service.loadHistoric(this.userService.getCurrentUser(), deserializerId(id));
+    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response,
+                                       @RequestHeader("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        checkRoleRead(user);
+        final Historic historic = service.loadHistoric(user, deserializerId(id));
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
         return ResponseEntity.ok(historic);
     }
 
-    @Override
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams) {
-        checkRoleRead();
-        return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, this.userService.getCurrentUser(), allRequestParams));
+    public ResponseEntity<PageableResource> list(
+            final HttpServletResponse response,
+            @RequestParam final Map<String, String> allRequestParams,
+            @RequestHeader("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        checkRoleRead(user);
+        return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, user, allRequestParams));
     }
 
-    @Override
     @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public final ResponseEntity<String> count(final Map<String, Object> allRequestParams) {
-        checkRoleRead();
-        return ResponseEntity.ok(String.valueOf(service.count(this.userService.getCurrentUser(), allRequestParams)));
+    public final ResponseEntity<String> count(@RequestParam final Map<String, Object> allRequestParams,
+                                              @RequestHeader("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        checkRoleRead(user);
+        return ResponseEntity.ok(String.valueOf(service.count(user, allRequestParams)));
     }
 
     protected String[] getCreateRoles() {
@@ -142,36 +168,36 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
         return null;
     }
 
-    protected final void checkRoleCreate() {
+    protected final void checkRoleCreate(final User user) {
         if (!isNull(getCreateRoles()))
-            this.checkCredentials(getCreateRoles());
+            this.checkCredentials(user, getCreateRoles());
 
     }
 
-    protected final void checkRoleRead() {
+    protected final void checkRoleRead(final User user) {
         if (!isNull(getReadRoles()))
-            this.checkCredentials(getReadRoles());
+            this.checkCredentials(user, getReadRoles());
     }
 
-    protected final void checkRoleUpdate() {
+    protected final void checkRoleUpdate(final User user) {
         if (!isNull(getUpdateRoles()))
-            this.checkCredentials(this.getUpdateRoles());
+            this.checkCredentials(user, this.getUpdateRoles());
     }
 
-    protected final void checkRoleDelete() {
+    protected final void checkRoleDelete(final User user) {
         if (!isNull(getDeleteRoles()))
-            this.checkCredentials(this.getDeleteRoles());
+            this.checkCredentials(user, this.getDeleteRoles());
     }
 
-    protected final void checkCredentials(final String... roles) {
-        if (!this.userService.getCurrentUser().inAnyRole(roles)) {
+    protected final void checkCredentials(final User user, final String... roles) {
+        if (!user.inAnyRole(roles)) {
             throw new MuttleySecurityCredentialException("Você não tem permissão para acessar este recurso ")
                     .addDetails("isNecessary", roles);
         }
     }
 
-    protected final void checkCredentials(final Authorities... roles) {
-        if (!this.userService.getCurrentUser().inAnyRole(roles)) {
+    protected final void checkCredentials(final User user, final Authorities... roles) {
+        if (!user.inAnyRole(roles)) {
             throw new MuttleySecurityCredentialException("Você não tem permissão para acessar este recurso ")
                     .addDetails("isNecessary", roles);
         }
