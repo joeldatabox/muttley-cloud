@@ -1,4 +1,4 @@
-package br.com.muttley.security.client.auth;
+package br.com.muttley.security.feign.auth;
 
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;

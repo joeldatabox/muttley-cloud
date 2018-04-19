@@ -1,7 +1,7 @@
-package br.com.muttley.security.client;
+package br.com.muttley.security.feign;
 
 import br.com.muttley.model.Historic;
-import br.com.muttley.security.client.resource.PageableResource;
+import br.com.muttley.security.infra.resource.PageableResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;

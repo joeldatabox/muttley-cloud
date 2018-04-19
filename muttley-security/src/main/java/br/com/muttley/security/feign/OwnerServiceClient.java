@@ -1,4 +1,4 @@
-package br.com.muttley.security.client;
+package br.com.muttley.security.feign;
 
 import br.com.muttley.model.security.User;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;

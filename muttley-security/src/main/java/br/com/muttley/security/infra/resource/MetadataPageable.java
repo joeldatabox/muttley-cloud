@@ -1,4 +1,4 @@
-package br.com.muttley.security.client.resource;
+package br.com.muttley.security.infra.resource;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

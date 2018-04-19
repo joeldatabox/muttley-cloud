@@ -3,7 +3,7 @@ package br.com.muttley.security.infra.controller;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserCreatedEvent;
-import br.com.muttley.security.client.UserServiceClient;
+import br.com.muttley.security.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;

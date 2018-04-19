@@ -10,7 +10,9 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -30,7 +32,6 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
     protected final String refreshTokenEndPoin;
     protected final String createEndPoint;
     protected final UnauthorizedHandler unauthorizedHandler;
-    protected final UserDetailsService userDetailsService;
     protected final AuthenticationTokenFilterGateway authenticationTokenFilterGateway;
 
     @Autowired
@@ -39,28 +40,27 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
             @Value("${muttley.security.jwt.controller.refreshEndPoint}") final String refreshTokenEndPoin,
             @Value("${muttley.security.jwt.controller.createEndPoint}") final String createEndPoint,
             final UnauthorizedHandler unauthorizedHandler,
-            final UserDetailsService userDetailsService,
             final AuthenticationTokenFilterGateway authenticationTokenFilterGateway) {
         this.loginEndPoint = loginEndPoint;
         this.refreshTokenEndPoin = refreshTokenEndPoin;
         this.createEndPoint = createEndPoint;
         this.unauthorizedHandler = unauthorizedHandler;
-        this.userDetailsService = userDetailsService;
+
         this.authenticationTokenFilterGateway = authenticationTokenFilterGateway;
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
-
-    @Autowired
+    /*@Autowired
     protected void configureAuthentication(AuthenticationManagerBuilder authentication) throws Exception {
         authentication
-                .userDetailsService(this.userDetailsService)
+                .userDetailsService(new UserDetailsService() {
+                    @Override
+                    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+                        return null;
+                    }
+                })
                 .passwordEncoder(passwordEncoder());
-    }
+    }*/
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
