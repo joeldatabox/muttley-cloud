@@ -23,12 +23,12 @@ import javax.validation.ConstraintViolationException;
  */
 @ControllerAdvice
 @RestController
-public class Ex3_MuttleyCloudExceptionHandler {
+public class Ex0_MuttleyCloudExceptionHandler {
 
     private final ErrorMessageBuilder errorMessageBuilder;
 
     @Autowired
-    public Ex3_MuttleyCloudExceptionHandler(final ErrorMessageBuilder errorMessageBuilder) {
+    public Ex0_MuttleyCloudExceptionHandler(final ErrorMessageBuilder errorMessageBuilder) {
         this.errorMessageBuilder = errorMessageBuilder;
     }
 

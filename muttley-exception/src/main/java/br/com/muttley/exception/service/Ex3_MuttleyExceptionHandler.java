@@ -23,12 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @ControllerAdvice
 @RestController
-public class Ex4_MuttleyExceptionHandler {
+public class Ex3_MuttleyExceptionHandler {
 
     private final ErrorMessageBuilder errorMessageBuilder;
 
     @Autowired
-    public Ex4_MuttleyExceptionHandler(final ErrorMessageBuilder errorMessageBuilder) {
+    public Ex3_MuttleyExceptionHandler(final ErrorMessageBuilder errorMessageBuilder) {
         this.errorMessageBuilder = errorMessageBuilder;
     }
 
