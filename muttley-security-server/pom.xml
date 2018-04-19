@@ -33,6 +33,11 @@
 
         <dependency>
             <groupId>br.com.muttley</groupId>
+            <artifactId>muttley-redis</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.muttley</groupId>
             <artifactId>muttley-exception</artifactId>
         </dependency>
 

@@ -24,7 +24,7 @@ public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
     private final String role;
 
     public WebSecurityClientConfig(
-            @Value("${muttley.security-server.user.name:}") final String userName,
+            @Value("${muttley.security-server.user.name}") final String userName,
             @Value("${muttley.security-server.user.password}") final String passWord,
             @Value("${muttley.security-server.user.role}") final String role) {
         this.userName = userName;

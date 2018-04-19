@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,6 +29,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  * @author Joel Rodrigues Moreira on 12/01/18.
  * @project spring-cloud
  */
+@Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;

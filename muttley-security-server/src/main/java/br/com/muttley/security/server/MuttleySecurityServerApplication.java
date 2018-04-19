@@ -8,11 +8,11 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 //Packages onde existem entidades
-@EntityScan(basePackages = {"br.com"})
+@EntityScan(basePackages = {"br.com.muttley.model.security"})
 //Packages onde existem componentes, serviços e configurações
 @ComponentScan(basePackages = {
         //Injeções internas do projeto
-        //"br.com.muttley.security.server",
+        "br.com.muttley.domain.service",
         //Configuração de serviços
         "br.com.muttley.security.server",
         //Configurações de segurança para o gateway
@@ -22,7 +22,7 @@ import org.springframework.context.annotation.ComponentScan;
         //Configurações de serialização
         "br.com.muttley.jackson.service"
 })
-@EnableEurekaClient
+//@EnableEurekaClient
 public class MuttleySecurityServerApplication {
 
     public static void main(String[] args) {
