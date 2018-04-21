@@ -3,13 +3,11 @@ package br.com.muttley.exception.service;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
  * A classe começa com o nome Ex2_ por conta de precedencia de exceptions do Spring
@@ -19,23 +17,24 @@ import org.springframework.web.bind.annotation.RestController;
  * @project spring-cloud
  */
 @ControllerAdvice
-@RestController
-public class Ex2_MuttleySecurityExceptionHandler {
+public class Ex2_MuttleySecurityExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private final ErrorMessageBuilder errorMessageBuilder;
-
-    @Autowired
-    public Ex2_MuttleySecurityExceptionHandler(final ErrorMessageBuilder errorMessageBuilder) {
-        this.errorMessageBuilder = errorMessageBuilder;
-    }
-
-    @ExceptionHandler(value = UsernameNotFoundException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity usernameNotFoundException(final UsernameNotFoundException ex) {
-        MuttleySecurityUserNameOrPasswordInvalidException exx = new MuttleySecurityUserNameOrPasswordInvalidException();
-        exx.addSuppressed(ex);
-        return usernameNotFoundException(exx);
-    }
+    @ExceptionHandler(value = {
+            UsernameNotFoundException.class,
+            MuttleySecurityUserNameOrPasswordInvalidException.class,
+            MuttleySecurityUnauthorizedException.class
+    })
+    public ResponseEntity usernameNotFoundException(final Exception ex, @Autowired final ErrorMessageBuilder errorMessageBuilder) {
+        if (ex instanceof UsernameNotFoundException) {
+            final MuttleySecurityUserNameOrPasswordInvalidException secEx = new MuttleySecurityUserNameOrPasswordInvalidException();
+            secEx.addSuppressed(ex);
+            return errorMessageBuilder.build(secEx).toResponseEntity();
+        } else if (ex instanceof MuttleySecurityUserNameOrPasswordInvalidException) {
+            return errorMessageBuilder.build((MuttleySecurityUserNameOrPasswordInvalidException) ex).toResponseEntity();
+        } else {
+            return errorMessageBuilder.build((MuttleySecurityUnauthorizedException) ex).toResponseEntity();
+        }
+    }/*
 
     @ExceptionHandler(value = MuttleySecurityUserNameOrPasswordInvalidException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
@@ -47,5 +46,5 @@ public class Ex2_MuttleySecurityExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity usernameNotFoundException(final MuttleySecurityUnauthorizedException ex) {
         return errorMessageBuilder.build(ex).toResponseEntity();
-    }
+    }*/
 }

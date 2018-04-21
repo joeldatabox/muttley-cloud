@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
  * A classe começa com o nome Ex1_ por conta de precedencia de exceptions do Spring
@@ -17,17 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @ControllerAdvice
 @RestController
-public class Ex1_MuttleyRepositoryExceptionHandler {
-
-    private ErrorMessageBuilder errorMessageBuilder;
-
-    @Autowired
-    public Ex1_MuttleyRepositoryExceptionHandler(final ErrorMessageBuilder errorMessageBuilder) {
-        this.errorMessageBuilder = errorMessageBuilder;
-    }
+public class Ex1_MuttleyRepositoryExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = MuttleyException.class)
-    public ResponseEntity SpringBootException(final MuttleyRepositoryException ex) {
+    public ResponseEntity SpringBootException(final MuttleyRepositoryException ex, @Autowired final ErrorMessageBuilder errorMessageBuilder) {
         return errorMessageBuilder.build(ex).toResponseEntity();
     }
 
