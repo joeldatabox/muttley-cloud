@@ -50,7 +50,7 @@ public class AuthenticationRestController {
     protected final UserDetailsService userDetailsService;
 
     @Autowired
-    public AuthenticationRestController(final @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") String tokenHeader, final AuthenticationManager authenticationManager, final JwtTokenUtilService jwtTokenUtil, final UserDetailsService userDetailsService, final ApplicationEventPublisher eventPublisher) {
+    public AuthenticationRestController(final @Value("${muttley.security.jwt.controller.tokenHeader}") String tokenHeader, final AuthenticationManager authenticationManager, final JwtTokenUtilService jwtTokenUtil, final UserDetailsService userDetailsService, final ApplicationEventPublisher eventPublisher) {
         this.tokenHeader = tokenHeader;
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;

@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     public UserServiceImpl(final UserRepository repository,
                            final UserPreferencesRepository preferencesRepository,
-                           @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader,
+                           @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
                            final JwtTokenUtilService tokenUtil) {
         this.repository = repository;
         this.preferencesRepository = preferencesRepository;
