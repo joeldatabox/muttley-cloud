@@ -2,17 +2,21 @@ package br.com.muttley.security.feign;
 
 import br.com.muttley.model.Historic;
 import br.com.muttley.security.infra.resource.PageableResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.Serializable;
 import java.util.Map;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 /**
  * @author Joel Rodrigues Moreira on 18/04/18.
@@ -20,41 +24,33 @@ import java.util.Map;
  * @project muttley-cloud
  */
 public interface RestControllerClient<T extends Serializable> {
-    @RequestMapping(method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE})
     T save(@RequestBody T value, @RequestParam(required = false, value = "returnEntity", defaultValue = "") String returnEntity);
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE})
     T update(@PathVariable("id") String id, @RequestBody T model);
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = DELETE)
     void deleteById(@PathVariable("id") String id);
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = GET)
     T findById(@PathVariable("id") String id);
 
-    @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/first", method = GET)
     T first();
 
-    @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}/historic", method = GET)
     Historic loadHistoric(@PathVariable("id") String id);
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = GET)
     PageableResource list(@RequestParam Map<String, String> allRequestParams);
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = GET)
     PageableResource list();
 
-    @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/count", method = GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     Long count(Map<String, Object> allRequestParams);
 
-    @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/count", method = GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     Long count();
 }

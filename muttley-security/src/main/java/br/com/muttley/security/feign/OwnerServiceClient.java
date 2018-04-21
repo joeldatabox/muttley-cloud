@@ -9,7 +9,7 @@ import org.springframework.cloud.netflix.feign.FeignClient;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@FeignClient(value = "${muttley.security.name-server}", url = "/api/v1/owner", configuration = FeignClientConfig.class)
+@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/owner", configuration = FeignClientConfig.class)
 public interface OwnerServiceClient extends RestControllerClient<User> {
 
 }
