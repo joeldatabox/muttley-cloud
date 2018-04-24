@@ -30,6 +30,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
+import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY;
+import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
+import static com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL;
 import static java.util.Objects.isNull;
 
 /**
@@ -55,7 +59,7 @@ public class User implements Serializable {
     private WorkTeam currentWorkTeam;
     @NotBlank(message = "O campo nome não pode ser nulo!")
     @Size(min = 4, max = 200, message = "O campo nome deve ter de 4 a 200 caracteres!")
-    private String nome;
+    private String name;
     @NotBlank(message = "Informe um email válido!")
     @Email(message = "Informe um email válido!")
     private String email;
@@ -80,7 +84,7 @@ public class User implements Serializable {
             @JsonProperty("id") final String id,
             @JsonProperty("workTeams") final Set<WorkTeam> workTeams,
             @JsonProperty("currentWorkTeam") final WorkTeam currentWorkTeam,
-            @JsonProperty("nome") final String nome,
+            @JsonProperty("name") final String name,
             @JsonProperty("email") final String email,
             @JsonProperty("passwd") final String passwd,
             @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
@@ -90,13 +94,20 @@ public class User implements Serializable {
         this.id = id;
         this.workTeams = workTeams;
         this.currentWorkTeam = currentWorkTeam;
-        this.nome = nome;
+        this.name = name;
         this.email = email;
         this.passwd = passwd;
         this.lastPasswordResetDate = lastPasswordResetDate;
         this.enable = enable;
         this.authorities = authorities;
         this.preferences = preferences;
+    }
+
+    public User(final UserPayLoad payLoad) {
+        this();
+        this.setName(payLoad.getName());
+        this.setEmail(payLoad.getEmail());
+        this.setPasswd(payLoad.getPasswd());
     }
 
     public String getId() {
@@ -145,12 +156,12 @@ public class User implements Serializable {
         return this;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public User setNome(final String nome) {
-        this.nome = nome;
+    public User setName(final String name) {
+        this.name = name;
         return this;
     }
 
@@ -297,22 +308,25 @@ public class User implements Serializable {
     }
 
     public String toJson() {
+
+
         String json = "";
         try {
-            final ObjectMapper objectMapper = new ObjectMapper();
+            return new ObjectMapper().setVisibility(FIELD, ANY).writeValueAsString(this);
+            /*final ObjectMapper objectMapper = new ObjectMapper();
             json = objectMapper
                     .writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(this);
+                    .writeValueAsString(this);*/
 
         } catch (final Exception ex) {
             ex.printStackTrace();
             return null;
         }
         //adicionando a senha;
-        if (passwd != null) {
+        /*if (passwd != null) {
             return json.substring(0, json.length() - 1) + ", \"passwd\":\"" + this.passwd + "\"}";
         }
-        return json;
+        return json;*/
     }
 
     @JsonIgnore

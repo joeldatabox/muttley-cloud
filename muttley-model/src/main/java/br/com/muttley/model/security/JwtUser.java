@@ -3,6 +3,7 @@ package br.com.muttley.model.security;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +12,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
+import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY;
+import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
+import static com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL;
 
 /**
  * @author Joel Rodrigues Moreira on 08/01/18.
@@ -32,7 +38,7 @@ public class JwtUser implements UserDetails {
 
     public JwtUser(final User user) {
         this.id = user.getId();
-        this.name = user.getNome();
+        this.name = user.getName();
         this.password = user.getPasswd();
         this.email = user.getEmail();
         this.authorities = mapToGrantedAuthorities(user.getAuthorities());
@@ -134,6 +140,15 @@ public class JwtUser implements UserDetails {
         return authorities.stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getName()))
                 .collect(Collectors.toList());
+    }
+
+    public String toJson() {
+        try {
+            return new ObjectMapper().setVisibility(FIELD, ANY).writeValueAsString(this);
+        } catch (final Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     public static class UserBuilder {
