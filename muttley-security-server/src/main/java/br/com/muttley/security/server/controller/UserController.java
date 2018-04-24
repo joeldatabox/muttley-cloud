@@ -1,9 +1,11 @@
 package br.com.muttley.security.server.controller;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.exception.throwables.MuttleyMethodNotAllowedException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.impl.JwtTokenUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,10 +49,10 @@ public class UserController {
 
     @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(CREATED)
-    public ResponseEntity save(@RequestBody final User value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
-        final User record = service.save(value);
+    public ResponseEntity save(@RequestBody final UserPayLoad value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
+        final User record = service.save(new User(value));
         if (returnEntity != null && returnEntity.equals("true")) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(record);
+            return ResponseEntity.status(HttpStatus.CREATED).body(record.toJson());
         }
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -72,7 +74,9 @@ public class UserController {
             throw new MuttleyBadRequestException(null, null, "O token informado não contem o email " + email);
         }
         user.setId(service.findByEmail(email).getId());
-        return ResponseEntity.ok(service.update(user));
+        //é necessário válidar a regra de négocio no processo de crud de usuário
+        throw new MuttleyMethodNotAllowedException(null, null, "Verifique a regra de negócios");
+        //return ResponseEntity.ok(service.update(user));
     }
 
     @RequestMapping(value = "/passwd", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
@@ -85,9 +89,9 @@ public class UserController {
     /**
      * Faz a deleção por email ao invez de ID
      */
-    @RequestMapping(value = "/{email}", method = DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(method = DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity deleteByEmail(@PathVariable("email") final String email) {
+    public ResponseEntity deleteByEmail(@RequestParam("email") final String email) {
         service.removeByEmail(email);
         return ResponseEntity.ok().build();
     }
@@ -95,16 +99,16 @@ public class UserController {
     /**
      * Faz a pesquisa pelo email ao invez do ID
      */
-    @RequestMapping(value = "/{email}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<User> findByEmail(@PathVariable("email") final String email, final HttpServletResponse response) {
-        return ResponseEntity.ok(service.findByEmail(email));
+    public ResponseEntity findByEmail(@RequestParam("email") final String email, final HttpServletResponse response) {
+        return ResponseEntity.ok(service.findByEmail(email).toJson());
     }
 
     @RequestMapping(value = "/user-from-token", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<User> getUserFromToken(@RequestBody final JwtToken token) {
-        return ResponseEntity.ok(this.service.getUserFromToken(token));
+    public ResponseEntity getUserFromToken(@RequestBody final JwtToken token) {
+        return ResponseEntity.ok(this.service.getUserFromToken(token).toJson());
     }
 
 }

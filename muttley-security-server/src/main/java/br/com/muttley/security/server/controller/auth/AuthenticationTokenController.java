@@ -30,7 +30,7 @@ public class AuthenticationTokenController {
     }
 
     @RequestMapping(value = "/user-from-token", method = RequestMethod.POST)
-    public ResponseEntity<JwtUser> getUserFromToken(final @RequestBody JwtToken token) {
+    public ResponseEntity getUserFromToken(final @RequestBody JwtToken token) {
         if (!token.isEmpty()) {
             final String userName = this.tokenUtil.getUsernameFromToken(token.getToken());
             if (!isNullOrEmpty(userName)) {
@@ -39,7 +39,7 @@ public class AuthenticationTokenController {
 
                 //verificando a validade do token
                 if (tokenUtil.validateToken(token.getToken(), jwtUser)) {
-                    return ResponseEntity.ok(jwtUser);
+                    return ResponseEntity.ok(jwtUser.toJson());
                 }
             }
         }

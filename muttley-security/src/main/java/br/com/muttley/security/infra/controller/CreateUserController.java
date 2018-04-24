@@ -2,6 +2,7 @@ package br.com.muttley.security.infra.controller;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.security.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class CreateUserController {
 
     protected final ApplicationEventPublisher eventPublisher;
     protected UserServiceClient service;
-    protected static final String NOME = "nome";
+    protected static final String NOME = "name";
     protected static final String EMAIL = "email";
     protected static final String PASSWD = "password";
 
@@ -50,10 +51,7 @@ public class CreateUserController {
                     .addDetails(EMAIL, "Informe um email válido")
                     .addDetails(PASSWD, "Informe uma senha válida");
         }
-        final User user = new User();
-        user.setNome(payload.get(NOME));
-        user.setEmail(payload.get(EMAIL));
-        user.setPasswd(payload.get(PASSWD));
+        final UserPayLoad user = new UserPayLoad(payload.get(NOME), payload.get(EMAIL), payload.get(PASSWD));
         this.eventPublisher.publishEvent(new UserCreatedEvent(service.save(user, "true")));
     }
 }

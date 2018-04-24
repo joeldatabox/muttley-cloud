@@ -15,6 +15,7 @@ import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -147,7 +148,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private User merge(final User user) {
-        if (user.getNome() == null || user.getNome().length() < 4) {
+        if (user.getName() == null || user.getName().length() < 4) {
             throw new MuttleySecurityBadRequestException(User.class, "nome", "O campo nome deve ter de 4 a 200 caracteres!");
         }
         if (!user.isValidEmail()) {

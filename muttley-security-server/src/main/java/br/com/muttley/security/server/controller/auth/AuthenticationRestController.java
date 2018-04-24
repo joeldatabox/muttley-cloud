@@ -65,12 +65,14 @@ public class AuthenticationRestController {
         checkPayloadSize(payload);
 
         try {
+            /*final br.com.muttley.model.security.User user = new br.com.muttley.model.security.User();
+            user.setEmail()
             final Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             payload.get(USERNAME),
                             payload.get(PASSWORD)
                     )
-            );
+            );*/
 
             //se chegou até aqui é sinal que o usuário e senha é valido
             final JwtUser userDetails = (JwtUser) userDetailsService.loadUserByUsername(payload.get(USERNAME));
