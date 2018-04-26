@@ -2,7 +2,7 @@ package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
-import br.com.muttley.model.Owner;
+import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.security.server.repository.WorkTeamRepository;

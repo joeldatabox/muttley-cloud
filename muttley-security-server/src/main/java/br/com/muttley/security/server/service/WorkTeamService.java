@@ -1,7 +1,7 @@
 package br.com.muttley.security.server.service;
 
 import br.com.muttley.domain.service.Service;
-import br.com.muttley.model.Owner;
+import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
 import org.bson.types.ObjectId;

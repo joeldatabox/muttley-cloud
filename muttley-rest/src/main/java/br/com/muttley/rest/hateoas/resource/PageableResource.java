@@ -1,5 +1,7 @@
 package br.com.muttley.rest.hateoas.resource;
 
+import org.springframework.util.CollectionUtils;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -23,5 +25,9 @@ public final class PageableResource implements Serializable {
 
     public MetadataPageable get_metadata() {
         return _metadata;
+    }
+
+    public boolean isEmpty() {
+        return CollectionUtils.isEmpty(this.records);
     }
 }

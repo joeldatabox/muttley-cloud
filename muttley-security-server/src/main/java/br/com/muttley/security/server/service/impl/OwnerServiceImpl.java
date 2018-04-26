@@ -1,7 +1,7 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
-import br.com.muttley.model.Owner;
+import br.com.muttley.model.security.Owner;
 import br.com.muttley.security.server.repository.OwnerRepository;
 import br.com.muttley.security.server.service.OwnerService;
 import org.bson.types.ObjectId;

@@ -47,7 +47,7 @@ public class Preference {
     /**
      * @return true se a key não for nula nem for uma String vazia
      */
-    protected boolean isValid() {
+    public boolean isValid() {
         return !isEmpty(this.key);
     }
 }

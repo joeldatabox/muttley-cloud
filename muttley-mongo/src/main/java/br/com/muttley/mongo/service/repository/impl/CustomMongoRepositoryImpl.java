@@ -3,7 +3,7 @@ package br.com.muttley.mongo.service.repository.impl;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
-import br.com.muttley.model.Owner;
+import br.com.muttley.model.security.Owner;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;

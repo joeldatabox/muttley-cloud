@@ -104,6 +104,26 @@ public interface RestResource {
     }
 
     /**
+     * Realiza a paginação de registro utilizando o padrão Rest
+     */
+    default PageableResource toPageableResource(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final PageableResource pageableResource) {
+
+        if (pageableResource.isEmpty()) {
+            throw new MuttleyNoContentException(null, null, "registros não encontrados!");
+        }
+
+        publishPaginatedResultsRetrievedEvent(
+                eventPublisher,
+                response,
+                ServletUriComponentsBuilder.fromCurrentRequest(),
+                pageableResource.get_metadata()
+        );
+
+
+        return pageableResource;
+    }
+
+    /**
      * Remove parametros denecessários para contagem (limit, page)
      *
      * @param allRequestParams -> parametros da requisição

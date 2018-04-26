@@ -1,7 +1,6 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
-import br.com.muttley.model.Owner;
 import br.com.muttley.model.security.preference.UserPreferences;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -31,9 +30,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
-import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
-import static com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL;
 import static java.util.Objects.isNull;
 
 /**

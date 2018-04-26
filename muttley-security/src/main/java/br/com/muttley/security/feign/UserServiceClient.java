@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.ws.rs.QueryParam;
-
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -28,16 +26,16 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 @FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/users", configuration = FeignClientConfig.class)
 public interface UserServiceClient {
 
-    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE})
+    @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public User save(@RequestBody UserPayLoad value, @RequestParam(required = false, value = "returnEntity", defaultValue = "") String returnEntity);
 
-    @RequestMapping(value = "/{email}", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE})
+    @RequestMapping(value = "/{email}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
     public User update(@PathVariable("email") final String email, @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String token, @RequestBody final User user);
 
     @RequestMapping(value = "/passwd", method = PUT)
     public void updatePasswd(@RequestBody final Passwd passwd);
 
-    @RequestMapping( method = DELETE)
+    @RequestMapping(method = DELETE)
     void deleteByEmail(@RequestParam("email") String email);
 
     @Deprecated

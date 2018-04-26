@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.controller;
 
-import br.com.muttley.model.security.OwnerImpl;
+import br.com.muttley.model.security.WorkTeamImpl;
 import br.com.muttley.security.server.service.OwnerService;
 import br.com.muttley.security.server.service.UserService;
 import org.bson.types.ObjectId;
@@ -18,11 +18,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  * @project muttley-cloud
  */
 @RestController
-@RequestMapping(value = "/api/v1/owners", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-public class OwnerController extends AbstractRestController<OwnerImpl, ObjectId> {
+@RequestMapping(value = "/api/v1/work-teams", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+public class WorkTeamController extends AbstractRestController<WorkTeamImpl, ObjectId> {
 
     @Autowired
-    public OwnerController(final OwnerService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
+    public WorkTeamController(final OwnerService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
         super(service, userService, eventPublisher);
     }
 
