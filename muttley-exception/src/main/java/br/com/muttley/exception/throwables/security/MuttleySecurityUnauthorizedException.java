@@ -20,7 +20,7 @@ public class MuttleySecurityUnauthorizedException extends RuntimeException {
     final protected Map<String, Object> details = new HashMap<>();
 
     public MuttleySecurityUnauthorizedException() {
-        this.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        this.status = HttpStatus.UNAUTHORIZED;
         this.message = "ERROR *-*";
         this.objectName = "unknow :(";
     }
@@ -48,7 +48,7 @@ public class MuttleySecurityUnauthorizedException extends RuntimeException {
         super(message, cause);
         this.message = message;
         this.objectName = "unknow :(";
-        this.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        this.status = HttpStatus.UNAUTHORIZED;
     }
 
     public MuttleySecurityUnauthorizedException(final String message, final HttpStatus status) {

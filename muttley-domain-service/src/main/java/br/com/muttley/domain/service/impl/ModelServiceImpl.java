@@ -6,7 +6,7 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
-import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
 import org.bson.types.ObjectId;
 

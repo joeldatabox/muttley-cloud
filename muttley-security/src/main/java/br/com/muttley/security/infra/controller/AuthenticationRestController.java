@@ -2,10 +2,12 @@ package br.com.muttley.security.infra.controller;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
-import br.com.muttley.model.security.jwt.JwtUser;
-import br.com.muttley.security.infra.component.util.JwtTokenUtil;
-import br.com.muttley.security.infra.events.UserLoggedEvent;
-import br.com.muttley.security.infra.response.JwtTokenResponse;
+import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.UserPayLoadLogin;
+import br.com.muttley.model.security.events.UserLoggedEvent;
+import br.com.muttley.security.feign.auth.AuthenticationRestServiceClient;
+import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -17,7 +19,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,15 +41,20 @@ public class AuthenticationRestController {
 
     protected final ApplicationEventPublisher eventPublisher;
     protected final AuthenticationManager authenticationManager;
-    protected final JwtTokenUtil jwtTokenUtil;
-    protected final UserDetailsService userDetailsService;
+    protected final AuthenticationRestServiceClient authenticationRestService;
+    protected final AuthenticationTokenServiceClient authenticationTokenService;
 
     @Autowired
-    public AuthenticationRestController(final @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") String tokenHeader, final AuthenticationManager authenticationManager, final JwtTokenUtil jwtTokenUtil, final UserDetailsService userDetailsService, final ApplicationEventPublisher eventPublisher) {
+    public AuthenticationRestController(
+            final @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") String tokenHeader,
+            final AuthenticationManager authenticationManager,
+            final AuthenticationRestServiceClient authenticationRestService,
+            final AuthenticationTokenServiceClient authenticationTokenService,
+            final ApplicationEventPublisher eventPublisher) {
         this.tokenHeader = tokenHeader;
         this.authenticationManager = authenticationManager;
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.userDetailsService = userDetailsService;
+        this.authenticationRestService = authenticationRestService;
+        this.authenticationTokenService = authenticationTokenService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -59,26 +65,28 @@ public class AuthenticationRestController {
         checkPayloadSize(payload);
 
         try {
+
+            //pegando o token do serviço de usuários
+            final JwtToken jwtToken = this.authenticationRestService.createAuthenticationToken(new UserPayLoadLogin(payload.get(USERNAME), payload.get(PASSWORD)));
+            //pegando usuário do token
+            //final JwtUser userDetails = this.authenticationTokenService.getUserFromToken(jwtToken);
+
+            //gerando a authenticação do serviço
             final Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            payload.get(USERNAME),
-                            payload.get(PASSWORD)
-                    )
+                    new UsernamePasswordAuthenticationToken(payload.get(USERNAME), payload.get(PASSWORD))
             );
+
+            final JwtUser userDetails = (JwtUser) authentication.getPrincipal();
 
             //despachando a requisição para a validação do spring
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
             //se chegou até aqui é sinal que o usuário e senha é valido
-            final JwtUser userDetails = (JwtUser) userDetailsService.loadUserByUsername(payload.get(USERNAME));
-            //gerando o token de autorização
-            JwtTokenResponse token = new JwtTokenResponse(jwtTokenUtil.generateToken(userDetails, device));
             //notificando que o token foi gerado
-            this.afterGeneratedToken(userDetails, token);
+            this.afterGeneratedToken(userDetails, jwtToken);
             //lançando evento de usuário logado
             this.eventPublisher.publishEvent(new UserLoggedEvent(userDetails.getOriginUser()));
             //devolvendo token gerado
-            return ResponseEntity.ok(token);
+            return ResponseEntity.ok(jwtToken);
         } catch (BadCredentialsException ex) {
             throw new MuttleySecurityUserNameOrPasswordInvalidException();
         }
@@ -86,15 +94,8 @@ public class AuthenticationRestController {
 
     @RequestMapping(value = "${muttley.security.jwt.controller.refreshEndPoint}", method = RequestMethod.GET)
     public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
-        String token = request.getHeader(tokenHeader);
-        String username = jwtTokenUtil.getUsernameFromToken(token);
-        JwtUser user = (JwtUser) userDetailsService.loadUserByUsername(username);
-
-        if (jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate())) {
-            String refreshedToken = jwtTokenUtil.refreshToken(token);
-            return ResponseEntity.ok(new JwtTokenResponse(refreshedToken));
-        }
-        throw new MuttleySecurityBadRequestException(null, null, "Token invalido. Faça login novamente");
+        JwtToken token = new JwtToken(request.getHeader(tokenHeader));
+        return ResponseEntity.ok(this.authenticationRestService.refreshAndGetAuthenticationToken(token));
     }
 
     /**
@@ -103,7 +104,7 @@ public class AuthenticationRestController {
      * @param user  -> usuário do token gerado
      * @param token -> token gerado
      */
-    protected void afterGeneratedToken(final JwtUser user, final JwtTokenResponse token) {
+    protected void afterGeneratedToken(final JwtUser user, final JwtToken token) {
     }
 
     private final void checkPayloadContainsUserNameAndPasswdOndy(final Map<String, String> payload) {

@@ -2,7 +2,7 @@ package br.com.muttley.domain.service;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.security.User;
 
 import java.io.Serializable;
 import java.util.List;

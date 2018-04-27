@@ -1,6 +1,7 @@
 package br.com.muttley.model;
 
-import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.User;
 import org.bson.types.ObjectId;
 
 /**

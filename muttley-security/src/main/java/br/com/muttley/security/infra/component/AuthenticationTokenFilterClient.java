@@ -1,6 +1,5 @@
 package br.com.muttley.security.infra.component;
 
-import br.com.muttley.security.infra.component.util.JwtTokenUtil;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,14 +23,11 @@ public class AuthenticationTokenFilterClient extends OncePerRequestFilter {
 
     private final String tokenHeader;
     private final CacheUserAuthenticationService cacheAuth;
-    private final JwtTokenUtil tokenUtil;
 
     public AuthenticationTokenFilterClient(
             @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader,
-            final CacheUserAuthenticationService cacheAuth,
-            final JwtTokenUtil tokenUtil) {
+            final CacheUserAuthenticationService cacheAuth) {
         this.cacheAuth = cacheAuth;
-        this.tokenUtil = tokenUtil;
         this.tokenHeader = tokenHeader;
     }
 

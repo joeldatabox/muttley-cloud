@@ -1,5 +1,6 @@
 package br.com.muttley.exception.throwables;
 
+import br.com.muttley.exception.service.ErrorMessage;
 import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
@@ -69,6 +70,15 @@ public class MuttleyException extends RuntimeException {
         this.message = message;
         this.objectName = "unknow :(";
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    public MuttleyException(ErrorMessage errorMessage) {
+        this.status = errorMessage.getStatus();
+        this.message = errorMessage.getMessage();
+        this.objectName = errorMessage.getObjectName();
+        if (errorMessage.containsDetails()) {
+            this.details.putAll(errorMessage.getDetails());
+        }
     }
 
     public HttpStatus getStatus() {

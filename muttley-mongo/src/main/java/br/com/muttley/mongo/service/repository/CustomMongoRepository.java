@@ -1,7 +1,7 @@
 package br.com.muttley.mongo.service.repository;
 
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.Owner;
+import br.com.muttley.model.security.Owner;
 
 import java.io.Serializable;
 import java.util.List;

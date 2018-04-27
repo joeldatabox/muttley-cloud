@@ -4,9 +4,9 @@ import br.com.muttley.domain.service.Service;
 import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.security.model.enumeration.Authorities;
+import br.com.muttley.model.security.enumeration.Authorities;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
-import br.com.muttley.security.infra.service.UserService;
+import br.com.muttley.security.infra.service.AuthService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,10 +30,10 @@ import static java.util.Objects.isNull;
  */
 public abstract class AbstractRestController<T extends Document, ID extends Serializable> implements RestResource, RestController<T, ID> {
     protected final Service<T, ID> service;
-    protected final UserService userService;
+    protected final AuthService userService;
     protected final ApplicationEventPublisher eventPublisher;
 
-    public AbstractRestController(final Service service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
+    public AbstractRestController(final Service service, final AuthService userService, final ApplicationEventPublisher eventPublisher) {
         this.service = service;
         this.userService = userService;
         this.eventPublisher = eventPublisher;

@@ -4,7 +4,7 @@ import br.com.muttley.domain.service.Service;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyPageableRequestException;
 import br.com.muttley.model.Document;
-import br.com.muttley.model.security.model.User;
+import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.infra.Operators;
 import br.com.muttley.rest.hateoas.event.PaginatedResultsRetrievedEvent;
 import br.com.muttley.rest.hateoas.event.ResourceCreatedEvent;
@@ -101,6 +101,26 @@ public interface RestResource {
 
 
         return new PageableResource(records, metadataPageable);
+    }
+
+    /**
+     * Realiza a paginação de registro utilizando o padrão Rest
+     */
+    default PageableResource toPageableResource(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final PageableResource pageableResource) {
+
+        if (pageableResource.isEmpty()) {
+            throw new MuttleyNoContentException(null, null, "registros não encontrados!");
+        }
+
+        publishPaginatedResultsRetrievedEvent(
+                eventPublisher,
+                response,
+                ServletUriComponentsBuilder.fromCurrentRequest(),
+                pageableResource.get_metadata()
+        );
+
+
+        return pageableResource;
     }
 
     /**

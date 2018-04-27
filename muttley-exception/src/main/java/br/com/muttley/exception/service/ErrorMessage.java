@@ -1,17 +1,23 @@
 package br.com.muttley.exception.service;
 
+import br.com.muttley.exception.service.serializer.HttpStatusDeserializer;
 import br.com.muttley.exception.service.serializer.HttpStatusSerializer;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
@@ -20,14 +26,29 @@ import java.util.Map;
  */
 public final class ErrorMessage {
     @JsonSerialize(using = HttpStatusSerializer.class)
+    @JsonDeserialize(using = HttpStatusDeserializer.class)
     protected HttpStatus status;
     protected String message;
     protected String objectName;
     protected final Map<String, Object> details;
-    private static final String RESPONSE_HEADER = "ERROR-MESSAGE";
+    @JsonIgnore
+    public static final String RESPONSE_HEADER = "error-message";
 
     public ErrorMessage() {
         this.details = new HashMap<>();
+    }
+
+    @JsonCreator
+    public ErrorMessage(
+            @JsonProperty("status") final HttpStatus status,
+            @JsonProperty("message") final String message,
+            @JsonProperty("objectName") final String objectName,
+            @JsonProperty("details") final Map<String, Object> details) {
+
+        this.status = status;
+        this.message = message;
+        this.objectName = objectName;
+        this.details = details;
     }
 
     public HttpStatus getStatus() {
@@ -46,11 +67,16 @@ public final class ErrorMessage {
         return details;
     }
 
+    public boolean containsDetails() {
+        return details != null && !details.isEmpty();
+    }
+
     @JsonIgnore
     protected final String toJson() {
         try {
-            final ObjectMapper mapper = new ObjectMapper();
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+            return new ObjectMapper()
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(this);
         } catch (IOException ex) {
             ex.printStackTrace();
             return null;
@@ -60,7 +86,7 @@ public final class ErrorMessage {
     @JsonIgnore
     protected ResponseEntity<ErrorMessage> toResponseEntity() {
         final HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString());
+        headers.add(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE);
         headers.add(RESPONSE_HEADER, "error-message.model.ts");
         return new ResponseEntity(this, headers, this.status);
     }
