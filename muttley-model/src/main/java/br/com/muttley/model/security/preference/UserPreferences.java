@@ -3,12 +3,9 @@ package br.com.muttley.model.security.preference;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.jackson.UserDeserializer;
-import br.com.muttley.model.security.jackson.UserSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -34,8 +31,7 @@ public class UserPreferences implements Document<ObjectId> {
     public static final String WORK_TEAM_PREFERENCE = "WorkTeamPreference";
     @Id
     private ObjectId id;
-    @JsonDeserialize(using = UserDeserializer.class)
-    @JsonSerialize(using = UserSerializer.class)
+    @JsonIgnore
     @DBRef
     private User user;
     private Historic historic;

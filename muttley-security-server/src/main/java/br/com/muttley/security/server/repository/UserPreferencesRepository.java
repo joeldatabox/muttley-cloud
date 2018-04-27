@@ -1,5 +1,6 @@
 package br.com.muttley.security.server.repository;
 
+import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.bson.types.ObjectId;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserPreferencesRepository extends DocumentMongoRepository<UserPreferences, ObjectId> {
-    @Query("{'user': {'$ref' : 'users', '$id' : ?0} }")
-    UserPreferences findByUser(final String idUser);
+    UserPreferences findByUser(final User idUser);
 }
 

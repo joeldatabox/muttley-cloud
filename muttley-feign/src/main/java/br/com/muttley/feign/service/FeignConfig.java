@@ -35,7 +35,7 @@ public class FeignConfig extends FeignClientsConfiguration {
         final Map<String, Object> map = (Map<String, Object>) env.getPropertySources().get(PROPERTY_SOURCE).getSource();
         map.put("feign.okhttp.enabled", "true");
 
-        env.getPropertySources().addFirst(new MapPropertySource(PROPERTY_SOURCE, map));
+        //env.getPropertySources().addFirst(new MapPropertySource(PROPERTY_SOURCE, map));
         return super.feignBuilder(retryer).client(new OkHttpClient());
     }
 
@@ -44,14 +44,8 @@ public class FeignConfig extends FeignClientsConfiguration {
         final List<HttpMessageConverter<?>> decoderConverters = new ArrayList<>(messageConverters.getObject().getConverters());
         decoderConverters.add(new LongHttpMessageConverter());
 
-        HttpMessageConverters httpMessageConverters = new HttpMessageConverters(decoderConverters);
+        //HttpMessageConverters httpMessageConverters = new HttpMessageConverters(decoderConverters);
 
-        return new SpringDecoder(new ObjectFactory<HttpMessageConverters>() {
-
-            @Override
-            public HttpMessageConverters getObject() {
-                return httpMessageConverters;
-            }
-        });
+        return new SpringDecoder(() -> new HttpMessageConverters(decoderConverters));
     }
 }

@@ -60,8 +60,6 @@ public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 if (!this.cacheAuth.contains(authToken)) {
-                    //notificando que será salvo um usuário no cache do sistema
-                    this.eventPublisher.publishEvent(new UserBeforeCacheSaveEvent(userDetails.getOriginUser()));
                     //salvando no cache
                     this.cacheAuth.set(authToken, userDetails);
                 }

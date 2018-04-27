@@ -1,11 +1,11 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
+import br.com.muttley.model.jackson.JsonHelper;
 import br.com.muttley.model.security.preference.UserPreferences;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
@@ -29,8 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
-import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
 import static java.util.Objects.isNull;
 
 /**
@@ -305,25 +303,7 @@ public class User implements Serializable {
     }
 
     public String toJson() {
-
-
-        String json = "";
-        try {
-            return new ObjectMapper().setVisibility(FIELD, ANY).writeValueAsString(this);
-            /*final ObjectMapper objectMapper = new ObjectMapper();
-            json = objectMapper
-                    .writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(this);*/
-
-        } catch (final Exception ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        //adicionando a senha;
-        /*if (passwd != null) {
-            return json.substring(0, json.length() - 1) + ", \"passwd\":\"" + this.passwd + "\"}";
-        }
-        return json;*/
+        return JsonHelper.toJson(this);
     }
 
     @JsonIgnore

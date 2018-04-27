@@ -21,7 +21,6 @@ public class AccessPlanImpl implements AccessPlan {
     @Id
     private ObjectId id;
     private Historic historic;
-    @Indexed
     @NotBlank(message = "Informe um nome válido")
     private String name;
     @Min(value = 1, message = "É necessário ter ao menos 1 usuário!")

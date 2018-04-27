@@ -2,6 +2,7 @@ package br.com.muttley.security.server.controller;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
@@ -39,7 +40,7 @@ public class UserPreferenceController {
 
     @RequestMapping(value = "/{idUser}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity getPreferences(@PathVariable("idUser") String idUser) {
-        final UserPreferences preferences = this.repository.findByUser(idUser);
+        final UserPreferences preferences = this.repository.findByUser(new User().setId(idUser));
         if (preferences == null) {
             throw new MuttleyNotFoundException(UserPreferences.class, "user", "Nenhuma preferencia encontrada");
         }

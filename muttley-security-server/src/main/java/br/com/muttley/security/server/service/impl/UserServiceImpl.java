@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User save(final User user) {
         final User salvedUser = merge(user);
-        this.preferencesRepository.save(new UserPreferences().setUser(salvedUser));
+        salvedUser.setPreferences(this.preferencesRepository.save(new UserPreferences().setUser(salvedUser)));
         return salvedUser;
     }
 
@@ -145,7 +145,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserPreferences loadPreference(final User user) {
-        return this.preferencesRepository.findByUser(user.getId());
+        return this.preferencesRepository.findByUser(user);
     }
 
     private User merge(final User user) {

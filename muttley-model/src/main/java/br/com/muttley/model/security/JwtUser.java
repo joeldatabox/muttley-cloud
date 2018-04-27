@@ -1,5 +1,6 @@
 package br.com.muttley.model.security;
 
+import br.com.muttley.model.jackson.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -143,12 +144,7 @@ public class JwtUser implements UserDetails {
     }
 
     public String toJson() {
-        try {
-            return new ObjectMapper().setVisibility(FIELD, ANY).writeValueAsString(this);
-        } catch (final Exception ex) {
-            ex.printStackTrace();
-            return null;
-        }
+        return JsonHelper.toJson(this);
     }
 
     public static class UserBuilder {

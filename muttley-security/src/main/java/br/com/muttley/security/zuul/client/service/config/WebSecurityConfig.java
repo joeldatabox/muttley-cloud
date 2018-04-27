@@ -7,6 +7,7 @@ import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import br.com.muttley.security.infra.service.impl.CacheUserAuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,7 +32,7 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration) {
-        return new CacheUserAuthenticationServiceImpl(redisService, expiration);
+    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration, final ApplicationEventPublisher eventPublisher) {
+        return new CacheUserAuthenticationServiceImpl(redisService, expiration, eventPublisher);
     }
 }

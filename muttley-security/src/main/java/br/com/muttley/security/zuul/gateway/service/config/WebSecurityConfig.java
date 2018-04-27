@@ -38,8 +38,8 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration) {
-        return new CacheUserAuthenticationServiceImpl(redisService, expiration);
+    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration, final ApplicationEventPublisher eventPublisher) {
+        return new CacheUserAuthenticationServiceImpl(redisService, expiration, eventPublisher);
     }
 
 }

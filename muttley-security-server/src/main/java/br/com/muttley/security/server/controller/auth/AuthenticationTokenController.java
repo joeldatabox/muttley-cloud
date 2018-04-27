@@ -40,7 +40,7 @@ public class AuthenticationTokenController {
                 //buscando o usuário  presente no token
                 final JwtUser jwtUser = (JwtUser) this.userService.loadUserByUsername(userName);
                 //buscando as preferencias de usuário
-                jwtUser.getOriginUser().setPreferences(this.preferencesRepository.findByUser(jwtUser.getId()));
+                jwtUser.getOriginUser().setPreferences(this.preferencesRepository.findByUser(jwtUser.getOriginUser()));
 
                 //verificando a validade do token
                 if (tokenUtil.validateToken(token.getToken(), jwtUser)) {
