@@ -1,15 +1,8 @@
 package br.com.muttley.security.server.controller;
 
-import br.com.muttley.exception.throwables.MuttleyBadRequestException;
-import br.com.muttley.exception.throwables.MuttleyException;
-import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullException;
-import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
-import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.AccessPlan;
 import br.com.muttley.model.security.AccessPlanImpl;
-import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.enumeration.Authorities;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.AccessPlanService;
@@ -20,9 +13,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -123,7 +113,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlanImpl,
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
-                                                 @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader){
+                                                 @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
         return ResponseEntity.ok(
                 toPageableResource(eventPublisher, response, this.service, null, allRequestParams)
         );
@@ -131,8 +121,8 @@ public class AccessPlanController extends AbstractRestController<AccessPlanImpl,
 
     @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public final ResponseEntity<String> count(@RequestParam final Map<String, Object> allRequestParams,
-                                              @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
+    public final ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams,
+                                      @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
         return ResponseEntity.ok(String.valueOf(service.count(null, allRequestParams)));
     }
 

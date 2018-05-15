@@ -1,9 +1,14 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.jackson.converter.DocumentSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 /**
  * @author Joel Rodrigues Moreira on 24/04/18.
@@ -15,6 +20,11 @@ public class OwnerImpl implements Owner {
     protected ObjectId id;
     protected String name;
     protected String description;
+    @DBRef
+    @Indexed
+    @JsonSerialize(using = DocumentSerializer.class)
+    @JsonDeserialize(using = AccessPlanDes)
+    protected AccessPlan accessPlan;
     protected Historic historic;
 
     @Override
@@ -53,6 +63,17 @@ public class OwnerImpl implements Owner {
     @Override
     public OwnerImpl setDescription(final String description) {
         this.description = description;
+        return this;
+    }
+
+    @Override
+    public AccessPlan getAccessPlan() {
+        return this.accessPlan;
+    }
+
+    @Override
+    public Owner setAccessPlan(final AccessPlan accessPlan) {
+        this.accessPlan = accessPlan;
         return this;
     }
 

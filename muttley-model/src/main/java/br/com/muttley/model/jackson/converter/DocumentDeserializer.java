@@ -19,12 +19,10 @@ import java.io.IOException;
  * @project muttley-cloud
  */
 public abstract class DocumentDeserializer<T extends Document> extends JsonDeserializer<T> {
-    protected final Class<T> clazz;
     protected final ObjectMapper mapper;
     protected final ApplicationEventPublisher eventPublisher;
 
-    public DocumentDeserializer(final Class<T> clazz, final ObjectMapper mapper, final ApplicationEventPublisher eventPublisher) {
-        this.clazz = clazz;
+    public DocumentDeserializer(final ObjectMapper mapper, final ApplicationEventPublisher eventPublisher) {
         this.mapper = mapper;
         this.eventPublisher = eventPublisher;
     }

@@ -118,9 +118,9 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     @Override
     @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public final ResponseEntity<String> count(final Map<String, Object> allRequestParams) {
+    public final ResponseEntity count(final Map<String, Object> allRequestParams) {
         checkRoleRead();
-        return ResponseEntity.ok(String.valueOf(service.count(this.userService.getCurrentUser(), allRequestParams)));
+        return ResponseEntity.ok(service.count(this.userService.getCurrentUser(), allRequestParams));
     }
 
     protected String[] getCreateRoles() {

@@ -144,7 +144,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
 
     @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> count(@RequestParam final Map<String, Object> allRequestParams,
+    public ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams,
                                               @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
 
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));

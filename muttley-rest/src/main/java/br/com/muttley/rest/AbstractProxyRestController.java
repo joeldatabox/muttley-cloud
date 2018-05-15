@@ -6,10 +6,21 @@ import br.com.muttley.rest.hateoas.resource.PageableResource;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.Map;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 /**
  * @author Joel Rodrigues Moreira on 25/04/18.
@@ -27,7 +38,8 @@ public abstract class AbstractProxyRestController<T extends Document, ID extends
     }
 
     @Override
-    public ResponseEntity save(final T value, final HttpServletResponse response, final String returnEntity) {
+    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE})
+    public ResponseEntity save(@RequestBody final T value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
         final T record = client.save(value, returnEntity);
 
         publishCreateResourceEvent(this.eventPublisher, response, record);
@@ -40,18 +52,21 @@ public abstract class AbstractProxyRestController<T extends Document, ID extends
     }
 
     @Override
-    public ResponseEntity update(final String id, final T model) {
+    @RequestMapping(value = "/{id}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final T model) {
         return ResponseEntity.ok(client.update(id, model));
     }
 
     @Override
-    public ResponseEntity deleteById(final String id) {
+    @RequestMapping(value = "/{id}", method = DELETE)
+    public ResponseEntity deleteById(@PathVariable("id") final String id) {
         client.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity findById(final String id, final HttpServletResponse response) {
+    @RequestMapping(value = "/{id}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response) {
         final T value = client.findById(id);
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
@@ -60,6 +75,7 @@ public abstract class AbstractProxyRestController<T extends Document, ID extends
     }
 
     @Override
+    @RequestMapping(value = "/first", method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity first(final HttpServletResponse response) {
         final T value = client.first();
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
@@ -67,20 +83,23 @@ public abstract class AbstractProxyRestController<T extends Document, ID extends
     }
 
     @Override
-    public ResponseEntity loadHistoric(final String id, final HttpServletResponse response) {
+    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
         final Historic historic = client.loadHistoric(id);
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(historic);
     }
 
     @Override
-    public ResponseEntity<PageableResource> list(final HttpServletResponse response, final Map<String, String> allRequestParams) {
+    @RequestMapping(method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestBody final Map<String, String> allRequestParams) {
         final PageableResource pageableResource = client.list(allRequestParams);
         return ResponseEntity.ok(toPageableResource(eventPublisher, response, pageableResource));
     }
 
     @Override
-    public ResponseEntity<String> count(final Map<String, Object> allRequestParams) {
-        return ResponseEntity.ok(String.valueOf(client.count(allRequestParams)));
+    @RequestMapping(value = "/count", method = GET, produces = TEXT_PLAIN_VALUE)
+    public ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams) {
+        return ResponseEntity.ok(client.count(allRequestParams));
     }
 }

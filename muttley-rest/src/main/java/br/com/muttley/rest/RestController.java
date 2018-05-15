@@ -53,5 +53,5 @@ public interface RestController<T, ID extends Serializable> {
 
     @RequestMapping(value = "/count", method = RequestMethod.GET, consumes =TEXT_PLAIN_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<String> count(Map<String, Object> allRequestParams);
+    ResponseEntity<Long> count(Map<String, Object> allRequestParams);
 }
