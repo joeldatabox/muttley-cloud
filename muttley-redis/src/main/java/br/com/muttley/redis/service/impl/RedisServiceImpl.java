@@ -94,13 +94,25 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
     private final ObjectMapper objectMapper;
 
     public JsonRedisSerializer() {
-        this.objectMapper = new ObjectMapper().enableDefaultTyping(NON_FINAL, PROPERTY).setVisibility(FIELD, ANY);
+        //this.objectMapper = new ObjectMapper().enableDefaultTyping(NON_FINAL, PROPERTY).setVisibility(FIELD, ANY);
+        this.objectMapper = new ObjectMapper()
+                .enableDefaultTyping(NON_FINAL, PROPERTY)
+                .setVisibility(FIELD, ANY);
+        /*this.objectMapper
+                .setVisibility(
+                        this.objectMapper
+                                .getDeserializationConfig()
+                                .getDefaultVisibilityChecker()
+                        .withFieldVisibility(JsonAutoDetect.Visibility.)
+                );*/
     }
 
     @Override
     public byte[] serialize(final Object t) throws SerializationException {
         try {
-            return objectMapper.writeValueAsBytes(t);
+            return new ObjectMapper()
+                    .enableDefaultTyping(NON_FINAL, PROPERTY)
+                    .setVisibility(FIELD, ANY).writeValueAsBytes(t);
         } catch (final JsonProcessingException e) {
             throw new SerializationException(e.getMessage(), e);
         }
@@ -114,7 +126,10 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
         }
 
         try {
-            return objectMapper.readValue(bytes, Object.class);
+            return new ObjectMapper()
+                    .enableDefaultTyping(NON_FINAL, PROPERTY)
+                    .setVisibility(FIELD, ANY)
+                    .readValue(bytes, Object.class);
         } catch (final Exception e) {
             throw new SerializationException(e.getMessage(), e);
         }
