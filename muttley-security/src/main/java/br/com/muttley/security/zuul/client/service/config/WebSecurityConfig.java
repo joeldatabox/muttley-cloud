@@ -3,7 +3,9 @@ package br.com.muttley.security.zuul.client.service.config;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
+import br.com.muttley.security.infra.service.AuthService;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
+import br.com.muttley.security.infra.service.impl.AuthServiceImpl;
 import br.com.muttley.security.infra.service.impl.CacheUserAuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,5 +36,10 @@ public class WebSecurityConfig {
     @Autowired
     public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration, final ApplicationEventPublisher eventPublisher) {
         return new CacheUserAuthenticationServiceImpl(redisService, expiration, eventPublisher);
+    }
+
+    @Bean
+    public AuthService createAuthService(@Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+        return new AuthServiceImpl(tokenHeader);
     }
 }
