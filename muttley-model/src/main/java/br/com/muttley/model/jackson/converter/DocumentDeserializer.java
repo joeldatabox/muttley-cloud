@@ -40,7 +40,7 @@ public abstract class DocumentDeserializer<T extends Document> extends JsonDeser
         //disparando para alguem ouvir esse evento
         this.eventPublisher.publishEvent(event);
         //retornando valor recuperado
-        return event.getValueResolved();
+        return event.isResolved() ? event.getValueResolved() : this.newInstance(event.getId());
     }
 
     /**
@@ -49,4 +49,10 @@ public abstract class DocumentDeserializer<T extends Document> extends JsonDeser
      * @param id -> id do documento
      */
     protected abstract DocumentEventResolver<T> createEventResolver(final String id);
+
+    /**
+     * Talvez um determinado serviço não tenha um listener para resolver essa dependencia.
+     * Caso isso ocorra, simplismente devolvemos uma nova instancia com apenas o id preenchido
+     */
+    protected abstract T newInstance(final String id);
 }

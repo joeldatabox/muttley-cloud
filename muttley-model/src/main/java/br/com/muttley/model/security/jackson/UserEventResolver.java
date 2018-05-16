@@ -9,12 +9,12 @@ import org.springframework.context.ApplicationEvent;
  * @project muttley-cloud
  */
 public class UserEventResolver extends ApplicationEvent {
-    final String id;
+    final String email;
     protected User valueResolved;
 
-    public UserEventResolver(final String id) {
-        super(id);
-        this.id = id;
+    public UserEventResolver(final String email) {
+        super(email);
+        this.email = email;
     }
 
     public User getUserResolver() {
@@ -26,7 +26,11 @@ public class UserEventResolver extends ApplicationEvent {
         return this;
     }
 
-    public String getId() {
-        return id;
+    public String getEmail() {
+        return email;
+    }
+
+    public boolean isResolved() {
+        return this.valueResolved != null;
     }
 }

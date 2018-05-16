@@ -1,9 +1,7 @@
 package br.com.muttley.security.server.controller;
 
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.security.AccessPlan;
 import br.com.muttley.model.security.Owner;
-import br.com.muttley.model.security.OwnerImpl;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.OwnerService;
 import br.com.muttley.security.server.service.UserService;
@@ -35,7 +33,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  */
 @RestController
 @RequestMapping(value = "/api/v1/owners", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-public class OwnerController extends AbstractRestController<OwnerImpl, ObjectId> {
+public class OwnerController extends AbstractRestController<Owner, ObjectId> {
 
     @Autowired
     public OwnerController(final OwnerService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
@@ -45,7 +43,7 @@ public class OwnerController extends AbstractRestController<OwnerImpl, ObjectId>
     @RequestMapping(method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity save(
-            @RequestBody final OwnerImpl value,
+            @RequestBody final Owner value,
             final HttpServletResponse response,
             @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity,
             @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
@@ -62,7 +60,7 @@ public class OwnerController extends AbstractRestController<OwnerImpl, ObjectId>
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final OwnerImpl model,
+    public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final Owner model,
                                  @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
         model.setId(id);
         return ResponseEntity.ok(service.update(null, model));

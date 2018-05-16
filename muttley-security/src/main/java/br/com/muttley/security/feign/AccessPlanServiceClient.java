@@ -1,7 +1,6 @@
 package br.com.muttley.security.feign;
 
 import br.com.muttley.model.security.AccessPlan;
-import br.com.muttley.model.security.AccessPlanImpl;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
 import org.springframework.cloud.netflix.feign.FeignClient;
 
@@ -11,6 +10,6 @@ import org.springframework.cloud.netflix.feign.FeignClient;
  * @project muttley-cloud
  */
 @FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/access-plan", configuration = FeignClientConfig.class)
-public interface AccessPlanServiceClient extends RestControllerClient<AccessPlanImpl> {
+public interface AccessPlanServiceClient extends RestControllerClient<AccessPlan> {
 
 }

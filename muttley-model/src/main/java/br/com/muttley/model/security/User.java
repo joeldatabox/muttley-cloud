@@ -299,7 +299,7 @@ public class User implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return Objects.hash(getId(),"dfg");
     }
 
     public String toJson() {

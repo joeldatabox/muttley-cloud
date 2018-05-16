@@ -29,4 +29,8 @@ public class DocumentEventResolver<T extends Document> extends ApplicationEvent 
     public String getId() {
         return id;
     }
+
+    public boolean isResolved() {
+        return this.valueResolved != null;
+    }
 }

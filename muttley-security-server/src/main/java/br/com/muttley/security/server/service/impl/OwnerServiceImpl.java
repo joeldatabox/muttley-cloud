@@ -1,11 +1,15 @@
 package br.com.muttley.security.server.service.impl;
 
+import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.User;
+import br.com.muttley.security.server.events.OwnerCreateEvent;
 import br.com.muttley.security.server.repository.OwnerRepository;
 import br.com.muttley.security.server.service.OwnerService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import static java.util.Objects.isNull;
@@ -19,11 +23,31 @@ import static java.util.Objects.isNull;
 @Service
 public class OwnerServiceImpl extends SecurityServiceImpl<Owner, ObjectId> implements OwnerService {
     private final OwnerRepository repository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public OwnerServiceImpl(final OwnerRepository repository) {
+    public OwnerServiceImpl(final OwnerRepository repository, final ApplicationEventPublisher eventPublisher) {
         super(repository, Owner.class);
         this.repository = repository;
+        this.eventPublisher = eventPublisher;
+    }
+
+    @Override
+    public Owner save(final User user, final Owner value) {
+        if (value.getUserMaster() == null || value.getUserMaster().getId() == null) {
+            throw new MuttleyBadRequestException(Owner.class, "userMaster", "Informe um usuário válido");
+        }
+        final Owner salvedOwner = super.save(user, value);
+        this.eventPublisher.publishEvent(new OwnerCreateEvent(salvedOwner));
+        return salvedOwner;
+    }
+
+    @Override
+    public Owner update(final User user, final Owner value) {
+        if (value.getUserMaster() == null || value.getUserMaster().getId() == null) {
+            throw new MuttleyBadRequestException(Owner.class, "userMaster", "Informe um usuário válido");
+        }
+        return super.update(user, value);
     }
 
     @Override

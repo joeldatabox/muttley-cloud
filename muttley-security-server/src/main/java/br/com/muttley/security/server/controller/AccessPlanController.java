@@ -2,7 +2,6 @@ package br.com.muttley.security.server.controller;
 
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.AccessPlan;
-import br.com.muttley.model.security.AccessPlanImpl;
 import br.com.muttley.model.security.enumeration.Authorities;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.AccessPlanService;
@@ -34,7 +33,7 @@ import static java.util.Objects.isNull;
  */
 @RestController
 @RequestMapping(value = "/api/v1/access-plan", produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-public class AccessPlanController extends AbstractRestController<AccessPlanImpl, ObjectId> {
+public class AccessPlanController extends AbstractRestController<AccessPlan, ObjectId> {
 
     @Autowired
     public AccessPlanController(final AccessPlanService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
@@ -44,7 +43,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlanImpl,
     @RequestMapping(method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity save(
-            @RequestBody final AccessPlanImpl value,
+            @RequestBody final AccessPlan value,
             final HttpServletResponse response,
             @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity,
             @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
@@ -61,7 +60,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlanImpl,
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final AccessPlanImpl model,
+    public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final AccessPlan model,
                                  @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
         model.setId(id);
         return ResponseEntity.ok(service.update(null, model));

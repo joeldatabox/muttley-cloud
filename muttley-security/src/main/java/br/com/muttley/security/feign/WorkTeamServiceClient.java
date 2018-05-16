@@ -1,6 +1,6 @@
 package br.com.muttley.security.feign;
 
-import br.com.muttley.model.security.OwnerImpl;
+import br.com.muttley.model.security.Owner;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
 import org.springframework.cloud.netflix.feign.FeignClient;
 
@@ -10,6 +10,6 @@ import org.springframework.cloud.netflix.feign.FeignClient;
  * @project muttley-cloud
  */
 @FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/work-teams", configuration = FeignClientConfig.class)
-public interface WorkTeamServiceClient extends RestControllerClient<OwnerImpl> {
+public interface WorkTeamServiceClient extends RestControllerClient<Owner> {
 
 }

@@ -36,6 +36,6 @@ public class UserDeserializer extends JsonDeserializer<User> {
         //disparando para alguem ouvir esse evento
         this.eventPublisher.publishEvent(event);
         //retornando valor recuperado
-        return event.getUserResolver();
+        return event.isResolved() ? event.getUserResolver() : new User().setEmail(event.getEmail());
     }
 }

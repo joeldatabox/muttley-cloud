@@ -23,10 +23,15 @@ public class OwnerDeserializer extends DocumentDeserializer<Owner> {
         return new OwnerEventResolver(id);
     }
 
-    public class OwnerEventResolver extends DocumentEventResolver<Owner> {
+    @Override
+    protected Owner newInstance(final String id) {
+        return new Owner().setId(id);
+    }
 
+    public class OwnerEventResolver extends DocumentEventResolver<Owner> {
         public OwnerEventResolver(final String id) {
             super(id);
         }
     }
+
 }
