@@ -17,6 +17,6 @@ public class FeignClientConfig {
     public BasicAuthRequestInterceptor createBasicAuthRequestInterceptor(
             @Value("${muttley.config-server.security.user.name}") final String userName,
             @Value("${muttley.config-server.security.user.password}") final String passWord) {
-        return new BasicAuthRequestInterceptor(userName, passWord);
+        return new Xbas(userName, passWord);
     }
 }

@@ -1,6 +1,7 @@
 package br.com.muttley.security.infra.service.impl;
 
 import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
 import br.com.muttley.model.security.events.UserBeforeCacheSaveEvent;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
@@ -39,7 +40,7 @@ public class CacheUserAuthenticationServiceImpl implements CacheUserAuthenticati
         final JwtUser jwtUser = (JwtUser) redisService.get(token);
         if (jwtUser != null) {
             //Notificando que foi carregado um usuário do cache do sistema
-            this.eventPublisher.publishEvent(new UserBeforeCacheSaveEvent(jwtUser.getOriginUser()));
+            this.eventPublisher.publishEvent(new UserAfterCacheLoadEvent(jwtUser.getOriginUser()));
         }
         return jwtUser;
     }
