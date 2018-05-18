@@ -8,11 +8,11 @@ import org.springframework.context.ApplicationEvent;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class UserEventResolver extends ApplicationEvent {
+public class UserResolverEvent extends ApplicationEvent {
     final String email;
     protected User valueResolved;
 
-    public UserEventResolver(final String email) {
+    public UserResolverEvent(final String email) {
         super(email);
         this.email = email;
     }
@@ -21,7 +21,7 @@ public class UserEventResolver extends ApplicationEvent {
         return valueResolved;
     }
 
-    public UserEventResolver setValueResolved(final User valueResolved) {
+    public UserResolverEvent setValueResolved(final User valueResolved) {
         this.valueResolved = valueResolved;
         return this;
     }

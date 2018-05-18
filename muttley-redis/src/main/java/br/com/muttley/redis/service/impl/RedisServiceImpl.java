@@ -2,7 +2,10 @@ package br.com.muttley.redis.service.impl;
 
 import br.com.muttley.redis.service.RedisService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.bson.types.ObjectId;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -91,28 +94,10 @@ public class RedisServiceImpl<T> implements RedisService<T> {
 
 class JsonRedisSerializer implements RedisSerializer<Object> {
 
-    private final ObjectMapper objectMapper;
-
-    public JsonRedisSerializer() {
-        //this.objectMapper = new ObjectMapper().enableDefaultTyping(NON_FINAL, PROPERTY).setVisibility(FIELD, ANY);
-        this.objectMapper = new ObjectMapper()
-                .enableDefaultTyping(NON_FINAL, PROPERTY)
-                .setVisibility(FIELD, ANY);
-        /*this.objectMapper
-                .setVisibility(
-                        this.objectMapper
-                                .getDeserializationConfig()
-                                .getDefaultVisibilityChecker()
-                        .withFieldVisibility(JsonAutoDetect.Visibility.)
-                );*/
-    }
-
     @Override
-    public byte[] serialize(final Object t) throws SerializationException {
+    public byte[] serialize(final Object value) throws SerializationException {
         try {
-            return new ObjectMapper()
-                    .enableDefaultTyping(NON_FINAL, PROPERTY)
-                    .setVisibility(FIELD, ANY).writeValueAsBytes(t);
+            return getObjectMapper().writeValueAsBytes(value);
         } catch (final JsonProcessingException e) {
             throw new SerializationException(e.getMessage(), e);
         }
@@ -120,19 +105,25 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
 
     @Override
     public Object deserialize(final byte[] bytes) throws SerializationException {
-
         if (bytes == null) {
             return null;
         }
-
         try {
-            return new ObjectMapper()
-                    .enableDefaultTyping(NON_FINAL, PROPERTY)
-                    .setVisibility(FIELD, ANY)
-                    .readValue(bytes, Object.class);
+            return getObjectMapper().readValue(bytes, Object.class);
         } catch (final Exception e) {
             throw new SerializationException(e.getMessage(), e);
         }
+    }
+
+    private static ObjectMapper getObjectMapper() {
+        return new ObjectMapper()
+                .enableDefaultTyping(NON_FINAL, PROPERTY)
+                .registerModule(
+                        new SimpleModule("ObjectId",
+                                new Version(1, 0, 0, null, null, null)
+                        ).addSerializer(ObjectId.class, new ObjectIdSerializer())
+                )
+                .setVisibility(FIELD, ANY);
     }
 }
 
