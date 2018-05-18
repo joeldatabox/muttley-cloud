@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
@@ -23,38 +22,32 @@ public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
     private final String userName;
     private final String passWord;
     private final String role;
-    private final XAuthenticationFilter authenticationFilter;
-    private final XAuthenticationProvider authenticationProvider;
 
     @Autowired
     public WebSecurityClientConfig(
             @Value("${muttley.security-server.user.name}") final String userName,
             @Value("${muttley.security-server.user.password}") final String passWord,
-            @Value("${muttley.security-server.user.role}") final String role,
-            final XAuthenticationFilter authenticationFilter,
-            final XAuthenticationProvider authenticationProvider) {
+            @Value("${muttley.security-server.user.role}") final String role) {
         this.userName = userName;
         this.passWord = passWord;
         this.role = role;
-        this.authenticationFilter = authenticationFilter;
-        this.authenticationProvider = authenticationProvider;
     }
 
     /**
      * Configurando usuário e senha necessário para autenticação no serviço
      */
-    /*@Autowired
+    @Autowired
     public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
                 .withUser(this.userName)
                 .password(this.passWord)
                 .roles(this.role);
-    }*/
+    }
 
-    @Override
+    /*@Override
     protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(this.authenticationProvider);
-    }
+    }*/
 
     /**
      * Configurando a segurança exigida para acessar o serviço
@@ -65,7 +58,6 @@ public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .hasRole(this.role)
                 .and()
-                .addFilterBefore(authenticationFilter, BasicAuthenticationFilter.class)
                 .httpBasic()
                 .and()
                 .csrf()
