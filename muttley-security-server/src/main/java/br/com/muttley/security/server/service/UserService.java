@@ -1,11 +1,9 @@
 package br.com.muttley.security.server.service;
 
-import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.UserPreferences;
-import br.com.muttley.model.security.JwtToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Collection;
@@ -17,6 +15,9 @@ import java.util.Collection;
 public interface UserService extends UserDetailsService {
     User save(final User user);
 
+    /**
+     * Salva as preferencias de um determinado usuário
+     */
     void save(final User user, final UserPreferences preferences);
 
     boolean remove(final User user);

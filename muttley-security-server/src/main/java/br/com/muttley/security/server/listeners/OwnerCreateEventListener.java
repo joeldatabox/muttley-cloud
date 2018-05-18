@@ -1,11 +1,16 @@
 package br.com.muttley.security.server.listeners;
 
+import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
+import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.events.OwnerCreateEvent;
+import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+
+import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM_PREFERENCE;
 
 /**
  * @author Joel Rodrigues Moreira on 16/05/18.
@@ -19,22 +24,35 @@ import org.springframework.stereotype.Component;
 public class OwnerCreateEventListener implements ApplicationListener<OwnerCreateEvent> {
 
     private final WorkTeamService service;
+    private final UserService userService;
 
     @Autowired
-    public OwnerCreateEventListener(final WorkTeamService service) {
+    public OwnerCreateEventListener(final WorkTeamService service, final UserService userService) {
         this.service = service;
+        this.userService = userService;
     }
 
     @Override
     public void onApplicationEvent(final OwnerCreateEvent ownerCreateEvent) {
-        this.service.save(
-                ownerCreateEvent.getSource().getUserMaster(),
+        final User userMaster = ownerCreateEvent.getSource().getUserMaster();
+        final WorkTeam workTeam = this.service.save(
+                userMaster,
                 new WorkTeam()
                         .setName("Master")
                         .setDescription("Esse é o grupo principal")
                         .setOwner(ownerCreateEvent.getSource())
-                        .setUserMaster(ownerCreateEvent.getSource().getUserMaster())
-                        .addMember(ownerCreateEvent.getSource().getUserMaster())
+                        .setUserMaster(userMaster)
+                        .addMember(userMaster)
         );
+
+        /*Já que acabamos de criar um Owner, devemos verificar se o usuário master já tem algumas preferencias básicas
+         * tudo isso para evitar erros
+         */
+        final UserPreferences preference = this.userService.loadPreference(userMaster);
+        if (!preference.contains(WORK_TEAM_PREFERENCE)) {
+            preference.set(WORK_TEAM_PREFERENCE, workTeam);
+            //salvando as alterções das preferencias
+            this.userService.save(userMaster, preference);
+        }
     }
 }
