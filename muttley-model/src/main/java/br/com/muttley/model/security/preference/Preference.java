@@ -1,6 +1,7 @@
 package br.com.muttley.model.security.preference;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
@@ -47,6 +48,7 @@ public class Preference {
     /**
      * @return true se a key não for nula nem for uma String vazia
      */
+    @JsonIgnore
     public boolean isValid() {
         return !isEmpty(this.key);
     }

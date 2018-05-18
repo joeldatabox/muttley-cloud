@@ -8,11 +8,11 @@ import org.springframework.context.ApplicationEvent;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class DocumentEventResolver<T extends Document> extends ApplicationEvent {
+public class DocumentResolverEvent<T extends Document> extends ApplicationEvent {
     final String id;
     protected T valueResolved;
 
-    public DocumentEventResolver(final String id) {
+    public DocumentResolverEvent(final String id) {
         super(id);
         this.id = id;
     }
@@ -21,7 +21,7 @@ public class DocumentEventResolver<T extends Document> extends ApplicationEvent 
         return valueResolved;
     }
 
-    public DocumentEventResolver<T> setValueResolved(final T valueResolved) {
+    public DocumentResolverEvent<T> setValueResolved(final T valueResolved) {
         this.valueResolved = valueResolved;
         return this;
     }

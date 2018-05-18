@@ -1,14 +1,14 @@
 package br.com.muttley.model.jackson.converter;
 
 import br.com.muttley.model.Document;
-import br.com.muttley.model.jackson.converter.event.DocumentEventResolver;
+import br.com.muttley.model.jackson.converter.event.DocumentResolverEvent;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.IOException;
@@ -19,13 +19,8 @@ import java.io.IOException;
  * @project muttley-cloud
  */
 public abstract class DocumentDeserializer<T extends Document> extends JsonDeserializer<T> {
-    protected final ObjectMapper mapper;
-    protected final ApplicationEventPublisher eventPublisher;
-
-    public DocumentDeserializer(final ObjectMapper mapper, final ApplicationEventPublisher eventPublisher) {
-        this.mapper = mapper;
-        this.eventPublisher = eventPublisher;
-    }
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Override
     public T deserialize(final JsonParser parser, final DeserializationContext context) throws IOException, JsonProcessingException {
@@ -35,20 +30,27 @@ public abstract class DocumentDeserializer<T extends Document> extends JsonDeser
         /*if (node.isObject()) {
             return this.mapper.readValue(parser, clazz);
         }*/
-        //criando evento
-        final DocumentEventResolver<T> event = createEventResolver(node.asText());
-        //disparando para alguem ouvir esse evento
-        this.eventPublisher.publishEvent(event);
-        //retornando valor recuperado
-        return event.isResolved() ? event.getValueResolved() : this.newInstance(event.getId());
+        //Vamos verificar se o deserializer está no contexto do spring e que o mesmo conseguiu injetar o eventPublisher
+        if (eventPublisher != null) {
+            //criando evento
+            final DocumentResolverEvent<T> event = createEventResolver(node.asText());
+            //disparando para alguem ouvir esse evento
+            this.eventPublisher.publishEvent(event);
+            //retornando valor recuperado
+            return event.isResolved() ? event.getValueResolved() : this.newInstance(event.getId());
+        }
+        /**provavelmente o deserializer está sendo usado fora do contexto do spring
+         *ou seja, devemos apenas injetar o ID e nada mais
+         */
+        return node.isNull() ? null : this.newInstance(node.asText());
     }
 
     /**
-     * Deve retornar uma instancia de {@link DocumentEventResolver}
+     * Deve retornar uma instancia de {@link DocumentResolverEvent}
      *
      * @param id -> id do documento
      */
-    protected abstract DocumentEventResolver<T> createEventResolver(final String id);
+    protected abstract DocumentResolverEvent<T> createEventResolver(final String id);
 
     /**
      * Talvez um determinado serviço não tenha um listener para resolver essa dependencia.

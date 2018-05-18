@@ -3,7 +3,6 @@ package br.com.muttley.model.security.preference;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -130,6 +129,11 @@ public class UserPreferences implements Document<ObjectId> {
 
     public UserPreferences set(final String key, final Object value) {
         this.preferences.add(new Preference(key, value));
+        return this;
+    }
+
+    public UserPreferences set(final String key, final Document value) {
+        this.preferences.add(new Preference(key, value.getId()));
         return this;
     }
 

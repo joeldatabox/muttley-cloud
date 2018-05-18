@@ -135,6 +135,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @JsonIgnore
     public Owner getCurrentOwner() {
         if (isNull(getCurrentWorkTeam())) {
             return null;

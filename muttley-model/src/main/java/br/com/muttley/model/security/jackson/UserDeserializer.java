@@ -1,13 +1,14 @@
 package br.com.muttley.model.security.jackson;
 
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.events.UserResolverEvent;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -20,22 +21,22 @@ import java.io.IOException;
  */
 @Component
 public class UserDeserializer extends JsonDeserializer<User> {
-    protected final ObjectMapper mapper;
-    protected final ApplicationEventPublisher eventPublisher;
-
-    public UserDeserializer(final ObjectMapper mapper, final ApplicationEventPublisher eventPublisher) {
-        this.mapper = mapper;
-        this.eventPublisher = eventPublisher;
-    }
+    @Autowired
+    protected ApplicationEventPublisher eventPublisher;
 
     @Override
     public User deserialize(final JsonParser parser, final DeserializationContext context) throws IOException, JsonProcessingException {
         final ObjectCodec oc = parser.getCodec();
         final JsonNode node = oc.readTree(parser);
-        final UserEventResolver event = new UserEventResolver(node.asText());
-        //disparando para alguem ouvir esse evento
-        this.eventPublisher.publishEvent(event);
-        //retornando valor recuperado
-        return event.isResolved() ? event.getUserResolver() : new User().setEmail(event.getEmail());
+        //verificando se o eventPublisher foi injetado no contexto do spring
+        if (this.eventPublisher != null) {
+            final UserResolverEvent event = new UserResolverEvent(node.asText());
+            //disparando para alguem ouvir esse evento
+            this.eventPublisher.publishEvent(event);
+            //retornando valor recuperado
+            return event.isResolved() ? event.getUserResolver() : new User().setEmail(event.getEmail());
+        }
+        //deserializando o usuário com apenas o email mesmo
+        return node.isNull() ? null : new User().setEmail(node.asText());
     }
 }
