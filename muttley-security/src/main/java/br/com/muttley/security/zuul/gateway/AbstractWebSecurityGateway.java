@@ -2,7 +2,6 @@ package br.com.muttley.security.zuul.gateway;
 
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.security.feign.UserServiceClient;
-import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import org.springframework.beans.factory.annotation.Autowired;

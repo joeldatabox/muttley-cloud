@@ -10,7 +10,6 @@ import br.com.muttley.model.security.enumeration.Authorities;
 import br.com.muttley.rest.RestResource;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.UserService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

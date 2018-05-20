@@ -51,7 +51,7 @@ public interface RestController<T, ID extends Serializable> {
     @RequestMapping(method = RequestMethod.GET)
     ResponseEntity<PageableResource> list(HttpServletResponse response, @RequestParam Map<String, String> allRequestParams);
 
-    @RequestMapping(value = "/count", method = RequestMethod.GET, consumes =TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "/count", method = RequestMethod.GET, consumes = TEXT_PLAIN_VALUE)
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<Long> count(Map<String, Object> allRequestParams);
 }

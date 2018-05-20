@@ -2,7 +2,6 @@ package br.com.muttley.security.infra.component;
 
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
-import br.com.muttley.model.security.events.UserBeforeCacheSaveEvent;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
