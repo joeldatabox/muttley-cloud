@@ -38,8 +38,6 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     protected final Service<T, ID> service;
     protected final UserService userService;
     protected final ApplicationEventPublisher eventPublisher;
-    @Value("${muttley.security.jwt.controller.tokenHeader}")
-    private String tokenHeader;
 
     public AbstractRestController(final Service service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
         this.service = service;
@@ -53,7 +51,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
             @RequestBody final T value,
             final HttpServletResponse response,
             @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity,
-            @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
+            @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
 
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         this.checkRoleCreate(user);
@@ -69,9 +67,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final T model,
-                                 @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
-
+    public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final T model, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleUpdate(user);
         model.setId(id);
@@ -80,9 +76,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity deleteById(@PathVariable("id") final String id,
-                                     @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
-
+    public ResponseEntity deleteById(@PathVariable("id") final String id, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleDelete(user);
         service.deleteById(user, deserializerId(id));
@@ -91,52 +85,40 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response,
-                                   @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
-
+    public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+        System.out.println("jwt " + tokenHeader);
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        System.out.println("User " + user);
         checkRoleRead(user);
         final T value = service.findById(user, deserializerId(id));
-
+        System.out.println("Valor encontrado " + value.getId());
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
-
         return ResponseEntity.ok(value);
     }
 
     @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity first(final HttpServletResponse response,
-                                @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
-
+    public ResponseEntity first(final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleRead(user);
         final T value = service.findFirst(user);
-
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
-
         return ResponseEntity.ok(value);
     }
 
     @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response,
-                                       @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
-
+    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleRead(user);
         final Historic historic = service.loadHistoric(user, deserializerId(id));
-
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
-
         return ResponseEntity.ok(historic);
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<PageableResource> list(
-            final HttpServletResponse response,
-            @RequestParam final Map<String, String> allRequestParams,
-            @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
-
+    public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
+                                                 @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleRead(user);
         return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, user, allRequestParams));
@@ -144,9 +126,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
 
     @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams,
-                                              @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader) {
-
+    public ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleRead(user);
         return ResponseEntity.ok(String.valueOf(service.count(user, allRequestParams)));

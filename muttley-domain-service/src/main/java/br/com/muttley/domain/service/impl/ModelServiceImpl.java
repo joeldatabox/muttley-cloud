@@ -81,7 +81,7 @@ public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> ext
         }
 
         final T result = this.repository.findOne(user.getCurrentOwner(), id);
-        if (isNull(id)) {
+        if (isNull(result)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return result;

@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 public abstract class DocumentDeserializer<T extends Document> extends JsonDeserializer<T> {
     @Autowired
-    private ApplicationEventPublisher eventPublisher;
+    protected ApplicationEventPublisher eventPublisher;
 
     @Override
     public T deserialize(final JsonParser parser, final DeserializationContext context) throws IOException, JsonProcessingException {
@@ -37,7 +37,7 @@ public abstract class DocumentDeserializer<T extends Document> extends JsonDeser
             //disparando para alguem ouvir esse evento
             this.eventPublisher.publishEvent(event);
             //retornando valor recuperado
-            return event.isResolved() ? event.getValueResolved() : this.newInstance(event.getId());
+            return event.isResolved() ? event.getValueResolved() : this.newInstance(event.getSource());
         }
         /**provavelmente o deserializer está sendo usado fora do contexto do spring
          *ou seja, devemos apenas injetar o ID e nada mais

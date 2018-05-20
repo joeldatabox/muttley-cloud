@@ -1,8 +1,8 @@
 package br.com.muttley.security.server.controller;
 
 import br.com.muttley.model.security.WorkTeam;
-import br.com.muttley.security.server.service.OwnerService;
 import br.com.muttley.security.server.service.UserService;
+import br.com.muttley.security.server.service.WorkTeamService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,7 +22,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class WorkTeamController extends AbstractRestController<WorkTeam, ObjectId> {
 
     @Autowired
-    public WorkTeamController(final OwnerService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
+    public WorkTeamController(final WorkTeamService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
         super(service, userService, eventPublisher);
     }
 

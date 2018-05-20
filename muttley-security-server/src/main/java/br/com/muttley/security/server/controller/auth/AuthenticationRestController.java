@@ -7,19 +7,15 @@ import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.events.UserLoggedEvent;
 import br.com.muttley.security.server.service.impl.JwtTokenUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +36,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping(value = "/api/v1/users/authentication", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
 public class AuthenticationRestController {
 
-    protected final String tokenHeader;
     protected static final String USERNAME = "username";
     protected static final String PASSWORD = "password";
 
@@ -50,8 +45,7 @@ public class AuthenticationRestController {
     protected final UserDetailsService userDetailsService;
 
     @Autowired
-    public AuthenticationRestController(final @Value("${muttley.security.jwt.controller.tokenHeader}") String tokenHeader, final AuthenticationManager authenticationManager, final JwtTokenUtilService jwtTokenUtil, final UserDetailsService userDetailsService, final ApplicationEventPublisher eventPublisher) {
-        this.tokenHeader = tokenHeader;
+    public AuthenticationRestController(final AuthenticationManager authenticationManager, final JwtTokenUtilService jwtTokenUtil, final UserDetailsService userDetailsService, final ApplicationEventPublisher eventPublisher) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;
         this.userDetailsService = userDetailsService;
@@ -61,24 +55,14 @@ public class AuthenticationRestController {
     @RequestMapping(value = "/login", method = POST)
     public ResponseEntity createAuthenticationToken(@RequestBody final Map<String, String> payload, Device device, HttpServletRequest request) {
         checkPayloadContainsUserNameAndPasswdOndy(payload);
-
         checkPayloadSize(payload);
 
         try {
-            /*final br.com.muttley.model.security.User user = new br.com.muttley.model.security.User();
-            user.setEmail()
-            final Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            payload.get(USERNAME),
-                            payload.get(PASSWORD)
-                    )
-            );*/
 
             //se chegou até aqui é sinal que o usuário e senha é valido
             final JwtUser userDetails = (JwtUser) userDetailsService.loadUserByUsername(payload.get(USERNAME));
             //gerando o token de autorização
             JwtToken token = new JwtToken(jwtTokenUtil.generateToken(userDetails, device));
-
             //lançando evento de usuário logado
             this.eventPublisher.publishEvent(new UserLoggedEvent(userDetails.getOriginUser()));
             //devolvendo token gerado
@@ -90,10 +74,8 @@ public class AuthenticationRestController {
 
     @RequestMapping(value = "/refresh", method = POST)
     public ResponseEntity<?> refreshAndGetAuthenticationToken(@RequestBody JwtToken token) {
-
         String username = jwtTokenUtil.getUsernameFromToken(token.getToken());
         JwtUser user = (JwtUser) userDetailsService.loadUserByUsername(username);
-
         if (jwtTokenUtil.canTokenBeRefreshed(token.getToken(), user.getLastPasswordResetDate())) {
             String refreshedToken = jwtTokenUtil.refreshToken(token.getToken());
             return ResponseEntity.ok(new JwtToken(refreshedToken));

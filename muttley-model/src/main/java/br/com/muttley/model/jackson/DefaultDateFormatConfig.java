@@ -14,8 +14,9 @@ import java.util.Locale;
  * Cria um {@link java.text.SimpleDateFormat} que irá serializar por padrão no formato <b>yyyy-MM-dd'T'HH:mm:ss.SSSZ</b>
  */
 public class DefaultDateFormatConfig extends SimpleDateFormat {
+
     public DefaultDateFormatConfig() {
-        super();
+        this("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     }
 
     public DefaultDateFormatConfig(@Value("${br.com.muttley.jackson.date-pattern:yyyy-MM-dd'T'HH:mm:ss.SSSZ}") final String pattern) {

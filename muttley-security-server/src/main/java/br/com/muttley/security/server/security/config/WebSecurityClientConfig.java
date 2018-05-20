@@ -23,7 +23,6 @@ public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
     private final String passWord;
     private final String role;
 
-    @Autowired
     public WebSecurityClientConfig(
             @Value("${muttley.security-server.user.name}") final String userName,
             @Value("${muttley.security-server.user.password}") final String passWord,
@@ -43,11 +42,6 @@ public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
                 .password(this.passWord)
                 .roles(this.role);
     }
-
-    /*@Override
-    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(this.authenticationProvider);
-    }*/
 
     /**
      * Configurando a segurança exigida para acessar o serviço

@@ -120,7 +120,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     @ResponseStatus(HttpStatus.OK)
     public final ResponseEntity count(final Map<String, Object> allRequestParams) {
         checkRoleRead();
-        return ResponseEntity.ok(service.count(this.userService.getCurrentUser(), allRequestParams));
+        return ResponseEntity.ok(String.valueOf(service.count(this.userService.getCurrentUser(), allRequestParams)));
     }
 
     protected String[] getCreateRoles() {

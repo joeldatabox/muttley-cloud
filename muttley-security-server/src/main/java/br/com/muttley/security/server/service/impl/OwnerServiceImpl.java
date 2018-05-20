@@ -37,6 +37,9 @@ public class OwnerServiceImpl extends SecurityServiceImpl<Owner, ObjectId> imple
         if (value.getUserMaster() == null || value.getUserMaster().getId() == null) {
             throw new MuttleyBadRequestException(Owner.class, "userMaster", "Informe um usuário válido");
         }
+        if (value.getAccessPlan() == null || value.getAccessPlan().getId() == null) {
+            throw new MuttleyBadRequestException(Owner.class, "accessPlan", "Informe um plano de acesso");
+        }
         final Owner salvedOwner = super.save(user, value);
         this.eventPublisher.publishEvent(new OwnerCreateEvent(salvedOwner));
         return salvedOwner;

@@ -38,7 +38,6 @@ public class Owner implements br.com.muttley.model.Document<ObjectId> {
     @JsonDeserialize(using = UserDeserializer.class)
     @DBRef
     protected User userMaster;
-    @NotNull(message = "Informe um plano de acesso")
     @JsonSerialize(using = DocumentSerializer.class)
     @JsonDeserialize(using = AccessPlanDeserializer.class)
     @DBRef

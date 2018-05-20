@@ -1,8 +1,10 @@
 package br.com.muttley.model;
 
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.jackson.UserSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
@@ -13,6 +15,7 @@ import java.util.Date;
  * @project muttley-cloud
  */
 public class Historic {
+    @JsonSerialize(using = UserSerializer.class)
     @DBRef
     private User createdBy;
     @Indexed

@@ -26,7 +26,7 @@ public class DocumentResolverEvent<T extends Document> extends ApplicationEvent 
         return this;
     }
 
-    public String getId() {
+    public String getSource() {
         return id;
     }
 

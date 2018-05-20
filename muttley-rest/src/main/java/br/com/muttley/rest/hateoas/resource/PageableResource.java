@@ -1,5 +1,6 @@
 package br.com.muttley.rest.hateoas.resource;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
@@ -27,6 +28,7 @@ public final class PageableResource implements Serializable {
         return _metadata;
     }
 
+    @JsonIgnore
     public boolean isEmpty() {
         return CollectionUtils.isEmpty(this.records);
     }
