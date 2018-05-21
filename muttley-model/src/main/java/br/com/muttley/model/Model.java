@@ -10,7 +10,9 @@ import org.bson.types.ObjectId;
  */
 public interface Model<T extends ObjectId> extends Document<T> {
 
-    Model setOwner(final User user);
+    default Model setOwner(final User user) {
+        return this.setOwner(user.getCurrentOwner());
+    }
 
     Model setOwner(final Owner owner);
 

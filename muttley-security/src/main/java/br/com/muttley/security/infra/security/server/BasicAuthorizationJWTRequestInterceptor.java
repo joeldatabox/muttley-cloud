@@ -36,9 +36,13 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
     @Override
     public void apply(final RequestTemplate template) {
         template.header("Authorization", this.headerValue);
-        final String AUTH = this.getAuthorizationJWT();
-        if (!isEmpty(AUTH)) {
-            template.header(AUTHORIZATION_JWT, AUTH);
+        try {
+            final String AUTH = this.getAuthorizationJWT();
+            if (!isEmpty(AUTH)) {
+                template.header(AUTHORIZATION_JWT, AUTH);
+            }
+        } catch (IllegalStateException ex) {
+            ex.printStackTrace();
         }
     }
 

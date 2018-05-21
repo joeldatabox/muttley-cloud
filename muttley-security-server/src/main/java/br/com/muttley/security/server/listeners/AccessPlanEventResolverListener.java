@@ -23,6 +23,6 @@ public class AccessPlanEventResolverListener implements ApplicationListener<Acce
 
     @Override
     public void onApplicationEvent(final AccessPlanResolver event) {
-        event.setValueResolved(this.planoService.findById(null, new ObjectId(event.getId())));
+        event.setValueResolved(this.planoService.findById(null, new ObjectId(event.getSource())));
     }
 }

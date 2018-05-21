@@ -30,4 +30,12 @@ public class DefaultDateFormatConfig extends SimpleDateFormat {
     public DefaultDateFormatConfig(final String pattern, final DateFormatSymbols formatSymbols) {
         super(pattern, formatSymbols);
     }
+
+    public static DefaultDateFormatConfig createDateTime() {
+        return new DefaultDateFormatConfig();
+    }
+
+    public static DefaultDateFormatConfig createDateOnly() {
+        return new DefaultDateFormatConfig();
+    }
 }
