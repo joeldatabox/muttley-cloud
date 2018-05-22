@@ -85,12 +85,9 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
-        System.out.println("jwt " + tokenHeader);
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        System.out.println("User " + user);
         checkRoleRead(user);
         final T value = service.findById(user, deserializerId(id));
-        System.out.println("Valor encontrado " + value.getId());
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
     }

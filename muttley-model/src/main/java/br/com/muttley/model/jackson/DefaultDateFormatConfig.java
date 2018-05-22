@@ -36,6 +36,6 @@ public class DefaultDateFormatConfig extends SimpleDateFormat {
     }
 
     public static DefaultDateFormatConfig createDateOnly() {
-        return new DefaultDateFormatConfig();
+        return new DefaultDateFormatConfig("yyyy-MM-dd");
     }
 }
