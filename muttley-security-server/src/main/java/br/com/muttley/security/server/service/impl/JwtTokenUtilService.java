@@ -100,8 +100,7 @@ public class JwtTokenUtilService implements Serializable {
     }
 
     private final Date generateExpirationDate() {
-        return Date.from(Instant.now().plusMillis(expiration * 1000));
-        //return new Date(System.currentTimeMillis() + expiration * 1000);
+        return Date.from(Instant.now().plusMillis(expiration));
     }
 
     private final boolean isTokenExpired(String token) {
