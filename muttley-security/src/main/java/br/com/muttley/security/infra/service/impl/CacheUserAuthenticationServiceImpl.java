@@ -1,5 +1,6 @@
 package br.com.muttley.security.infra.service.impl;
 
+import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
 import br.com.muttley.model.security.events.UserBeforeCacheSaveEvent;
@@ -48,5 +49,23 @@ public class CacheUserAuthenticationServiceImpl implements CacheUserAuthenticati
     @Override
     public boolean contains(final String token) {
         return redisService.hasKey(token);
+    }
+
+    @Override
+    public void remove(final JwtToken token) {
+        this.redisService.delete(token.getToken());
+    }
+
+    @Override
+    public boolean refreshToken(final JwtToken currentToken, final JwtToken newToken) {
+        //verificando se o token exite
+        if (contains(currentToken.getToken())) {
+            //alterando o token do usuário
+            set(newToken.getToken(), get(currentToken.getToken()));
+            //removendo token anterior
+            remove(currentToken);
+            return true;
+        }
+        return false;
     }
 }

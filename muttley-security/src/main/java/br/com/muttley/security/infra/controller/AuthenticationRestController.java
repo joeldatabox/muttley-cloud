@@ -7,12 +7,11 @@ import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.UserPayLoadLogin;
 import br.com.muttley.model.security.events.UserLoggedEvent;
 import br.com.muttley.security.feign.auth.AuthenticationRestServiceClient;
-import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
+import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mobile.device.Device;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,24 +41,24 @@ public class AuthenticationRestController {
     protected final ApplicationEventPublisher eventPublisher;
     protected final AuthenticationManager authenticationManager;
     protected final AuthenticationRestServiceClient authenticationRestService;
-    protected final AuthenticationTokenServiceClient authenticationTokenService;
+    protected final CacheUserAuthenticationService cacheAuthService;
 
     @Autowired
     public AuthenticationRestController(
             final @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") String tokenHeader,
             final AuthenticationManager authenticationManager,
             final AuthenticationRestServiceClient authenticationRestService,
-            final AuthenticationTokenServiceClient authenticationTokenService,
-            final ApplicationEventPublisher eventPublisher) {
+            final ApplicationEventPublisher eventPublisher,
+            final CacheUserAuthenticationService cacheAuthService) {
         this.tokenHeader = tokenHeader;
         this.authenticationManager = authenticationManager;
         this.authenticationRestService = authenticationRestService;
-        this.authenticationTokenService = authenticationTokenService;
         this.eventPublisher = eventPublisher;
+        this.cacheAuthService = cacheAuthService;
     }
 
     @RequestMapping(value = "${muttley.security.jwt.controller.loginEndPoint}", method = RequestMethod.POST)
-    public ResponseEntity createAuthenticationToken(@RequestBody final Map<String, String> payload, Device device, HttpServletRequest request) {
+    public ResponseEntity createAuthenticationToken(@RequestBody final Map<String, String> payload) {
         checkPayloadContainsUserNameAndPasswdOndy(payload);
 
         checkPayloadSize(payload);
@@ -94,8 +93,10 @@ public class AuthenticationRestController {
 
     @RequestMapping(value = "${muttley.security.jwt.controller.refreshEndPoint}", method = RequestMethod.GET)
     public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
-        JwtToken token = new JwtToken(request.getHeader(tokenHeader));
-        return ResponseEntity.ok(this.authenticationRestService.refreshAndGetAuthenticationToken(token));
+        final JwtToken currentToken = new JwtToken(request.getHeader(tokenHeader));
+        final JwtToken newToken = this.authenticationRestService.refreshAndGetAuthenticationToken(currentToken);
+        cacheAuthService.refreshToken(currentToken, newToken);
+        return ResponseEntity.ok(newToken);
     }
 
     /**
