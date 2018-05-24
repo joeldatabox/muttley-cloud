@@ -6,6 +6,7 @@ import br.com.muttley.jackson.service.infra.deserializer.ObjectIdDeserializer;
 import br.com.muttley.jackson.service.infra.serializer.ObjectIdSerializer;
 import br.com.muttley.model.jackson.DefaultDateFormatConfig;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -57,6 +58,10 @@ public class JacksonConfig {
                         mapperBuilder.deserializerByType(d.getType(), d.getSerializer());
                     }
                 }
+                //caso algum animal de teta informe uma string no lugar de um objeto, é setado null por padrão
+                mapperBuilder.featuresToEnable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                        //ignora erro de deserializacao caso uma propriedade não foi encontrada
+                        .featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             }
         };
     }

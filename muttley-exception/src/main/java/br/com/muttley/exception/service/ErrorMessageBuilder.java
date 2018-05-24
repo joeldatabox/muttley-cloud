@@ -66,13 +66,15 @@ public class ErrorMessageBuilder {
                 cont = true;
             }
             String[] path = violation.getPropertyPath().toString().split("arg");
+            String keyDetail = null;
             if (path.length > 1) {
-                addDetails(this.message.objectName + "." + path[1].substring(path[1].indexOf(".") + 1), violation.getMessage());
-                //this.concatMessage(violation.getMessage());
+                keyDetail = path[1].substring(path[1].indexOf(".") + 1);
             } else {
-                addDetails(this.message.objectName + "." + path[0], violation.getMessage());
-                //this.concatMessage(violation.getMessage());
+                keyDetail = path[0];
             }
+            addDetails(
+                    keyDetail.startsWith(this.message.objectName) ? keyDetail : this.message.objectName + "." + keyDetail, violation.getMessage()
+            );
         }
         printException(ex);
         return this.message;
