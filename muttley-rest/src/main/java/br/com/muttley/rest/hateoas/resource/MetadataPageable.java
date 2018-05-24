@@ -1,9 +1,12 @@
 package br.com.muttley.rest.hateoas.resource;
 
+import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.rest.util.LinkUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,10 +50,11 @@ public class MetadataPageable {
         }
         this.skip = skip;
         this.limit = limit;
-        addFirstPage(componentsBuilder);
-        addPreviusPage(componentsBuilder);
-        addNextPage(componentsBuilder);
-        addLastPage(componentsBuilder);
+        final UriComponentsBuilder components = this.compileUrl(componentsBuilder);
+        addFirstPage(components);
+        addPreviusPage(components);
+        addNextPage(components);
+        addLastPage(components);
     }
 
     public Long getPage() {
@@ -81,7 +85,6 @@ public class MetadataPageable {
                             .replaceQueryParam(SKIP, skip + limit)
                             .replaceQueryParam(LIMIT, limit)
                             .build()
-                            //.encode()
                             .toUriString()
             ));
 
@@ -196,5 +199,23 @@ public class MetadataPageable {
                 .filter(l -> LinkUtil.REL_LAST.equals(l.getRel()))
                 .findFirst()
                 .get();
+    }
+
+    /**
+     * Processa a URL corrente e remove carecteres indesejados
+     */
+    private UriComponentsBuilder compileUrl(final UriComponentsBuilder componentsBuilder) {
+        try {
+            return UriComponentsBuilder
+                    .fromHttpUrl(
+                            URLDecoder.decode(
+                                    componentsBuilder
+                                            .build(false)
+                                            .toString()
+                                    , "UTF-8")
+                    );
+        } catch (UnsupportedEncodingException e) {
+            throw new MuttleyException(e);
+        }
     }
 }
