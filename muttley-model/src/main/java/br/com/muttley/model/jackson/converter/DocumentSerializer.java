@@ -16,7 +16,12 @@ import java.io.IOException;
 public class DocumentSerializer extends JsonSerializer<Document> {
     @Override
     public void serialize(final Document document, final JsonGenerator gen, final SerializerProvider serializers) throws IOException, JsonProcessingException {
-        gen.writeString(document != null ? document.getId().toString() : null);
+        if (document != null) {
+            gen.writeString(document.getId().toString());
+        } else {
+            gen.writeNull();
+        }
+
     }
 }
 

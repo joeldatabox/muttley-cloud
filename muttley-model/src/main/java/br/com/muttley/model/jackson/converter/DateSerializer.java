@@ -17,8 +17,9 @@ import java.util.Date;
 public class DateSerializer extends JsonSerializer<Date> {
     @Override
     public void serialize(final Date date, final JsonGenerator jsonGenerator, final SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
-        jsonGenerator.writeString(
-                DefaultDateFormatConfig.createDateOnly().format(date)
+        jsonGenerator.writeString(date != null ?
+                DefaultDateFormatConfig.createDateOnly().format(date) :
+                null
         );
     }
 }

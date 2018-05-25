@@ -7,8 +7,10 @@ import org.springframework.context.ApplicationEvent;
  * @author Joel Rodrigues Moreira on 29/03/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
+ * <p>
+ * Classe que abstrai a criação de eventos para deserializar documentos
  */
-public class DocumentResolverEvent<T extends Document> extends ApplicationEvent {
+public abstract class DocumentResolverEvent<T extends Document> extends ApplicationEvent {
     final String id;
     protected T valueResolved;
 
