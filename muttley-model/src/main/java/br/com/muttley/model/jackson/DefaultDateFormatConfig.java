@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * @author Joel Rodrigues Moreira on 22/02/18.
@@ -21,6 +22,7 @@ public class DefaultDateFormatConfig extends SimpleDateFormat {
 
     public DefaultDateFormatConfig(@Value("${br.com.muttley.jackson.date-pattern:yyyy-MM-dd'T'HH:mm:ss.SSSZ}") final String pattern) {
         super(pattern);
+        this.setTimeZone(TimeZone.getDefault());
     }
 
     public DefaultDateFormatConfig(final String pattern, final Locale locale) {

@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -18,7 +20,16 @@ public class DateSerializer extends JsonSerializer<Date> {
     @Override
     public void serialize(final Date date, final JsonGenerator jsonGenerator, final SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
         jsonGenerator.writeString(date != null ?
-                DefaultDateFormatConfig.createDateOnly().format(date) :
+                DefaultDateFormatConfig.createDateOnly().format(Date.from(
+                        LocalDateTime
+                                .ofInstant(date.toInstant(), ZoneId.systemDefault())
+                                .withHour(0)
+                                .withMinute(0)
+                                .withSecond(0)
+                                .withNano(0)
+                                .atZone(ZoneId.systemDefault())
+                                .toInstant()
+                )) :
                 null
         );
     }
