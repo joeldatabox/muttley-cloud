@@ -31,7 +31,7 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public AuthenticationTokenFilterClient createAuthenticationTokenFilterClient(@Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader, final CacheUserAuthenticationService cacheAuth) {
+    public AuthenticationTokenFilterClient createAuthenticationTokenFilterClient(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, final CacheUserAuthenticationService cacheAuth) {
         return new AuthenticationTokenFilterClient(tokenHeader, cacheAuth);
     }
 
@@ -42,7 +42,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public AuthService createAuthService(@Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+    public AuthService createAuthService(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader) {
         return new AuthServiceImpl(tokenHeader);
     }
 
