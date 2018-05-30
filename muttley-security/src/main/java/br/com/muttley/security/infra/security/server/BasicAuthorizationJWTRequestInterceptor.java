@@ -8,6 +8,7 @@ import org.springframework.security.crypto.codec.Base64;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.Charset;
 
 import static org.springframework.util.StringUtils.isEmpty;
@@ -50,7 +51,18 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
         }
     }
 
+    /**
+     * Deve retornar o token do usuário corrente na requisição
+     */
     private String getAuthorizationJWT() {
-        return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getHeader("Authorization");
+        final HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        //Talvez a requisão já advem de outro subserviço, ou seja já contem no header o "Authorization-jwt"
+        final String jwtToken = request.getHeader(this.authorizationJwt);
+        if (!isEmpty(jwtToken)) {
+            return jwtToken;
+        }
+        //se chegou até aqui quer dizer que ninguem ainda não fez esse tratamento
+        //devemos pegar o token no "Authorization"
+        return request.getHeader(this.authorization);
     }
 }

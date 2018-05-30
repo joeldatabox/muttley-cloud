@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <spring-cloud.version>Edgware.RELEASE</spring-cloud.version>
+        <spring-cloud.version>Edgware.SR3</spring-cloud.version>
     </properties>
 
     <modules>
@@ -38,6 +38,7 @@
         <module>muttley-domain-service</module>
         <module>muttley-jackson</module>
         <module>muttley-feign</module>
+        <module>muttley-zuul</module>
     </modules>
 
     <dependencies>
@@ -131,6 +132,12 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-feign</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-zuul</artifactId>
                 <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
