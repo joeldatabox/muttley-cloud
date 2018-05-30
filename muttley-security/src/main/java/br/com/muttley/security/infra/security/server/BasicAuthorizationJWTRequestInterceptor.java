@@ -3,6 +3,7 @@ package br.com.muttley.security.infra.security.server;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import feign.Util;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -19,7 +20,10 @@ import static org.springframework.util.StringUtils.isEmpty;
 public class BasicAuthorizationJWTRequestInterceptor implements RequestInterceptor {
     private static final Charset CHARSET = Charset.forName("ISO-8859-1");
     //${muttley.security.jwt.client.tokenHeader:Athorization-JWT}
-    private final String AUTHORIZATION_JWT = "Authorization-jwt";
+    @Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}")
+    private String authorizationJwt;
+    @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}")
+    private String authorization;
     private final String headerValue;
 
     public BasicAuthorizationJWTRequestInterceptor(final String username, final String password) {
@@ -29,17 +33,17 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
     }
 
     private static String base64Encode(String userPasswd) {
-        return "Basic " + new String(Base64.encode(userPasswd.getBytes(Charset.forName("ISO-8859-1"))), CHARSET);
+        return "Basic " + new String(Base64.encode(userPasswd.getBytes(CHARSET)), CHARSET);
     }
 
 
     @Override
     public void apply(final RequestTemplate template) {
-        template.header("Authorization", this.headerValue);
+        template.header(authorization, this.headerValue);
         try {
             final String AUTH = this.getAuthorizationJWT();
             if (!isEmpty(AUTH)) {
-                template.header(AUTHORIZATION_JWT, AUTH);
+                template.header(authorizationJwt, AUTH);
             }
         } catch (IllegalStateException ex) {
             ex.printStackTrace();
