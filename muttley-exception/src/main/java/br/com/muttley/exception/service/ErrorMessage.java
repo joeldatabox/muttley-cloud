@@ -14,10 +14,12 @@ import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
@@ -25,6 +27,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  * @project spring-cloud
  */
 public final class ErrorMessage {
+    @JsonIgnore
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     @JsonSerialize(using = HttpStatusSerializer.class)
     @JsonDeserialize(using = HttpStatusDeserializer.class)
     protected HttpStatus status;
@@ -55,18 +59,72 @@ public final class ErrorMessage {
         return status;
     }
 
+    public ErrorMessage setStatus(final HttpStatus status) {
+        this.status = status;
+        return this;
+    }
+
     public String getMessage() {
         return message;
+    }
+
+    public ErrorMessage setMessage(final String message) {
+        this.message = message;
+        return this;
     }
 
     public String getObjectName() {
         return objectName;
     }
 
+    public ErrorMessage setObjectName(final String objectName) {
+        this.objectName = objectName;
+        return this;
+    }
+
     public Map<String, Object> getDetails() {
         return details;
     }
 
+    public static String getResponseHeader() {
+        return RESPONSE_HEADER;
+    }
+
+    @JsonIgnore
+    public ErrorMessage concatMessage(final String message) {
+        if (isEmpty(this.message)) {
+            this.message = message;
+        } else {
+            this.message += LINE_SEPARATOR + message;
+        }
+        return this;
+    }
+
+    @JsonIgnore
+    public ErrorMessage addDetails(final String key, Object value) {
+        this.details.put(key, value);
+        return this;
+    }
+
+    @JsonIgnore
+    public ErrorMessage addDetails(final String key, final Object... value) {
+        this.details.put(key, value);
+        return this;
+    }
+
+    @JsonIgnore
+    public ErrorMessage addDetails(final String key, final List<Object> value) {
+        this.details.put(key, value);
+        return this;
+    }
+
+    @JsonIgnore
+    public ErrorMessage addDetails(final Map<String, Object> details) {
+        this.details.putAll(details);
+        return this;
+    }
+
+    @JsonIgnore
     public boolean containsDetails() {
         return details != null && !details.isEmpty();
     }

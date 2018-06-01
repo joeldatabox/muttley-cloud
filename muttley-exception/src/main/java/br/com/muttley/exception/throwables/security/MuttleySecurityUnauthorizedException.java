@@ -1,10 +1,10 @@
 package br.com.muttley.exception.throwables.security;
 
+import br.com.muttley.exception.throwables.MuttleyException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,12 +12,7 @@ import java.util.Map;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project spring-cloud
  */
-public class MuttleySecurityUnauthorizedException extends RuntimeException {
-
-    protected HttpStatus status;
-    final protected String message;
-    protected String objectName;
-    final protected Map<String, Object> details = new HashMap<>();
+public class MuttleySecurityUnauthorizedException extends MuttleyException {
 
     public MuttleySecurityUnauthorizedException() {
         this.status = HttpStatus.UNAUTHORIZED;
@@ -72,43 +67,6 @@ public class MuttleySecurityUnauthorizedException extends RuntimeException {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    public MuttleySecurityUnauthorizedException setStatus(final HttpStatus status) {
-        this.status = status;
-        return this;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
-    public String getObjectName() {
-        return objectName;
-    }
-
-    public Map<String, Object> getDetails() {
-        return details;
-    }
-
-    public MuttleySecurityUnauthorizedException addDetails(final String key, final Object value) {
-        this.details.put(key, value);
-        return this;
-    }
-
-    public MuttleySecurityUnauthorizedException addDetails(final String key, final List<Object> value) {
-        this.details.put(key, value);
-        return this;
-    }
-
-    public MuttleySecurityUnauthorizedException addDetails(final Map<String, Object> details) {
-        this.details.putAll(details);
-        return this;
-    }
-
-    public HttpStatus getStatus() {
-        return status;
-    }
-
     public Map getMapResponse() {
         final Map<String, Object> map = new HashMap<>();
         map.put("status", status.value());
@@ -127,10 +85,5 @@ public class MuttleySecurityUnauthorizedException extends RuntimeException {
             ex.printStackTrace();
             return null;
         }
-    }
-
-
-    public boolean containsDetais() {
-        return !this.details.isEmpty();
     }
 }
