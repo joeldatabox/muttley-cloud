@@ -178,6 +178,4 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     public ResponseEntity handleMuttleySecurityUnauthorizedException(final MuttleySecurityUnauthorizedException ex) {
         return messageBuilder.buildMessage(ex).toResponseEntity();
     }
-
-
 }

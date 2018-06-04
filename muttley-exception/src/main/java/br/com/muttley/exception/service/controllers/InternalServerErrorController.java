@@ -1,7 +1,6 @@
 package br.com.muttley.exception.service.controllers;
 
 import org.springframework.boot.autoconfigure.web.ErrorController;
-import org.springframework.stereotype.Controller;
 
 /**
  * @author Joel Rodrigues Moreira on 04/06/18.
