@@ -14,10 +14,10 @@ import java.util.Map;
  */
 
 public class MuttleyException extends RuntimeException {
-    protected final HttpStatus status;
-    protected final String message;
+    protected HttpStatus status;
+    protected String message;
     protected String objectName;
-    protected final Map<String, Object> details = new HashMap<>();
+    protected Map<String, Object> details = new HashMap<>();
 
     public MuttleyException() {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -28,10 +28,6 @@ public class MuttleyException extends RuntimeException {
     public MuttleyException(final String message, final HttpStatus status, final Class clazz, final String field, final String info) {
         this.message = message;
         this.status = status;
-        /*if (clazz != null) {
-            this.objectName = clazz.getSimpleName().toLowerCase();
-            this.details.put(this.objectName + "." + field, info);
-        }*/
         if (clazz != null) {
             this.objectName = clazz.getSimpleName().toLowerCase();
         }
@@ -72,7 +68,7 @@ public class MuttleyException extends RuntimeException {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    public MuttleyException(ErrorMessage errorMessage) {
+    public MuttleyException(final ErrorMessage errorMessage) {
         this.status = errorMessage.getStatus();
         this.message = errorMessage.getMessage();
         this.objectName = errorMessage.getObjectName();
@@ -85,17 +81,37 @@ public class MuttleyException extends RuntimeException {
         return status;
     }
 
+    public MuttleyException setStatus(final HttpStatus status) {
+        this.status = status;
+        return this;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
+    public MuttleyException setMessage(final String message) {
+        this.message = message;
+        return this;
+    }
+
     public String getObjectName() {
         return objectName;
+    }
+
+    public MuttleyException setObjectName(final String objectName) {
+        this.objectName = objectName;
+        return this;
     }
 
     public Map<String, Object> getDetails() {
         return details;
     }
 
-    @Override
-    public String getMessage() {
-        return message;
+    public MuttleyException setDetails(final Map<String, Object> details) {
+        this.details = details;
+        return this;
     }
 
     public MuttleyException addDetails(final String key, final Object value) {

@@ -1,5 +1,6 @@
 package br.com.muttley.security.infra.component;
 
+import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,15 +40,17 @@ public class AuthenticationTokenFilterClient extends OncePerRequestFilter {
         if (!isNullOrEmpty(authToken)) {
 
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                try {
+                    //buscando o usuário no cache
+                    final UserDetails userDetails = this.cacheAuth.get(authToken);
 
-                //buscando o usuário no cache
-                final UserDetails userDetails = this.cacheAuth.get(authToken);
-
-                //verificando a validade do token
-                if (userDetails != null) {
-                    final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    //verificando a validade do token
+                    if (userDetails != null) {
+                        final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                } catch (MuttleySecurityUnauthorizedException ex) {
                 }
             }
         }

@@ -1,5 +1,6 @@
 package br.com.muttley.exception.throwables;
 
+import br.com.muttley.exception.service.ErrorMessage;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -16,5 +17,9 @@ public class MuttleyNotFoundException extends MuttleyException {
 
     public MuttleyNotFoundException(final Class clazz, final String field, final String message) {
         super("AbstractResource Not Found", HttpStatus.NOT_FOUND, clazz, field, message);
+    }
+
+    public MuttleyNotFoundException(final ErrorMessage errorMessage) {
+        super(errorMessage);
     }
 }

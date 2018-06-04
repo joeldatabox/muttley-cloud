@@ -1,5 +1,6 @@
 package br.com.muttley.exception.throwables;
 
+import br.com.muttley.exception.service.ErrorMessage;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -12,5 +13,9 @@ public class MuttleyNotAcceptableException extends MuttleyException {
 
     public MuttleyNotAcceptableException(final Class clazz, final String field, final String message) {
         super("Not Acceptable", HttpStatus.NOT_ACCEPTABLE, clazz, field, message);
+    }
+
+    public MuttleyNotAcceptableException(final ErrorMessage errorMessage) {
+        super(errorMessage);
     }
 }

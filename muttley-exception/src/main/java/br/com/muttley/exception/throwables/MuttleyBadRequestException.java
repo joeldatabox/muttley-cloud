@@ -1,6 +1,8 @@
 package br.com.muttley.exception.throwables;
 
-import org.springframework.http.HttpStatus;
+import br.com.muttley.exception.service.ErrorMessage;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
@@ -9,8 +11,21 @@ import org.springframework.http.HttpStatus;
  */
 
 public class MuttleyBadRequestException extends MuttleyException {
+    public MuttleyBadRequestException() {
+    }
+
+    public MuttleyBadRequestException(final Throwable cause) {
+        super(cause);
+        super.setMessage("Bad Request")
+                .setStatus(BAD_REQUEST)
+                .setObjectName(null);
+    }
 
     public MuttleyBadRequestException(final Class clazz, final String field, final String message) {
-        super("Bad Request", HttpStatus.BAD_REQUEST, clazz, field, message);
+        super("Bad Request", BAD_REQUEST, clazz, field, message);
+    }
+
+    public MuttleyBadRequestException(final ErrorMessage errorMessage) {
+        super(errorMessage);
     }
 }

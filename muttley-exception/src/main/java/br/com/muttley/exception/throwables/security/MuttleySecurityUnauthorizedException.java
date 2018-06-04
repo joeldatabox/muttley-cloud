@@ -1,5 +1,7 @@
 package br.com.muttley.exception.throwables.security;
 
+import br.com.muttley.exception.service.ErrorMessage;
+import br.com.muttley.exception.throwables.MuttleyException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 
@@ -12,17 +14,16 @@ import java.util.Map;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project spring-cloud
  */
-public class MuttleySecurityUnauthorizedException extends RuntimeException {
-
-    protected HttpStatus status;
-    final protected String message;
-    protected String objectName;
-    final protected Map<String, Object> details = new HashMap<>();
+public class MuttleySecurityUnauthorizedException extends MuttleyException {
 
     public MuttleySecurityUnauthorizedException() {
         this.status = HttpStatus.UNAUTHORIZED;
         this.message = "ERROR *-*";
         this.objectName = "unknow :(";
+    }
+
+    public MuttleySecurityUnauthorizedException(final ErrorMessage errorMessage) {
+        super(errorMessage);
     }
 
     public MuttleySecurityUnauthorizedException(final String message, final HttpStatus status, final Class clazz, final String field, final String info) {
@@ -72,41 +73,10 @@ public class MuttleySecurityUnauthorizedException extends RuntimeException {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    public MuttleySecurityUnauthorizedException setStatus(final HttpStatus status) {
-        this.status = status;
-        return this;
-    }
-
     @Override
-    public String getMessage() {
-        return message;
-    }
-
-    public String getObjectName() {
-        return objectName;
-    }
-
-    public Map<String, Object> getDetails() {
-        return details;
-    }
-
-    public MuttleySecurityUnauthorizedException addDetails(final String key, final Object value) {
-        this.details.put(key, value);
+    public MuttleySecurityUnauthorizedException setStatus(final HttpStatus status) {
+        super.setStatus(status);
         return this;
-    }
-
-    public MuttleySecurityUnauthorizedException addDetails(final String key, final List<Object> value) {
-        this.details.put(key, value);
-        return this;
-    }
-
-    public MuttleySecurityUnauthorizedException addDetails(final Map<String, Object> details) {
-        this.details.putAll(details);
-        return this;
-    }
-
-    public HttpStatus getStatus() {
-        return status;
     }
 
     public Map getMapResponse() {
@@ -120,6 +90,24 @@ public class MuttleySecurityUnauthorizedException extends RuntimeException {
         return map;
     }
 
+    @Override
+    public MuttleySecurityUnauthorizedException addDetails(final String key, final Object value) {
+        super.addDetails(key, value);
+        return this;
+    }
+
+    @Override
+    public MuttleySecurityUnauthorizedException addDetails(final String key, final List<Object> value) {
+        super.addDetails(key, value);
+        return this;
+    }
+
+    @Override
+    public MuttleySecurityUnauthorizedException addDetails(final Map<String, Object> details) {
+        super.addDetails(details);
+        return this;
+    }
+
     public String toJson() {
         try {
             return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(getMapResponse());
@@ -127,10 +115,5 @@ public class MuttleySecurityUnauthorizedException extends RuntimeException {
             ex.printStackTrace();
             return null;
         }
-    }
-
-
-    public boolean containsDetais() {
-        return !this.details.isEmpty();
     }
 }

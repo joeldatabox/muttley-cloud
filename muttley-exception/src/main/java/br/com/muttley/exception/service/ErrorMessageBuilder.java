@@ -1,5 +1,6 @@
 package br.com.muttley.exception.service;
 
+import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
@@ -7,21 +8,27 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.util.List;
-import java.util.Map;
 
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
+import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
@@ -31,38 +38,38 @@ import static org.springframework.util.StringUtils.isEmpty;
 @Component
 public class ErrorMessageBuilder {
     private static final Logger logger = LoggerFactory.getLogger(ErrorMessageBuilder.class);
-    private ErrorMessage message;
     private final boolean STACK_TRACE;
     private final boolean RESPONSE_EXCEPTION;
-    private final String LINE_SEPARATOR = System.getProperty("line.separator");
+
 
     public ErrorMessageBuilder(@Value("${muttley.print.stackTrace:false}") final boolean STACK_TRACE, @Value("${muttley.print.responseException:false}") final boolean RESPONSE_EXCEPTION) {
         this.STACK_TRACE = STACK_TRACE;
         this.RESPONSE_EXCEPTION = RESPONSE_EXCEPTION;
     }
 
-    public ErrorMessage build(final MethodArgumentNotValidException ex) {
-        this.message = new ErrorMessage();
-        setStatus(HttpStatus.BAD_REQUEST);
-        setMessage(HttpStatus.BAD_REQUEST.getReasonPhrase());
-        setObjectName(ex.getBindingResult().getObjectName());
+    public ErrorMessage buildMessage(final MethodArgumentNotValidException ex) {
+        final ErrorMessage message = new ErrorMessage()
+                .setStatus(BAD_REQUEST)
+                .setMessage(BAD_REQUEST.getReasonPhrase())
+                .setObjectName(ex.getBindingResult().getObjectName());
+
         for (ObjectError fieldError : ex.getBindingResult().getAllErrors()) {
             String key = fieldError.getCodes()[0].replace(fieldError.getCodes()[fieldError.getCodes().length - 1] + ".", "");
-            addDetails(key, fieldError.getDefaultMessage());
+            message.addDetails(key, fieldError.getDefaultMessage());
         }
-        printException(ex);
-        return this.message;
+        printException(ex, message);
+        return message;
     }
 
-    public ErrorMessage build(final ConstraintViolationException ex) {
-        this.message = new ErrorMessage();
-        setStatus(HttpStatus.BAD_REQUEST);
-        setMessage(HttpStatus.BAD_REQUEST.getReasonPhrase());
+    public ErrorMessage buildMessage(final ConstraintViolationException ex) {
+        final ErrorMessage message = new ErrorMessage()
+                .setStatus(BAD_REQUEST)
+                .setMessage(BAD_REQUEST.getReasonPhrase());
         boolean cont = false;
         for (ConstraintViolation violation : ex.getConstraintViolations()) {
             if (!cont) {
-                setObjectName(violation.getLeafBean().getClass().getSimpleName().toLowerCase());
-                setMessage(violation.getMessage());
+                message.setObjectName(violation.getLeafBean().getClass().getSimpleName().toLowerCase());
+                message.setMessage(violation.getMessage());
                 cont = true;
             }
             String[] path = violation.getPropertyPath().toString().split("arg");
@@ -72,129 +79,114 @@ public class ErrorMessageBuilder {
             } else {
                 keyDetail = path[0];
             }
-            addDetails(
-                    keyDetail.startsWith(this.message.objectName) ? keyDetail : this.message.objectName + "." + keyDetail, violation.getMessage()
+            message.addDetails(
+                    keyDetail.startsWith(message.objectName) ? keyDetail : message.objectName + "." + keyDetail, violation.getMessage()
             );
         }
-        printException(ex);
-        return this.message;
+        printException(ex, message);
+        return message;
     }
 
-    public ErrorMessage build(final HttpMediaTypeNotSupportedException ex) {
-        this.message = new ErrorMessage();
-        setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-        setMessage(ex.getMessage().replace("'null' ", ""));
-        String contentType = "uninformed";
-        addDetails("ContentType", ex.getContentType() == null ? contentType : ex.getContentType().toString());
-        //addDetails("SupportedMediaTypes", ex.getSupportedMediaTypes().stream().map(mt -> mt.toString()).collect(Collectors.toList()));
-        addDetails("SupportedMediaTypes", MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE);
-        printException(ex);
-        return this.message;
+    public ErrorMessage buildMessage(final BindException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
+        ex.getBindingResult().getFieldErrors().forEach(e -> {
+            message.addDetails(e.getField(), e.getDefaultMessage());
+        });
+        printException(ex, message);
+        return message;
     }
 
-    public ErrorMessage build(final HttpMessageNotReadableException ex) {
-        this.message = new ErrorMessage();
-        setStatus(HttpStatus.BAD_REQUEST);
+    public ErrorMessage buildMessage(final TypeMismatchException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
+        printException(ex, message);
+        return message;
+    }
+
+    public ErrorMessage buildMessage(final MissingServletRequestPartException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
+        printException(ex, message);
+        return message;
+    }
+
+    public ErrorMessage buildMessage(final MissingServletRequestParameterException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
+        printException(ex, message);
+        return message;
+    }
+
+    public ErrorMessage buildMessage(final MethodArgumentTypeMismatchException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
+        printException(ex, message);
+        return message;
+    }
+
+    public ErrorMessage buildMessage(final HttpRequestMethodNotSupportedException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex))
+                .setStatus(METHOD_NOT_ALLOWED)
+                .setMessage(METHOD_NOT_ALLOWED.getReasonPhrase());
+        printException(ex, message);
+        return message;
+    }
+
+    public ErrorMessage buildMessage(final HttpMediaTypeNotSupportedException ex) {
+        final ErrorMessage message = new ErrorMessage()
+                .setStatus(UNSUPPORTED_MEDIA_TYPE)
+                .setMessage(ex.getMessage().replace("'null' ", ""))
+                .addDetails("ContentType", ex.getContentType() == null ? "uninformed" : ex.getContentType().toString())
+                .addDetails("SupportedMediaTypes", APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE);
+        printException(ex, message);
+        return message;
+    }
+
+    public ErrorMessage buildMessage(final HttpMessageNotReadableException ex) {
+        final ErrorMessage message = new ErrorMessage()
+                .setStatus(BAD_REQUEST);
         //procurando exceções de negocio
-        MuttleyException de = (MuttleyException) findInivistateException(ex, null);
+        final Throwable throwable = ex.getMostSpecificCause();
 
-        if (de != null) {
-            return build(de);
+        if (throwable instanceof MuttleyException) {
+            return buildMessage((MuttleyException) throwable);
         } else if (ex.getCause() instanceof com.fasterxml.jackson.core.JsonParseException) {
             JsonLocation location = ((com.fasterxml.jackson.core.JsonParseException) ex.getCause()).getLocation();
-            setMessage("Illegal character in line:" + location.getLineNr() + " column:" + location.getColumnNr());
+            message.setMessage("Illegal character in line:" + location.getLineNr() + " column:" + location.getColumnNr());
         } else if (ex.getCause() instanceof JsonMappingException) {
             JsonLocation location = ((JsonMappingException) ex.getCause()).getLocation();
             if (location != null) {
-                setMessage("Illegal character in line:" + location.getLineNr() + " column:" + location.getColumnNr());
+                message.setMessage("Illegal character in line:" + location.getLineNr() + " column:" + location.getColumnNr());
             }
         } else if (ex.getMessage().contains("Required request body is missing:")) {
-            setMessage("Insira o corpo na requisição!");
-            addDetails("body", "body is empty");
+            message.setMessage("Insira o corpo na requisição!")
+                    .addDetails("body", "body is empty");
         }
-        printException(ex);
-        return this.message;
+        printException(ex, message);
+        return message;
     }
 
-    public ErrorMessage build(final MuttleyException ex) {
-        this.message = new ErrorMessage();
-        setStatus(ex.getStatus());
-        setMessage(ex.getMessage());
-        setObjectName(ex.getObjectName());
-        addDetails(ex.getDetails());
-        printException(ex);
-        return this.message;
+    public ErrorMessage buildMessage(final MuttleyException ex) {
+        final ErrorMessage message = new ErrorMessage()
+                .setStatus(ex.getStatus())
+                .setMessage(ex.getMessage())
+                .setObjectName(ex.getObjectName())
+                .addDetails(ex.getDetails());
+        printException(ex, message);
+        return message;
     }
 
-    public ErrorMessage build(final MuttleyRepositoryException ex) {
-        this.message = new ErrorMessage();
-        setStatus(ex.getStatus());
-        printException(ex);
-        return this.message;
+    public ErrorMessage buildMessage(final MuttleyRepositoryException ex) {
+        final ErrorMessage message = new ErrorMessage()
+                .setStatus(ex.getStatus());
+        printException(ex, message);
+        return message;
     }
 
-    public ErrorMessage build(final MuttleySecurityUnauthorizedException ex) {
-        this.message = new ErrorMessage();
-        setStatus(ex.getStatus());
-        setMessage(ex.getMessage());
-        setObjectName(ex.getObjectName());
-        addDetails(ex.getDetails());
-        printException(ex);
-        return this.message;
-    }
-
-    public ErrorMessageBuilder setStatus(final HttpStatus status) {
-        this.message.status = status;
-        return this;
-    }
-
-    public ErrorMessageBuilder setStatus(final Integer status) {
-        this.message.status = HttpStatus.valueOf(status);
-        return this;
-    }
-
-    public ErrorMessageBuilder setObjectName(final String objectName) {
-        this.message.objectName = objectName;
-        return this;
-    }
-
-    public ErrorMessageBuilder setObjectName(final Object objectName) {
-        this.message.objectName = objectName.getClass().getSimpleName();
-        return this;
-    }
-
-    public ErrorMessageBuilder setMessage(final String message) {
-        this.message.message = message;
-        return this;
-    }
-
-    public ErrorMessageBuilder concatMessage(final String message) {
-        if (isEmpty(this.message.message)) {
-            this.message.message = message;
-        } else {
-            this.message.message += LINE_SEPARATOR + message;
-        }
-        return this;
-    }
-
-    public ErrorMessageBuilder addDetails(final String key, Object value) {
-        this.message.details.put(key, value);
-        return this;
-    }
-
-    public ErrorMessageBuilder addDetails(final String key, final Object... value) {
-        this.message.details.put(key, value);
-        return this;
-    }
-
-    public ErrorMessageBuilder addDetails(final String key, final List<Object> value) {
-        this.message.details.put(key, value);
-        return this;
-    }
-
-    public ErrorMessageBuilder addDetails(final Map<String, Object> details) {
-        this.message.details.putAll(details);
-        return this;
+    public ErrorMessage buildMessage(final MuttleySecurityUnauthorizedException ex) {
+        final ErrorMessage message = new ErrorMessage()
+                .setStatus(ex.getStatus())
+                .setMessage(ex.getMessage())
+                .setObjectName(ex.getObjectName())
+                .addDetails(ex.getDetails());
+        printException(ex, message);
+        return message;
     }
 
     /**
@@ -202,12 +194,12 @@ public class ErrorMessageBuilder {
      *
      * @param ex ->exceção para ser logada!
      */
-    private void printException(final Exception ex) {
+    private void printException(final Exception ex, final ErrorMessage message) {
         if (STACK_TRACE) {
             ex.printStackTrace();
         }
         if (RESPONSE_EXCEPTION) {
-            logger.info(this.message.toJson());
+            logger.info(message.toJson());
         }
     }
 
@@ -218,15 +210,15 @@ public class ErrorMessageBuilder {
      * @param exActual  ->Exception atual
      * @param exPrevius ->Exception que aponta para Exception atual
      */
-    private Throwable findInivistateException(final Throwable exActual, final Throwable exPrevius) {
+    /*private Throwable findMuttleyException(final Throwable exActual, final Throwable exPrevius) {
         if (exActual == null || exActual.equals(exPrevius)) {
             return null;
         }
         if (exActual instanceof MuttleyException) {
             return exActual;
         } else {
-            return findInivistateException(exActual.getCause(), exActual);
+            return findMuttleyException(exActual.getCause(), exActual);
         }
 
-    }
+    }*/
 }
