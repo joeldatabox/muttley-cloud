@@ -68,7 +68,7 @@ public class MuttleyException extends RuntimeException {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    public MuttleyException(ErrorMessage errorMessage) {
+    public MuttleyException(final ErrorMessage errorMessage) {
         this.status = errorMessage.getStatus();
         this.message = errorMessage.getMessage();
         this.objectName = errorMessage.getObjectName();

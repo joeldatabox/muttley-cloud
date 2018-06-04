@@ -29,6 +29,7 @@ import static org.springframework.util.StringUtils.isEmpty;
 public final class ErrorMessage {
     @JsonIgnore
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    public static final String RESPONSE_HEADER_VALUE = "error-message.model.ts";
     @JsonSerialize(using = HttpStatusSerializer.class)
     @JsonDeserialize(using = HttpStatusDeserializer.class)
     protected HttpStatus status;
@@ -142,10 +143,14 @@ public final class ErrorMessage {
     }
 
     @JsonIgnore
-    protected ResponseEntity<ErrorMessage> toResponseEntity() {
-        final HttpHeaders headers = new HttpHeaders();
+    protected ResponseEntity toResponseEntity() {
+        return toResponseEntity(new HttpHeaders());
+    }
+
+    @JsonIgnore
+    protected ResponseEntity toResponseEntity(final HttpHeaders headers) {
         headers.add(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE);
-        headers.add(RESPONSE_HEADER, "error-message.model.ts");
+        headers.add(RESPONSE_HEADER, RESPONSE_HEADER_VALUE);
         return new ResponseEntity(this, headers, this.status);
     }
 }

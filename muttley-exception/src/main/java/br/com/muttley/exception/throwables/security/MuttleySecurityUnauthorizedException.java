@@ -1,10 +1,12 @@
 package br.com.muttley.exception.throwables.security;
 
+import br.com.muttley.exception.service.ErrorMessage;
 import br.com.muttley.exception.throwables.MuttleyException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,6 +20,10 @@ public class MuttleySecurityUnauthorizedException extends MuttleyException {
         this.status = HttpStatus.UNAUTHORIZED;
         this.message = "ERROR *-*";
         this.objectName = "unknow :(";
+    }
+
+    public MuttleySecurityUnauthorizedException(final ErrorMessage errorMessage) {
+        super(errorMessage);
     }
 
     public MuttleySecurityUnauthorizedException(final String message, final HttpStatus status, final Class clazz, final String field, final String info) {
@@ -67,6 +73,12 @@ public class MuttleySecurityUnauthorizedException extends MuttleyException {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
+    @Override
+    public MuttleySecurityUnauthorizedException setStatus(final HttpStatus status) {
+        super.setStatus(status);
+        return this;
+    }
+
     public Map getMapResponse() {
         final Map<String, Object> map = new HashMap<>();
         map.put("status", status.value());
@@ -76,6 +88,24 @@ public class MuttleySecurityUnauthorizedException extends MuttleyException {
         }
         map.put("details", getDetails());
         return map;
+    }
+
+    @Override
+    public MuttleySecurityUnauthorizedException addDetails(final String key, final Object value) {
+        super.addDetails(key, value);
+        return this;
+    }
+
+    @Override
+    public MuttleySecurityUnauthorizedException addDetails(final String key, final List<Object> value) {
+        super.addDetails(key, value);
+        return this;
+    }
+
+    @Override
+    public MuttleySecurityUnauthorizedException addDetails(final Map<String, Object> details) {
+        super.addDetails(details);
+        return this;
     }
 
     public String toJson() {

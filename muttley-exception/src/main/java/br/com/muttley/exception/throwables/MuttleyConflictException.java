@@ -1,5 +1,6 @@
 package br.com.muttley.exception.throwables;
 
+import br.com.muttley.exception.service.ErrorMessage;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -16,5 +17,9 @@ public class MuttleyConflictException extends MuttleyException {
         this.status = HttpStatus.CONFLICT;
         this.objectName = clazz.getSimpleName().toLowerCase();
         this.details.put(this.objectName + "." + field, message);*/
+    }
+
+    public MuttleyConflictException(final ErrorMessage errorMessage) {
+        super(errorMessage);
     }
 }

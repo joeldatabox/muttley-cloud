@@ -1,5 +1,6 @@
 package br.com.muttley.exception.throwables;
 
+import br.com.muttley.exception.service.ErrorMessage;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -17,5 +18,9 @@ public class MuttleyMethodNotAllowedException extends MuttleyException {
 
     public MuttleyMethodNotAllowedException(final Class clazz, final String field, final String message) {
         super("Method not allowed", HttpStatus.METHOD_NOT_ALLOWED, clazz, field, message);
+    }
+
+    public MuttleyMethodNotAllowedException(final ErrorMessage errorMessage) {
+        super(errorMessage);
     }
 }

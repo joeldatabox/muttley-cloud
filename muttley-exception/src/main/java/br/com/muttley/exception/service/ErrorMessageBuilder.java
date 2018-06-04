@@ -47,7 +47,7 @@ public class ErrorMessageBuilder {
         this.RESPONSE_EXCEPTION = RESPONSE_EXCEPTION;
     }
 
-    public ErrorMessage build(final MethodArgumentNotValidException ex) {
+    public ErrorMessage buildMessage(final MethodArgumentNotValidException ex) {
         final ErrorMessage message = new ErrorMessage()
                 .setStatus(BAD_REQUEST)
                 .setMessage(BAD_REQUEST.getReasonPhrase())
@@ -61,7 +61,7 @@ public class ErrorMessageBuilder {
         return message;
     }
 
-    public ErrorMessage build(final ConstraintViolationException ex) {
+    public ErrorMessage buildMessage(final ConstraintViolationException ex) {
         final ErrorMessage message = new ErrorMessage()
                 .setStatus(BAD_REQUEST)
                 .setMessage(BAD_REQUEST.getReasonPhrase());
@@ -87,8 +87,8 @@ public class ErrorMessageBuilder {
         return message;
     }
 
-    public ErrorMessage build(final BindException ex) {
-        final ErrorMessage message = build(new MuttleyBadRequestException(ex));
+    public ErrorMessage buildMessage(final BindException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
         ex.getBindingResult().getFieldErrors().forEach(e -> {
             message.addDetails(e.getField(), e.getDefaultMessage());
         });
@@ -96,40 +96,39 @@ public class ErrorMessageBuilder {
         return message;
     }
 
-    public ErrorMessage build(final TypeMismatchException ex) {
-        final ErrorMessage message = build(new MuttleyBadRequestException(ex));
+    public ErrorMessage buildMessage(final TypeMismatchException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
         printException(ex, message);
         return message;
     }
 
-    public ErrorMessage build(final MissingServletRequestPartException ex) {
-        final ErrorMessage message = build(new MuttleyBadRequestException(ex));
+    public ErrorMessage buildMessage(final MissingServletRequestPartException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
         printException(ex, message);
         return message;
     }
 
-    public ErrorMessage build(final MissingServletRequestParameterException ex) {
-        final ErrorMessage message = build(new MuttleyBadRequestException(ex));
+    public ErrorMessage buildMessage(final MissingServletRequestParameterException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
         printException(ex, message);
         return message;
     }
 
-    public ErrorMessage build(final MethodArgumentTypeMismatchException ex) {
-        final ErrorMessage message = build(new MuttleyBadRequestException(ex));
+    public ErrorMessage buildMessage(final MethodArgumentTypeMismatchException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
         printException(ex, message);
         return message;
     }
 
-    public ErrorMessage build(final HttpRequestMethodNotSupportedException ex) {
-        final ErrorMessage message = build(new MuttleyBadRequestException(ex))
+    public ErrorMessage buildMessage(final HttpRequestMethodNotSupportedException ex) {
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex))
                 .setStatus(METHOD_NOT_ALLOWED)
                 .setMessage(METHOD_NOT_ALLOWED.getReasonPhrase());
         printException(ex, message);
         return message;
     }
 
-
-    public ErrorMessage build(final HttpMediaTypeNotSupportedException ex) {
+    public ErrorMessage buildMessage(final HttpMediaTypeNotSupportedException ex) {
         final ErrorMessage message = new ErrorMessage()
                 .setStatus(UNSUPPORTED_MEDIA_TYPE)
                 .setMessage(ex.getMessage().replace("'null' ", ""))
@@ -139,14 +138,14 @@ public class ErrorMessageBuilder {
         return message;
     }
 
-    public ErrorMessage build(final HttpMessageNotReadableException ex) {
+    public ErrorMessage buildMessage(final HttpMessageNotReadableException ex) {
         final ErrorMessage message = new ErrorMessage()
                 .setStatus(BAD_REQUEST);
         //procurando exceções de negocio
-        MuttleyException de = (MuttleyException) findInivistateException(ex, null);
+        final Throwable throwable = ex.getMostSpecificCause();
 
-        if (de != null) {
-            return build(de);
+        if (throwable instanceof MuttleyException) {
+            return buildMessage((MuttleyException) throwable);
         } else if (ex.getCause() instanceof com.fasterxml.jackson.core.JsonParseException) {
             JsonLocation location = ((com.fasterxml.jackson.core.JsonParseException) ex.getCause()).getLocation();
             message.setMessage("Illegal character in line:" + location.getLineNr() + " column:" + location.getColumnNr());
@@ -163,7 +162,7 @@ public class ErrorMessageBuilder {
         return message;
     }
 
-    public ErrorMessage build(final MuttleyException ex) {
+    public ErrorMessage buildMessage(final MuttleyException ex) {
         final ErrorMessage message = new ErrorMessage()
                 .setStatus(ex.getStatus())
                 .setMessage(ex.getMessage())
@@ -173,14 +172,14 @@ public class ErrorMessageBuilder {
         return message;
     }
 
-    public ErrorMessage build(final MuttleyRepositoryException ex) {
+    public ErrorMessage buildMessage(final MuttleyRepositoryException ex) {
         final ErrorMessage message = new ErrorMessage()
                 .setStatus(ex.getStatus());
         printException(ex, message);
         return message;
     }
 
-    public ErrorMessage build(final MuttleySecurityUnauthorizedException ex) {
+    public ErrorMessage buildMessage(final MuttleySecurityUnauthorizedException ex) {
         final ErrorMessage message = new ErrorMessage()
                 .setStatus(ex.getStatus())
                 .setMessage(ex.getMessage())
@@ -211,15 +210,15 @@ public class ErrorMessageBuilder {
      * @param exActual  ->Exception atual
      * @param exPrevius ->Exception que aponta para Exception atual
      */
-    private Throwable findInivistateException(final Throwable exActual, final Throwable exPrevius) {
+    /*private Throwable findMuttleyException(final Throwable exActual, final Throwable exPrevius) {
         if (exActual == null || exActual.equals(exPrevius)) {
             return null;
         }
         if (exActual instanceof MuttleyException) {
             return exActual;
         } else {
-            return findInivistateException(exActual.getCause(), exActual);
+            return findMuttleyException(exActual.getCause(), exActual);
         }
 
-    }
+    }*/
 }

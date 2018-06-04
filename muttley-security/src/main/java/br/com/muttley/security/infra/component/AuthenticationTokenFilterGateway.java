@@ -1,5 +1,6 @@
 package br.com.muttley.security.infra.component;
 
+import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
@@ -50,22 +51,25 @@ public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
 
         if (!isNullOrEmpty(authToken)) {
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                try {
+                    //buscando o usuário presente no token
+                    final JwtUser userDetails = this.tokenServiceClient.getUserFromToken(new JwtToken(authToken));
 
-                //buscando o usuário presente no token
-                final JwtUser userDetails = this.tokenServiceClient.getUserFromToken(new JwtToken(authToken));
 
+                    final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    if (!this.cacheAuth.contains(authToken)) {
+                        //salvando no cache
+                        this.cacheAuth.set(authToken, userDetails);
+                    }
+                } catch (MuttleySecurityUnauthorizedException ex) {
 
-                final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                if (!this.cacheAuth.contains(authToken)) {
-                    //salvando no cache
-                    this.cacheAuth.set(authToken, userDetails);
                 }
-
             }
         }
         //dispachando a requisição
         chain.doFilter(request, response);
+
     }
 }

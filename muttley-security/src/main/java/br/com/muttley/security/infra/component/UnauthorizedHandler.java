@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
 
+import static br.com.muttley.exception.service.ErrorMessage.RESPONSE_HEADER;
+import static br.com.muttley.exception.service.ErrorMessage.RESPONSE_HEADER_VALUE;
+
 /**
  * @author Joel Rodrigues Moreira on 12/01/18.
  * @project spring-cloud
@@ -32,6 +35,7 @@ public class UnauthorizedHandler implements AuthenticationEntryPoint, Serializab
                          final AuthenticationException authException) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setHeader("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE);
+        response.setHeader(RESPONSE_HEADER, RESPONSE_HEADER_VALUE);
         response.getWriter()
                 .print(new MuttleySecurityUnauthorizedException("Unauthorized!")
                         .addDetails("urlLogin", request
