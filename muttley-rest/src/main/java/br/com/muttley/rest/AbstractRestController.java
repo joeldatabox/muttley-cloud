@@ -23,6 +23,10 @@ import java.io.Serializable;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * @author Joel Rodrigues Moreira on 30/01/18.
@@ -40,7 +44,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     }
 
     @Override
-    @RequestMapping(method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity save(@RequestBody final T value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
         this.checkRoleCreate();
@@ -55,8 +59,8 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     }
 
     @Override
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
     public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final T model) {
         checkRoleUpdate();
         model.setId(id);
@@ -64,8 +68,8 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     }
 
     @Override
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
     public ResponseEntity deleteById(@PathVariable("id") final String id) {
         checkRoleDelete();
         service.deleteById(this.userService.getCurrentUser(), deserializerId(id));
@@ -73,8 +77,8 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     }
 
     @Override
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response) {
         checkRoleRead();
         final T value = service.findById(this.userService.getCurrentUser(), deserializerId(id));
@@ -85,8 +89,8 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     }
 
     @Override
-    @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
     public ResponseEntity first(final HttpServletResponse response) {
         checkRoleRead();
         final T value = service.findFirst(this.userService.getCurrentUser());
@@ -97,8 +101,8 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     }
 
     @Override
-    @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
     public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
         checkRoleRead();
         final Historic historic = service.loadHistoric(this.userService.getCurrentUser(), deserializerId(id));
@@ -117,7 +121,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
 
     @Override
     @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(OK)
     public final ResponseEntity count(final Map<String, Object> allRequestParams) {
         checkRoleRead();
         return ResponseEntity.ok(String.valueOf(service.count(this.userService.getCurrentUser(), allRequestParams)));
