@@ -2,7 +2,6 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -10,8 +9,6 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 
 import javax.validation.constraints.Min;
 import java.util.Objects;
-
-import static br.com.muttley.model.util.ObjectIdUtils.createOf;
 
 /**
  * @author Joel Rodrigues Moreira on 17/04/18.
@@ -22,10 +19,10 @@ import static br.com.muttley.model.util.ObjectIdUtils.createOf;
 @CompoundIndexes({
         @CompoundIndex(name = "name_index_unique", def = "{'name' : 1}", unique = true)
 })
-public class AccessPlan implements Document<ObjectId> {
+public class AccessPlan implements Document {
 
     @Id
-    private ObjectId id;
+    private String id;
     private Historic historic;
     @NotBlank(message = "Informe um nome válido")
     private String name;
@@ -34,19 +31,14 @@ public class AccessPlan implements Document<ObjectId> {
     private String description;
 
     @Override
-    public ObjectId getId() {
-        return this.id;
-    }
-
-    @Override
-    public AccessPlan setId(ObjectId id) {
-        this.id = id;
-        return this;
+    public String getId() {
+        return id;
     }
 
     @Override
     public AccessPlan setId(final String id) {
-        return setId(createOf(id));
+        this.id = id;
+        return this;
     }
 
     @Override

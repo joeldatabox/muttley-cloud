@@ -21,12 +21,12 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.newA
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class DocumentMongoRepositoryImpl<T extends Document<ID>, ID extends ObjectId> extends SimpleMongoRepository<T, ID> implements br.com.muttley.mongo.service.repository.DocumentMongoRepository<T, ID> {
+public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongoRepository<T, String> implements br.com.muttley.mongo.service.repository.DocumentMongoRepository<T> {
     protected final MongoOperations operations;
     protected final Class<T> CLASS;
     protected final String COLLECTION;
 
-    public DocumentMongoRepositoryImpl(final MongoEntityInformation<T, ID> metadata, final MongoOperations mongoOperations) {
+    public DocumentMongoRepositoryImpl(final MongoEntityInformation<T, String> metadata, final MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
         this.operations = mongoOperations;
         this.CLASS = metadata.getJavaType();
@@ -76,11 +76,11 @@ public class DocumentMongoRepositoryImpl<T extends Document<ID>, ID extends Obje
     }
 
     @Override
-    public Historic loadHistoric(final ID id) {
+    public Historic loadHistoric(final String id) {
         final AggregationResults result = operations.aggregate(
                 newAggregation(
                         match(
-                                where("_id").is(id)
+                                where("_id").is(new ObjectId(id))
                         ), project().and("$historic.createdBy").as("createdBy")
                                 .and("$historic.dtCreate").as("dtCreate")
                                 .and("$historic.dtChange").as("dtChange")
@@ -91,7 +91,7 @@ public class DocumentMongoRepositoryImpl<T extends Document<ID>, ID extends Obje
         return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
     }
 
-    protected final void validateId(final ID id) {
+    protected final void validateId(final String id) {
         if (id == null) {
             throw new MuttleyRepositoryIdIsNullException(this.CLASS);
         }

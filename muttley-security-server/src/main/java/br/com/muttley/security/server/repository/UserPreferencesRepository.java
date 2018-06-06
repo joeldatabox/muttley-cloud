@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
  * @project spring-cloud
  */
 @Repository
-public interface UserPreferencesRepository extends DocumentMongoRepository<UserPreferences, ObjectId> {
+public interface UserPreferencesRepository extends DocumentMongoRepository<UserPreferences> {
     UserPreferences findByUser(final User idUser);
 }
 

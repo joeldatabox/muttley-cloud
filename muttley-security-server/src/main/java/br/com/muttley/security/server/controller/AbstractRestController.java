@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.Serializable;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
@@ -33,8 +32,8 @@ import static java.util.Objects.isNull;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public abstract class AbstractRestController<T extends Document, ID extends Serializable> implements RestResource {
-    protected final Service<T, ID> service;
+public abstract class AbstractRestController<T extends Document> implements RestResource {
+    protected final Service<T> service;
     protected final UserService userService;
     protected final ApplicationEventPublisher eventPublisher;
 
@@ -78,7 +77,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     public ResponseEntity deleteById(@PathVariable("id") final String id, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleDelete(user);
-        service.deleteById(user, deserializerId(id));
+        service.deleteById(user, id);
         return ResponseEntity.ok().build();
     }
 
@@ -87,7 +86,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleRead(user);
-        final T value = service.findById(user, deserializerId(id));
+        final T value = service.findById(user, id);
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
     }
@@ -107,7 +106,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleRead(user);
-        final Historic historic = service.loadHistoric(user, deserializerId(id));
+        final Historic historic = service.loadHistoric(user, id);
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(historic);
     }
@@ -178,6 +177,4 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
                     .addDetails("isNecessary", roles);
         }
     }
-
-    protected abstract ID deserializerId(final String id);
 }

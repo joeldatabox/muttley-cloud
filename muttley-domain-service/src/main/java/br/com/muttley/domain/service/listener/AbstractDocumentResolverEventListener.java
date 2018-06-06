@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationListener;
  * <p>
  * Classe abstrata que implementa a regra de negocio para se resolver
  */
-public abstract class AbstractDocumentResolverEventListener<T extends Document<?>, D extends DocumentResolverEvent<T>> implements ApplicationListener<D> {
+public abstract class AbstractDocumentResolverEventListener<T extends Document, D extends DocumentResolverEvent<T>> implements ApplicationListener<D> {
 
     @Override
     public void onApplicationEvent(final D event) {

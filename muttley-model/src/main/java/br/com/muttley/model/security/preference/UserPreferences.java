@@ -6,7 +6,6 @@ import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
@@ -27,10 +26,10 @@ import static org.springframework.util.Assert.notNull;
 @CompoundIndexes({
         @CompoundIndex(name = "user_index_unique", def = "{'user' : 1}", unique = true)
 })
-public class UserPreferences implements Document<ObjectId> {
+public class UserPreferences implements Document {
     public static final String WORK_TEAM_PREFERENCE = "WorkTeamPreference";
     @Id
-    private ObjectId id;
+    private String id;
     @JsonIgnore
     @DBRef
     private User user;
@@ -55,7 +54,7 @@ public class UserPreferences implements Document<ObjectId> {
 
     @JsonCreator
     public UserPreferences(
-            @JsonProperty("id") ObjectId id,
+            @JsonProperty("id") String id,
             @JsonProperty("user") User user,
             @JsonProperty("historic") Historic historic,
             @JsonProperty("preferences") Set<Preference> preferences) {
@@ -66,19 +65,14 @@ public class UserPreferences implements Document<ObjectId> {
     }
 
     @Override
-    public ObjectId getId() {
+    public String getId() {
         return this.id;
     }
 
     @Override
-    public UserPreferences setId(final ObjectId id) {
+    public UserPreferences setId(final String id) {
         this.id = id;
         return this;
-    }
-
-    @Override
-    public UserPreferences setId(final String id) {
-        return this.setId(new ObjectId(id));
     }
 
     @Override

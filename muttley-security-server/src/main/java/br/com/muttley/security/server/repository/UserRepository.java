@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
  * @project spring-cloud
  */
 @Repository
-public interface UserRepository extends DocumentMongoRepository<User, String> {
+public interface UserRepository extends DocumentMongoRepository<User> {
     User findByEmail(String email);
 }
 

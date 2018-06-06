@@ -21,9 +21,9 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.newA
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId> extends DocumentMongoRepositoryImpl<T, ID> implements br.com.muttley.mongo.service.repository.CustomMongoRepository<T, ID> {
+public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRepositoryImpl<T> implements br.com.muttley.mongo.service.repository.CustomMongoRepository<T> {
 
-    public CustomMongoRepositoryImpl(final MongoEntityInformation<T, ID> metadata, final MongoOperations mongoOperations) {
+    public CustomMongoRepositoryImpl(final MongoEntityInformation<T, String> metadata, final MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
     }
 
@@ -35,13 +35,13 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId>
     }
 
     @Override
-    public final T findOne(final Owner owner, final ID id) {
+    public final T findOne(final Owner owner, final String id) {
         validateOwner(owner);
         validateId(id);
         return operations.findOne(
                 new Query(
-                        where("owner.$id").is(owner.getId())
-                                .and("id").is(id)
+                        where("owner.$id").is(owner.getObjectId())
+                                .and("id").is(new ObjectId(id))
                 ), CLASS
         );
     }
@@ -52,19 +52,19 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId>
         return operations
                 .findOne(
                         new Query(
-                                where("owner.$id").is(owner.getId())
+                                where("owner.$id").is(owner.getObjectId())
                         ), CLASS
                 );
     }
 
     @Override
-    public final void delete(final Owner user, final ID id) {
+    public final void delete(final Owner user, final String id) {
         validateOwner(user);
         validateId(id);
         operations.remove(
                 new Query(
-                        where("owner.$id").is(user.getId())
-                                .and("id").is(id)
+                        where("owner.$id").is(user.getObjectId())
+                                .and("id").is(new ObjectId(id))
                 ), CLASS
         );
     }
@@ -108,12 +108,12 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId>
     }
 
     @Override
-    public final boolean exists(final Owner owner, final ID id) {
+    public final boolean exists(final Owner owner, final String id) {
         validateOwner(owner);
         return operations.exists(
                 new Query(
-                        where("owner.$id").is(owner.getId())
-                                .and("id").is(id)
+                        where("owner.$id").is(owner.getObjectId())
+                                .and("id").is(new ObjectId(id))
                 ), CLASS
         );
     }
@@ -124,11 +124,11 @@ public class CustomMongoRepositoryImpl<T extends Model<ID>, ID extends ObjectId>
     }
 
     @Override
-    public Historic loadHistoric(final Owner owner, final ID id) {
+    public Historic loadHistoric(final Owner owner, final String id) {
         final AggregationResults result = operations.aggregate(
                 newAggregation(
-                        match(where("owner.$id").is(owner.getId())
-                                .and("_id").is(id)
+                        match(where("owner.$id").is(owner.getObjectId())
+                                .and("_id").is(new ObjectId(id))
                         ), project().and("$historic.createdBy").as("createdBy")
                                 .and("$historic.dtCreate").as("dtCreate")
                                 .and("$historic.dtChange").as("dtChange")

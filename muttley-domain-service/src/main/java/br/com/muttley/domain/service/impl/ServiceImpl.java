@@ -9,7 +9,6 @@ import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
@@ -23,15 +22,15 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @author Joel Rodrigues Moreira on 30/01/18.
  * @project muttley-cloud
  */
-public abstract class ServiceImpl<T extends Document, ID extends ObjectId> implements Service<T, ID> {
+public abstract class ServiceImpl<T extends Document> implements Service<T> {
 
-    protected final DocumentMongoRepository<T, ID> repository;
+    protected final DocumentMongoRepository<T> repository;
     protected final Class<T> clazz;
 
     @Autowired
     protected Validator validator;
 
-    public ServiceImpl(final DocumentMongoRepository<T, ID> repository, final Class<T> clazz) {
+    public ServiceImpl(final DocumentMongoRepository<T> repository, final Class<T> clazz) {
         this.repository = repository;
         this.clazz = clazz;
     }
@@ -63,7 +62,7 @@ public abstract class ServiceImpl<T extends Document, ID extends ObjectId> imple
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível alterar um registro sem informar um id válido");
         }
         //verificando se o registro realmente existe
-        if (!this.repository.exists((ID) value.getId())) {
+        if (!this.repository.exists(value.getId())) {
             throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         //gerando histórico de alteração
@@ -81,7 +80,7 @@ public abstract class ServiceImpl<T extends Document, ID extends ObjectId> imple
     }
 
     @Override
-    public T findById(final User user, final ID id) {
+    public T findById(final User user, final String id) {
         if (isNull(id)) {
             throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
         }
@@ -103,7 +102,7 @@ public abstract class ServiceImpl<T extends Document, ID extends ObjectId> imple
     }
 
     @Override
-    public Historic loadHistoric(final User user, final ID id) {
+    public Historic loadHistoric(final User user, final String id) {
         final Historic historic = this.repository.loadHistoric(id);
         if (isNull(historic)) {
             throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
@@ -113,11 +112,11 @@ public abstract class ServiceImpl<T extends Document, ID extends ObjectId> imple
 
     @Override
     public Historic loadHistoric(final User user, final T value) {
-        return this.loadHistoric(user, (ID) value.getId());
+        return this.loadHistoric(user, value.getId());
     }
 
     @Override
-    public void deleteById(final User user, final ID id) {
+    public void deleteById(final User user, final String id) {
         checkPrecondictionDelete(user, id);
         if (!repository.exists(id)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
@@ -128,7 +127,7 @@ public abstract class ServiceImpl<T extends Document, ID extends ObjectId> imple
 
     @Override
     public void delete(final User user, final T value) {
-        checkPrecondictionDelete(user, (ID) value.getId());
+        checkPrecondictionDelete(user, value.getId());
         if (!repository.exists(value)) {
             throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
         }
@@ -137,7 +136,7 @@ public abstract class ServiceImpl<T extends Document, ID extends ObjectId> imple
     }
 
     @Override
-    public void checkPrecondictionDelete(final User user, final ID id) {
+    public void checkPrecondictionDelete(final User user, final String id) {
 
     }
 
@@ -147,7 +146,7 @@ public abstract class ServiceImpl<T extends Document, ID extends ObjectId> imple
     }
 
     @Override
-    public void beforeDelete(final User user, final ID id) {
+    public void beforeDelete(final User user, final String id) {
 
     }
 

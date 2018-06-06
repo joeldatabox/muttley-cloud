@@ -3,11 +3,10 @@ package br.com.muttley.mongo.service.repository;
 import br.com.muttley.model.Historic;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public interface DocumentMongoRepository<T, ID extends Serializable> extends MongoRepository<T, ID> {
+public interface DocumentMongoRepository<T> extends MongoRepository<T, String> {
 
     /**
      * Busca o primeiro registro qualquer de uma colection
@@ -47,5 +46,5 @@ public interface DocumentMongoRepository<T, ID extends Serializable> extends Mon
      *
      * @param id -> id do registro a ser carregado
      */
-    Historic loadHistoric(final ID id);
+    Historic loadHistoric(final String id);
 }

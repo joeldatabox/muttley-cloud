@@ -9,6 +9,6 @@ import org.bson.types.ObjectId;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface OwnerService extends Service<Owner, ObjectId> {
+public interface OwnerService extends Service<Owner> {
     Owner findByName(final String name);
 }

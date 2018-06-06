@@ -23,7 +23,7 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface RestController<T, ID extends Serializable> {
+public interface RestController<T> {
     @RequestMapping(method = RequestMethod.POST, consumes = {APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     ResponseEntity save(@RequestBody T value, HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") String returnEntity);

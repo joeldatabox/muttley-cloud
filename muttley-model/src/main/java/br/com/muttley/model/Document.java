@@ -2,23 +2,40 @@ package br.com.muttley.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bson.types.ObjectId;
 
 import java.io.Serializable;
+
+import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * @author Joel Rodrigues Moreira on 22/02/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface Document<T extends Serializable> extends Serializable {
+public interface Document extends Serializable {
 
-    T getId();
-
-    Document setId(final T id);
+    String getId();
 
     Document setId(final String id);
 
     Document setHistoric(final Historic historic);
+
+    @JsonIgnore
+    default ObjectId getObjectId() {
+        if (!isEmpty(getId())) {
+            return new ObjectId(getId());
+        }
+        return null;
+    }
+
+    @JsonIgnore
+    default boolean contaisObjectId() {
+        if (!isEmpty(getId())) {
+            return ObjectId.isValid(getId());
+        }
+        return false;
+    }
 
     @JsonIgnore
     Historic getHistoric();

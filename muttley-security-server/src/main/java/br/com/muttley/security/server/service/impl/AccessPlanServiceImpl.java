@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  * @project muttley-cloud
  */
 @Service
-public class AccessPlanServiceImpl extends SecurityServiceImpl<AccessPlan, ObjectId> implements AccessPlanService {
+public class AccessPlanServiceImpl extends SecurityServiceImpl<AccessPlan> implements AccessPlanService {
     final AccessPlanRepository repository;
 
     @Autowired

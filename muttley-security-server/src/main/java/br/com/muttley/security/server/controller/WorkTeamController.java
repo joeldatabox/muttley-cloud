@@ -3,7 +3,6 @@ package br.com.muttley.security.server.controller;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.WorkTeamService;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,15 +18,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  */
 @RestController
 @RequestMapping(value = "/api/v1/work-teams", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-public class WorkTeamController extends AbstractRestController<WorkTeam, ObjectId> {
+public class WorkTeamController extends AbstractRestController<WorkTeam> {
 
     @Autowired
     public WorkTeamController(final WorkTeamService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
         super(service, userService, eventPublisher);
     }
 
-    @Override
-    protected ObjectId deserializerId(final String id) {
-        return new ObjectId(id);
-    }
 }

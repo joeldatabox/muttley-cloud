@@ -13,7 +13,7 @@ import java.util.List;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface WorkTeamService extends Service<WorkTeam, ObjectId> {
+public interface WorkTeamService extends Service<WorkTeam> {
     WorkTeam findByName(final Owner owner, final String name);
 
     List<WorkTeam> findByUserMaster(final Owner owner, final User user);
