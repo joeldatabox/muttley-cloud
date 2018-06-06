@@ -4,7 +4,6 @@ import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +12,7 @@ import java.util.Map;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface Service<T extends Document, ID extends Serializable> {
+public interface Service<T extends Document> {
     /**
      * Salva um novo registro no banco de dados,
      * garantindo sempre que ele esteja relacionado a um usuário/owner.
@@ -64,7 +63,7 @@ public interface Service<T extends Document, ID extends Serializable> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id procurado
      */
-    T findById(User user, ID id);
+    T findById(User user, String id);
 
     /**
      * Pega o primeiro registro que encontrar
@@ -80,7 +79,7 @@ public interface Service<T extends Document, ID extends Serializable> {
      * @param id   -> id do registro a ser buscado
      * @return Historic
      */
-    Historic loadHistoric(User user, ID id);
+    Historic loadHistoric(User user, String id);
 
     /**
      * Busca o histórico de um determinado registro
@@ -97,7 +96,7 @@ public interface Service<T extends Document, ID extends Serializable> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id procurado
      */
-    void deleteById(User user, ID id);
+    void deleteById(User user, String id);
 
     /**
      * Deleta um registro qualquer. Antes de se deletar qualquer registro, o método
@@ -116,7 +115,7 @@ public interface Service<T extends Document, ID extends Serializable> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id do registro a ser deletado
      */
-    void checkPrecondictionDelete(User user, ID id);
+    void checkPrecondictionDelete(User user, String id);
 
     /**
      * Executa apos a deleção de um registro
@@ -132,7 +131,7 @@ public interface Service<T extends Document, ID extends Serializable> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id do registro que foi deletado
      */
-    void beforeDelete(User user, ID id);
+    void beforeDelete(User user, String id);
 
     /**
      * Realiza o processo de count com base nos critérios

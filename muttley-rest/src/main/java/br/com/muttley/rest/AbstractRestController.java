@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.Serializable;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
@@ -32,8 +31,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
  * @author Joel Rodrigues Moreira on 30/01/18.
  * @project muttley-cloud
  */
-public abstract class AbstractRestController<T extends Document, ID extends Serializable> implements RestResource, RestController<T, ID> {
-    protected final Service<T, ID> service;
+public abstract class AbstractRestController<T extends Document> implements RestResource, RestController<T> {
+    protected final Service<T> service;
     protected final AuthService userService;
     protected final ApplicationEventPublisher eventPublisher;
 
@@ -72,7 +71,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     @ResponseStatus(OK)
     public ResponseEntity deleteById(@PathVariable("id") final String id) {
         checkRoleDelete();
-        service.deleteById(this.userService.getCurrentUser(), deserializerId(id));
+        service.deleteById(this.userService.getCurrentUser(), id);
         return ResponseEntity.ok().build();
     }
 
@@ -81,7 +80,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     @ResponseStatus(OK)
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response) {
         checkRoleRead();
-        final T value = service.findById(this.userService.getCurrentUser(), deserializerId(id));
+        final T value = service.findById(this.userService.getCurrentUser(), id);
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
@@ -105,7 +104,7 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
     @ResponseStatus(OK)
     public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
         checkRoleRead();
-        final Historic historic = service.loadHistoric(this.userService.getCurrentUser(), deserializerId(id));
+        final Historic historic = service.loadHistoric(this.userService.getCurrentUser(), id);
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
@@ -177,6 +176,4 @@ public abstract class AbstractRestController<T extends Document, ID extends Seri
                     .addDetails("isNecessary", roles);
         }
     }
-
-    protected abstract ID deserializerId(final String id);
 }

@@ -27,7 +27,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public abstract class AbstractProxyRestController<T extends Document, ID extends Serializable> implements RestController<T, ID>, RestResource {
+public abstract class AbstractProxyRestController<T extends Document> implements RestController<T>, RestResource {
 
     private final RestControllerClient<T> client;
     private final ApplicationEventPublisher eventPublisher;

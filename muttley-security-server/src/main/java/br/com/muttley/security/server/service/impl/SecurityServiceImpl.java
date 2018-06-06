@@ -11,8 +11,8 @@ import org.bson.types.ObjectId;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class SecurityServiceImpl<T extends Document, ID extends ObjectId> extends ServiceImpl<T, ID> implements SecurityService<T, ID> {
-    public SecurityServiceImpl(final DocumentMongoRepository<T, ID> repository, final Class<T> clazz) {
+public class SecurityServiceImpl<T extends Document> extends ServiceImpl<T> implements SecurityService<T> {
+    public SecurityServiceImpl(final DocumentMongoRepository<T> repository, final Class<T> clazz) {
         super(repository, clazz);
     }
 }

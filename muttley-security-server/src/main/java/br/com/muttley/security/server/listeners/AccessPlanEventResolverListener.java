@@ -2,7 +2,6 @@ package br.com.muttley.security.server.listeners;
 
 import br.com.muttley.model.security.events.AccessPlanResolver;
 import br.com.muttley.security.server.service.AccessPlanService;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -23,6 +22,6 @@ public class AccessPlanEventResolverListener implements ApplicationListener<Acce
 
     @Override
     public void onApplicationEvent(final AccessPlanResolver event) {
-        event.setValueResolved(this.planoService.findById(null, new ObjectId(event.getSource())));
+        event.setValueResolved(this.planoService.findById(null, event.getSource()));
     }
 }

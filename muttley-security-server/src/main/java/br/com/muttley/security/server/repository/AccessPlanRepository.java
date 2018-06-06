@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
  * @project muttley-cloud
  */
 @Repository
-public interface AccessPlanRepository<T extends AccessPlan> extends DocumentMongoRepository<T, ObjectId> {
+public interface AccessPlanRepository<T extends AccessPlan> extends DocumentMongoRepository<T> {
     AccessPlan findByDescription(final String name);
 }

@@ -3,11 +3,10 @@ package br.com.muttley.mongo.service.repository;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.Owner;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public interface CustomMongoRepository<T, ID extends Serializable> extends DocumentMongoRepository<T, ID> {
+public interface CustomMongoRepository<T> extends DocumentMongoRepository<T> {
     /**
      * Sava um registro registro simples
      *
@@ -22,7 +21,7 @@ public interface CustomMongoRepository<T, ID extends Serializable> extends Docum
      * @param owner -> dono do registro
      * @param id    -> id do objeto desejado
      */
-    T findOne(final Owner owner, final ID id);
+    T findOne(final Owner owner, final String id);
 
     /**
      * Busca o primeiro registro qualquer de uma colection
@@ -37,7 +36,7 @@ public interface CustomMongoRepository<T, ID extends Serializable> extends Docum
      * @param owner -> dono do registro
      * @param id    -> id do objeto desejado
      */
-    void delete(final Owner owner, final ID id);
+    void delete(final Owner owner, final String id);
 
     /**
      * Deleta um registro
@@ -77,7 +76,7 @@ public interface CustomMongoRepository<T, ID extends Serializable> extends Docum
      * @param owner -> dono do registro
      * @param id    -> id do objeto desejado
      */
-    boolean exists(final Owner owner, final ID id);
+    boolean exists(final Owner owner, final String id);
 
     /**
      * Carrega o historico de um determinado registro
@@ -93,5 +92,5 @@ public interface CustomMongoRepository<T, ID extends Serializable> extends Docum
      * @param owner -> dono do registro
      * @param id    -> id do registro a ser carregado
      */
-    Historic loadHistoric(final Owner owner, final ID id);
+    Historic loadHistoric(final Owner owner, final String id);
 }

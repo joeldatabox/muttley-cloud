@@ -8,7 +8,6 @@ import br.com.muttley.model.security.jackson.UserSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
@@ -27,9 +26,9 @@ import javax.validation.constraints.NotNull;
 @CompoundIndexes({
         @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })
-public class Owner implements br.com.muttley.model.Document<ObjectId> {
+public class Owner implements br.com.muttley.model.Document {
     @Id
-    protected ObjectId id;
+    protected String id;
     @Indexed
     protected String name;
     protected String description;
@@ -45,19 +44,13 @@ public class Owner implements br.com.muttley.model.Document<ObjectId> {
     protected Historic historic;
 
     @Override
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
     @Override
-    public Owner setId(final ObjectId id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
     public Owner setId(final String id) {
-        setId(new ObjectId(id));
+        this.id = id;
         return this;
     }
 

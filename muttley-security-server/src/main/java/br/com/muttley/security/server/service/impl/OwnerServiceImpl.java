@@ -21,7 +21,7 @@ import static java.util.Objects.isNull;
  * Service do owner do odin
  */
 @Service
-public class OwnerServiceImpl extends SecurityServiceImpl<Owner, ObjectId> implements OwnerService {
+public class OwnerServiceImpl extends SecurityServiceImpl<Owner> implements OwnerService {
     private final OwnerRepository repository;
     private final ApplicationEventPublisher eventPublisher;
 

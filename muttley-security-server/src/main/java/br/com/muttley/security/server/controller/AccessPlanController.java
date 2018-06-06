@@ -6,7 +6,6 @@ import br.com.muttley.model.security.enumeration.Authorities;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.AccessPlanService;
 import br.com.muttley.security.server.service.UserService;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -33,7 +32,7 @@ import static java.util.Objects.isNull;
  */
 @RestController
 @RequestMapping(value = "/api/v1/access-plan", produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-public class AccessPlanController extends AbstractRestController<AccessPlan, ObjectId> {
+public class AccessPlanController extends AbstractRestController<AccessPlan> {
 
     @Autowired
     public AccessPlanController(final AccessPlanService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
@@ -71,7 +70,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan, Obj
     public ResponseEntity deleteById(@PathVariable("id") final String id,
                                      @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
 
-        service.deleteById(null, deserializerId(id));
+        service.deleteById(null, id);
         return ResponseEntity.ok().build();
     }
 
@@ -80,7 +79,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan, Obj
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response,
                                    @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
 
-        final AccessPlan value = service.findById(null, deserializerId(id));
+        final AccessPlan value = service.findById(null, id);
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
@@ -103,7 +102,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan, Obj
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response,
                                        @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
-        final Historic historic = service.loadHistoric(null, deserializerId(id));
+        final Historic historic = service.loadHistoric(null, id);
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
@@ -174,10 +173,5 @@ public class AccessPlanController extends AbstractRestController<AccessPlan, Obj
             throw new MuttleySecurityCredentialException("Você não tem permissão para acessar este recurso ")
                     .addDetails("isNecessary", roles);
         }*/
-    }
-
-    @Override
-    protected ObjectId deserializerId(final String id) {
-        return new ObjectId(id);
     }
 }

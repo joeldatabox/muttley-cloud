@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
  * Repositório específico para owner de clientes
  */
 @Repository
-public interface OwnerRepository extends DocumentMongoRepository<Owner, ObjectId> {
+public interface OwnerRepository extends DocumentMongoRepository<Owner> {
 
     Owner findByName(final String nome);
 }

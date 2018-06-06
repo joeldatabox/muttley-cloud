@@ -8,7 +8,6 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
-import org.bson.types.ObjectId;
 
 import java.util.List;
 import java.util.Map;
@@ -20,10 +19,10 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @author Joel Rodrigues Moreira on 30/01/18.
  * @project muttley-cloud
  */
-public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> extends ServiceImpl<T, ID> implements ModelService<T, ID> {
-    final CustomMongoRepository<T, ID> repository;
+public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> implements ModelService<T> {
+    final CustomMongoRepository<T> repository;
 
-    public ModelServiceImpl(final CustomMongoRepository<T, ID> repository, final Class<T> clazz) {
+    public ModelServiceImpl(final CustomMongoRepository<T> repository, final Class<T> clazz) {
         super(repository, clazz);
         this.repository = repository;
     }
@@ -56,7 +55,7 @@ public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> ext
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível alterar um registro sem informar um id válido");
         }
         //verificando se o registro realmente existe
-        if (!this.repository.exists((ID) value.getId())) {
+        if (!this.repository.exists(value.getId())) {
             throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         value.setOwner(user);
@@ -75,7 +74,7 @@ public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> ext
     }
 
     @Override
-    public T findById(final User user, final ID id) {
+    public T findById(final User user, final String id) {
         if (isNull(id)) {
             throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
         }
@@ -97,7 +96,7 @@ public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> ext
     }
 
     @Override
-    public Historic loadHistoric(final User user, final ID id) {
+    public Historic loadHistoric(final User user, final String id) {
         final Historic historic = repository.loadHistoric(user.getCurrentOwner(), id);
         if (isNull(historic)) {
             throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
@@ -115,7 +114,7 @@ public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> ext
     }
 
     @Override
-    public void deleteById(final User user, final ID id) {
+    public void deleteById(final User user, final String id) {
         checkPrecondictionDelete(user, id);
         if (!repository.exists(user.getCurrentOwner(), id)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
@@ -126,7 +125,7 @@ public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> ext
 
     @Override
     public void delete(final User user, final T value) {
-        checkPrecondictionDelete(user, (ID) value.getId());
+        checkPrecondictionDelete(user, value.getId());
         if (!repository.exists(user.getCurrentOwner(), value)) {
             throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
         }
@@ -135,7 +134,7 @@ public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> ext
     }
 
     @Override
-    public void checkPrecondictionDelete(final User user, final ID id) {
+    public void checkPrecondictionDelete(final User user, final String id) {
 
     }
 
@@ -145,7 +144,7 @@ public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> ext
     }
 
     @Override
-    public void beforeDelete(final User user, final ID id) {
+    public void beforeDelete(final User user, final String id) {
 
     }
 
@@ -167,7 +166,7 @@ public abstract class ModelServiceImpl<T extends Model, ID extends ObjectId> ext
      * Valida se ouve algum furo no processo de negociocio que venha a se alterar o dono do registro
      */
     private final void checkOwner(final User user, final T value) {
-        final Model other = findById(user, (ID) value.getId());
+        final Model other = findById(user, value.getId());
         //não pode-se alterar o usuário
         if (!other.getOwner().equals(user.getCurrentOwner())) {
             throw new MuttleyBadRequestException(clazz, "user", "não é possível fazer a alteração do usuário dono do registro");

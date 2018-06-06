@@ -3,7 +3,6 @@ package br.com.muttley.model.security;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import com.google.common.base.Objects;
-import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -23,9 +22,9 @@ import java.util.Set;
 @CompoundIndexes({
         @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })
-public class WorkTeam implements Document<ObjectId> {
+public class WorkTeam implements Document {
     @Id
-    protected ObjectId id;
+    protected String id;
     @NotBlank(message = "Informe um nome válido para o grupo")
     protected String name;
     protected String description;
@@ -46,19 +45,14 @@ public class WorkTeam implements Document<ObjectId> {
     }
 
     @Override
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
     @Override
-    public WorkTeam setId(final ObjectId id) {
+    public WorkTeam setId(final String id) {
         this.id = id;
         return this;
-    }
-
-    @Override
-    public WorkTeam setId(final String id) {
-        return setId(new ObjectId(id));
     }
 
     public String getName() {

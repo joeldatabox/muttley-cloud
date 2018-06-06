@@ -8,6 +8,6 @@ import org.bson.types.ObjectId;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface AccessPlanService extends SecurityService<AccessPlan, ObjectId> {
+public interface AccessPlanService extends SecurityService<AccessPlan> {
     AccessPlan findByDescription(String descricao);
 }
