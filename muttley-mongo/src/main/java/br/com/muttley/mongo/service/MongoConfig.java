@@ -7,12 +7,15 @@ import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.mongodb.MongoCredential.createCredential;
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 /**
@@ -85,14 +88,24 @@ public class MongoConfig extends AbstractMongoConfiguration {
      */
     @Override
     public final CustomConversions customConversions() {
-        return new CustomConversions(
-                asList(
-                        new BigDecimalToDecimal128Converter(),
-                        new Decimal128ToBigDecimalConverter()
-                        //getMuttleyCustomConversions().getAuthorityToDocumentConverter(),
-                        //getMuttleyCustomConversions().getDocumentToAuthorityConverter()
-                )
-        );
+        //pegando os conversores padrão
+        final List converters = new ArrayList(2);
+        converters.add(new BigDecimalToDecimal128Converter());
+        converters.add(new Decimal128ToBigDecimalConverter());
+
+        //pegando o conversores customizados
+        final Converter[] customConversions = getConverters();
+
+        if (customConversions != null && customConversions.length > 0) {
+            for (Converter con : customConversions) {
+                converters.add(con);
+            }
+        }
+        return new CustomConversions(converters);
+    }
+
+    protected Converter[] getConverters() {
+        return null;
     }
 
     @Bean
