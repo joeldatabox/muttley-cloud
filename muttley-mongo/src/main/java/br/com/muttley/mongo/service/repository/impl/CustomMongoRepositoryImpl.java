@@ -119,6 +119,23 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     }
 
     @Override
+    public boolean exists(final Owner owner, final Map<String, Object> filter) {
+        filter.put("owner.$id", owner.getObjectId());
+        return exists(filter);
+    }
+
+    @Override
+    public boolean exists(final Owner owner, final Object... filter) {
+        final Object filters[] = new Object[2 + filter.length];
+        filters[0] = "owner.$id";
+        filters[1] = owner.getObjectId();
+        for (int i = 0; i < filter.length; i++) {
+            filters[i + 2] = filter[i];
+        }
+        return exists(filters);
+    }
+
+    @Override
     public Historic loadHistoric(final Owner owner, final T value) {
         return this.loadHistoric(owner, value.getId());
     }
@@ -145,7 +162,7 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
 
     private final Map<String, Object> addOwnerQueryParam(final Owner owner, final Map<String, Object> queryParams) {
         final Map<String, Object> query = new HashMap<>(1);
-        query.put("owner.$id.$is", owner.getId());
+        query.put("owner.$id.$is", owner.getObjectId());
         if (queryParams != null) {
             query.putAll(queryParams);
         }

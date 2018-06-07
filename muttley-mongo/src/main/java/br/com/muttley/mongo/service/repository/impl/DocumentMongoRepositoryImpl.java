@@ -1,11 +1,13 @@
 package br.com.muttley.mongo.service.repository.impl;
 
+import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
@@ -68,6 +70,31 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     @Override
     public boolean exists(final T value) {
         return this.exists(value.getId());
+    }
+
+    @Override
+    public boolean exists(final Map<String, Object> filter) {
+        final Criteria criteria = new Criteria();
+        filter.forEach((field, value) -> criteria.and(field).is(value));
+        return operations.exists(new Query(criteria), CLASS);
+    }
+
+    @Override
+    public boolean exists(final Object... filter) {
+        if (filter.length % 2 != 0 || filter.length == 0) {
+            throw new MuttleyException("O critétrios de filtro informado é inválido. Você passou o total de " + filter.length + " argumento(s)");
+        }
+        final Map<String, Object> filters = new HashMap<>();
+        String lastField = null;
+        for (int i = 0; i < filter.length; i++) {
+            //verificando se o indice atual é um field ou um value
+            if (i % 2 == 0) {
+                lastField = (String) filter[i];
+            } else {
+                filters.put(lastField, filter[i]);
+            }
+        }
+        return exists(filters);
     }
 
     @Override

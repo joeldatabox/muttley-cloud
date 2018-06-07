@@ -79,6 +79,22 @@ public interface CustomMongoRepository<T> extends DocumentMongoRepository<T> {
     boolean exists(final Owner owner, final String id);
 
     /**
+     * Verifica se existe um determinado registro no banco de dados
+     *
+     * @param owner  -> dono do registro
+     * @param filter -> Map com criterios de filtro
+     */
+    boolean exists(final Owner owner, final Map<String, Object> filter);
+
+    /**
+     * Verifica se existe um determinado registro no banco de dados
+     *
+     * @param owner -> dono do registro
+     *              * @param filter -> vetor com criterios de filtro. Deve sempre ser passar na seguinte expressão [campo, critério]
+     */
+    boolean exists(final Owner owner, final Object... filter);
+
+    /**
      * Carrega o historico de um determinado registro
      *
      * @param owner -> dono do registro

@@ -35,6 +35,20 @@ public interface DocumentMongoRepository<T> extends MongoRepository<T, String> {
     boolean exists(final T value);
 
     /**
+     * Verifica se existe um determinado registro no banco de dados
+     *
+     * @param filter -> Map com criterios de filtro
+     */
+    boolean exists(final Map<String, Object> filter);
+
+    /**
+     * Verifica se existe um determinado registro no banco de dados
+     *
+     * @param filter -> vetor com criterios de filtro. Deve sempre ser passar na seguinte expressão [campo, critério]
+     */
+    boolean exists(final Object... filter);
+
+    /**
      * Carrega o historico de um determinado registro
      *
      * @param value -> registro a ser carregado
