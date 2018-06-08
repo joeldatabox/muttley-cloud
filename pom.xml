@@ -23,6 +23,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <spring-cloud.version>Edgware.SR3</spring-cloud.version>
+        <commons-beanutils.version>1.9.3</commons-beanutils.version>
     </properties>
 
     <modules>
@@ -139,6 +140,12 @@
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-zuul</artifactId>
                 <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons-beanutils.version}</version>
             </dependency>
 
             <dependency>

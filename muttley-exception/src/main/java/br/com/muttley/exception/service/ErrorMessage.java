@@ -29,10 +29,12 @@ import static org.springframework.util.StringUtils.isEmpty;
 public final class ErrorMessage {
     @JsonIgnore
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    @JsonIgnore
     public static final String RESPONSE_HEADER_VALUE = "error-message.model.ts";
     @JsonSerialize(using = HttpStatusSerializer.class)
     @JsonDeserialize(using = HttpStatusDeserializer.class)
     protected HttpStatus status;
+    protected String field;
     protected String message;
     protected String objectName;
     protected final Map<String, Object> details;
@@ -45,15 +47,25 @@ public final class ErrorMessage {
 
     @JsonCreator
     public ErrorMessage(
+            @JsonProperty("field") final String field,
             @JsonProperty("status") final HttpStatus status,
             @JsonProperty("message") final String message,
             @JsonProperty("objectName") final String objectName,
             @JsonProperty("details") final Map<String, Object> details) {
-
+        this.field = field;
         this.status = status;
         this.message = message;
         this.objectName = objectName;
         this.details = details;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public ErrorMessage setField(final String field) {
+        this.field = field;
+        return this;
     }
 
     public HttpStatus getStatus() {

@@ -18,11 +18,13 @@ public class MuttleyException extends RuntimeException {
     protected String message;
     protected String objectName;
     protected Map<String, Object> details = new HashMap<>();
+    protected String field;
 
     public MuttleyException() {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
         this.message = "ERROR *-*";
         this.objectName = "unknow :(";
+        this.field = null;
     }
 
     public MuttleyException(final String message, final HttpStatus status, final Class clazz, final String field, final String info) {
@@ -31,6 +33,7 @@ public class MuttleyException extends RuntimeException {
         if (clazz != null) {
             this.objectName = clazz.getSimpleName().toLowerCase();
         }
+        this.field = field;
         if (field != null) {
             this.details.put(this.objectName + "." + field, info);
         }
@@ -38,6 +41,7 @@ public class MuttleyException extends RuntimeException {
 
     public MuttleyException(final String message) {
         this(message, HttpStatus.INTERNAL_SERVER_ERROR);
+        this.field = null;
     }
 
     public MuttleyException(final String message, final Throwable cause) {
@@ -45,6 +49,7 @@ public class MuttleyException extends RuntimeException {
         this.message = message;
         this.objectName = "unknow :(";
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        this.field = null;
     }
 
     public MuttleyException(final String message, final HttpStatus status) {
@@ -52,6 +57,7 @@ public class MuttleyException extends RuntimeException {
         this.message = message;
         this.objectName = "unknow :(";
         this.status = status;
+        this.field = null;
     }
 
     public MuttleyException(final Throwable cause) {
@@ -59,6 +65,7 @@ public class MuttleyException extends RuntimeException {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
         this.message = "ERROR *-*";
         this.objectName = "unknow :(";
+        this.field = null;
     }
 
     public MuttleyException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
@@ -66,12 +73,14 @@ public class MuttleyException extends RuntimeException {
         this.message = message;
         this.objectName = "unknow :(";
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        this.field = null;
     }
 
     public MuttleyException(final ErrorMessage errorMessage) {
         this.status = errorMessage.getStatus();
         this.message = errorMessage.getMessage();
         this.objectName = errorMessage.getObjectName();
+        this.field = errorMessage.getField();
         if (errorMessage.containsDetails()) {
             this.details.putAll(errorMessage.getDetails());
         }
@@ -115,6 +124,11 @@ public class MuttleyException extends RuntimeException {
     }
 
     public MuttleyException addDetails(final String key, final Object value) {
+        this.details.put(key, value);
+        return this;
+    }
+
+    public MuttleyException addDetails(final String key, final Object... value) {
         this.details.put(key, value);
         return this;
     }
