@@ -95,6 +95,15 @@ public class MuttleyException extends RuntimeException {
         return this;
     }
 
+    public String getField() {
+        return field;
+    }
+
+    public MuttleyException setField(final String field) {
+        this.field = field;
+        return this;
+    }
+
     @Override
     public String getMessage() {
         return message;
