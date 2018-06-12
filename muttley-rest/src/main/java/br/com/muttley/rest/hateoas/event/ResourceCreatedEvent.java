@@ -13,17 +13,18 @@ public class ResourceCreatedEvent extends ApplicationEvent {
     private final HttpServletResponse response;
     private final Document model;
 
-    public ResourceCreatedEvent(final Object source, final HttpServletResponse response, final Document model) {
+    public ResourceCreatedEvent(final Document source, final HttpServletResponse response) {
         super(source);
         this.response = response;
-        this.model = model;
+        this.model = source;
     }
 
     public HttpServletResponse getResponse() {
         return response;
     }
 
-    public Document getModel() {
+    @Override
+    public Document getSource() {
         return model;
     }
 }

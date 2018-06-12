@@ -31,7 +31,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
  * @author Joel Rodrigues Moreira on 30/01/18.
  * @project muttley-cloud
  */
-public abstract class AbstractRestController<T extends Document> implements RestResource, RestController<T> {
+public abstract class AbstractRestController<T extends Document> implements RestResource<T>, RestController<T> {
     protected final Service<T> service;
     protected final AuthService userService;
     protected final ApplicationEventPublisher eventPublisher;

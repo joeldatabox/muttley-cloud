@@ -32,7 +32,7 @@ import static java.util.Objects.isNull;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public abstract class AbstractRestController<T extends Document> implements RestResource {
+public abstract class AbstractRestController<T extends Document> implements RestResource<T> {
     protected final Service<T> service;
     protected final UserService userService;
     protected final ApplicationEventPublisher eventPublisher;

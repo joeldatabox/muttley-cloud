@@ -22,7 +22,7 @@ public class ResourceCreatedListener implements ApplicationListener<ResourceCrea
                 .setHeader(HttpHeaders.LOCATION, ServletUriComponentsBuilder
                         .fromCurrentRequest()
                         .path("/{id}")
-                        .buildAndExpand(event.getModel().getId())
+                        .buildAndExpand(event.getSource().getId())
                         .toUri().toASCIIString());
     }
 }

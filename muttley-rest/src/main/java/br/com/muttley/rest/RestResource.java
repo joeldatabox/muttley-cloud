@@ -11,6 +11,7 @@ import br.com.muttley.rest.hateoas.event.ResourceCreatedEvent;
 import br.com.muttley.rest.hateoas.event.SingleResourceRetrievedEvent;
 import br.com.muttley.rest.hateoas.resource.MetadataPageable;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface RestResource {
+public interface RestResource<T extends Document> {
     /**
      * Dispara um evento toda vez que um recurso é criado
      *
@@ -34,8 +35,18 @@ public interface RestResource {
      * @param response       -> objeto response
      * @param model          -> objeto criado
      */
-    default void publishCreateResourceEvent(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final Document model) {
-        eventPublisher.publishEvent(new ResourceCreatedEvent(this, response, model));
+    default void publishCreateResourceEvent(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final T model) {
+        eventPublisher.publishEvent(this.newResourceCreatedEvent(model, response));
+    }
+
+    /**
+     * Cria evento a ser disparado toda vez que algum recurso é criado
+     *
+     * @param model    -> objeto criado
+     * @param response -> objeto response
+     */
+    default ApplicationEvent newResourceCreatedEvent(final T model, final HttpServletResponse response) {
+        return new ResourceCreatedEvent(model, response);
     }
 
     /**
@@ -45,7 +56,16 @@ public interface RestResource {
      * @param response       -> objeto response
      */
     default void publishSingleResourceRetrievedEvent(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response) {
-        eventPublisher.publishEvent(new SingleResourceRetrievedEvent(this, response));
+        eventPublisher.publishEvent(this.newSingleResourceRetrievedEvent(response));
+    }
+
+    /**
+     * Cria um evento toda vez que um recurso unico é encontrado
+     *
+     * @param response -> objeto response
+     */
+    default ApplicationEvent newSingleResourceRetrievedEvent(final HttpServletResponse response) {
+        return new SingleResourceRetrievedEvent(response);
     }
 
     /**

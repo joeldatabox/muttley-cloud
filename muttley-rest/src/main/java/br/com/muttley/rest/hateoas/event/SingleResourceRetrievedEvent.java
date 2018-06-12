@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 public class SingleResourceRetrievedEvent extends ApplicationEvent {
     private final HttpServletResponse response;
 
-    public SingleResourceRetrievedEvent(final Object source, final HttpServletResponse response) {
-        super(source);
+    public SingleResourceRetrievedEvent(final HttpServletResponse response) {
+        super(response);
         this.response = response;
     }
 

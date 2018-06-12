@@ -17,7 +17,7 @@ import static br.com.muttley.rest.util.LinkUtil.createLinkHeader;
  * @project muttley-cloud
  */
 @Component
-class SingleResourceRetrievedDiscoverabilityListener implements ApplicationListener<SingleResourceRetrievedEvent> {
+public class SingleResourceRetrievedDiscoverabilityListener implements ApplicationListener<SingleResourceRetrievedEvent> {
 
     @Override
     public void onApplicationEvent(final SingleResourceRetrievedEvent resourceRetrievedEvent) {

@@ -13,10 +13,12 @@ import org.springframework.context.ApplicationEvent;
 public abstract class DocumentResolverEvent<T extends Document> extends ApplicationEvent {
     final String id;
     protected T valueResolved;
+    private boolean resolved;
 
     public DocumentResolverEvent(final String id) {
         super(id);
         this.id = id;
+        this.resolved = false;
     }
 
     public T getValueResolved() {
@@ -25,6 +27,7 @@ public abstract class DocumentResolverEvent<T extends Document> extends Applicat
 
     public DocumentResolverEvent<T> setValueResolved(final T valueResolved) {
         this.valueResolved = valueResolved;
+        this.resolved = true;
         return this;
     }
 
@@ -33,6 +36,6 @@ public abstract class DocumentResolverEvent<T extends Document> extends Applicat
     }
 
     public boolean isResolved() {
-        return this.valueResolved != null;
+        return resolved;
     }
 }
