@@ -36,6 +36,14 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     }
 
     @Override
+    public void checkPrecondictionSave(final User user, final T value) {
+    }
+
+    @Override
+    public void beforeSave(final User user, final T value) {
+    }
+
+    @Override
     public T save(final User user, final T value) {
         //verificando se realmente está criando um novo registro
         if (value.getId() != null) {
@@ -47,11 +55,23 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         this.validator.validate(value);
         //verificando precondições
         this.checkPrecondictionSave(user, value);
-        return repository.save(value);
+        this.beforeSave(user, value);
+        final T otherValue = repository.save(value);
+        this.afterSave(user, otherValue);
+        return otherValue;
     }
 
     @Override
-    public void checkPrecondictionSave(final User user, final T value) {
+    public void afterSave(final User user, final T value) {
+    }
+
+    @Override
+    public void checkPrecondictionUpdate(final User user, final T value) {
+
+    }
+
+    @Override
+    public void beforeUpdate(final User user, final T value) {
 
     }
 
@@ -71,11 +91,14 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         this.validator.validate(value);
         //verificando precondições
         checkPrecondictionUpdate(user, value);
-        return repository.save(value);
+        beforeUpdate(user, value);
+        final T otherValue = repository.save(value);
+        afterUpdate(user, value);
+        return otherValue;
     }
 
     @Override
-    public void checkPrecondictionUpdate(final User user, final T value) {
+    public void afterUpdate(final User user, final T value) {
 
     }
 
@@ -116,27 +139,28 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     }
 
     @Override
+    public void checkPrecondictionDelete(final User user, final String id) {
+
+    }
+
+    @Override
+    public void beforeDelete(final User user, final String id) {
+
+    }
+
+    @Override
     public void deleteById(final User user, final String id) {
         checkPrecondictionDelete(user, id);
         if (!repository.exists(id)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
-        this.repository.delete(id);
         beforeDelete(user, id);
+        this.repository.delete(id);
+        afterDelete(user, id);
     }
 
     @Override
-    public void delete(final User user, final T value) {
-        checkPrecondictionDelete(user, value.getId());
-        if (!repository.exists(value)) {
-            throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
-        }
-        this.repository.delete(value);
-        beforeDelete(user, value);
-    }
-
-    @Override
-    public void checkPrecondictionDelete(final User user, final String id) {
+    public void afterDelete(final User user, final String id) {
 
     }
 
@@ -146,9 +170,16 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     }
 
     @Override
-    public void beforeDelete(final User user, final String id) {
-
+    public void delete(final User user, final T value) {
+        checkPrecondictionDelete(user, value.getId());
+        if (!repository.exists(value)) {
+            throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
+        }
+        beforeDelete(user, value);
+        this.repository.delete(value);
+        afterDelete(user, value);
     }
+
 
     @Override
     public Long count(final User user, final Map<String, Object> allRequestParams) {
