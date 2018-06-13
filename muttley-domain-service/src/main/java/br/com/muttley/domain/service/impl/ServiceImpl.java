@@ -180,6 +180,10 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         afterDelete(user, value);
     }
 
+    @Override
+    public void afterDelete(final User user, final T value) {
+
+    }
 
     @Override
     public Long count(final User user, final Map<String, Object> allRequestParams) {
