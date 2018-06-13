@@ -1,5 +1,6 @@
 package br.com.muttley.exception.service;
 
+import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryException;
@@ -132,6 +133,9 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     public ResponseEntity exceptionRuntime(final RuntimeException ex) {
         if (ex instanceof MuttleyException) {
             return handleMuttleyException((MuttleyException) ex);
+        }
+        if (ex.getCause() instanceof MuttleyConflictException) {
+            return handleMuttleyException((MuttleyException) ex.getCause());
         }
         return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
     }
