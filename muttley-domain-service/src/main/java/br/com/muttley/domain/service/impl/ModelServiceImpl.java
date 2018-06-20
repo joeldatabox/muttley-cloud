@@ -8,12 +8,12 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * @author Joel Rodrigues Moreira on 30/01/18.
@@ -156,7 +156,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     @Override
     public List<T> findAll(final User user, final Map<String, Object> allRequestParams) {
         final List<T> results = this.repository.findAll(user.getCurrentOwner(), allRequestParams);
-        if (isEmpty(results)) {
+        if (CollectionUtils.isEmpty(results)) {
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");
         }
         return results;

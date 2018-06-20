@@ -45,7 +45,7 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser salvo
      */
-    T save(User user, T value);
+    T save(final User user, final T value);
 
     /**
      * Este metodo é chamado toda vez em que é salvo um registro no banco de dados
@@ -64,7 +64,7 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser atualizado
      */
-    void checkPrecondictionUpdate(User user, T value);
+    void checkPrecondictionUpdate(final User user, final T value);
 
     /**
      * Este método é chamado toda vez antes de se atualizar algum registro e depois de se chamar o metodo
@@ -87,7 +87,7 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser atualizado
      */
-    T update(User user, T value);
+    T update(final User user, final T value);
 
     /**
      * Este metodo é chamado toda vez em que é atualizado um registro no banco de dados
@@ -104,14 +104,14 @@ public interface Service<T extends Document> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id procurado
      */
-    T findById(User user, String id);
+    T findById(final User user, final String id);
 
     /**
      * Pega o primeiro registro que encontrar
      *
      * @param user -> usuário da requisição corrente
      */
-    T findFirst(User user);
+    T findFirst(final User user);
 
     /**
      * Busca o histórico de um determinado registro
@@ -120,7 +120,7 @@ public interface Service<T extends Document> {
      * @param id   -> id do registro a ser buscado
      * @return Historic
      */
-    Historic loadHistoric(User user, String id);
+    Historic loadHistoric(final User user, final String id);
 
     /**
      * Busca o histórico de um determinado registro
@@ -129,7 +129,7 @@ public interface Service<T extends Document> {
      * @param value -> instancia do registro a ser buscado
      * @return Historic
      */
-    Historic loadHistoric(User user, T value);
+    Historic loadHistoric(final User user, final T value);
 
     /**
      * Qualquer regra de négocio que valide o processo de delete deve ser implementada
@@ -138,7 +138,7 @@ public interface Service<T extends Document> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id do registro a ser deletado
      */
-    void checkPrecondictionDelete(User user, String id);
+    void checkPrecondictionDelete(final User user, final String id);
 
     /**
      * Este método é chamado toda vez antes de se deltetar algum registro e depois de se chamar o metodo
@@ -149,7 +149,7 @@ public interface Service<T extends Document> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id do registro que será deletado
      */
-    void beforeDelete(User user, String id);
+    void beforeDelete(final User user, final String id);
 
     /**
      * Deleta um registro pelo id
@@ -157,7 +157,7 @@ public interface Service<T extends Document> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id procurado
      */
-    void deleteById(User user, String id);
+    void deleteById(final User user, final String id);
 
 
     /**
@@ -188,7 +188,7 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser deletado
      */
-    void delete(User user, T value);
+    void delete(final User user, final T value);
 
     /**
      * Este metodo é chamado toda vez em que é deletado um registro no banco de dados
@@ -206,7 +206,7 @@ public interface Service<T extends Document> {
      * @param user             -> usuário da requisição corrente
      * @param allRequestParams -> Todos os parametros passado na query da requisição
      */
-    Long count(User user, Map<String, Object> allRequestParams);
+    Long count(final User user, final Map<String, Object> allRequestParams);
 
     /**
      * Realiza o processo de listagem com base nos critérios
@@ -215,5 +215,10 @@ public interface Service<T extends Document> {
      * @param user             -> usuário da requisição corrente
      * @param allRequestParams -> Todos os parametros passado na query da requisição
      */
-    List<T> findAll(User user, Map<String, Object> allRequestParams);
+    List<T> findAll(final User user, final Map<String, Object> allRequestParams);
+
+    /**
+     * Verifica se existe algum registro no DB
+     */
+    boolean isEmpty(final User user);
 }

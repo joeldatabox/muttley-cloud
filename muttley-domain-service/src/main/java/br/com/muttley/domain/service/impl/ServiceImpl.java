@@ -10,13 +10,13 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * @author Joel Rodrigues Moreira on 30/01/18.
@@ -193,7 +193,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     @Override
     public List<T> findAll(final User user, final Map<String, Object> allRequestParams) {
         final List<T> results = this.repository.findAll(allRequestParams);
-        if (isEmpty(results)) {
+        if (CollectionUtils.isEmpty(results)) {
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");
         }
         return results;
@@ -209,5 +209,10 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         return historic
                 .setLastChangeBy(user)
                 .setDtChange(new Date());
+    }
+
+    @Override
+    public boolean isEmpty(final User user) {
+        return this.count(user, null) == 0l;
     }
 }
