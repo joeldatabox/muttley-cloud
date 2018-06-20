@@ -35,7 +35,7 @@ public class MuttleyException extends RuntimeException {
         }
         this.field = field;
         if (field != null) {
-            this.details.put(this.objectName + "." + field, info);
+            this.details.put((this.objectName == null ? "" : this.objectName) + "." + field, info);
         }
     }
 

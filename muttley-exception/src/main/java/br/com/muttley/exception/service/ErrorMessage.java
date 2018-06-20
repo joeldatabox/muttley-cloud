@@ -155,12 +155,12 @@ public final class ErrorMessage {
     }
 
     @JsonIgnore
-    protected ResponseEntity toResponseEntity() {
+    public ResponseEntity toResponseEntity() {
         return toResponseEntity(new HttpHeaders());
     }
 
     @JsonIgnore
-    protected ResponseEntity toResponseEntity(final HttpHeaders headers) {
+    public ResponseEntity toResponseEntity(final HttpHeaders headers) {
         headers.add(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE);
         headers.add(RESPONSE_HEADER, RESPONSE_HEADER_VALUE);
         return new ResponseEntity(this, headers, this.status);
