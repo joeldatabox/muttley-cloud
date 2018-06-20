@@ -1,5 +1,6 @@
 package br.com.muttley.security.feign;
 
+import br.com.muttley.feign.service.config.FeignTimeoutConfig;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
@@ -18,7 +19,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/user-preferences", configuration = FeignClientConfig.class)
+@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/user-preferences", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
 public interface UserPreferenceServiceClient {
 
     @RequestMapping(value = "/{idUser}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)

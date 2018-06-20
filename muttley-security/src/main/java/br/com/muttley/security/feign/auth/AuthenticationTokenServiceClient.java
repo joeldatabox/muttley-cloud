@@ -1,5 +1,6 @@
 package br.com.muttley.security.feign.auth;
 
+import br.com.muttley.feign.service.config.FeignTimeoutConfig;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * Aplica o filtro de autenticação necessario
  */
-@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/users/authentication", configuration = FeignClientConfig.class)
+@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/users/authentication", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
 public interface AuthenticationTokenServiceClient {
 
     @RequestMapping(value = "/user-from-token", method = RequestMethod.POST)
