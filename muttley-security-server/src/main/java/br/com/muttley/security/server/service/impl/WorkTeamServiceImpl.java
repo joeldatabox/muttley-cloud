@@ -9,6 +9,7 @@ import br.com.muttley.security.server.repository.WorkTeamRepository;
 import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     @Override
     public List<WorkTeam> findByUserMaster(final Owner owner, final User user) {
         final List<WorkTeam> itens = repository.findByUserMaster(owner, user);
-        if (isEmpty(itens)) {
+        if (CollectionUtils.isEmpty(itens)) {
             throw new MuttleyNoContentException(WorkTeam.class, "name", "Nenhum time de trabalho encontrado");
         }
         return itens;
