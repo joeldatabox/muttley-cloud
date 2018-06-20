@@ -17,9 +17,9 @@ import java.util.Scanner;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class LongHttpMessageConverter extends AbstractHttpMessageConverter<Long> {
+public class BooleanHttpMessageConverter extends AbstractHttpMessageConverter<Boolean> {
 
-    public LongHttpMessageConverter() {
+    public BooleanHttpMessageConverter() {
         super(MediaType.TEXT_PLAIN);
     }
 
@@ -29,15 +29,13 @@ public class LongHttpMessageConverter extends AbstractHttpMessageConverter<Long>
     }
 
     @Override
-    protected Long readInternal(Class<? extends Long> clazz, HttpInputMessage inputMessage)
-            throws IOException, HttpMessageNotReadableException {
+    protected Boolean readInternal(Class<? extends Boolean> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
         final String requestBody = toString(inputMessage.getBody());
-        return requestBody.isEmpty() ? null : Long.valueOf(requestBody);
+        return requestBody.isEmpty() ? null : Boolean.valueOf(requestBody);
     }
 
     @Override
-    protected void writeInternal(Long value, HttpOutputMessage outputMessage)
-            throws IOException, HttpMessageNotWritableException {
+    protected void writeInternal(Boolean value, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
         try {
             final OutputStream outputStream = outputMessage.getBody();
             outputStream.write((value == null ? "" : value.toString()).getBytes());

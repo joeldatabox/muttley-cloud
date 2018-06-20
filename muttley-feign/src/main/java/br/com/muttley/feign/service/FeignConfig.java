@@ -1,5 +1,7 @@
 package br.com.muttley.feign.service;
 
+import br.com.muttley.feign.service.converters.BooleanHttpMessageConverter;
+import br.com.muttley.feign.service.converters.LongHttpMessageConverter;
 import feign.Feign;
 import feign.Logger;
 import feign.Retryer;
@@ -50,6 +52,7 @@ public class FeignConfig extends FeignClientsConfiguration {
     public Decoder feignDecoder() {
         final List<HttpMessageConverter<?>> decoderConverters = new ArrayList<>(messageConverters.getObject().getConverters());
         decoderConverters.add(new LongHttpMessageConverter());
+        decoderConverters.add(new BooleanHttpMessageConverter());
 
         //HttpMessageConverters httpMessageConverters = new HttpMessageConverters(decoderConverters);
 
