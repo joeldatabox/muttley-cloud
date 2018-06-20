@@ -7,7 +7,6 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.security.server.events.OwnerCreateEvent;
 import br.com.muttley.security.server.repository.OwnerRepository;
 import br.com.muttley.security.server.service.OwnerService;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

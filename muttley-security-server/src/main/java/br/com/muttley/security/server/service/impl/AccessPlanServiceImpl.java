@@ -6,7 +6,6 @@ import br.com.muttley.model.security.AccessPlan;
 import br.com.muttley.model.security.User;
 import br.com.muttley.security.server.repository.AccessPlanRepository;
 import br.com.muttley.security.server.service.AccessPlanService;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

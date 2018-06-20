@@ -14,7 +14,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 
 import static java.util.Objects.isNull;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * @author Joel Rodrigues Moreira on 26/02/18.
