@@ -34,7 +34,7 @@ public class DateDeserializer extends JsonDeserializer<Date> {
             }
             return Date.from(
                     LocalDateTime
-                            .ofInstant(DefaultDateFormatConfig.createDateTime().parse(value).toInstant(), ZoneId.systemDefault())
+                            .ofInstant(DefaultDateFormatConfig.createDateOnly().parse(value).toInstant(), ZoneId.systemDefault())
                             .withHour(0)
                             .withMinute(0)
                             .withSecond(0)
