@@ -200,9 +200,12 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     }
 
     protected Historic createHistoric(final User user) {
+        final Date now = new Date();
         return new Historic()
                 .setCreatedBy(user)
-                .setDtCreate(new Date());
+                .setDtCreate(now)
+                .setLastChangeBy(user)
+                .setDtChange(now);
     }
 
     protected Historic generateHistoricUpdate(final User user, final Historic historic) {

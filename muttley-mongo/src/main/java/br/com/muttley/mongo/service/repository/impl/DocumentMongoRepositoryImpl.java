@@ -111,6 +111,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                         ), project().and("$historic.createdBy").as("createdBy")
                                 .and("$historic.dtCreate").as("dtCreate")
                                 .and("$historic.dtChange").as("dtChange")
+                                .and("$historic.lastChangeBy").as("lastChangeBy")
 
 
                 ), COLLECTION, Historic.class);
