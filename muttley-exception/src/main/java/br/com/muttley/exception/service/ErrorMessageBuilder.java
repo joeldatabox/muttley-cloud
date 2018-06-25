@@ -38,14 +38,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Component
 public class ErrorMessageBuilder {
     private static final Logger logger = LoggerFactory.getLogger(ErrorMessageBuilder.class);
-    private final boolean STACK_TRACE;
-    private final boolean RESPONSE_EXCEPTION;
-
-
-    public ErrorMessageBuilder(@Value("${muttley.print.stackTrace:false}") final boolean STACK_TRACE, @Value("${muttley.print.responseException:false}") final boolean RESPONSE_EXCEPTION) {
-        this.STACK_TRACE = STACK_TRACE;
-        this.RESPONSE_EXCEPTION = RESPONSE_EXCEPTION;
-    }
+    @Value("${muttley.print.stackTrace:false}")
+    private Boolean STACK_TRACE;
+    @Value("${muttley.print.responseException:false}")
+    private Boolean RESPONSE_EXCEPTION;
 
     public ErrorMessage buildMessage(final MethodArgumentNotValidException ex) {
         final ErrorMessage message = new ErrorMessage()
@@ -195,10 +191,10 @@ public class ErrorMessageBuilder {
      * @param ex ->exceção para ser logada!
      */
     private void printException(final Exception ex, final ErrorMessage message) {
-        if (STACK_TRACE) {
+        if (STACK_TRACE == null || STACK_TRACE) {
             ex.printStackTrace();
         }
-        if (RESPONSE_EXCEPTION) {
+        if (RESPONSE_EXCEPTION == null || RESPONSE_EXCEPTION) {
             logger.info(message.toJson());
         }
     }

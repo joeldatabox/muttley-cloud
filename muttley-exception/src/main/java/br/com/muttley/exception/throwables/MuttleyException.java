@@ -31,7 +31,8 @@ public class MuttleyException extends RuntimeException {
         this.message = message;
         this.status = status;
         if (clazz != null) {
-            this.objectName = clazz.getSimpleName().toLowerCase();
+            final String simpleName = clazz.getSimpleName();
+            this.objectName = simpleName.substring(0, 1).toLowerCase() + simpleName.substring(1, simpleName.length());
         }
         this.field = field;
         if (field != null) {
