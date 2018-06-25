@@ -19,11 +19,15 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 public class ErrorsController {
     @RequestMapping(value = "/404", method = GET)
     public ResponseEntity noHandlerFoundException(final ErrorMessageBuilder messageBuilder) {
-        return messageBuilder.buildMessage(new MuttleyNotFoundException(null, null, null)).toResponseEntity();
+        return messageBuilder.buildMessage(
+                new MuttleyNotFoundException(null, null, null).setMessage("Endpoint inexistente =(")
+        ).toResponseEntity();
     }
 
     @RequestMapping(value = "/500", method = GET)
     public ResponseEntity noInternalServerError(final ErrorMessageBuilder messageBuilder) {
-        return messageBuilder.buildMessage(new MuttleyException()).toResponseEntity();
+        return messageBuilder.buildMessage(
+                new MuttleyException().setMessage("Desculpe pela vergonha =(")
+        ).toResponseEntity();
     }
 }
