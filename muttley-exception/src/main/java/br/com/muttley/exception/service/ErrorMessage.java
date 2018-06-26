@@ -5,6 +5,7 @@ import br.com.muttley.exception.service.serializer.HttpStatusSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -26,6 +27,7 @@ import static org.springframework.util.StringUtils.isEmpty;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project spring-cloud
  */
+@JsonPropertyOrder({"message", "field", "objectName", "details", "status"})
 public final class ErrorMessage {
     @JsonIgnore
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
