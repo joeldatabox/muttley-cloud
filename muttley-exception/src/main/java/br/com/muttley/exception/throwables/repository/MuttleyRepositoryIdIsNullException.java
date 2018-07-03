@@ -6,7 +6,7 @@ package br.com.muttley.exception.throwables.repository;
  * @project spring-cloud
  */
 
-public class MuttleyRepositoryIdIsNullException extends MuttleyRepositoryException {
+public class MuttleyRepositoryIdIsNullException extends MuttleyRepositoryInvalidIdException {
 
     public MuttleyRepositoryIdIsNullException(final Class clazz) {
         this(clazz, "Atenção, o \"id\" do objeto está nullo");

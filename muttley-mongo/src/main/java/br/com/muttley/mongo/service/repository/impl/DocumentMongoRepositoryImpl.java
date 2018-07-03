@@ -2,6 +2,7 @@ package br.com.muttley.mongo.service.repository.impl;
 
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullException;
+import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import org.bson.types.ObjectId;
@@ -18,6 +19,7 @@ import java.util.Map;
 
 import static br.com.muttley.mongo.service.infra.Aggregate.createAggregations;
 import static br.com.muttley.mongo.service.infra.Aggregate.createAggregationsCount;
+import static org.bson.types.ObjectId.isValid;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
@@ -99,7 +101,19 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
 
     @Override
     public Historic loadHistoric(final T value) {
-        return loadHistoric(value.getId());
+        final AggregationResults result = operations.aggregate(
+                newAggregation(
+                        match(
+                                where("_id").is(value.getObjectId())
+                        ), project().and("$historic.createdBy").as("createdBy")
+                                .and("$historic.dtCreate").as("dtCreate")
+                                .and("$historic.dtChange").as("dtChange")
+                                .and("$historic.lastChangeBy").as("lastChangeBy")
+
+
+                ), COLLECTION, Historic.class);
+
+        return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
     }
 
     @Override
@@ -107,7 +121,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
         final AggregationResults result = operations.aggregate(
                 newAggregation(
                         match(
-                                where("_id").is(new ObjectId(id))
+                                where("_id").is(newObjectId(id))
                         ), project().and("$historic.createdBy").as("createdBy")
                                 .and("$historic.dtCreate").as("dtCreate")
                                 .and("$historic.dtChange").as("dtChange")
@@ -123,6 +137,14 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
         if (id == null) {
             throw new MuttleyRepositoryIdIsNullException(this.CLASS);
         }
+        if (!isValid(id)) {
+            throw new MuttleyRepositoryInvalidIdException(this.CLASS);
+        }
+    }
+
+    protected final ObjectId newObjectId(final String id) {
+        this.validateId(id);
+        return new ObjectId(id);
     }
 
     protected final class ResultCount {

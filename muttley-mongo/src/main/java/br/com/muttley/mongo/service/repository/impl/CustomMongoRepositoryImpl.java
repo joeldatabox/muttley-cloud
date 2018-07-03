@@ -4,7 +4,6 @@ import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotI
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.Owner;
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
@@ -37,11 +36,10 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     @Override
     public final T findOne(final Owner owner, final String id) {
         validateOwner(owner);
-        validateId(id);
         return operations.findOne(
                 new Query(
                         where("owner.$id").is(owner.getObjectId())
-                                .and("id").is(new ObjectId(id))
+                                .and("id").is(newObjectId(id))
                 ), CLASS
         );
     }
@@ -58,20 +56,26 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     }
 
     @Override
-    public final void delete(final Owner user, final String id) {
-        validateOwner(user);
-        validateId(id);
+    public final void delete(final Owner owner, final String id) {
+        validateOwner(owner);
         operations.remove(
                 new Query(
-                        where("owner.$id").is(user.getObjectId())
-                                .and("id").is(new ObjectId(id))
+                        where("owner.$id").is(owner.getObjectId())
+                                .and("id").is(newObjectId(id))
                 ), CLASS
         );
     }
 
     @Override
     public final void delete(final Owner owner, final T value) {
-        delete(owner, value.getId());
+        validateOwner(owner);
+        operations.remove(
+                new Query(
+                        where("owner.$id").is(owner.getObjectId())
+                                .and("id").is(value.getObjectId())
+                ), CLASS
+        );
+
     }
 
     @Override
@@ -113,7 +117,7 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
         return operations.exists(
                 new Query(
                         where("owner.$id").is(owner.getObjectId())
-                                .and("id").is(new ObjectId(id))
+                                .and("id").is(newObjectId(id))
                 ), CLASS
         );
     }
@@ -137,7 +141,16 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
 
     @Override
     public Historic loadHistoric(final Owner owner, final T value) {
-        return this.loadHistoric(owner, value.getId());
+        final AggregationResults result = operations.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(owner.getObjectId())
+                                .and("_id").is(value.getObjectId())
+                        ), project().and("$historic.createdBy").as("createdBy")
+                                .and("$historic.dtCreate").as("dtCreate")
+                                .and("$historic.dtChange").as("dtChange")
+                ), COLLECTION, Historic.class);
+
+        return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
     }
 
     @Override
@@ -145,7 +158,7 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
         final AggregationResults result = operations.aggregate(
                 newAggregation(
                         match(where("owner.$id").is(owner.getObjectId())
-                                .and("_id").is(new ObjectId(id))
+                                .and("_id").is(newObjectId(id))
                         ), project().and("$historic.createdBy").as("createdBy")
                                 .and("$historic.dtCreate").as("dtCreate")
                                 .and("$historic.dtChange").as("dtChange")
