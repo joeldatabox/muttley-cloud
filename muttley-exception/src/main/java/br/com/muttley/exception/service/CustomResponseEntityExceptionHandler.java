@@ -8,7 +8,6 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedE
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.config.ResourceNotFoundException;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.http.HttpHeaders;
@@ -104,11 +103,6 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     @Override
     public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return messageBuilder.buildMessage(ex).toResponseEntity();
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity handleResourceNotFoundException(final ResourceNotFoundException ex) {
-        return messageBuilder.buildMessage(new MuttleyNotFoundException(ex)).toResponseEntity();
     }
 
     @ExceptionHandler(value = NullPointerException.class)

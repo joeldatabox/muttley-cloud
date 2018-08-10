@@ -1,6 +1,6 @@
 package br.com.muttley.exception.service.controllers;
 
-import org.springframework.boot.autoconfigure.web.ErrorController;
+import org.springframework.boot.web.servlet.error.ErrorController;
 
 /**
  * @author Joel Rodrigues Moreira on 04/06/18.
