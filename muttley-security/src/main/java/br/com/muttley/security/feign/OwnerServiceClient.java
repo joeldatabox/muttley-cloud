@@ -3,7 +3,7 @@ package br.com.muttley.security.feign;
 import br.com.muttley.feign.service.config.FeignTimeoutConfig;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.FeignClient;
 
 /**
  * @author Joel Rodrigues Moreira on 18/04/18.

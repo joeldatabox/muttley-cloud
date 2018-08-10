@@ -37,14 +37,14 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisConnectionFactory jedisConnectionFactory() {
+    public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
+    public RedisTemplate<String, Object> redisTemplate(final RedisConnectionFactory redisConnectionFactory) {
         final RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
-        template.setConnectionFactory(jedisConnectionFactory());
+        template.setConnectionFactory(redisConnectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new GenericToStringSerializer<Object>(Object.class));
         template.setHashKeySerializer(new StringRedisSerializer());

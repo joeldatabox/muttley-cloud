@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -96,11 +97,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(final String id) {
-        final User user = repository.findOne(id);
-        if (user == null) {
+        final Optional<User> user = repository.findById(id);
+        if (!user.isPresent()) {
             throw new MuttleySecurityNotFoundException(User.class, "id", id + " este registro não foi encontrado");
         }
-        return user;
+        return user.get();
     }
 
     @Override
