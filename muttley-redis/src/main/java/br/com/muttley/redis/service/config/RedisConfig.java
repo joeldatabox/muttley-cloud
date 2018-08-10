@@ -4,11 +4,12 @@ import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.redis.service.impl.RedisServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -30,19 +31,14 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisService createService(
-            @Value("${muttley.redis.prefixHash:muttley-cloud}") final String prefixHash,
-            @Autowired RedisTemplate redisTemplate) {
+    public RedisService createService(@Value("${muttley.redis.prefixHash:muttley-cloud}") final String prefixHash,
+                                      @Autowired RedisTemplate redisTemplate) {
         return new RedisServiceImpl(prefixHash, redisTemplate);
     }
 
     @Bean
-    public JedisConnectionFactory jedisConnectionFactory() {
-        JedisConnectionFactory factory = new JedisConnectionFactory();
-        factory.setHostName(host);
-        factory.setPort(port);
-        factory.setUsePool(true);
-        return factory;
+    public RedisConnectionFactory jedisConnectionFactory() {
+        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
     }
 
     @Bean
@@ -58,7 +54,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public CacheManager cacheManager(@Autowired final RedisTemplate redisTemplate) {
-        return new RedisCacheManager(redisTemplate);
+    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        return RedisCacheManager.create(connectionFactory);
     }
 }
