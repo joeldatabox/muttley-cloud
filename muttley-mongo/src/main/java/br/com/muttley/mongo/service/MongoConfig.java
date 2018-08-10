@@ -2,14 +2,14 @@ package br.com.muttley.mongo.service;
 
 import br.com.muttley.mongo.service.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.service.converters.Decimal128ToBigDecimalConverter;
-import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
-import org.springframework.data.mongodb.core.convert.CustomConversions;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 
 import java.util.ArrayList;
@@ -53,41 +53,21 @@ public class MongoConfig extends AbstractMongoConfiguration {
     }
 
     @Override
-    protected String getDatabaseName() {
-        return dataBaseName;
-    }
-
-   /* @Override
-    @Bean
-    public MongoDbFactory mongoDbFactory() {
-        return new SimpleMongoDbFactory(
-                new MongoClient(
-                        new ServerAddress(this.hostDataBase, Integer.parseInt(this.portDataBase)),
-                        asList(MongoCredential.createCredential(this.userName, this.dataBaseName, password.toCharArray())),
-                        MongoClientOptions.builder().build()
-                ), getDatabaseName());
-    }
-
-    @Override
-    protected UserCredentials getUserCredentials() {
-        return super.getUserCredentials();
-    }*/
-
-    @Override
-    @Bean
-    public Mongo mongo() {
+    public MongoClient mongoClient() {
         return new MongoClient(
                 singletonList(new ServerAddress(this.hostDataBase, Integer.valueOf(this.portDataBase))),
-                singletonList(createCredential(this.userName, this.dataBaseName, password.toCharArray())));
+                createCredential(this.userName, this.dataBaseName, password.toCharArray()),
+                MongoClientOptions.builder().build()
+        );
     }
 
-    /**
-     * Por padrão já é adicionado os converters
-     * {@link BigDecimalToDecimal128Converter} e também
-     * {@link Decimal128ToBigDecimalConverter}
-     */
     @Override
-    public final CustomConversions customConversions() {
+    protected String getDatabaseName() {
+        return this.dataBaseName;
+    }
+
+    @Override
+    public final org.springframework.data.convert.CustomConversions customConversions() {
         //pegando os conversores padrão
         final List converters = new ArrayList(2);
         converters.add(new BigDecimalToDecimal128Converter());
@@ -101,7 +81,7 @@ public class MongoConfig extends AbstractMongoConfiguration {
                 converters.add(con);
             }
         }
-        return new CustomConversions(converters);
+        return new MongoCustomConversions(converters);
     }
 
     protected Converter[] getConverters() {

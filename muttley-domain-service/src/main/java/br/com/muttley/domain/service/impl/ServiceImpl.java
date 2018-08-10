@@ -15,6 +15,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Objects.isNull;
 
@@ -108,11 +109,11 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
             throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
         }
 
-        final T result = this.repository.findOne(id);
-        if (isNull(id)) {
+        final Optional<T> result = this.repository.findById(id);
+        if (!result.isPresent()) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
-        return result;
+        return result.get();
     }
 
     @Override
@@ -155,7 +156,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         beforeDelete(user, id);
-        this.repository.delete(id);
+        this.repository.deleteById(id);
         afterDelete(user, id);
     }
 

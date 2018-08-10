@@ -12,9 +12,9 @@ import feign.slf4j.Slf4jLogger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
-import org.springframework.cloud.netflix.feign.FeignClientsConfiguration;
-import org.springframework.cloud.netflix.feign.support.SpringDecoder;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.cloud.openfeign.FeignClientsConfiguration;
+import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -35,7 +35,7 @@ import static org.springframework.util.StringUtils.isEmpty;
 public class FeignConfig extends FeignClientsConfiguration {
     private final String PROPERTY_SOURCE = "applicationConfig: [classpath:/bootstrap.properties]";
     @Autowired
-    private ObjectFactory<HttpMessageConverters> messageConverters;
+    private ObjectFactory<HttpMessageConverter> messageConverters;
 
 
     @Bean
@@ -51,7 +51,7 @@ public class FeignConfig extends FeignClientsConfiguration {
 
     @Override
     public Decoder feignDecoder() {
-        final List<HttpMessageConverter<?>> decoderConverters = new ArrayList<>(messageConverters.getObject().getConverters());
+        final List<HttpMessageConverter<?>> decoderConverters = new ArrayList<>(messageConverters.getObject().getSupportedMediaTypes());
         decoderConverters.add(new LongHttpMessageConverter());
         decoderConverters.add(new BooleanHttpMessageConverter());
         decoderConverters.add(new DateHttpMessageConverter());

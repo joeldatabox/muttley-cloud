@@ -1,7 +1,6 @@
 package br.com.muttley.mongo.service.infra;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
-import com.mongodb.BasicDBObject;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
@@ -120,8 +119,9 @@ public final class Aggregate {
                 final ProjectionOperation projectArrayElementAt = project(nameVariables);
 
 
-                list.add(projectToArray.and(context -> new BasicDBObject("$objectToArray", "$" + where)).as(where));
-                list.add(projectArrayElementAt.and(context -> new BasicDBObject("$arrayElemAt", asList("$" + where + ".v", 1))).as(where));
+                list.add(projectToArray.and(context -> new org.bson.Document("", "")));
+                list.add(projectToArray.and(context -> new org.bson.Document("$objectToArray", "$" + where)).as(where));
+                list.add(projectArrayElementAt.and(context -> new org.bson.Document("$arrayElemAt", asList("$" + where + ".v", 1))).as(where));
                 //pegando o nome da collection para fazer lookup
                 final String from = Stream.of(fields).filter(fld -> fld.getName().equals(where)).findFirst().map(fld -> getCollectionName(fld.getType())).get();
                 //fazendo lookup
