@@ -1,7 +1,8 @@
-package br.com.muttley.configserver.service;
+package br.com.muttley.configserver.autoconfig;
 
+import br.com.muttley.configserver.property.MuttleyConfigServerProperty;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,19 +16,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  * @project muttley-configserver
  */
 @Configuration
+@EnableConfigurationProperties(MuttleyConfigServerProperty.class)
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final String userName;
-    private final String passWord;
-    private final String role;
+    private final MuttleyConfigServerProperty property;
 
-    public SecurityConfig(
-            @Value("${muttley.config-server.security.user.name}") final String userName,
-            @Value("${muttley.config-server.security.user.password}") final String passWord,
-            @Value("${muttley.config-server.security.user.role}") final String role) {
-        this.userName = userName;
-        this.passWord = passWord;
-        this.role = role;
+    @Autowired
+    public SecurityConfig(final MuttleyConfigServerProperty property) {
+        this.property = property;
     }
 
     /**
@@ -36,9 +32,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-                .withUser(this.userName)
-                .password(this.passWord)
-                .roles(this.role);
+                .withUser(this.property.getSecurity().getUser().getName())
+                .password(this.property.getSecurity().getUser().getPassword())
+                .roles(this.property.getSecurity().getUser().getRole());
     }
 
     /**
@@ -48,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .anyRequest()
-                .hasRole(this.role)
+                .hasRole(this.property.getSecurity().getUser().getRole())
                 .and()
                 .httpBasic()
                 .and()
