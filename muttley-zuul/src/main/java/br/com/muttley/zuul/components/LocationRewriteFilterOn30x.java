@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableZuulProxy
 public class LocationRewriteFilterOn30x {
+
     static {
         LoggerFactory.getLogger(LocationRewriteFilterOn30x.class).info("Configured response for status http 30x");
     }

@@ -2,6 +2,7 @@ package br.com.muttley.zuul.components;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -22,6 +23,9 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 @Configuration
 public class LocationRewriteFilterOn201 extends ZuulFilter {
 
+    static {
+        LoggerFactory.getLogger(LocationRewriteFilterOn201.class).info("Configured response for status http 201");
+    }
 
     @Override
     public String filterType() {
