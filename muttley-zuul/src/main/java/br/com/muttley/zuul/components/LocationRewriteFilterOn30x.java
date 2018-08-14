@@ -1,4 +1,4 @@
-package br.com.muttley.zuul.service;
+package br.com.muttley.zuul.components;
 
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.filters.post.LocationRewriteFilter;

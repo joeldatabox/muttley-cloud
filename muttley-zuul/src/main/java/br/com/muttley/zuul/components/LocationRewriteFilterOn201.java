@@ -1,4 +1,4 @@
-package br.com.muttley.zuul.service;
+package br.com.muttley.zuul.components;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;

@@ -1,8 +1,9 @@
-package br.com.muttley.zuul.service;
+package br.com.muttley.zuul.components;
 
+import br.com.muttley.zuul.property.MuttleySecurityProperty;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -15,16 +16,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class SessionSavingZuulPreFilter extends ZuulFilter {
 
-    private final String tokenHeader;
-    private final String tokenHeaderJwt;
-
-    public SessionSavingZuulPreFilter(
-            @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader,
-            @Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") String tokenHeaderJwt
-    ) {
-        this.tokenHeader = tokenHeader;
-        this.tokenHeaderJwt = tokenHeaderJwt;
-    }
+    @Autowired
+    private MuttleySecurityProperty property;
 
     @Override
     public boolean shouldFilter() {
@@ -36,9 +29,12 @@ public class SessionSavingZuulPreFilter extends ZuulFilter {
         RequestContext
                 .getCurrentContext()
                 .addZuulRequestHeader(
-                        this.tokenHeaderJwt, (
-                                (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()
-                        ).getRequest().getHeader(this.tokenHeader)
+                        this.property.getJwt().getController().getTokenHeaderJwt(),
+                        ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                                .getRequest()
+                                .getHeader(
+                                        this.property.getJwt().getController().getTokenHeader()
+                                )
                 );
         return null;
     }
