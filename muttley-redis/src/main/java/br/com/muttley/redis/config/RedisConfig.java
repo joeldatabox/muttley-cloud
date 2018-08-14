@@ -1,9 +1,10 @@
-package br.com.muttley.redis.service.config;
+package br.com.muttley.redis.config;
 
+import br.com.muttley.redis.property.MuttleyRedisProperty;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.redis.service.impl.RedisServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheManager;
@@ -19,30 +20,24 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * @project demo
  */
 @Configuration
+@EnableConfigurationProperties(MuttleyRedisProperty.class)
 public class RedisConfig {
-    private final String host;
-    private final int port;
 
-    public RedisConfig(
-            @Value("${muttley.redis.host:localhost}") final String host,
-            @Value("${muttley.redis.port:6379}") final int port) {
-        this.host = host;
-        this.port = port;
-    }
+    @Autowired
+    private MuttleyRedisProperty property;
 
     @Bean
-    public RedisService createService(@Value("${muttley.redis.prefixHash:muttley-cloud}") final String prefixHash,
-                                      @Autowired RedisTemplate redisTemplate) {
-        return new RedisServiceImpl(prefixHash, redisTemplate);
+    public RedisService createService(@Autowired RedisTemplate redisTemplate) {
+        return new RedisServiceImpl(property.getPrefixHash(), redisTemplate);
     }
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
+        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(property.getHost(), property.getPort()));
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(final RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(@Autowired final RedisConnectionFactory redisConnectionFactory) {
         final RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
         template.setConnectionFactory(redisConnectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
@@ -54,7 +49,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    public RedisCacheManager cacheManager(@Autowired RedisConnectionFactory connectionFactory) {
         return RedisCacheManager.create(connectionFactory);
     }
 }
