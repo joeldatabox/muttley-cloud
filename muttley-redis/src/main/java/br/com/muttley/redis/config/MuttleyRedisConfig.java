@@ -3,6 +3,8 @@ package br.com.muttley.redis.config;
 import br.com.muttley.redis.property.MuttleyRedisProperty;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.redis.service.impl.RedisServiceImpl;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +23,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  */
 @Configuration
 @EnableConfigurationProperties(MuttleyRedisProperty.class)
-public class RedisConfig {
+public class MuttleyRedisConfig implements InitializingBean {
 
     @Autowired
     private MuttleyRedisProperty property;
@@ -51,5 +53,10 @@ public class RedisConfig {
     @Bean
     public RedisCacheManager cacheManager(@Autowired RedisConnectionFactory connectionFactory) {
         return RedisCacheManager.create(connectionFactory);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        LoggerFactory.getLogger(MuttleyRedisConfig.class).info("Configuring cache with Redis on host \"" + property.getHost() + "\" with port \"" + property.getPort() + "\"");
     }
 }

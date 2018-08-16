@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-br.com.muttley.redis.config.RedisConfig
+br.com.muttley.redis.config.MuttleyRedisConfig
