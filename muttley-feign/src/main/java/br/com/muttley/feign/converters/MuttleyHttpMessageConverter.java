@@ -1,4 +1,4 @@
-package br.com.muttley.feign.service.converters;
+package br.com.muttley.feign.converters;
 
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;

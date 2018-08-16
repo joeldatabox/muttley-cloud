@@ -1,6 +1,6 @@
 package br.com.muttley.security.feign;
 
-import br.com.muttley.feign.service.config.FeignTimeoutConfig;
+import br.com.muttley.feign.autoconfig.FeignTimeoutConfig;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
