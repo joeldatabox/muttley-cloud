@@ -1,6 +1,8 @@
 package br.com.muttley.configserver.autoconfig;
 
 import br.com.muttley.configserver.property.MuttleyConfigServerProperty;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -22,10 +24,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableConfigurationProperties(MuttleyConfigServerProperty.class)
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class MuttleyConfigServerSecurityConfig extends WebSecurityConfigurerAdapter implements InitializingBean {
 
     @Autowired
-    private  MuttleyConfigServerProperty property;
+    private MuttleyConfigServerProperty property;
 
     /**
      * Configurando usuário e senha necessário para autenticação no serviço
@@ -57,9 +59,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic()
                 .and()
                 .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .csrf()
                 .disable();
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        String message = "Configure SpringSecurity with httpBasic as default user [" + property.getSecurity().getUser().getName() + "] with password [";
+        if (property.getSecurity().getUser().getPassword() != null) {
+            final char[] passwdLenght = property.getSecurity().getUser().getPassword().toCharArray();
+            for (int i = 0; i < passwdLenght.length; i++) {
+                passwdLenght[i] = '*';
+            }
+            message += new String(passwdLenght);
+        }
+        message += "] with role [" + property.getSecurity().getUser().getRole() +"]";
+        LoggerFactory.getLogger(MuttleyConfigServerSecurityConfig.class).info(message);
     }
 }
