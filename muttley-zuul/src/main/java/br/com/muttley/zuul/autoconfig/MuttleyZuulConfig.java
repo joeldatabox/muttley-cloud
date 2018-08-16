@@ -4,13 +4,15 @@ import br.com.muttley.zuul.components.LocationRewriteFilterOn201;
 import br.com.muttley.zuul.components.LocationRewriteFilterOn30x;
 import br.com.muttley.zuul.components.SessionSavingZuulPreFilter;
 import br.com.muttley.zuul.property.MuttleySecurityProperty;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties(MuttleySecurityProperty.class)
-public class MuttleyZuulConfig {
+public class MuttleyZuulConfig implements InitializingBean {
 
     @Bean
     public LocationRewriteFilterOn30x createLocationRewriteFilterOn30x() {
@@ -25,5 +27,10 @@ public class MuttleyZuulConfig {
     @Bean
     public SessionSavingZuulPreFilter createSessionSavingZuulPreFilter() {
         return new SessionSavingZuulPreFilter();
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        LoggerFactory.getLogger(MuttleyZuulConfig.class).info("Configure basic Zull filters");
     }
 }

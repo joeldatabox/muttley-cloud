@@ -23,10 +23,6 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 @Configuration
 public class LocationRewriteFilterOn201 extends ZuulFilter {
 
-    static {
-        LoggerFactory.getLogger(LocationRewriteFilterOn201.class).info("Configured response for status http 201");
-    }
-
     @Override
     public String filterType() {
         return POST_TYPE;

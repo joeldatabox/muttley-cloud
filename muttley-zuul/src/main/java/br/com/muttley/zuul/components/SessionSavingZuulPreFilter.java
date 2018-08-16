@@ -18,10 +18,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class SessionSavingZuulPreFilter extends ZuulFilter {
     private static final String PRE = "pre";
 
-    static {
-        LoggerFactory.getLogger(SessionSavingZuulPreFilter.class).info("Configured session request");
-    }
-
     @Autowired
     private MuttleySecurityProperty property;
 
