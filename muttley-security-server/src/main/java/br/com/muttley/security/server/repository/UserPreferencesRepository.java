@@ -2,7 +2,7 @@ package br.com.muttley.security.server.repository;
 
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.UserPreferences;
-import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
+import br.com.muttley.mongo.repository.DocumentMongoRepository;
 import org.springframework.stereotype.Repository;
 
 /**

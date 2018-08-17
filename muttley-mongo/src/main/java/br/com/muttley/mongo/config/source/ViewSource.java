@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.service.config.source;
+package br.com.muttley.mongo.config.source;
 
 import org.bson.BsonBoolean;
 import org.bson.BsonValue;

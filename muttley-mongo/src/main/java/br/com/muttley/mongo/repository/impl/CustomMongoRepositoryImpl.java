@@ -1,10 +1,13 @@
-package br.com.muttley.mongo.service.repository.impl;
+package br.com.muttley.mongo.repository.impl;
 
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.mongo.infra.Aggregate;
+import br.com.muttley.mongo.repository.CustomMongoRepository;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
@@ -13,14 +16,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static br.com.muttley.mongo.service.infra.Aggregate.createAggregations;
-import static br.com.muttley.mongo.service.infra.Aggregate.createAggregationsCount;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRepositoryImpl<T> implements br.com.muttley.mongo.service.repository.CustomMongoRepository<T> {
+public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRepositoryImpl<T> implements CustomMongoRepository<T> {
 
     public CustomMongoRepositoryImpl(final MongoEntityInformation<T, String> metadata, final MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
@@ -83,8 +84,8 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     public final List<T> findAll(final Owner owner, final Map<String, Object> queryParams) {
         validateOwner(owner);
         return operations.aggregate(
-                newAggregation(
-                        createAggregations(
+                Aggregation.newAggregation(
+                        Aggregate.createAggregations(
                                 CLASS,
                                 new HashMap<>(addOwnerQueryParam(owner, ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())))
                         )
@@ -97,8 +98,8 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     public final long count(final Owner owner, final Map<String, Object> queryParams) {
         validateOwner(owner);
         final AggregationResults result = operations.aggregate(
-                newAggregation(
-                        createAggregationsCount(
+                Aggregation.newAggregation(
+                        Aggregate.createAggregationsCount(
                                 CLASS,
                                 new HashMap<>(addOwnerQueryParam(owner, ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())))
                         )),

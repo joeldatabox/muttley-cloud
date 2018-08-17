@@ -1,12 +1,15 @@
-package br.com.muttley.mongo.service.repository.impl;
+package br.com.muttley.mongo.repository.impl;
 
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.mongo.infra.Aggregate;
+import br.com.muttley.mongo.repository.DocumentMongoRepository;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -17,15 +20,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static br.com.muttley.mongo.service.infra.Aggregate.createAggregations;
-import static br.com.muttley.mongo.service.infra.Aggregate.createAggregationsCount;
 import static org.bson.types.ObjectId.isValid;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongoRepository<T, String> implements br.com.muttley.mongo.service.repository.DocumentMongoRepository<T> {
+public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongoRepository<T, String> implements DocumentMongoRepository<T> {
     protected final MongoOperations operations;
     protected final Class<T> CLASS;
     protected final String COLLECTION;
@@ -47,8 +48,8 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     public List<T> findAll(final Map<String, Object> queryParams) {
         return operations
                 .aggregate(
-                        newAggregation(
-                                createAggregations(CLASS,
+                        Aggregation.newAggregation(
+                                Aggregate.createAggregations(CLASS,
                                         ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())
                                 )
                         ),
@@ -60,8 +61,8 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     @Override
     public long count(final Map<String, Object> queryParams) {
         final AggregationResults result = operations.aggregate(
-                newAggregation(
-                        createAggregationsCount(
+                Aggregation.newAggregation(
+                        Aggregate.createAggregationsCount(
                                 CLASS,
                                 ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>()))
                 ), COLLECTION, ResultCount.class);

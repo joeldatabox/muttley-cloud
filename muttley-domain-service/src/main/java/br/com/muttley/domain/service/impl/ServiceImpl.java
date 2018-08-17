@@ -8,7 +8,7 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
-import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
+import br.com.muttley.mongo.repository.DocumentMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 

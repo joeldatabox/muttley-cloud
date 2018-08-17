@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.service.converters;
+package br.com.muttley.mongo.converters;
 
 
 import org.bson.types.Decimal128;

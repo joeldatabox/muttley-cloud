@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.service.converters;
+package br.com.muttley.mongo.converters;
 
 /**
  * Created by master on 16/06/17.

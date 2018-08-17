@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.service.converters;
+package br.com.muttley.mongo.converters;
 
 import br.com.muttley.model.security.Authority;
 import org.bson.Document;

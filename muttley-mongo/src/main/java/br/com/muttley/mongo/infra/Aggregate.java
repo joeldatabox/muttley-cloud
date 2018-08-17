@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.service.infra;
+package br.com.muttley.mongo.infra;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import org.apache.commons.logging.LogFactory;

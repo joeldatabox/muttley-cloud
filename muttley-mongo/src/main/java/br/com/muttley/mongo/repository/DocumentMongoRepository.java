@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.service.repository;
+package br.com.muttley.mongo.repository;
 
 import br.com.muttley.model.Historic;
 import org.springframework.data.mongodb.repository.MongoRepository;

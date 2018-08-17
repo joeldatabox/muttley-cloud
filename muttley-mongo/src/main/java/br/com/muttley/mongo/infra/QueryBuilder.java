@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.service.infra;
+package br.com.muttley.mongo.infra;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;

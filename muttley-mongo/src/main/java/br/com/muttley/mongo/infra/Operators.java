@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.service.infra;
+package br.com.muttley.mongo.infra;
 
 public enum Operators {
     GTE(".$gte"),

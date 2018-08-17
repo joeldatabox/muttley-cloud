@@ -7,7 +7,7 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.User;
-import br.com.muttley.mongo.service.repository.CustomMongoRepository;
+import br.com.muttley.mongo.repository.CustomMongoRepository;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;

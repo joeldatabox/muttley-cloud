@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.service.config.source;
+package br.com.muttley.mongo.config.source;
 
 /**
  * @author Joel Rodrigues Moreira on 18/06/18.
