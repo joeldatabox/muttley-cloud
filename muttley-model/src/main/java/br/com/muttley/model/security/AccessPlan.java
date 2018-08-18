@@ -2,12 +2,13 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -19,6 +20,7 @@ import java.util.Objects;
 @CompoundIndexes({
         @CompoundIndex(name = "name_index_unique", def = "{'name' : 1}", unique = true)
 })
+@TypeAlias("#{documentNameConfig.getNameCollectionAccessPlan()}")
 public class AccessPlan implements Document {
 
     @Id

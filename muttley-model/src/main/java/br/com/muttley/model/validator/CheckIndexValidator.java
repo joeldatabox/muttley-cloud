@@ -1,4 +1,4 @@
-package br.com.muttley.validator;
+package br.com.muttley.model.validator;
 
 import br.com.muttley.exception.throwables.MuttleyConflictException;
 import org.apache.commons.beanutils.PropertyUtils;
