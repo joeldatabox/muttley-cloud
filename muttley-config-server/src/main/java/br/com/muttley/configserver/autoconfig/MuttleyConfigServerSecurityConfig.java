@@ -4,6 +4,7 @@ import br.com.muttley.configserver.property.MuttleyConfigServerProperty;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +44,7 @@ public class MuttleyConfigServerSecurityConfig extends WebSecurityConfigurerAdap
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public PasswordEncoder createPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }

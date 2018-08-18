@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -86,6 +87,7 @@ public class MuttleyMongoConfig extends AbstractMongoConfiguration implements In
 
 
     @Bean
+    @ConditionalOnMissingBean
     public MongoRepositoryFactory getMongoRepositoryFactory() {
         try {
             return new MongoRepositoryFactory(this.mongoTemplate());

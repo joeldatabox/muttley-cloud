@@ -1,11 +1,11 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.security.server.property.MuttleySecurityProperty;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -33,8 +33,8 @@ public class JwtTokenUtilService implements Serializable {
     private static final String AUDIENCE_MOBILE = "mobile";
     private static final String AUDIENCE_TABLET = "tablet";
 
-    @Value("${muttley.security.jwt.token.expiration}")
-    private long expiration;
+    @Autowired
+    private MuttleySecurityProperty properties;
     private final SecretService secretService;
 
     @Autowired
@@ -100,7 +100,12 @@ public class JwtTokenUtilService implements Serializable {
     }
 
     private final Date generateExpirationDate() {
-        return Date.from(Instant.now().plusMillis(expiration));
+        return Date.from(
+                Instant.now()
+                        .plusMillis(
+                                properties.getSecurity().getJwt().getToken().getExpiration()
+                        )
+        );
     }
 
     private final boolean isTokenExpired(String token) {

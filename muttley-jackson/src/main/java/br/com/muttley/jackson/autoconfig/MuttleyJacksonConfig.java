@@ -16,6 +16,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -46,6 +47,7 @@ public class MuttleyJacksonConfig implements InitializingBean {
     private ObjectProvider<MuttleyJacksonDeserializeService> customizeDeserializers;
 
     @Bean
+    @ConditionalOnMissingBean
     public Jackson2ObjectMapperBuilderCustomizer addCustomBigDecimalDeserialization() {
         return new Jackson2ObjectMapperBuilderCustomizer() {
             @Override
@@ -73,6 +75,7 @@ public class MuttleyJacksonConfig implements InitializingBean {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public DateFormat createDateFormat() {
         return new DefaultDateFormatConfig(property.getDatePattern());
     }

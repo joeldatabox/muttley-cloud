@@ -12,6 +12,7 @@ import br.com.muttley.security.infra.service.impl.AuthServiceImpl;
 import br.com.muttley.security.infra.service.impl.CacheUserAuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,28 +26,33 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class WebSecurityConfig {
     @Bean
+    @ConditionalOnMissingBean
     public UnauthorizedHandler createUnauthorizedHandler(@Value("${muttley.security.jwt.controller.loginEndPoint}") final String urlLogin) {
         return new UnauthorizedHandler(urlLogin);
     }
 
     @Bean
+    @ConditionalOnMissingBean
     @Autowired
     public AuthenticationTokenFilterClient createAuthenticationTokenFilterClient(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, final CacheUserAuthenticationService cacheAuth) {
         return new AuthenticationTokenFilterClient(tokenHeader, cacheAuth);
     }
 
     @Bean
+    @ConditionalOnMissingBean
     @Autowired
     public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration, final ApplicationEventPublisher eventPublisher) {
         return new CacheUserAuthenticationServiceImpl(redisService, expiration, eventPublisher);
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public AuthService createAuthService(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader) {
         return new AuthServiceImpl(tokenHeader);
     }
 
     @Bean
+    @ConditionalOnMissingBean
     @Autowired
     public UserAfterCacheLoadListener creaUserAfterCacheLoadListener(final UserPreferenceServiceClient userPreferenceServiceClient, final WorkTeamServiceClient workTeamServiceClient) {
         return new UserAfterCacheLoadListener(userPreferenceServiceClient, workTeamServiceClient);

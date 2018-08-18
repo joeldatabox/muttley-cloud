@@ -1,6 +1,5 @@
-package br.com.muttley.security.server.config.security;
+package br.com.muttley.security.server.autoconfig.security;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 
@@ -9,7 +8,6 @@ import org.springframework.security.config.annotation.method.configuration.Globa
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@Configuration
 @EnableGlobalMethodSecurity(
         prePostEnabled = true,
         securedEnabled = true,

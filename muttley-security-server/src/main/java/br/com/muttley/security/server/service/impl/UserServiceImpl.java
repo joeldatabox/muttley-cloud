@@ -13,7 +13,6 @@ import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,16 +35,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final UserPreferencesRepository preferencesRepository;
     private final JwtTokenUtilService tokenUtil;
-    private final String tokenHeader;
 
     @Autowired
     public UserServiceImpl(final UserRepository repository,
                            final UserPreferencesRepository preferencesRepository,
-                           @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
                            final JwtTokenUtilService tokenUtil) {
         this.repository = repository;
         this.preferencesRepository = preferencesRepository;
-        this.tokenHeader = tokenHeader;
         this.tokenUtil = tokenUtil;
     }
 
@@ -119,30 +115,6 @@ public class UserServiceImpl implements UserService {
         }
         throw new MuttleySecurityUnauthorizedException();
     }
-
-   /* @Override
-    public Authentication getCurrentAuthentication() {
-        return SecurityContextHolder.getContext().getAuthentication();
-    }
-
-    @Override
-    public JwtUser getCurrentJwtUser() {
-        return (JwtUser) getCurrentAuthentication().getPrincipal();
-    }
-
-    @Override
-    public JwtToken getCurrentToken() {
-        return new JwtToken(
-                ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-                        .getRequest()
-                        .getHeader(this.tokenHeader)
-        );
-    }
-
-    @Override
-    public User getCurrentUser() {
-        return getCurrentJwtUser().getOriginUser();
-    }*/
 
     @Override
     public UserPreferences loadPreference(final User user) {

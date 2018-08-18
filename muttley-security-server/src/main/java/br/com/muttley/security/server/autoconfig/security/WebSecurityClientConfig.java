@@ -1,5 +1,6 @@
-package br.com.muttley.security.server.security.config;
+package br.com.muttley.security.server.autoconfig.security;
 
+import br.com.muttley.security.server.property.MuttleySecurityProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
     private final String userName;
     private final String passWord;
     private final String role;
+    private MuttleySecurityProperty properties;
 
     public WebSecurityClientConfig(
             @Value("${muttley.security-server.user.name}") final String userName,
