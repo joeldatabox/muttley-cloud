@@ -15,7 +15,7 @@ public class ValidatorConfig {
 
     @Bean
     public MethodValidationPostProcessor methodValidationPostProcessorFactory() {
-        MethodValidationPostProcessor processor = new MethodValidationPostProcessor();
+        final MethodValidationPostProcessor processor = new MethodValidationPostProcessor();
         processor.setValidator(validatorFactory());
         return processor;
     }
