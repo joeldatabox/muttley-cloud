@@ -1,4 +1,4 @@
-package br.com.muttley.exception.service.serializer;
+package br.com.muttley.exception.serializer;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;

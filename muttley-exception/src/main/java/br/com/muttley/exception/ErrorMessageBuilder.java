@@ -1,5 +1,6 @@
-package br.com.muttley.exception.service;
+package br.com.muttley.exception;
 
+import br.com.muttley.exception.property.MuttleyExceptionProperty;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryException;
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindException;
@@ -38,10 +39,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Component
 public class ErrorMessageBuilder {
     private static final Logger logger = LoggerFactory.getLogger(ErrorMessageBuilder.class);
-    @Value("${muttley.print.stackTrace:false}")
-    private Boolean STACK_TRACE;
-    @Value("${muttley.print.responseException:false}")
-    private Boolean RESPONSE_EXCEPTION;
+    @Autowired
+    private MuttleyExceptionProperty property;
 
     public ErrorMessage buildMessage(final MethodArgumentNotValidException ex) {
         final ErrorMessage message = new ErrorMessage()
@@ -191,10 +190,10 @@ public class ErrorMessageBuilder {
      * @param ex ->exceção para ser logada!
      */
     private void printException(final Exception ex, final ErrorMessage message) {
-        if (STACK_TRACE == null || STACK_TRACE) {
+        if (property.isStackTrace()) {
             ex.printStackTrace();
         }
-        if (RESPONSE_EXCEPTION == null || RESPONSE_EXCEPTION) {
+        if (property.isResponseException()) {
             logger.info(message.toJson());
         }
     }

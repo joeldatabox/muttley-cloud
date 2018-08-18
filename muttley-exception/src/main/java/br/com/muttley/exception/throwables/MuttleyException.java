@@ -1,6 +1,6 @@
 package br.com.muttley.exception.throwables;
 
-import br.com.muttley.exception.service.ErrorMessage;
+import br.com.muttley.exception.ErrorMessage;
 import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;

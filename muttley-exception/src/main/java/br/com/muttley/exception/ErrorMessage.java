@@ -1,7 +1,7 @@
-package br.com.muttley.exception.service;
+package br.com.muttley.exception;
 
-import br.com.muttley.exception.service.serializer.HttpStatusDeserializer;
-import br.com.muttley.exception.service.serializer.HttpStatusSerializer;
+import br.com.muttley.exception.serializer.HttpStatusDeserializer;
+import br.com.muttley.exception.serializer.HttpStatusSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

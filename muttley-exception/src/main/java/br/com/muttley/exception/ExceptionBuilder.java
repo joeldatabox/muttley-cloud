@@ -1,4 +1,4 @@
-package br.com.muttley.exception.service;
+package br.com.muttley.exception;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
@@ -15,8 +15,6 @@ import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 
-import static br.com.muttley.exception.service.ErrorMessage.RESPONSE_HEADER;
-
 /**
  * @author Joel Rodrigues Moreira on 04/06/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -25,7 +23,7 @@ import static br.com.muttley.exception.service.ErrorMessage.RESPONSE_HEADER;
 public class ExceptionBuilder {
 
     public static Exception buildException(final Response response, final ObjectMapper mapper) {
-        if (response.headers().containsKey(RESPONSE_HEADER)) {
+        if (response.headers().containsKey(ErrorMessage.RESPONSE_HEADER)) {
             try {
                 switch (HttpStatus.valueOf(response.status())) {
                     case INTERNAL_SERVER_ERROR:

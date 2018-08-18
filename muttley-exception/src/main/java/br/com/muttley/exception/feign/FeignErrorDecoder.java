@@ -1,11 +1,11 @@
-package br.com.muttley.exception.service.feign;
+package br.com.muttley.exception.feign;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static br.com.muttley.exception.service.ExceptionBuilder.buildException;
+import static br.com.muttley.exception.ExceptionBuilder.buildException;
 
 /**
  * @author Joel Rodrigues Moreira on 20/04/18.

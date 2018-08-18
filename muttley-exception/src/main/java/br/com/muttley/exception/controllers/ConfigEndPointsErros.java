@@ -1,4 +1,4 @@
-package br.com.muttley.exception.service.config;
+package br.com.muttley.exception.controllers;
 
 import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
  */
 @Configuration
 public class ConfigEndPointsErros implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+
     @Override
     public void customize(ConfigurableServletWebServerFactory factory) {
         factory.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/404"));

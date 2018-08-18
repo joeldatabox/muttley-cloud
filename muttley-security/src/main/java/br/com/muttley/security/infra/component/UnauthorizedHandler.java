@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
 
-import static br.com.muttley.exception.service.ErrorMessage.RESPONSE_HEADER;
-import static br.com.muttley.exception.service.ErrorMessage.RESPONSE_HEADER_VALUE;
+import static br.com.muttley.exception.ErrorMessage.RESPONSE_HEADER;
+import static br.com.muttley.exception.ErrorMessage.RESPONSE_HEADER_VALUE;
 
 /**
  * @author Joel Rodrigues Moreira on 12/01/18.

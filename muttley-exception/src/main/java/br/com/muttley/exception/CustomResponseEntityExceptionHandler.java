@@ -1,4 +1,4 @@
-package br.com.muttley.exception.service;
+package br.com.muttley.exception;
 
 import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyException;
