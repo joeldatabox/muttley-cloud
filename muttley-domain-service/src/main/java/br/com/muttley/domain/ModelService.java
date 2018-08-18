@@ -1,4 +1,4 @@
-package br.com.muttley.domain.service;
+package br.com.muttley.domain;
 
 import br.com.muttley.model.Model;
 

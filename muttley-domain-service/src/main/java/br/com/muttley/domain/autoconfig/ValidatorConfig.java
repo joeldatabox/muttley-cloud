@@ -1,6 +1,5 @@
-package br.com.muttley.domain.service.config;
+package br.com.muttley.domain.autoconfig;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -15,20 +14,19 @@ import javax.validation.Validator;
 public class ValidatorConfig {
 
     @Bean
-    public MethodValidationPostProcessor methodValidationPostProcessor() {
+    public MethodValidationPostProcessor methodValidationPostProcessorFactory() {
         MethodValidationPostProcessor processor = new MethodValidationPostProcessor();
-        processor.setValidator(validator());
+        processor.setValidator(validatorFactory());
         return processor;
     }
 
     @Bean
-    public Validator validator() {
+    public Validator validatorFactory() {
         return new LocalValidatorFactoryBean();
     }
 
-    @Autowired
     @Bean
-    public br.com.muttley.domain.service.Validator createValidator(final Validator validator) {
-        return new br.com.muttley.domain.service.Validator(validator);
+    public br.com.muttley.domain.Validator createValidatorFactory() {
+        return new br.com.muttley.domain.Validator(validatorFactory());
     }
 }

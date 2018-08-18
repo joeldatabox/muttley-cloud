@@ -1,4 +1,4 @@
-package br.com.muttley.domain.service.listener;
+package br.com.muttley.domain.listener;
 
 import br.com.muttley.model.Model;
 import br.com.muttley.model.jackson.converter.event.ModelResolverEvent;

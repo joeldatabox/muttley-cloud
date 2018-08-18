@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.service.impl;
 
-import br.com.muttley.domain.service.impl.ServiceImpl;
+import br.com.muttley.domain.impl.ServiceImpl;
 import br.com.muttley.model.Document;
 import br.com.muttley.mongo.repository.DocumentMongoRepository;
 import br.com.muttley.security.server.service.SecurityService;

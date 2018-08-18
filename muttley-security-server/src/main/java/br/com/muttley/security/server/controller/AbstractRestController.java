@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.controller;
 
-import br.com.muttley.domain.service.Service;
+import br.com.muttley.domain.Service;
 import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;

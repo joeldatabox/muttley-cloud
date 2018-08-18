@@ -1,4 +1,4 @@
-package br.com.muttley.domain.service;
+package br.com.muttley.domain;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

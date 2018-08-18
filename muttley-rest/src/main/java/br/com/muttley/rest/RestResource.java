@@ -1,6 +1,6 @@
 package br.com.muttley.rest;
 
-import br.com.muttley.domain.service.Service;
+import br.com.muttley.domain.Service;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyPageableRequestException;
 import br.com.muttley.model.Document;
