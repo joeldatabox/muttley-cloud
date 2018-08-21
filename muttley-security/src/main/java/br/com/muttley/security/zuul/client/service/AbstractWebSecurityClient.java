@@ -3,7 +3,6 @@ package br.com.muttley.security.zuul.client.service;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -33,7 +32,6 @@ public class AbstractWebSecurityClient extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    @ConditionalOnMissingBean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }

@@ -1,7 +1,6 @@
 package br.com.muttley.security.infra.security.server;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 public class FeignClientConfig {
 
     @Bean
-    @ConditionalOnMissingBean
     public BasicAuthorizationJWTRequestInterceptor createBasicAuthRequestInterceptor(
             @Value("${muttley.config-server.security.user.name}") final String userName,
             @Value("${muttley.config-server.security.user.password}") final String passWord) {

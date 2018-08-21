@@ -8,7 +8,6 @@ import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import br.com.muttley.security.infra.service.impl.CacheUserAuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +22,6 @@ import org.springframework.context.annotation.Configuration;
 public class WebSecurityConfig {
 
     @Bean
-    @ConditionalOnMissingBean
     @Autowired
     public AuthenticationTokenFilterGateway createAuthenticationTokenFilter(
             @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
@@ -34,13 +32,11 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    @ConditionalOnMissingBean
     public UnauthorizedHandler createUnauthorizedHandler(@Value("${muttley.security.jwt.controller.loginEndPoint}") final String urlLogin) {
         return new UnauthorizedHandler(urlLogin);
     }
 
     @Bean
-    @ConditionalOnMissingBean
     @Autowired
     public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration, final ApplicationEventPublisher eventPublisher) {
         return new CacheUserAuthenticationServiceImpl(redisService, expiration, eventPublisher);
