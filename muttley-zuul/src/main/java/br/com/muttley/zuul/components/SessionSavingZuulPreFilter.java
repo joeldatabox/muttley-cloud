@@ -3,7 +3,6 @@ package br.com.muttley.zuul.components;
 import br.com.muttley.zuul.property.MuttleySecurityProperty;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
