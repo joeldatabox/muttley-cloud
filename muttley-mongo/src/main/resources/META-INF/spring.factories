@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-br.com.muttley.mongo.
+br.com.muttley.mongo.autoconfig.MuttleyMongoConfig

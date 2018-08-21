@@ -7,7 +7,6 @@ import br.com.muttley.exception.feign.FeignErrorDecoder;
 import br.com.muttley.exception.property.MuttleyExceptionProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,25 +22,21 @@ import org.springframework.context.annotation.Configuration;
 public class MuttleyExceptionConfig {
 
     @Bean
-    @ConditionalOnMissingBean
     public FeignErrorDecoder createFeignErrorDecoder(@Autowired final ObjectMapper objectMapper) {
         return new FeignErrorDecoder(objectMapper);
     }
 
     @Bean
-    @ConditionalOnMissingBean
     public ErrorMessageBuilder errorMessageBuilderFactory() {
         return new ErrorMessageBuilder();
     }
 
     @Bean
-    @ConditionalOnMissingBean
     public ConfigEndPointsErros configEndPointsErrosFactory() {
         return new ConfigEndPointsErros();
     }
 
     @Bean
-    @ConditionalOnMissingBean
     public ErrorsController errorsControllerFactory() {
         return new ErrorsController();
     }

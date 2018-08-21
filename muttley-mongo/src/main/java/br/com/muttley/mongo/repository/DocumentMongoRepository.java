@@ -2,10 +2,12 @@ package br.com.muttley.mongo.repository;
 
 import br.com.muttley.model.Historic;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.List;
 import java.util.Map;
 
+@NoRepositoryBean
 public interface DocumentMongoRepository<T> extends MongoRepository<T, String> {
 
     /**

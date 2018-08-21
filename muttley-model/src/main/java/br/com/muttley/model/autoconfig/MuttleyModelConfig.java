@@ -4,7 +4,7 @@ import br.com.muttley.model.property.MuttleyModelProperty;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,13 +16,13 @@ import org.springframework.context.annotation.Configuration;
  * <p>
  */
 @Configuration
+@EntityScan(basePackages = "br.com.muttley.model.security")
 @EnableConfigurationProperties(MuttleyModelProperty.class)
 public class MuttleyModelConfig implements InitializingBean {
     @Autowired
     MuttleyModelProperty property;
 
     @Bean("documentNameConfig")
-    @ConditionalOnMissingBean
     public DocumentNameConfig documentNameConfigFactory() {
         return new DocumentNameConfig(this.property);
     }

@@ -8,6 +8,7 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.mongo.infra.Aggregate;
 import br.com.muttley.mongo.repository.DocumentMongoRepository;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -31,7 +32,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     protected final Class<T> CLASS;
     protected final String COLLECTION;
 
-    public DocumentMongoRepositoryImpl(final MongoEntityInformation<T, String> metadata, final MongoOperations mongoOperations) {
+    public DocumentMongoRepositoryImpl(@Autowired final MongoEntityInformation<T, String> metadata, @Autowired final MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
         this.operations = mongoOperations;
         this.CLASS = metadata.getJavaType();

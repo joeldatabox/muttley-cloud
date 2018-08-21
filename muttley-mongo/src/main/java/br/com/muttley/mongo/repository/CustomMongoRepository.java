@@ -2,10 +2,12 @@ package br.com.muttley.mongo.repository;
 
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.Owner;
+import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.List;
 import java.util.Map;
 
+@NoRepositoryBean
 public interface CustomMongoRepository<T> extends DocumentMongoRepository<T> {
     /**
      * Sava um registro registro simples

@@ -11,8 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.mongo.MongoProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -43,15 +42,25 @@ import static java.util.Collections.singletonList;
 @EnableMongoRepositories(repositoryBaseClass = CustomMongoRepositoryImpl.class)
 public class MuttleyMongoConfig extends AbstractMongoConfiguration implements InitializingBean {
     @Autowired
-    protected MongoProperties properties;
-    @Autowired
     private ObjectProvider<MuttleyConvertersService> convertersSErviceProvider;
+
+
+    @Value("${spring.data.mongodb.database}")
+    protected String dataBaseName;
+    @Value("${spring.data.mongodb.host:localhost}")
+    protected String hostDataBase;
+    @Value("${spring.data.mongodb.port:27017}")
+    protected int portDataBase;
+    @Value("${spring.data.mongodb.username:}")
+    protected String userName;
+    @Value("${spring.data.mongodb.password:}")
+    protected String password;
 
     @Override
     public MongoClient mongoClient() {
         return new MongoClient(
-                singletonList(new ServerAddress(this.properties.getHost(), this.properties.getPort())),
-                createCredential(this.properties.getUsername(), this.properties.getDatabase(), this.properties.getPassword()),
+                singletonList(new ServerAddress(this.hostDataBase, portDataBase)),
+                createCredential(this.userName, this.dataBaseName, this.password.toCharArray()),
                 MongoClientOptions
                         .builder()
                         .build()
@@ -60,7 +69,7 @@ public class MuttleyMongoConfig extends AbstractMongoConfiguration implements In
 
     @Override
     protected String getDatabaseName() {
-        return this.properties.getDatabase();
+        return this.dataBaseName;
     }
 
     @Override
@@ -87,7 +96,6 @@ public class MuttleyMongoConfig extends AbstractMongoConfiguration implements In
 
 
     @Bean
-    @ConditionalOnMissingBean
     public MongoRepositoryFactory getMongoRepositoryFactory() {
         try {
             return new MongoRepositoryFactory(this.mongoTemplate());
@@ -98,9 +106,9 @@ public class MuttleyMongoConfig extends AbstractMongoConfiguration implements In
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        String message = "Configure MongoDB with host \"" + this.properties.getHost() + "\", port \"" + this.properties.getPort() + "\", data base \"" + getDatabaseName() + "\", with userName \"" + this.properties.getUsername() + "\" and password \"";
-        if (properties.getPassword() != null) {
-            final char[] passwdLenght = properties.getPassword();
+        String message = "Configure MongoDB with host \"" + this.hostDataBase + "\", port \"" + this.portDataBase + "\", data base \"" + getDatabaseName() + "\", with userName \"" + this.userName + "\" and password \"";
+        if (this.password != null) {
+            final char[] passwdLenght = this.password.toCharArray();
             for (int i = 0; i < passwdLenght.length; i++) {
                 passwdLenght[i] = '*';
             }

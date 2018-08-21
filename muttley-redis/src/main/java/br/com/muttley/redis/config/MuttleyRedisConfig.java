@@ -6,7 +6,6 @@ import br.com.muttley.redis.service.impl.RedisServiceImpl;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,19 +29,16 @@ public class MuttleyRedisConfig implements InitializingBean {
     private MuttleyRedisProperty property;
 
     @Bean
-    @ConditionalOnMissingBean
     public RedisService createService(@Autowired RedisTemplate redisTemplate) {
         return new RedisServiceImpl(property.getPrefixHash(), redisTemplate);
     }
 
     @Bean
-    @ConditionalOnMissingBean
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration(property.getHost(), property.getPort()));
     }
 
     @Bean
-    @ConditionalOnMissingBean
     public RedisTemplate<String, Object> redisTemplate(@Autowired final RedisConnectionFactory redisConnectionFactory) {
         final RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
         template.setConnectionFactory(redisConnectionFactory);
@@ -55,7 +51,6 @@ public class MuttleyRedisConfig implements InitializingBean {
     }
 
     @Bean
-    @ConditionalOnMissingBean
     public RedisCacheManager cacheManager(@Autowired RedisConnectionFactory connectionFactory) {
         return RedisCacheManager.create(connectionFactory);
     }

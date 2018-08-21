@@ -13,7 +13,6 @@ import feign.optionals.OptionalDecoder;
 import feign.slf4j.Slf4jLogger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.FeignClientsConfiguration;
@@ -45,7 +44,6 @@ public class FeignConfig extends FeignClientsConfiguration {
 
 
     @Bean
-    @ConditionalOnMissingBean
     public Feign.Builder feignBuilder(final Retryer retryer, final @Autowired ConfigurableEnvironment env) {
         final PropertySource<?> propertySource = env.getPropertySources().get(PROPERTY_SOURCE);
         final Feign.Builder builder = super.feignBuilder(retryer).client(new OkHttpClient());

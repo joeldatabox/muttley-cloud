@@ -6,6 +6,7 @@ import br.com.muttley.model.Model;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.mongo.infra.Aggregate;
 import br.com.muttley.mongo.repository.CustomMongoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -23,7 +24,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRepositoryImpl<T> implements CustomMongoRepository<T> {
 
-    public CustomMongoRepositoryImpl(final MongoEntityInformation<T, String> metadata, final MongoOperations mongoOperations) {
+    public CustomMongoRepositoryImpl(@Autowired final MongoEntityInformation<T, String> metadata, @Autowired final MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
     }
 
