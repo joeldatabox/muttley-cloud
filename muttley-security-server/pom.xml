@@ -19,36 +19,43 @@
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-jackson</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-mongo</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-model</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-redis</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-exception</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-rest</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-domain-service</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

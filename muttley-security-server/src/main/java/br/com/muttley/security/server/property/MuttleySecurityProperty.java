@@ -48,22 +48,22 @@ public class MuttleySecurityProperty {
         }
 
         public static class User {
-            private String user;
+            private String name;
             private String password;
             private String role;
 
             public User() {
-                this.user = "muttley";
+                this.name = "muttley";
                 this.password = "muttley";
                 this.role = "SYSTEM";
             }
 
-            public String getUser() {
-                return user;
+            public String getName() {
+                return name;
             }
 
-            public User setUser(String user) {
-                this.user = user;
+            public User setName(String user) {
+                this.name = user;
                 return this;
             }
 
