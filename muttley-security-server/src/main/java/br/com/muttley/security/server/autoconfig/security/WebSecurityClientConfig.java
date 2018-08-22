@@ -26,6 +26,8 @@ public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private MuttleySecurityProperty properties;
+    @Autowired
+    private UnauthorizedHandler unauthorizedHandler;
 
 
     /**
@@ -54,7 +56,10 @@ public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .csrf()
-                .disable();
+                .disable()
+                //ouvinte que despacha requisiçõe não autorizadas
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+                .exceptionHandling().accessDeniedPage("/403").and();
     }
 
     @Bean(name = BeanIds.AUTHENTICATION_MANAGER)

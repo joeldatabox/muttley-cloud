@@ -151,10 +151,12 @@ public class MuttleySecurityProperty {
             public static class Controller {
                 private String tokenHeader;
                 private String tokenHeaderJwt;
+                private String loginEndPoint;
 
                 public Controller() {
                     this.tokenHeader = "Authorization";
                     this.tokenHeaderJwt = "Authorization-jwt";
+                    this.loginEndPoint = "/api/auth/login";
                 }
 
                 public String getTokenHeader() {
@@ -172,6 +174,15 @@ public class MuttleySecurityProperty {
 
                 public Controller setTokenHeaderJwt(String tokenHeaderJwt) {
                     this.tokenHeaderJwt = tokenHeaderJwt;
+                    return this;
+                }
+
+                public String getLoginEndPoint() {
+                    return loginEndPoint;
+                }
+
+                public Controller setLoginEndPoint(String loginEndPoint) {
+                    this.loginEndPoint = loginEndPoint;
                     return this;
                 }
             }
