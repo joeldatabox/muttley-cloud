@@ -1,5 +1,6 @@
 package br.com.muttley.exception.autoconfig;
 
+import br.com.muttley.exception.handlers.CustomResponseEntityExceptionHandler;
 import br.com.muttley.exception.ErrorMessageBuilder;
 import br.com.muttley.exception.controllers.ConfigEndPointsErros;
 import br.com.muttley.exception.controllers.ErrorsController;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -18,26 +20,36 @@ import org.springframework.context.annotation.Configuration;
  * <p>
  */
 @Configuration
+@ComponentScan(basePackages = {
+        "br.com.muttley.exception.controllers",
+        "br.com.muttley.exception.feign",
+        "br.com.muttley.exception.handlers"
+})
 @EnableConfigurationProperties(MuttleyExceptionProperty.class)
 public class MuttleyExceptionConfig {
 
-    @Bean
+    /*@Bean
     public FeignErrorDecoder createFeignErrorDecoder(@Autowired final ObjectMapper objectMapper) {
         return new FeignErrorDecoder(objectMapper);
-    }
+    }*/
 
     @Bean
     public ErrorMessageBuilder errorMessageBuilderFactory() {
         return new ErrorMessageBuilder();
     }
 
-    @Bean
+    /*@Bean
     public ConfigEndPointsErros configEndPointsErrosFactory() {
         return new ConfigEndPointsErros();
-    }
+    }*/
 
-    @Bean
+    /*@Bean
     public ErrorsController errorsControllerFactory() {
         return new ErrorsController();
-    }
+    }*/
+
+    /*@Bean
+    public CustomResponseEntityExceptionHandler customResponseEntityExceptionHandlerFactory(@Autowired final ErrorMessageBuilder errorMessageBuilder) {
+        return new CustomResponseEntityExceptionHandler(errorMessageBuilder);
+    }*/
 }

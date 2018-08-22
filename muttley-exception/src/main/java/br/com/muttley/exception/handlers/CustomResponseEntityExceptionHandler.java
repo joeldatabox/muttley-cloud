@@ -1,5 +1,6 @@
-package br.com.muttley.exception;
+package br.com.muttley.exception.handlers;
 
+import br.com.muttley.exception.ErrorMessageBuilder;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
