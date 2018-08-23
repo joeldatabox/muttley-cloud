@@ -1,12 +1,19 @@
 package br.com.muttley.model.security;
 
-import java.util.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * @author Joel Rodrigues Moreira on 28/02/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
+@Getter
+@Setter
+@Accessors(chain = true)
+@EqualsAndHashCode(of = {"name"})
 public class AuthorityImpl implements Authority {
     private String name;
     private String description;
@@ -22,38 +29,5 @@ public class AuthorityImpl implements Authority {
     public AuthorityImpl(final String name, final String description) {
         this(name);
         this.description = description;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public AuthorityImpl setName(final String name) {
-        this.name = name;
-        return this;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    public AuthorityImpl setDescription(final String description) {
-        this.description = description;
-        return this;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if ((!(o instanceof AuthorityImpl)) || (!(o instanceof Authority))) return false;
-        final Authority authority = (Authority) o;
-        return Objects.equals(name, authority.getName());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, 81);
     }
 }

@@ -1,5 +1,8 @@
 package br.com.muttley.model.property;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -9,6 +12,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * <p>
  */
 @ConfigurationProperties(prefix = MuttleyModelProperty.PREFIX)
+@Getter
+@Setter
+@Accessors(chain = true)
 public class MuttleyModelProperty {
     protected final static String PREFIX = "muttley.model.security";
     private String ownerDocument = "muttley-owners";
@@ -16,49 +22,4 @@ public class MuttleyModelProperty {
     private String accessPlanDocument = "muttley-access-plans";
     private String userPreferenceDocument = "muttley-users-preferences";
     private String workTeamDocument = "muttley-work-teams";
-
-    public String getOwnerDocument() {
-        return ownerDocument;
-    }
-
-    public MuttleyModelProperty setOwnerDocument(String ownerDocument) {
-        this.ownerDocument = ownerDocument;
-        return this;
-    }
-
-    public String getUserDocument() {
-        return userDocument;
-    }
-
-    public MuttleyModelProperty setUserDocument(String userDocument) {
-        this.userDocument = userDocument;
-        return this;
-    }
-
-    public String getAccessPlanDocument() {
-        return accessPlanDocument;
-    }
-
-    public MuttleyModelProperty setAccessPlanDocument(String accessPlanDocument) {
-        this.accessPlanDocument = accessPlanDocument;
-        return this;
-    }
-
-    public String getUserPreferenceDocument() {
-        return userPreferenceDocument;
-    }
-
-    public MuttleyModelProperty setUserPreferenceDocument(String userPreferenceDocument) {
-        this.userPreferenceDocument = userPreferenceDocument;
-        return this;
-    }
-
-    public String getWorkTeamDocument() {
-        return workTeamDocument;
-    }
-
-    public MuttleyModelProperty setWorkTeamDocument(String workTeamDocument) {
-        this.workTeamDocument = workTeamDocument;
-        return this;
-    }
 }

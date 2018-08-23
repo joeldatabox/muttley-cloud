@@ -6,6 +6,10 @@ import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
@@ -26,6 +30,10 @@ import static org.springframework.util.Assert.notNull;
 @CompoundIndexes({
         @CompoundIndex(name = "user_index_unique", def = "{'user' : 1}", unique = true)
 })
+@Accessors(chain = true)
+@Getter
+@Setter
+@EqualsAndHashCode(of = "id")
 public class UserPreferences implements Document {
     public static final String WORK_TEAM_PREFERENCE = "WorkTeamPreference";
     @Id
@@ -64,50 +72,11 @@ public class UserPreferences implements Document {
         this.preferences = preferences;
     }
 
-    @Override
-    public String getId() {
-        return this.id;
-    }
-
-    @Override
-    public UserPreferences setId(final String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public UserPreferences setHistoric(final Historic historic) {
-        this.historic = historic;
-        return this;
-    }
-
-    @Override
-    public Historic getHistoric() {
-        return this.historic;
-    }
-
     public boolean contains(final String key) {
         final Preference p = new Preference(key, null);
         return this.preferences.contains(p);
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public UserPreferences setUser(final User user) {
-        this.user = user;
-        return this;
-    }
-
-    public Set<Preference> getPreferences() {
-        return preferences;
-    }
-
-    public UserPreferences setPreferences(final Set<Preference> preferences) {
-        this.preferences = preferences;
-        return this;
-    }
 
     public Preference get(final String key) {
         return this.preferences.stream()

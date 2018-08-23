@@ -2,6 +2,7 @@ package br.com.muttley.model.security;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
 /**
  * @author Joel Rodrigues Moreira on 18/04/18.
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @project muttley-cloud
  * Bean para facilitar no processo de login
  */
+@Getter
 public class UserPayLoadLogin {
     private final String username;
     private final String password;
@@ -19,13 +21,5 @@ public class UserPayLoadLogin {
             @JsonProperty("password") final String password) {
         this.username = username;
         this.password = password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
     }
 }

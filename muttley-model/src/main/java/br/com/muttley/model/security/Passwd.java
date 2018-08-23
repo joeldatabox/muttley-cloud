@@ -2,13 +2,19 @@ package br.com.muttley.model.security;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.hibernate.validator.constraints.NotEmpty;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
  * Classe para auxiliar a atulização da senha
  */
+@Getter
+@Setter
+@Accessors(chain = true)
 public class Passwd {
 
     private JwtToken token;
@@ -31,31 +37,4 @@ public class Passwd {
         this.actualPasswd = actualPasswd;
         this.newPasswd = newPasswd;
     }
-
-    public JwtToken getToken() {
-        return token;
-    }
-
-    public Passwd setToken(final JwtToken token) {
-        this.token = token;
-        return this;
-    }
-
-    public String getActualPasswd() {
-        return actualPasswd;
-    }
-
-    public void setActualPasswd(final String actualPasswd) {
-        this.actualPasswd = actualPasswd;
-    }
-
-    public String getNewPasswd() {
-        return newPasswd;
-    }
-
-    public void setNewPasswd(final String newPasswd) {
-        this.newPasswd = newPasswd;
-    }
-
-
 }

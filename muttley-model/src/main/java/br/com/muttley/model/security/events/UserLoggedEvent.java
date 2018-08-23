@@ -11,6 +11,8 @@ import org.springframework.context.ApplicationEvent;
  * Evento lançado toda vez que um usuário se loga no sistema.
  */
 public class UserLoggedEvent extends ApplicationEvent {
+    private final User user;
+
     /**
      * Create a new ApplicationEvent.
      *
@@ -18,10 +20,11 @@ public class UserLoggedEvent extends ApplicationEvent {
      */
     public UserLoggedEvent(final User source) {
         super(source);
+        this.user = source;
     }
 
     @Override
     public User getSource() {
-        return (User) super.getSource();
+        return user;
     }
 }

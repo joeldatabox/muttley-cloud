@@ -2,6 +2,7 @@ package br.com.muttley.model.security;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -13,6 +14,7 @@ import java.io.Serializable;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
+@Getter
 public class UserPayLoad implements Serializable {
 
     @NotBlank(message = "O campo nome não pode ser nulo!")
@@ -32,17 +34,5 @@ public class UserPayLoad implements Serializable {
         this.name = name;
         this.email = email;
         this.passwd = passwd;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPasswd() {
-        return passwd;
     }
 }

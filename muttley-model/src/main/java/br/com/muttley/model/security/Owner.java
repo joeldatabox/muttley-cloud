@@ -7,7 +7,10 @@ import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.base.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -28,6 +31,10 @@ import javax.validation.constraints.NotNull;
         @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })
 @TypeAlias("#{documentNameConfig.getNameCollectionOwner()}")
+@Getter
+@Setter
+@Accessors(chain = true)
+@EqualsAndHashCode(of = "id")
 public class Owner implements br.com.muttley.model.Document {
     @Id
     protected String id;
@@ -44,73 +51,4 @@ public class Owner implements br.com.muttley.model.Document {
     @DBRef
     protected AccessPlan accessPlan;
     protected Historic historic;
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public Owner setId(final String id) {
-        this.id = id;
-        return this;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Owner setName(final String name) {
-        this.name = name;
-        return this;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Owner setDescription(final String description) {
-        this.description = description;
-        return this;
-    }
-
-    public User getUserMaster() {
-        return userMaster;
-    }
-
-    public Owner setUserMaster(final User userMaster) {
-        this.userMaster = userMaster;
-        return this;
-    }
-
-    public AccessPlan getAccessPlan() {
-        return this.accessPlan;
-    }
-
-    public Owner setAccessPlan(final AccessPlan accessPlan) {
-        this.accessPlan = accessPlan;
-        return this;
-    }
-
-    public Owner setHistoric(final Historic historic) {
-        this.historic = historic;
-        return this;
-    }
-
-    public Historic getHistoric() {
-        return this.historic;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if ((!(o instanceof Owner)) || (!(o instanceof Owner))) return false;
-        Owner owner = (Owner) o;
-        return Objects.equal(id, owner.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id, 93);
-    }
 }
