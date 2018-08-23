@@ -5,11 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = MuttleySecurityProperty.PREFIX)
 public class MuttleySecurityProperty {
     protected static final String PREFIX = "muttley.security";
-    private Jwt jwt;
-
-    public MuttleySecurityProperty() {
-        this.jwt = new Jwt();
-    }
+    private Jwt jwt = new Jwt();
 
     public Jwt getJwt() {
         return jwt;
@@ -21,11 +17,7 @@ public class MuttleySecurityProperty {
     }
 
     public static class Jwt {
-        private Controller controller;
-
-        public Jwt() {
-            this.controller = new Controller();
-        }
+        private Controller controller = new Controller();
 
         public Controller getController() {
             return controller;
@@ -37,13 +29,8 @@ public class MuttleySecurityProperty {
         }
 
         public static class Controller {
-            private String tokenHeader;
-            private String tokenHeaderJwt;
-
-            public Controller() {
-                this.tokenHeader = "Authorization";
-                this.tokenHeaderJwt = "Authorization-jwt";
-            }
+            private String tokenHeader = "Authorization";
+            private String tokenHeaderJwt = "Authorization-jwt";
 
             public String getTokenHeader() {
                 return tokenHeader;

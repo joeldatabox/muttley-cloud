@@ -5,11 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = MuttleyJacksonProperty.PREFIX)
 public class MuttleyJacksonProperty {
     protected static final String PREFIX = "br.com.muttley.jackson";
-    private String datePattern;
-
-    public MuttleyJacksonProperty() {
-        this.datePattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-    }
+    private String datePattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     public String getDatePattern() {
         return datePattern;

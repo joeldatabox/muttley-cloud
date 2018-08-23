@@ -5,8 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = MuttleySecurityProperty.PREFIX)
 public class MuttleySecurityProperty {
     protected static final String PREFIX = "muttley";
-    private Security security;
-    private SecurityServer securityServer;
+    private Security security = new Security();
+    private SecurityServer securityServer = new SecurityServer();
 
     public MuttleySecurityProperty() {
         this.security = new Security();
@@ -32,11 +32,7 @@ public class MuttleySecurityProperty {
     }
 
     public static class SecurityServer {
-        private User user;
-
-        public SecurityServer() {
-            this.user = new User();
-        }
+        private User user = new User();
 
         public User getUser() {
             return user;
@@ -48,15 +44,9 @@ public class MuttleySecurityProperty {
         }
 
         public static class User {
-            private String name;
-            private String password;
-            private String role;
-
-            public User() {
-                this.name = "muttley";
-                this.password = "muttley";
-                this.role = "SYSTEM";
-            }
+            private String name = "muttley";
+            private String password = "muttley";
+            private String role = "SYSTEM";
 
             public String getName() {
                 return name;
@@ -88,11 +78,7 @@ public class MuttleySecurityProperty {
     }
 
     public static class Security {
-        private Jwt jwt;
-
-        public Security() {
-            this.jwt = new Jwt();
-        }
+        private Jwt jwt = new Jwt();
 
         public Jwt getJwt() {
             return jwt;
@@ -104,13 +90,8 @@ public class MuttleySecurityProperty {
         }
 
         public static class Jwt {
-            private Controller controller;
-            private Token token;
-
-            public Jwt() {
-                this.controller = new Controller();
-                this.token = new Token();
-            }
+            private Controller controller = new Controller();
+            private Token token = new Token();
 
             public Controller getController() {
                 return controller;
@@ -131,12 +112,8 @@ public class MuttleySecurityProperty {
             }
 
             public static class Token {
-                private Integer expiration;
-
-                public Token() {
-                    //por padrao será apenas uma hora
-                    this.expiration = 3600000;
-                }
+                //por padrao será apenas uma hora
+                private Integer expiration = 3600000;
 
                 public Integer getExpiration() {
                     return expiration;
@@ -149,15 +126,9 @@ public class MuttleySecurityProperty {
             }
 
             public static class Controller {
-                private String tokenHeader;
-                private String tokenHeaderJwt;
-                private String loginEndPoint;
-
-                public Controller() {
-                    this.tokenHeader = "Authorization";
-                    this.tokenHeaderJwt = "Authorization-jwt";
-                    this.loginEndPoint = "/api/auth/login";
-                }
+                private String tokenHeader = "Authorization";
+                private String tokenHeaderJwt = "Authorization-jwt";
+                private String loginEndPoint = "/api/auth/login";
 
                 public String getTokenHeader() {
                     return tokenHeader;

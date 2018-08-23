@@ -5,11 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = MuttleyConfigServerProperty.PREFIX)
 public class MuttleyConfigServerProperty {
     protected static final String PREFIX = "muttley.config-server";
-    private Security security;
-
-    public MuttleyConfigServerProperty() {
-        this.security = new Security();
-    }
+    private Security security = new Security();
 
     public Security getSecurity() {
         return security;
@@ -21,11 +17,7 @@ public class MuttleyConfigServerProperty {
     }
 
     public static class Security {
-        private User user;
-
-        public Security() {
-            this.user = new User();
-        }
+        private User user = new User();
 
         public User getUser() {
             return user;
@@ -37,15 +29,9 @@ public class MuttleyConfigServerProperty {
         }
 
         public static class User {
-            private String name;
-            private String password;
-            private String role;
-
-            public User() {
-                this.name = "muttley";
-                this.password = "muttley";
-                this.role = "ROLE_SYSTEM";
-            }
+            private String name = "muttley";
+            private String password = "muttley";
+            private String role = "ROLE_SYSTEM";
 
             public String getName() {
                 return name;

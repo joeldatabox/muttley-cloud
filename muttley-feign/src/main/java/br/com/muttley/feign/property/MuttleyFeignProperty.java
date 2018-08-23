@@ -6,15 +6,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = MuttleyFeignProperty.PREFIX)
 public class MuttleyFeignProperty {
     protected static final String PREFIX = "muttley.config.feign";
-    private Loggin loggin;
-    private int connectTimeOutMillis;
-    private int readTimeOutMillis;
-
-    public MuttleyFeignProperty() {
-        this.loggin = new Loggin();
-        this.connectTimeOutMillis = 60000;
-        this.readTimeOutMillis = 60000;
-    }
+    private Loggin loggin = new Loggin();
+    private int connectTimeOutMillis = 60000;
+    private int readTimeOutMillis = 60000;
 
     public int getConnectTimeOutMillis() {
         return connectTimeOutMillis;

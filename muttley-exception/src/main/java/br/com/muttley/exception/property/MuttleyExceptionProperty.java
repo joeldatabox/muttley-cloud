@@ -12,13 +12,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class MuttleyExceptionProperty {
     protected static final String PREFIX = "muttley.exception.print";
 
-    private boolean stackTrace;
-    private boolean responseException;
-
-    public MuttleyExceptionProperty() {
-        this.stackTrace = false;
-        this.responseException = false;
-    }
+    private boolean stackTrace = false;
+    private boolean responseException = false;
 
     public boolean isStackTrace() {
         return stackTrace;

@@ -11,19 +11,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = MuttleyModelProperty.PREFIX)
 public class MuttleyModelProperty {
     protected final static String PREFIX = "muttley.model.security";
-    private String ownerDocument;
-    private String userDocument;
-    private String accessPlanDocument;
-    private String userPreferenceDocument;
-    private String workTeamDocument;
-
-    public MuttleyModelProperty() {
-        this.ownerDocument = "muttley-owners";
-        this.userDocument = "muttley-users";
-        this.accessPlanDocument = "muttley-access-plans";
-        this.userPreferenceDocument = "muttley-users-preferences";
-        this.workTeamDocument = "muttley-work-teams";
-    }
+    private String ownerDocument = "muttley-owners";
+    private String userDocument = "muttley-users";
+    private String accessPlanDocument = "muttley-access-plans";
+    private String userPreferenceDocument = "muttley-users-preferences";
+    private String workTeamDocument = "muttley-work-teams";
 
     public String getOwnerDocument() {
         return ownerDocument;

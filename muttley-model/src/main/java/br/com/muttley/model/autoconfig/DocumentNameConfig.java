@@ -2,6 +2,7 @@ package br.com.muttley.model.autoconfig;
 
 import br.com.muttley.model.property.MuttleyModelProperty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Joel Rodrigues Moreira on 17/08/18.
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @project muttley-cloud
  * <p>
  */
+@Component
 public class DocumentNameConfig {
     private final MuttleyModelProperty properties;
 
