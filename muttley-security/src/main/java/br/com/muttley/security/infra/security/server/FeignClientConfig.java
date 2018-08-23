@@ -1,6 +1,7 @@
 package br.com.muttley.security.infra.security.server;
 
-import org.springframework.beans.factory.annotation.Value;
+import br.com.muttley.security.properties.MuttleySecurityProperty;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,10 +13,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FeignClientConfig {
 
+    @Autowired
+    private MuttleySecurityProperty property;
+
     @Bean
-    public BasicAuthorizationJWTRequestInterceptor createBasicAuthRequestInterceptor(
-            @Value("${muttley.config-server.security.user.name}") final String userName,
-            @Value("${muttley.config-server.security.user.password}") final String passWord) {
-        return new BasicAuthorizationJWTRequestInterceptor(userName, passWord);
+    public BasicAuthorizationJWTRequestInterceptor createBasicAuthRequestInterceptor() {
+        return new BasicAuthorizationJWTRequestInterceptor(property.getSecurityServer().getUser().getName(), property.getSecurityServer().getUser().getPassword());
     }
 }

@@ -1,4 +1,4 @@
-package br.com.muttley.security.zuul.client.service;
+package br.com.muttley.security.zuul.client;
 
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
@@ -21,12 +21,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class AbstractWebSecurityClient extends WebSecurityConfigurerAdapter {
+public class WebSecurityClient extends WebSecurityConfigurerAdapter {
     private final UnauthorizedHandler unauthorizedHandler;
     private final AuthenticationTokenFilterClient authenticationTokenFilterClient;
 
     @Autowired
-    public AbstractWebSecurityClient(final UnauthorizedHandler unauthorizedHandler, final AuthenticationTokenFilterClient authenticationTokenFilterClient) {
+    public WebSecurityClient(final UnauthorizedHandler unauthorizedHandler, final AuthenticationTokenFilterClient authenticationTokenFilterClient) {
         this.unauthorizedHandler = unauthorizedHandler;
         this.authenticationTokenFilterClient = authenticationTokenFilterClient;
     }
@@ -64,7 +64,8 @@ public class AbstractWebSecurityClient extends WebSecurityConfigurerAdapter {
                 //permitindo acesso aos endpoint de login
                 //.antMatchers(loginEndPoint, refreshTokenEndPoin, createEndPoint).permitAll()
                 //barrando qualquer outra requisição não autenticada
-                .anyRequest().authenticated();
+                .anyRequest()
+                .authenticated();
 
         //adicionando o filtro de segurança
         http.addFilterBefore(this.authenticationTokenFilterClient, UsernamePasswordAuthenticationFilter.class);

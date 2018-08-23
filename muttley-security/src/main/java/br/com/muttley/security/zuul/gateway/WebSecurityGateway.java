@@ -4,11 +4,19 @@ import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.security.feign.UserServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
+import br.com.muttley.security.infra.service.EndpointsPermitAll;
+import br.com.muttley.security.properties.MuttleySecurityProperty;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,31 +31,25 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * @author Joel Rodrigues Moreira on 12/01/18.
  * @project spring-cloud
  */
-/*@SuppressWarnings("SpringJavaAutowiringInspection")
+@SuppressWarnings("SpringJavaAutowiringInspection")
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)*/
-public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAdapter {
-    protected final String loginEndPoint;
-    protected final String refreshTokenEndPoin;
-    protected final String createEndPoint;
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class WebSecurityGateway extends WebSecurityConfigurerAdapter {
+    @Autowired
+    private MuttleySecurityProperty property;
+    @Autowired
+    private ObjectProvider<EndpointsPermitAll> customizeEndpoints;
     protected final UnauthorizedHandler unauthorizedHandler;
     protected final AuthenticationTokenFilterGateway authenticationTokenFilterGateway;
     protected final UserServiceClient userServiceClient;
 
     @Autowired
-    public AbstractWebSecurityGateway(
-            @Value("${muttley.security.jwt.controller.loginEndPoint}") final String loginEndPoint,
-            @Value("${muttley.security.jwt.controller.refreshEndPoint}") final String refreshTokenEndPoin,
-            @Value("${muttley.security.jwt.controller.createEndPoint}") final String createEndPoint,
+    public WebSecurityGateway(
             final UnauthorizedHandler unauthorizedHandler,
             final AuthenticationTokenFilterGateway authenticationTokenFilterGateway,
             final UserServiceClient userServiceClient) {
-        this.loginEndPoint = loginEndPoint;
-        this.refreshTokenEndPoin = refreshTokenEndPoin;
-        this.createEndPoint = createEndPoint;
         this.unauthorizedHandler = unauthorizedHandler;
-
         this.authenticationTokenFilterGateway = authenticationTokenFilterGateway;
         this.userServiceClient = userServiceClient;
     }
@@ -74,16 +76,22 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .exceptionHandling().accessDeniedPage("/403").and()
                 //desativando o controle de sessão
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests()
-                //.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // permite acesso a qualquer recurso estatico
-                .antMatchers(
-                        HttpMethod.GET,
-                        this.endPointPermitAllToGet()
-                ).permitAll()
-                //permitindo acesso aos endpoint de login
-                .antMatchers(loginEndPoint, refreshTokenEndPoin, createEndPoint).permitAll()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        //.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+        final EndpointsPermitAll endpointsPermitAll = this.customizeEndpoints.getIfAvailable();
+        if (endpointsPermitAll != null) {
+            // permite acesso a qualquer recurso estatico
+            http.authorizeRequests().antMatchers(
+                    HttpMethod.GET,
+                    endpointsPermitAll.forGetMethod()
+            ).permitAll();
+        }
+        //permitindo acesso aos endpoint de login
+        http.authorizeRequests().antMatchers(
+                property.getSecurity().getJwt().getController().getLoginEndPoint(),
+                property.getSecurity().getJwt().getController().getRefreshEndPoint(),
+                property.getSecurity().getJwt().getController().getCreateEndPoint()
+        ).permitAll()
                 //barrando qualquer outra requisição não autenticada
                 .anyRequest().authenticated();
 
@@ -94,11 +102,9 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
         http.headers().cacheControl();
     }
 
-    /**
-     * Informa uma lista de endpoits que são livres de segurança.
-     * Por exemplo, deve-se listar aqui os end points referente a arquivos estaticos
-     *
-     * @return um array de padrões de urls
-     */
-    protected abstract String[] endPointPermitAllToGet();
+    @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 }

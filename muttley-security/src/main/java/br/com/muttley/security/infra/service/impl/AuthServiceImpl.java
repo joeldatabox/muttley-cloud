@@ -3,8 +3,9 @@ package br.com.muttley.security.infra.service.impl;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.User;
+import br.com.muttley.security.properties.MuttleySecurityProperty;
 import br.com.muttley.security.infra.service.AuthService;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,11 +22,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final String tokenHeader;
-
-    public AuthServiceImpl(@Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
-        this.tokenHeader = tokenHeader;
-    }
+    @Autowired
+    private MuttleySecurityProperty property;
 
     @Override
     public Authentication getCurrentAuthentication() {
@@ -42,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
         return new JwtToken(
                 ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
                         .getRequest()
-                        .getHeader(this.tokenHeader)
+                        .getHeader(property.getSecurity().getJwt().getController().getTokenHeader())
         );
     }
 

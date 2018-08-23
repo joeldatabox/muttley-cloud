@@ -4,9 +4,9 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedE
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
+import br.com.muttley.security.properties.MuttleySecurityProperty;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,18 +27,14 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  */
 public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
 
-    protected final String tokenHeader;
+    @Autowired
+    private MuttleySecurityProperty property;
     protected final AuthenticationTokenServiceClient tokenServiceClient;
     protected final CacheUserAuthenticationService cacheAuth;
     protected final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public AuthenticationTokenFilterGateway(
-            @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader,
-            final AuthenticationTokenServiceClient userServiceClient,
-            final CacheUserAuthenticationService cacheAuth,
-            final ApplicationEventPublisher eventPublisher) {
-        this.tokenHeader = tokenHeader;
+    public AuthenticationTokenFilterGateway(final AuthenticationTokenServiceClient userServiceClient, final CacheUserAuthenticationService cacheAuth, final ApplicationEventPublisher eventPublisher) {
         this.tokenServiceClient = userServiceClient;
         this.cacheAuth = cacheAuth;
         this.eventPublisher = eventPublisher;
@@ -47,7 +43,7 @@ public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain) throws ServletException, IOException {
         //recuperando o possivel token presente no cabeçalho
-        final String authToken = request.getHeader(this.tokenHeader);
+        final String authToken = request.getHeader(property.getSecurity().getJwt().getController().getTokenHeader());
 
         if (!isNullOrEmpty(authToken)) {
             if (SecurityContextHolder.getContext().getAuthentication() == null) {

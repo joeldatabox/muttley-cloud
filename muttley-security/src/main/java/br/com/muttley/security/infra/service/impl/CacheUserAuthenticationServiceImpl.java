@@ -5,9 +5,9 @@ import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
 import br.com.muttley.model.security.events.UserBeforeCacheSaveEvent;
 import br.com.muttley.redis.service.RedisService;
+import br.com.muttley.security.properties.MuttleySecurityProperty;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +18,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class CacheUserAuthenticationServiceImpl implements CacheUserAuthenticationService {
 
+    @Autowired
+    private MuttleySecurityProperty property;
     private final RedisService redisService;
     private final ApplicationEventPublisher eventPublisher;
-    private final int expiration;
 
     @Autowired
-    public CacheUserAuthenticationServiceImpl(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration, final ApplicationEventPublisher eventPublisher) {
+    public CacheUserAuthenticationServiceImpl(final RedisService redisService, final ApplicationEventPublisher eventPublisher) {
         this.redisService = redisService;
-        this.expiration = expiration;
         this.eventPublisher = eventPublisher;
     }
 
@@ -33,7 +33,7 @@ public class CacheUserAuthenticationServiceImpl implements CacheUserAuthenticati
     public void set(final String token, final JwtUser user) {
         //notificando que será salvo um usuário no cache do sistema
         this.eventPublisher.publishEvent(new UserBeforeCacheSaveEvent(user.getOriginUser()));
-        this.redisService.set(token, user, expiration);
+        this.redisService.set(token, user, property.getSecurity().getJwt().getToken().getExpiration());
     }
 
     @Override

@@ -7,9 +7,9 @@ import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.UserPayLoadLogin;
 import br.com.muttley.model.security.events.UserLoggedEvent;
 import br.com.muttley.security.feign.auth.AuthenticationRestServiceClient;
+import br.com.muttley.security.properties.MuttleySecurityProperty;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,7 +34,9 @@ import java.util.Map;
  */
 public class AuthenticationRestController {
 
-    protected final String tokenHeader;
+    @Autowired
+    private MuttleySecurityProperty property;
+
     protected static final String USERNAME = "username";
     protected static final String PASSWORD = "password";
 
@@ -45,12 +47,10 @@ public class AuthenticationRestController {
 
     @Autowired
     public AuthenticationRestController(
-            final @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") String tokenHeader,
             final AuthenticationManager authenticationManager,
             final AuthenticationRestServiceClient authenticationRestService,
             final ApplicationEventPublisher eventPublisher,
             final CacheUserAuthenticationService cacheAuthService) {
-        this.tokenHeader = tokenHeader;
         this.authenticationManager = authenticationManager;
         this.authenticationRestService = authenticationRestService;
         this.eventPublisher = eventPublisher;
@@ -93,7 +93,7 @@ public class AuthenticationRestController {
 
     @RequestMapping(value = "${muttley.security.jwt.controller.refreshEndPoint}", method = RequestMethod.GET)
     public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
-        final JwtToken currentToken = new JwtToken(request.getHeader(tokenHeader));
+        final JwtToken currentToken = new JwtToken(request.getHeader(property.getSecurity().getJwt().getController().getTokenHeader()));
         final JwtToken newToken = this.authenticationRestService.refreshAndGetAuthenticationToken(currentToken);
         cacheAuthService.refreshToken(currentToken, newToken);
         return ResponseEntity.ok(newToken);
