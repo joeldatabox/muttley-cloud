@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @NoRepositoryBean
-public interface DocumentMongoRepository<T> extends MongoRepository<T, String> {
+public interface SimpleTenancyMongoRepository<T> extends MongoRepository<T, String> {
 
     /**
      * Busca o primeiro registro qualquer de uma colection

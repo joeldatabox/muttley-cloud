@@ -2,10 +2,10 @@ package br.com.muttley.mongo.repository.impl;
 
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.Model;
+import br.com.muttley.model.MultiTenancyModel;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.mongo.infra.Aggregate;
-import br.com.muttley.mongo.repository.CustomMongoRepository;
+import br.com.muttley.mongo.repository.MultiTenancyMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -22,9 +22,9 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.newA
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRepositoryImpl<T> implements CustomMongoRepository<T> {
+public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extends SimpleTenancyMongoRepositoryImpl<T> implements MultiTenancyMongoRepository<T> {
 
-    public CustomMongoRepositoryImpl(@Autowired final MongoEntityInformation<T, String> metadata, @Autowired final MongoOperations mongoOperations) {
+    public MultiTenancyMongoRepositoryImpl(@Autowired final MongoEntityInformation<T, String> metadata, @Autowired final MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
     }
 

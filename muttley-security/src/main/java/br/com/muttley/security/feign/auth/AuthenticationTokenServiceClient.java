@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * Aplica o filtro de autenticação necessario
  */
-@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/users/authentication", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
+@FeignClient(value = "${muttley.security-server.name-server}", path = "/api/v1/users/authentication", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
 public interface AuthenticationTokenServiceClient {
 
     @RequestMapping(value = "/user-from-token", method = RequestMethod.POST)

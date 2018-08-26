@@ -1,5 +1,8 @@
 package br.com.muttley.domain.autoconfig;
 
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -11,7 +14,7 @@ import javax.validation.Validator;
  * Ativa validação na camada de serviço
  */
 @Configuration
-public class ValidatorConfig {
+public class ValidatorConfig implements InitializingBean {
 
     @Bean
     public MethodValidationPostProcessor methodValidationPostProcessorFactory() {
@@ -26,7 +29,12 @@ public class ValidatorConfig {
     }
 
     @Bean
-    public br.com.muttley.domain.Validator createValidatorFactory() {
-        return new br.com.muttley.domain.Validator(validatorFactory());
+    public br.com.muttley.domain.Validator createValidatorFactory(@Autowired final Validator validator) {
+        return new br.com.muttley.domain.Validator(validator);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        LoggerFactory.getLogger(ValidatorConfig.class).info("Configured BeanValidation");
     }
 }

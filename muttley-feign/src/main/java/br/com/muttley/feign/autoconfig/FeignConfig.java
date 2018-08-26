@@ -11,6 +11,8 @@ import feign.codec.Decoder;
 import feign.okhttp.OkHttpClient;
 import feign.optionals.OptionalDecoder;
 import feign.slf4j.Slf4jLogger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
@@ -35,7 +37,7 @@ import java.util.Map;
  */
 @Configuration
 @EnableConfigurationProperties(MuttleyFeignProperty.class)
-public class FeignConfig extends FeignClientsConfiguration {
+public class FeignConfig extends FeignClientsConfiguration implements InitializingBean {
     private static final String PROPERTY_SOURCE = "applicationConfig: [classpath:/bootstrap.properties]";
     @Autowired
     private MuttleyFeignProperty property;
@@ -68,5 +70,10 @@ public class FeignConfig extends FeignClientsConfiguration {
 
         return new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(() -> new HttpMessageConverters(decoderConverters))));
         //return new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(this.messageConverters)));
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        LoggerFactory.getLogger(FeignConfig.class).info("Configured feign factory");
     }
 }

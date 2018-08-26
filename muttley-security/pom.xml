@@ -24,11 +24,13 @@
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-model</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-redis</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>br.com.muttley</groupId>

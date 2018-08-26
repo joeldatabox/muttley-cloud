@@ -8,7 +8,7 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
-import br.com.muttley.mongo.repository.DocumentMongoRepository;
+import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
@@ -25,13 +25,13 @@ import static java.util.Objects.isNull;
  */
 public abstract class ServiceImpl<T extends Document> implements Service<T> {
 
-    protected final DocumentMongoRepository<T> repository;
+    protected final SimpleTenancyMongoRepository<T> repository;
     protected final Class<T> clazz;
 
     @Autowired
     protected Validator validator;
 
-    public ServiceImpl(final DocumentMongoRepository<T> repository, final Class<T> clazz) {
+    public ServiceImpl(final SimpleTenancyMongoRepository<T> repository, final Class<T> clazz) {
         this.repository = repository;
         this.clazz = clazz;
     }

@@ -7,13 +7,13 @@ import br.com.muttley.model.security.User;
  * @author Joel Rodrigues Moreira on 29/01/18.
  * @project muttley-cloud
  */
-public interface Model extends Document {
+public interface MultiTenancyModel extends Document {
 
-    default Model setOwner(final User user) {
+    default MultiTenancyModel setOwner(final User user) {
         return this.setOwner(user.getCurrentOwner());
     }
 
-    Model setOwner(final Owner owner);
+    MultiTenancyModel setOwner(final Owner owner);
 
     Owner getOwner();
 

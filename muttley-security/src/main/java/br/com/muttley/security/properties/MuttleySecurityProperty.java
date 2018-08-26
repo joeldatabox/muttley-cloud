@@ -38,6 +38,7 @@ public class MuttleySecurityProperty {
 
     public static class SecurityServer {
         private User user = new User();
+        private String nameServer;
 
         public User getUser() {
             return user;
@@ -45,6 +46,15 @@ public class MuttleySecurityProperty {
 
         public SecurityServer setUser(User user) {
             this.user = user;
+            return this;
+        }
+
+        public String getNameServer() {
+            return nameServer;
+        }
+
+        public SecurityServer setNameServer(String nameServer) {
+            this.nameServer = nameServer;
             return this;
         }
 

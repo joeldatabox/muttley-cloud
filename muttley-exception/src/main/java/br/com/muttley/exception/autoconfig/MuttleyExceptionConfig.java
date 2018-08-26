@@ -1,17 +1,15 @@
 package br.com.muttley.exception.autoconfig;
 
-import br.com.muttley.exception.handlers.CustomResponseEntityExceptionHandler;
 import br.com.muttley.exception.ErrorMessageBuilder;
-import br.com.muttley.exception.controllers.ConfigEndPointsErros;
-import br.com.muttley.exception.controllers.ErrorsController;
-import br.com.muttley.exception.feign.FeignErrorDecoder;
 import br.com.muttley.exception.property.MuttleyExceptionProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import java.lang.management.ManagementFactory;
 
 /**
  * @author Joel Rodrigues Moreira on 18/08/18.
@@ -26,30 +24,15 @@ import org.springframework.context.annotation.Configuration;
         "br.com.muttley.exception.handlers"
 })
 @EnableConfigurationProperties(MuttleyExceptionProperty.class)
-public class MuttleyExceptionConfig {
-
-    /*@Bean
-    public FeignErrorDecoder createFeignErrorDecoder(@Autowired final ObjectMapper objectMapper) {
-        return new FeignErrorDecoder(objectMapper);
-    }*/
+public class MuttleyExceptionConfig implements InitializingBean {
 
     @Bean
     public ErrorMessageBuilder errorMessageBuilderFactory() {
         return new ErrorMessageBuilder();
     }
 
-    /*@Bean
-    public ConfigEndPointsErros configEndPointsErrosFactory() {
-        return new ConfigEndPointsErros();
-    }*/
-
-    /*@Bean
-    public ErrorsController errorsControllerFactory() {
-        return new ErrorsController();
-    }*/
-
-    /*@Bean
-    public CustomResponseEntityExceptionHandler customResponseEntityExceptionHandlerFactory(@Autowired final ErrorMessageBuilder errorMessageBuilder) {
-        return new CustomResponseEntityExceptionHandler(errorMessageBuilder);
-    }*/
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        LoggerFactory.getLogger("Configured exceptions handlers").info(ManagementFactory.getRuntimeMXBean().getName());
+    }
 }

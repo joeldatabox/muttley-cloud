@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @NoRepositoryBean
-public interface CustomMongoRepository<T> extends DocumentMongoRepository<T> {
+public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoRepository<T> {
     /**
      * Sava um registro registro simples
      *

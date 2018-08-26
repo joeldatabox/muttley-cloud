@@ -1,8 +1,10 @@
-package br.com.muttley.mongo.autoconfig;
+package br.com.muttley.mongo.mongoconfig;
 
 import br.com.muttley.mongo.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.converters.Decimal128ToBigDecimalConverter;
-import br.com.muttley.mongo.repository.impl.CustomMongoRepositoryImpl;
+import br.com.muttley.mongo.properties.MuttleyMongoProperties;
+import br.com.muttley.mongo.repository.impl.MultiTenancyMongoRepositoryImpl;
+import br.com.muttley.mongo.repository.impl.SimpleTenancyMongoRepositoryImpl;
 import br.com.muttley.mongo.service.MuttleyConvertersService;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -32,15 +34,18 @@ import static java.util.Collections.singletonList;
  * <ul>
  * <li>Após herdar a classe, torne-a uma classe de configuração com @{@link org.springframework.context.annotation.Configuration}</li>
  * <li>Adicione a anotação @{@link org.springframework.data.mongodb.repository.config.EnableMongoRepositories} e informe onde fica os devidos repositórios em <b>basePackages</b> e também se vier ao caso a classe base em <b>repositoryBaseClass</b> </li>
- * <li>A classe base padrão a ser utilizada é {@link CustomMongoRepositoryImpl}</li>
+ * <li>A classe base padrão a ser utilizada é {@link MultiTenancyMongoRepositoryImpl}</li>
  * </ul>
  *
  * @author Joel Rodrigues Moreira on 10/01/18.
  * @project muttley-cloud
  */
 @Configuration
-@EnableMongoRepositories(repositoryBaseClass = CustomMongoRepositoryImpl.class)
-public class MuttleyMongoConfig extends AbstractMongoConfiguration implements InitializingBean {
+@EnableMongoRepositories(repositoryBaseClass = SimpleTenancyMongoRepositoryImpl.class)
+public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration implements InitializingBean {
+    @Autowired
+    protected MuttleyMongoProperties properties;
+
     @Autowired
     private ObjectProvider<MuttleyConvertersService> convertersSErviceProvider;
 
@@ -106,16 +111,25 @@ public class MuttleyMongoConfig extends AbstractMongoConfiguration implements In
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        String message = "Configure MongoDB with host \"" + this.hostDataBase + "\", port \"" + this.portDataBase + "\", data base \"" + getDatabaseName() + "\", with userName \"" + this.userName + "\" and password \"";
+        LoggerFactory.getLogger(MuttleyMongoSimpleTenancyConfig.class).info(getMessageLog());
+    }
+
+    protected String getMessageLog() {
+        final StringBuilder builder = new StringBuilder("Configure MongoDB using ");
+        if (properties.getStrategy().isMultiTenancyDocument()) {
+            builder.append("MultiTenancyStrategy");
+        } else {
+            builder.append("SimpleTenancyStrategy");
+        }
+
+        builder.append("\"").append(this.hostDataBase).append("\", port \"").append(this.portDataBase).append("\", data base \"").append(getDatabaseName()).append("\", with userName \"").append(this.userName).append("\" and password \"");
         if (this.password != null) {
             final char[] passwdLenght = this.password.toCharArray();
             for (int i = 0; i < passwdLenght.length; i++) {
-                passwdLenght[i] = '*';
+                builder.append('*');
             }
-            message += new String(passwdLenght);
         }
-        message += "\"";
-
-        LoggerFactory.getLogger(MuttleyMongoConfig.class).info(message);
+        builder.append("\"");
+        return builder.toString();
     }
 }

@@ -1,7 +1,7 @@
 package br.com.muttley.security.server.repository;
 
 import br.com.muttley.model.security.User;
-import br.com.muttley.mongo.repository.DocumentMongoRepository;
+import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
  * @project spring-cloud
  */
 @Repository
-public interface UserRepository extends DocumentMongoRepository<User> {
+public interface UserRepository extends SimpleTenancyMongoRepository<User> {
     User findByEmail(String email);
 }
 

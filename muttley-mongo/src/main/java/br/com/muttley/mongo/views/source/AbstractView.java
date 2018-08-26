@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.config.source;
+package br.com.muttley.mongo.views.source;
 
 import org.springframework.data.annotation.Id;
 

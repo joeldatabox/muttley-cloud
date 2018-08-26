@@ -5,9 +5,9 @@ import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.Model;
+import br.com.muttley.model.MultiTenancyModel;
 import br.com.muttley.model.security.User;
-import br.com.muttley.mongo.repository.CustomMongoRepository;
+import br.com.muttley.mongo.repository.MultiTenancyMongoRepository;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -19,10 +19,10 @@ import static java.util.Objects.isNull;
  * @author Joel Rodrigues Moreira on 30/01/18.
  * @project muttley-cloud
  */
-public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> implements ModelService<T> {
-    final CustomMongoRepository<T> repository;
+public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends ServiceImpl<T> implements ModelService<T> {
+    final MultiTenancyMongoRepository<T> repository;
 
-    public ModelServiceImpl(final CustomMongoRepository<T> repository, final Class<T> clazz) {
+    public ModelServiceImpl(final MultiTenancyMongoRepository<T> repository, final Class<T> clazz) {
         super(repository, clazz);
         this.repository = repository;
     }
@@ -166,7 +166,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
      * Valida se ouve algum furo no processo de negociocio que venha a se alterar o dono do registro
      */
     private final void checkOwner(final User user, final T value) {
-        final Model other = findById(user, value.getId());
+        final MultiTenancyModel other = findById(user, value.getId());
         //não pode-se alterar o usuário
         if (!other.getOwner().equals(user.getCurrentOwner())) {
             throw new MuttleyBadRequestException(clazz, "user", "não é possível fazer a alteração do usuário dono do registro");

@@ -24,7 +24,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/users", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
+@FeignClient(value = "${muttley.security-server.name-server}", path = "/api/v1/users", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
 public interface UserServiceClient {
 
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)

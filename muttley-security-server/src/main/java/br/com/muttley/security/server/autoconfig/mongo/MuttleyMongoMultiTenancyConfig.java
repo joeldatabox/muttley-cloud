@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.autoconfig.mongo;
 
-import br.com.muttley.mongo.repository.impl.DocumentMongoRepositoryImpl;
+import br.com.muttley.mongo.repository.impl.SimpleTenancyMongoRepositoryImpl;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -14,9 +14,9 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  */
 @Configuration
 @EntityScan(basePackages = "br.com.muttley.model.security")
-@EnableMongoRepositories(basePackages = {"br.com.muttley.security.server.repository"}, repositoryBaseClass = DocumentMongoRepositoryImpl.class)
-public class MuttleyMongoConfig extends br.com.muttley.mongo.autoconfig.MuttleyMongoConfig {
+@EnableMongoRepositories(basePackages = {"br.com.muttley.security.server.repository"}, repositoryBaseClass = SimpleTenancyMongoRepositoryImpl.class)
+public class MuttleyMongoMultiTenancyConfig extends br.com.muttley.mongo.mongoconfig.MuttleyMongoSimpleTenancyConfig {
 
-    public MuttleyMongoConfig() {
+    public MuttleyMongoMultiTenancyConfig() {
     }
 }

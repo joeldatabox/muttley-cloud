@@ -2,7 +2,7 @@ package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.domain.impl.ServiceImpl;
 import br.com.muttley.model.Document;
-import br.com.muttley.mongo.repository.DocumentMongoRepository;
+import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
 import br.com.muttley.security.server.service.SecurityService;
 
 /**
@@ -11,7 +11,7 @@ import br.com.muttley.security.server.service.SecurityService;
  * @project muttley-cloud
  */
 public class SecurityServiceImpl<T extends Document> extends ServiceImpl<T> implements SecurityService<T> {
-    public SecurityServiceImpl(final DocumentMongoRepository<T> repository, final Class<T> clazz) {
+    public SecurityServiceImpl(final SimpleTenancyMongoRepository<T> repository, final Class<T> clazz) {
         super(repository, clazz);
     }
 }

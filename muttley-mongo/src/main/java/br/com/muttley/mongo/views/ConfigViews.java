@@ -1,7 +1,7 @@
-package br.com.muttley.mongo.config;
+package br.com.muttley.mongo.views;
 
-import br.com.muttley.mongo.config.source.ViewRepository;
-import br.com.muttley.mongo.config.source.ViewSource;
+import br.com.muttley.mongo.views.source.ViewRepository;
+import br.com.muttley.mongo.views.source.ViewSource;
 import com.mongodb.MongoClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
