@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.mongoconfig;
+package br.com.muttley.mongo.autoconfig;
 
 import br.com.muttley.mongo.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.converters.Decimal128ToBigDecimalConverter;
@@ -14,6 +14,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -41,6 +43,8 @@ import static java.util.Collections.singletonList;
  * @project muttley-cloud
  */
 @Configuration
+@EnableConfigurationProperties(MuttleyMongoProperties.class)
+@ConditionalOnProperty(name = "muttley.mongo.strategy", havingValue = "simpletenancy", matchIfMissing = true)
 @EnableMongoRepositories(repositoryBaseClass = SimpleTenancyMongoRepositoryImpl.class)
 public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration implements InitializingBean {
     @Autowired
@@ -117,9 +121,9 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
     protected String getMessageLog() {
         final StringBuilder builder = new StringBuilder("Configure MongoDB using ");
         if (properties.getStrategy().isMultiTenancyDocument()) {
-            builder.append("MultiTenancyStrategy");
+            builder.append("MultiTenancyStrategy ");
         } else {
-            builder.append("SimpleTenancyStrategy");
+            builder.append("SimpleTenancyStrategy ");
         }
 
         builder.append("\"").append(this.hostDataBase).append("\", port \"").append(this.portDataBase).append("\", data base \"").append(getDatabaseName()).append("\", with userName \"").append(this.userName).append("\" and password \"");

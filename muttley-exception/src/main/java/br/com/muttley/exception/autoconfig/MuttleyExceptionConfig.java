@@ -19,7 +19,7 @@ import java.lang.management.ManagementFactory;
  */
 @Configuration
 @ComponentScan(basePackages = {
-        "br.com.muttley.exception.controllers",
+        //"br.com.muttley.exception.controllers",
         "br.com.muttley.exception.feign",
         "br.com.muttley.exception.handlers"
 })

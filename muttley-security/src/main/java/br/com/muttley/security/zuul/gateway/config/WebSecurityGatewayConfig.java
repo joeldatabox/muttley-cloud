@@ -6,6 +6,8 @@ import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
 import br.com.muttley.security.infra.service.impl.CacheUserAuthenticationServiceImpl;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
  * @project spring-cloud
  */
 @Configuration
-public class WebSecurityGatewayConfig {
+public class WebSecurityGatewayConfig implements InitializingBean {
 
     @Bean
     @Autowired
@@ -40,4 +42,8 @@ public class WebSecurityGatewayConfig {
         return new CacheUserAuthenticationServiceImpl(redisService, eventPublisher);
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        LoggerFactory.getLogger(WebSecurityGatewayConfig.class).info("Configured SpringSecuryt for gateway-service");
+    }
 }

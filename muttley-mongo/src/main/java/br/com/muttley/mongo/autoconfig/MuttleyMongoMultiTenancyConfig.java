@@ -1,8 +1,11 @@
-package br.com.muttley.mongo.mongoconfig;
+package br.com.muttley.mongo.autoconfig;
 
+import br.com.muttley.mongo.properties.MuttleyMongoProperties;
 import br.com.muttley.mongo.repository.impl.MultiTenancyMongoRepositoryImpl;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
@@ -19,6 +22,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  * @project muttley-cloud
  */
 @Configuration
+@EnableConfigurationProperties(MuttleyMongoProperties.class)
+@ConditionalOnProperty(name = "muttley.mongo.strategy", havingValue = "multitenancy")
 @EnableMongoRepositories(repositoryBaseClass = MultiTenancyMongoRepositoryImpl.class)
 public class MuttleyMongoMultiTenancyConfig extends MuttleyMongoSimpleTenancyConfig implements InitializingBean {
 

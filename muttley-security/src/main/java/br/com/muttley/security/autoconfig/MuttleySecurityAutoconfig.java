@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
 public class MuttleySecurityAutoconfig {
 
     @Bean
-    @ConditionalOnProperty(name = "muttley.module", havingValue = "client")
+    @ConditionalOnProperty(name = "muttley.module", havingValue = "client", matchIfMissing = true)
     public WebSecurityClientConfig webSecurityClientConfigFactory() {
         return new WebSecurityClientConfig();
     }

@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.autoconfig;
 
-import br.com.muttley.security.server.autoconfig.mongo.MuttleyMongoMultiTenancyConfig;
+import br.com.muttley.security.server.autoconfig.mongo.MuttleyMongoSimpleTenancyConfig;
 import br.com.muttley.security.server.autoconfig.security.MethodSecurityConfig;
 import br.com.muttley.security.server.property.MuttleySecurityProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -26,8 +26,8 @@ import org.springframework.context.annotation.Configuration;
 public class MuttleySecurityServerConfig {
 
     @Bean
-    public MuttleyMongoMultiTenancyConfig muttleyMongoConfigFactory() {
-        return new MuttleyMongoMultiTenancyConfig();
+    public MuttleyMongoSimpleTenancyConfig muttleyMongoConfigFactory() {
+        return new MuttleyMongoSimpleTenancyConfig();
     }
 
     @Bean

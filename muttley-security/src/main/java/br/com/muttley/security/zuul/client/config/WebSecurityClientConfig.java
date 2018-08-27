@@ -15,8 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,6 +63,8 @@ public class WebSecurityClientConfig implements InitializingBean {
         final Logger log = LoggerFactory.getLogger(WebSecurityClientConfig.class);
         if (isEmpty(property.getSecurityServer().getNameServer())) {
             log.error("Please, set property ${muttley.security-server.name-server}");
+        } else {
+            log.info("Configured SpringSecuryt for service-client");
         }
     }
 }

@@ -15,8 +15,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @Configuration
 @EntityScan(basePackages = "br.com.muttley.model.security")
 @EnableMongoRepositories(basePackages = {"br.com.muttley.security.server.repository"}, repositoryBaseClass = SimpleTenancyMongoRepositoryImpl.class)
-public class MuttleyMongoMultiTenancyConfig extends br.com.muttley.mongo.mongoconfig.MuttleyMongoSimpleTenancyConfig {
+public class MuttleyMongoSimpleTenancyConfig extends br.com.muttley.mongo.autoconfig.MuttleyMongoSimpleTenancyConfig {
 
-    public MuttleyMongoMultiTenancyConfig() {
+    public MuttleyMongoSimpleTenancyConfig() {
     }
 }
