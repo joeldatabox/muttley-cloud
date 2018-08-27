@@ -11,7 +11,7 @@
 
     <groupId>br.com.muttley</groupId>
     <artifactId>muttley-cloud</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>${muttley-cloud.version}</version>
     <packaging>pom</packaging>
 
     <name>muttley-cloud</name>
@@ -25,6 +25,7 @@
         <spring-cloud.version>Finchley.SR1</spring-cloud.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <org.projectlombok.version>1.18.2</org.projectlombok.version>
+        <muttley-cloud.version>2.0.4.RELEASE</muttley-cloud.version>
     </properties>
 
     <modules>
@@ -68,79 +69,79 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-security-server</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-config-server</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-discovery-server</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-exception</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-model</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-redis</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-security</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-mongo</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-rest</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-domain-service</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-jackson</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-feign</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-zuul</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${muttley-cloud.version}</version>
             </dependency>
 
             <dependency>
