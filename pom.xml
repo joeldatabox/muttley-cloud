@@ -11,7 +11,7 @@
 
     <groupId>br.com.muttley</groupId>
     <artifactId>muttley-cloud</artifactId>
-    <version>${muttley-cloud.version}</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <name>muttley-cloud</name>
@@ -25,7 +25,7 @@
         <spring-cloud.version>Finchley.SR1</spring-cloud.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <org.projectlombok.version>1.18.2</org.projectlombok.version>
-        <muttley-cloud.version>2.0.4.RELEASE</muttley-cloud.version>
+        <revision>2.0.4.RELEASE</revision>
     </properties>
 
     <modules>
@@ -69,79 +69,79 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-security-server</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-config-server</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-discovery-server</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-exception</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-model</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-redis</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-security</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-mongo</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-rest</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-domain-service</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-jackson</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-feign</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-zuul</artifactId>
-                <version>${muttley-cloud.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
@@ -190,4 +190,34 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <build>
+        <plugins>
+            <!--ajuda nos ajustes de versão interno do projeto-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
