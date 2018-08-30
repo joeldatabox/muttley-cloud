@@ -42,6 +42,7 @@
         <module>muttley-jackson</module>
         <module>muttley-feign</module>
         <module>muttley-zuul</module>
+        <module>muttley-security.pom</module>
     </modules>
 
     <dependencies>
