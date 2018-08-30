@@ -1,5 +1,6 @@
 package br.com.muttley.security.zuul.gateway.config;
 
+import br.com.muttley.feign.autoconfig.FeignConfig;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
@@ -9,8 +10,10 @@ import br.com.muttley.security.infra.service.impl.CacheUserAuthenticationService
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -20,7 +23,15 @@ import org.springframework.context.annotation.Configuration;
  * @project spring-cloud
  */
 @Configuration
+@AutoConfigureAfter(FeignConfig.class)
+/*@ComponentScan(basePackageClasses = CacheUserAuthenticationService.class)*/
 public class WebSecurityGatewayConfig implements InitializingBean {
+
+    @Bean
+    @Autowired
+    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final ApplicationEventPublisher eventPublisher) {
+        return new CacheUserAuthenticationServiceImpl(redisService, eventPublisher);
+    }
 
     @Bean
     @Autowired
@@ -34,12 +45,6 @@ public class WebSecurityGatewayConfig implements InitializingBean {
     @Bean
     public UnauthorizedHandler createUnauthorizedHandler() {
         return new UnauthorizedHandler();
-    }
-
-    @Bean
-    @Autowired
-    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final ApplicationEventPublisher eventPublisher) {
-        return new CacheUserAuthenticationServiceImpl(redisService, eventPublisher);
     }
 
     @Override
