@@ -2,7 +2,6 @@ package br.com.muttley.security.autoconfig;
 
 import br.com.muttley.security.properties.MuttleySecurityProperty;
 import br.com.muttley.security.zuul.client.config.WebSecurityClientConfig;
-import br.com.muttley.security.zuul.gateway.config.WebSecurityGatewayConfig;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -26,9 +25,4 @@ public class MuttleySecurityAutoconfig {
         return new WebSecurityClientConfig();
     }
 
-    @Bean
-    @ConditionalOnProperty(name = "muttley.module", havingValue = "gateway")
-    public WebSecurityGatewayConfig webSecurityGatewayConfigFactory() {
-        return new WebSecurityGatewayConfig();
-    }
 }

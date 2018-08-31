@@ -2,22 +2,20 @@ package br.com.muttley.security.gateway;
 
 import br.com.muttley.feign.autoconfig.FeignConfig;
 import br.com.muttley.model.security.JwtUser;
-import br.com.muttley.redis.service.RedisService;
+import br.com.muttley.security.gateway.beans.BeansConfiguration;
 import br.com.muttley.security.gateway.components.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.gateway.services.EndpointsPermitAll;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.feign.UserServiceClient;
-import br.com.muttley.security.infra.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
-import br.com.muttley.security.infra.services.CacheUserAuthenticationService;
-import br.com.muttley.security.infra.services.impl.CacheUserAuthenticationServiceImpl;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,7 +42,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableConfigurationProperties(MuttleySecurityProperties.class)
 @AutoConfigureAfter(FeignConfig.class)
+@ComponentScan(basePackageClasses = BeansConfiguration.class)
 public class MuttleySecurityAutoconfig extends WebSecurityConfigurerAdapter implements InitializingBean {
 
     @Autowired
@@ -117,25 +117,6 @@ public class MuttleySecurityAutoconfig extends WebSecurityConfigurerAdapter impl
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
-    }
-
-    @Bean
-    @Autowired
-    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final ApplicationEventPublisher eventPublisher) {
-        return new CacheUserAuthenticationServiceImpl(redisService, eventPublisher);
-    }
-
-    @Bean
-    @Autowired
-    public AuthenticationTokenFilterGateway createAuthenticationTokenFilter(final AuthenticationTokenServiceClient authenticationTokenServiceClient,
-                                                                            final CacheUserAuthenticationService cacheAuth,
-                                                                            final ApplicationEventPublisher eventPublisher) {
-        return new AuthenticationTokenFilterGateway(authenticationTokenServiceClient, cacheAuth, eventPublisher);
-    }
-
-    @Bean
-    public UnauthorizedHandler createUnauthorizedHandler() {
-        return new UnauthorizedHandler();
     }
 
     @Override
