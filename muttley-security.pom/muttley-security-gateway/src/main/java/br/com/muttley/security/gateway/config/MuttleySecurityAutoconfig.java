@@ -1,4 +1,4 @@
-package br.com.muttley.security.gateway;
+package br.com.muttley.security.gateway.config;
 
 import br.com.muttley.feign.autoconfig.FeignConfig;
 import br.com.muttley.model.security.JwtUser;

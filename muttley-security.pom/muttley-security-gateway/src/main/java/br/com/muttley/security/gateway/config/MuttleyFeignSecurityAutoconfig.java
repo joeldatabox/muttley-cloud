@@ -1,4 +1,4 @@
-package br.com.muttley.security.gateway;
+package br.com.muttley.security.gateway.config;
 
 import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
 import org.slf4j.Logger;

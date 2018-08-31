@@ -1,13 +1,12 @@
 package br.com.muttley.security.gateway.beans;
 
 import br.com.muttley.redis.service.RedisService;
-import br.com.muttley.security.gateway.MuttleyFeignSecurityAutoconfig;
+import br.com.muttley.security.gateway.config.MuttleyFeignSecurityAutoconfig;
 import br.com.muttley.security.gateway.components.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.services.CacheUserAuthenticationService;
 import br.com.muttley.security.infra.services.impl.CacheUserAuthenticationServiceImpl;
-import com.mongodb.MongoClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
