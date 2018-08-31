@@ -17,6 +17,7 @@
     <modules>
         <module>muttley-security-gateway</module>
         <module>muttley-security-service</module>
+        <module>muttley-security-infra</module>
     </modules>
 
 </project>
