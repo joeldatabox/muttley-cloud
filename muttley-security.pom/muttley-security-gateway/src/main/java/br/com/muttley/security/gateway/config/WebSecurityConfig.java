@@ -45,7 +45,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableConfigurationProperties(MuttleySecurityProperties.class)
 @AutoConfigureAfter(FeignConfig.class)
 @ComponentScan(basePackageClasses = BeansConfiguration.class)
-public class MuttleySecurityAutoconfig extends WebSecurityConfigurerAdapter implements InitializingBean {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements InitializingBean {
 
     @Autowired
     private MuttleySecurityProperties property;
@@ -56,7 +56,7 @@ public class MuttleySecurityAutoconfig extends WebSecurityConfigurerAdapter impl
     protected final UserServiceClient userServiceClient;
 
     @Autowired
-    public MuttleySecurityAutoconfig(
+    public WebSecurityConfig(
             final UnauthorizedHandler unauthorizedHandler,
             final AuthenticationTokenFilterGateway authenticationTokenFilterGateway,
             final UserServiceClient userServiceClient) {
