@@ -42,9 +42,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@EnableConfigurationProperties(MuttleySecurityProperties.class)
-@AutoConfigureAfter(FeignConfig.class)
-@ComponentScan(basePackageClasses = BeansConfiguration.class)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements InitializingBean {
 
     @Autowired

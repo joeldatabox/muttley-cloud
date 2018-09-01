@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @AutoConfigureAfter(MuttleyFeignSecurityAutoconfig.class)
-@EnableAutoConfiguration(exclude = {MongoAutoConfiguration.class, MongoReactiveAutoConfiguration.class, GsonAutoConfiguration.class, MongoDataAutoConfiguration.class, MongoReactiveDataAutoConfiguration.class})
 public class BeansConfiguration {
 
     @Bean
