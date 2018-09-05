@@ -21,7 +21,8 @@ import org.springframework.context.annotation.Configuration;
         "br.com.muttley.security.server.autoconfig.security",
         "br.com.muttley.security.server.controller",
         "br.com.muttley.security.server.listeners",
-        "br.com.muttley.security.server.service"
+        "br.com.muttley.security.server.service",
+        "br.com.muttley.mobiledevice"
 })
 public class MuttleySecurityServerConfig {
 

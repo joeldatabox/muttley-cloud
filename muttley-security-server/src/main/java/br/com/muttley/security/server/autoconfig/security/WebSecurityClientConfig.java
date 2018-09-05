@@ -11,7 +11,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
@@ -28,7 +31,7 @@ public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
     private MuttleySecurityProperty properties;
     @Autowired
     private UnauthorizedHandler unauthorizedHandler;
-
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
      * Configurando usuário e senha necessário para autenticação no serviço
@@ -36,8 +39,9 @@ public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
+                .passwordEncoder(this.passwordEncoder)
                 .withUser(this.properties.getSecurityServer().getUser().getName())
-                .password(this.properties.getSecurityServer().getUser().getPassword())
+                .password(this.passwordEncoder.encode(this.properties.getSecurityServer().getUser().getPassword()))
                 .roles(this.properties.getSecurityServer().getUser().getRole());
     }
 
@@ -53,13 +57,14 @@ public class WebSecurityClientConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic()
                 .and()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(STATELESS)
                 .and()
                 .csrf()
                 .disable()
                 //ouvinte que despacha requisiçõe não autorizadas
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .exceptionHandling().accessDeniedPage("/403").and();
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
+                .and()
+                .exceptionHandling().accessDeniedPage("/403");
     }
 
     @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
