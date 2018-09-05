@@ -1,12 +1,14 @@
 package br.com.muttley.zuul.components;
 
-import br.com.muttley.zuul.property.MuttleySecurityProperty;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import static br.com.muttley.zuul.properties.Properties.TOKEN_HEADER;
+import static br.com.muttley.zuul.properties.Properties.TOKEN_HEADER_JWT;
 
 /**
  * @author Joel Rodrigues Moreira on 30/05/18.
@@ -16,9 +18,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class SessionSavingZuulPreFilter extends ZuulFilter {
     private static final String PRE = "pre";
-
-    @Autowired
-    private MuttleySecurityProperty property;
+    @Value(TOKEN_HEADER_JWT)
+    private String tokenHeaderJwt;
+    @Value(TOKEN_HEADER)
+    private String tokenHeader;
 
     @Override
     public boolean shouldFilter() {
@@ -30,11 +33,11 @@ public class SessionSavingZuulPreFilter extends ZuulFilter {
         RequestContext
                 .getCurrentContext()
                 .addZuulRequestHeader(
-                        this.property.getJwt().getController().getTokenHeaderJwt(),
+                        this.tokenHeaderJwt,
                         ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
                                 .getRequest()
                                 .getHeader(
-                                        this.property.getJwt().getController().getTokenHeader()
+                                        this.tokenHeader
                                 )
                 );
         return null;
