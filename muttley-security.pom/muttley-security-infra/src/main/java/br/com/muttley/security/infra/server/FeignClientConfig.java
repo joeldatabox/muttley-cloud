@@ -1,9 +1,12 @@
 package br.com.muttley.security.infra.server;
 
-import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import static br.com.muttley.security.infra.properties.Properties.TOKEN_HEADER;
+import static br.com.muttley.security.infra.properties.Properties.TOKEN_HEADER_JWT;
 
 /**
  * @author Joel Rodrigues Moreira on 18/04/18.
@@ -13,11 +16,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FeignClientConfig {
 
-    @Autowired
-    private MuttleySecurityProperties property;
-
     @Bean
-    public BasicAuthorizationJWTRequestInterceptor createBasicAuthRequestInterceptor() {
-        return new BasicAuthorizationJWTRequestInterceptor(property.getSecurityServer().getUser().getName(), property.getSecurityServer().getUser().getPassword());
+    public BasicAuthorizationJWTRequestInterceptor createBasicAuthRequestInterceptor(
+            @Value("${muttley.security-server.user.name}") final String userNameServer,
+            @Value("${muttley.security-server.user.password}") final String userPasswordServer,
+            @Value(TOKEN_HEADER_JWT) final String tokenHeaderJwt,
+            @Value(TOKEN_HEADER) final String tokenHeader) {
+        return new BasicAuthorizationJWTRequestInterceptor(userNameServer, userPasswordServer, tokenHeaderJwt, tokenHeader);
     }
 }

@@ -1,8 +1,7 @@
 package br.com.muttley.security.infra.component;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
-import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -26,8 +25,12 @@ import static br.com.muttley.exception.ErrorMessage.RESPONSE_HEADER_VALUE;
 @Component
 public class UnauthorizedHandler implements AuthenticationEntryPoint, Serializable {
 
-    @Autowired
-    private MuttleySecurityProperties property;
+
+    private final String loginEndpoin;
+
+    public UnauthorizedHandler(@Value("${${muttley.security.jwt.controller.login-end-point}}") String loginEndpoin) {
+        this.loginEndpoin = loginEndpoin;
+    }
 
     @Override
     public void commence(final HttpServletRequest request,
@@ -41,7 +44,7 @@ public class UnauthorizedHandler implements AuthenticationEntryPoint, Serializab
                         .addDetails("urlLogin", request
                                 .getRequestURL()
                                 .toString()
-                                .replace(request.getRequestURI(), "") + property.getSecurity().getJwt().getController().getLoginEndPoint()
+                                .replace(request.getRequestURI(), "") + loginEndpoin
                         ).toJson());
 
     }
