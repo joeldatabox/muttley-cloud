@@ -45,6 +45,6 @@ public class MuttleyMobileDeviceAutoconfig implements WebMvcConfigurer, Initiali
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        LoggerFactory.getLogger(MuttleyMobileDeviceAutoconfig.class).info("Configured DeviceResolverHandler and DeviceHandlerMethodArgumentResolver");
+        LoggerFactory.getLogger(MuttleyMobileDeviceAutoconfig.class).info("Configure DeviceResolverHandler and DeviceHandlerMethodArgumentResolver");
     }
 }
