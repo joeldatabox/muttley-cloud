@@ -1,4 +1,4 @@
-package br.com.muttley.sercurity;
+package br.com.muttley.sercurity.service;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,5 +1,7 @@
 package br.com.muttley.mobiledevice;
 
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mobile.device.DeviceHandlerMethodArgumentResolver;
@@ -11,9 +13,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
+/**
+ * @author Joel Rodrigues Moreira on 05/09/18.
+ * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
+ * @project invistate-cloud
+ * <p>
+ */
 @Configuration
 @EnableWebMvc
-public class MuttleyMobileDeviceAutoconfig implements WebMvcConfigurer {
+public class MuttleyMobileDeviceAutoconfig implements WebMvcConfigurer, InitializingBean {
 
     @Bean
     public DeviceResolverHandlerInterceptor deviceResolverHandlerInterceptor() {
@@ -33,5 +41,10 @@ public class MuttleyMobileDeviceAutoconfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(deviceHandlerMethodArgumentResolver());
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        LoggerFactory.getLogger(MuttleyMobileDeviceAutoconfig.class).info("Configured DeviceResolverHandler and DeviceHandlerMethodArgumentResolver");
     }
 }
