@@ -1,20 +1,15 @@
 package br.com.muttley.security.gateway.beans;
 
 import br.com.muttley.redis.service.RedisService;
-import br.com.muttley.security.gateway.config.MuttleyFeignSecurityAutoconfig;
 import br.com.muttley.security.gateway.components.AuthenticationTokenFilterGateway;
+import br.com.muttley.security.gateway.config.MuttleyFeignSecurityAutoconfig;
+import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.services.CacheUserAuthenticationService;
 import br.com.muttley.security.infra.services.impl.CacheUserAuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,8 +26,8 @@ public class BeansConfiguration {
 
     @Bean
     @Autowired
-    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final ApplicationEventPublisher eventPublisher) {
-        return new CacheUserAuthenticationServiceImpl(redisService, eventPublisher);
+    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final ApplicationEventPublisher eventPublisher, final MuttleySecurityProperties properties) {
+        return new CacheUserAuthenticationServiceImpl(redisService, eventPublisher, properties.getSecurity().getJwt().getToken().getExpiration());
     }
 
     @Bean
@@ -44,8 +39,9 @@ public class BeansConfiguration {
     }
 
     @Bean
-    public UnauthorizedHandler createUnauthorizedHandler() {
-        return new UnauthorizedHandler();
+    @Autowired
+    public UnauthorizedHandler createUnauthorizedHandler(final MuttleySecurityProperties properties) {
+        return new UnauthorizedHandler(properties.getSecurity().getJwt().getController().getLoginEndPoint());
     }
 
 }

@@ -1,14 +1,10 @@
 package br.com.muttley.security.gateway.components;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
-
-
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
 import br.com.muttley.security.infra.feign.auth.AuthenticationTokenServiceClient;
-import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
-
-
 import br.com.muttley.security.infra.services.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;

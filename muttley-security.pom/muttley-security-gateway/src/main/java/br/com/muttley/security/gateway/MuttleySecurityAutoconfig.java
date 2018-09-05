@@ -1,7 +1,7 @@
 package br.com.muttley.security.gateway;
 
 import br.com.muttley.feign.autoconfig.FeignConfig;
-import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
+import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,7 +18,11 @@ import org.springframework.context.annotation.Configuration;
 @AutoConfigureAfter(FeignConfig.class)
 @ComponentScan(basePackages = {
         "br.com.muttley.security.gateway.config",
-        "br.com.muttley.security.gateway.beans"
+        "br.com.muttley.security.gateway.beans",
+        "br.com.muttley.security.gateway.controller"
 })
 public class MuttleySecurityAutoconfig {
+    public MuttleySecurityAutoconfig() {
+    }
+
 }

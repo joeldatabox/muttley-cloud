@@ -1,6 +1,6 @@
 package br.com.muttley.security.gateway.config;
 
-import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
+import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;

@@ -1,21 +1,16 @@
 package br.com.muttley.security.gateway.config;
 
-import br.com.muttley.feign.autoconfig.FeignConfig;
 import br.com.muttley.model.security.JwtUser;
-import br.com.muttley.security.gateway.beans.BeansConfiguration;
 import br.com.muttley.security.gateway.components.AuthenticationTokenFilterGateway;
+import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
 import br.com.muttley.security.gateway.services.EndpointsPermitAll;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.feign.UserServiceClient;
-import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
