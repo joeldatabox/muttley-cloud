@@ -5,9 +5,11 @@ package br.com.muttley.security.infra.properties;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  * <p>
+ *     Propriedade básica de configuração.
  */
 public class Properties {
     public static final String TOKEN_HEADER_JWT = "${muttley.security.jwt.controller.token-header-jwt:Authorization-jwt}";
     public static final String TOKEN_HEADER = "${muttley.security.jwt.controller.token-header:Authorization}";
     public static final String TOKE_EXPIRATION = "${muttley.security.jwt.token.expiration:3600000}";
+    public static final String LOGIN_END_POINT = "${muttley.security.jwt.controller.login-end-point:/api/auth/login}";
 }

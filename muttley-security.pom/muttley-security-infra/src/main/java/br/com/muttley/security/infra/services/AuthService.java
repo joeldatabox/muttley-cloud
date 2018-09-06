@@ -1,4 +1,4 @@
-package br.com.muttley.security.infra.service;
+package br.com.muttley.security.infra.services;
 
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;

@@ -1,11 +1,10 @@
-package br.com.muttley.security.infra.service.impl;
+package br.com.muttley.security.infra.services.impl;
 
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.User;
-import br.com.muttley.security.properties.MuttleySecurityProperty;
-import br.com.muttley.security.infra.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
+import br.com.muttley.security.infra.feign.UserServiceClient;
+import br.com.muttley.security.infra.services.AuthService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,8 +21,17 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
-    private MuttleySecurityProperty property;
+    private final String tokenHeader;
+    private UserServiceClient userServiceClient;
+
+    /**
+     * Se tivermos em um contexto de microserviço, o tokenHeader deve ser Authorization-jwt, caso contrario
+     * deve ser apenas Authorization
+     */
+    public AuthServiceImpl(String tokenHeader, UserServiceClient userServiceClient) {
+        this.tokenHeader = tokenHeader;
+        this.userServiceClient = userServiceClient;
+    }
 
     @Override
     public Authentication getCurrentAuthentication() {
@@ -35,12 +43,15 @@ public class AuthServiceImpl implements AuthService {
         return (JwtUser) getCurrentAuthentication().getPrincipal();
     }
 
+    /**
+     * Retorna o token corrente da requisição
+     */
     @Override
     public JwtToken getCurrentToken() {
         return new JwtToken(
                 ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
                         .getRequest()
-                        .getHeader(property.getSecurity().getJwt().getController().getTokenHeader())
+                        .getHeader(this.tokenHeader)
         );
     }
 
@@ -49,8 +60,13 @@ public class AuthServiceImpl implements AuthService {
         return getCurrentJwtUser().getOriginUser();
     }
 
+    /**
+     * Retorna um usuário atravez do nome de usuário
+     *
+     * @param username pode ser um nome ou um email
+     */
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        return new JwtUser(new User());
+        return new JwtUser(this.userServiceClient.findByEmail(username));
     }
 }

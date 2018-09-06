@@ -19,6 +19,7 @@ import static org.springframework.util.StringUtils.isEmpty;
  * @author Joel Rodrigues Moreira on 17/05/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
+ * Classe básica para tramento de segurança dentro do ecossitema.
  */
 public class BasicAuthorizationJWTRequestInterceptor implements RequestInterceptor {
     private static final Charset CHARSET = Charset.forName("ISO-8859-1");
@@ -64,6 +65,6 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
         }
         //se chegou até aqui quer dizer que ninguem ainda não fez esse tratamento
         //devemos pegar o token no "Authorization"
-        return request.getHeader(this.tokenHeaderJwt);
+        return request.getHeader(this.tokenHeader);
     }
 }

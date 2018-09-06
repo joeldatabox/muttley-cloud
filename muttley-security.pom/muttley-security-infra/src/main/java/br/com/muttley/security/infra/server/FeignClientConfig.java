@@ -12,6 +12,7 @@ import static br.com.muttley.security.infra.properties.Properties.TOKEN_HEADER_J
  * @author Joel Rodrigues Moreira on 18/04/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
+ * Configuração necessária do feign para consumo de dados do serviço de segurança
  */
 @Configuration
 public class FeignClientConfig {

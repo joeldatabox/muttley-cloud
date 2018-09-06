@@ -1,13 +1,12 @@
-package br.com.muttley.security.infra.component;
+package br.com.muttley.security.service.components;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
-import br.com.muttley.security.properties.MuttleySecurityProperty;
-import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import br.com.muttley.security.infra.services.CacheUserAuthenticationService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -21,12 +20,11 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 /**
  * Aplica o filtro de autenticação necessario
  */
+@Component
 public class AuthenticationTokenFilterClient extends OncePerRequestFilter {
 
     private final CacheUserAuthenticationService cacheAuth;
 
-    @Autowired
-    private MuttleySecurityProperty property;
 
     public AuthenticationTokenFilterClient(final CacheUserAuthenticationService cacheAuth) {
         this.cacheAuth = cacheAuth;
@@ -35,7 +33,7 @@ public class AuthenticationTokenFilterClient extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain) throws ServletException, IOException {
         //recuperando o possivel token presente no cabeçalho
-        final String authToken = request.getHeader(property.getSecurity().getJwt().getController().getTokenHeaderJwt());
+        final String authToken = request.getHeader("");
 
         if (!isNullOrEmpty(authToken)) {
 

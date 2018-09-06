@@ -21,6 +21,9 @@ import static br.com.muttley.exception.ErrorMessage.RESPONSE_HEADER_VALUE;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  * <p>
+ * Componete responsável por fazer o devido tratamento caso alguma resição feita não tenha
+ * sido autenticada devidamente
+ * </p>
  */
 @Component
 public class UnauthorizedHandler implements AuthenticationEntryPoint, Serializable {
@@ -28,7 +31,7 @@ public class UnauthorizedHandler implements AuthenticationEntryPoint, Serializab
 
     private final String loginEndpoin;
 
-    public UnauthorizedHandler(@Value("${${muttley.security.jwt.controller.login-end-point}}") String loginEndpoin) {
+    public UnauthorizedHandler(@Value("${muttley.security.jwt.controller.login-end-point}") String loginEndpoin) {
         this.loginEndpoin = loginEndpoin;
     }
 

@@ -1,7 +1,7 @@
-package br.com.muttley.security.zuul.client;
+package br.com.muttley.security.service.config;
 
-import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
+import br.com.muttley.security.service.components.AuthenticationTokenFilterClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,18 +15,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Created by joel on 26/03/17.
+ * @author Joel Rodrigues Moreira on 31/08/18.
+ * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
+ * @project muttley-cloud
+ * <p>
  */
-@SuppressWarnings("SpringJavaAutowiringInspection")
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityClient extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UnauthorizedHandler unauthorizedHandler;
     private final AuthenticationTokenFilterClient authenticationTokenFilterClient;
 
     @Autowired
-    public WebSecurityClient(final UnauthorizedHandler unauthorizedHandler, final AuthenticationTokenFilterClient authenticationTokenFilterClient) {
+    public WebSecurityConfig(final UnauthorizedHandler unauthorizedHandler, final AuthenticationTokenFilterClient authenticationTokenFilterClient) {
         this.unauthorizedHandler = unauthorizedHandler;
         this.authenticationTokenFilterClient = authenticationTokenFilterClient;
     }

@@ -35,7 +35,6 @@
         <module>muttley-exception</module>
         <module>muttley-model</module>
         <module>muttley-redis</module>
-        <module>muttley-security</module>
         <module>muttley-mongo</module>
         <module>muttley-rest</module>
         <module>muttley-domain-service</module>
@@ -43,6 +42,7 @@
         <module>muttley-feign</module>
         <module>muttley-zuul</module>
         <module>muttley-security.pom</module>
+        <module>muttley-mobile-device</module>
     </modules>
 
     <dependencies>
@@ -67,11 +67,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>br.com.muttley</groupId>
-                <artifactId>muttley-security-server</artifactId>
-                <version>${revision}</version>
-            </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
@@ -142,6 +137,12 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-zuul</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-mobile-device</artifactId>
                 <version>${revision}</version>
             </dependency>
 
