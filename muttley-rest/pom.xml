@@ -30,7 +30,7 @@
 
         <dependency>
             <groupId>br.com.muttley</groupId>
-            <artifactId>muttley-security</artifactId>
+            <artifactId>muttley-security-service</artifactId>
             <scope>provided</scope>
         </dependency>
 

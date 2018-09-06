@@ -25,7 +25,7 @@
         <spring-cloud.version>Finchley.SR1</spring-cloud.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <org.projectlombok.version>1.18.2</org.projectlombok.version>
-        <revision>2.0.4.RELEASE</revision>
+        <revision>2.0.5.RELEASE</revision>
     </properties>
 
     <modules>
@@ -100,7 +100,25 @@
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
-                <artifactId>muttley-security</artifactId>
+                <artifactId>muttley-security-infra</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-security-service</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-security-gateway</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-security-server</artifactId>
                 <version>${revision}</version>
             </dependency>
 

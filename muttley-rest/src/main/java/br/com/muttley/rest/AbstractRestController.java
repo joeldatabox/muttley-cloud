@@ -6,7 +6,7 @@ import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.enumeration.Authorities;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
-import br.com.muttley.security.infra.service.AuthService;
+import br.com.muttley.security.infra.services.AuthService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
