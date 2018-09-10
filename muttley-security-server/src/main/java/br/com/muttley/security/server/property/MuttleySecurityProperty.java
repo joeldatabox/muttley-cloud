@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = MuttleySecurityProperty.PREFIX)
 public class MuttleySecurityProperty {
     protected static final String PREFIX = "muttley";
+    public static final String TOKEN_HEADER_JWT = "${muttley.security.jwt.controller.token-header-jwt:Authorization-jwt}";
     private Security security = new Security();
     private SecurityServer securityServer = new SecurityServer();
 

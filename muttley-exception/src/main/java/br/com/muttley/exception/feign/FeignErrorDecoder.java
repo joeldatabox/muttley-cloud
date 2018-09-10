@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import static br.com.muttley.exception.ExceptionBuilder.buildException;
 
@@ -12,6 +13,7 @@ import static br.com.muttley.exception.ExceptionBuilder.buildException;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
+@Component
 public class FeignErrorDecoder implements ErrorDecoder {
 
     private final ObjectMapper objectMapper;

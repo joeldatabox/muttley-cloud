@@ -55,6 +55,9 @@ public class ExceptionBuilder {
     }
 
     private static ErrorMessage getErrorMessage(final Response response, final ObjectMapper mapper) throws IOException {
-        return mapper.readValue(response.body().asInputStream(), ErrorMessage.class);
+        if (response.body() != null) {
+            return mapper.readValue(response.body().asInputStream(), ErrorMessage.class);
+        }
+        return new ErrorMessage().setStatus(response.status());
     }
 }

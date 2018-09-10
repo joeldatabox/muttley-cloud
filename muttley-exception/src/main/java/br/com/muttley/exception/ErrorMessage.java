@@ -79,6 +79,10 @@ public final class ErrorMessage {
         return this;
     }
 
+    public ErrorMessage setStatus(final int status) {
+        return this.setStatus(HttpStatus.valueOf(status));
+    }
+
     public String getMessage() {
         return message;
     }
