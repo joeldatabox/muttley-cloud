@@ -51,9 +51,9 @@ public class FeignConfig extends FeignClientsConfiguration implements Initializi
         final Feign.Builder builder = super.feignBuilder(retryer).client(new OkHttpClient());
         if (propertySource != null) {
             final Map<String, Object> map = (Map<String, Object>) propertySource.getSource();
+            map.put("feign.okhttp.enabled", "true");
 
             if (property.getLoggin().getLevel() != null && !Logger.Level.NONE.equals(property.getLoggin().getLevel())) {
-                map.put("feign.okhttp.enabled", "true");
                 return builder.logger(new Slf4jLogger())
                         .logLevel(property.getLoggin().getLevel());
             }

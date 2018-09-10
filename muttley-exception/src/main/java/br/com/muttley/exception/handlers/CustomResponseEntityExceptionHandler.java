@@ -129,8 +129,11 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         if (ex instanceof MuttleyException) {
             return handleMuttleyException((MuttleyException) ex);
         }
-        if (ex.getCause() instanceof MuttleyConflictException) {
-            return handleMuttleyException((MuttleyException) ex.getCause());
+        final Throwable cause = ex.getCause();
+        if (cause != null) {
+            if (cause instanceof MuttleyException || cause instanceof MuttleyConflictException) {
+                return handleMuttleyException((MuttleyException) ex.getCause());
+            }
         }
         return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
     }
