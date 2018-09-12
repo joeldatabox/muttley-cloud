@@ -2,10 +2,12 @@ package br.com.muttley.exception;
 
 import br.com.muttley.exception.serializer.HttpStatusDeserializer;
 import br.com.muttley.exception.serializer.HttpStatusSerializer;
+import br.com.muttley.exception.throwables.MuttleyException;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -40,6 +42,8 @@ public final class ErrorMessage {
     protected String message;
     protected String objectName;
     protected final Map<String, Object> details;
+    @JsonIgnore
+    protected ObjectMapper customMapper;
     @JsonIgnore
     public static final String RESPONSE_HEADER = "error-message";
 
@@ -105,6 +109,18 @@ public final class ErrorMessage {
         return details;
     }
 
+    private ObjectMapper getObjectMapper() {
+        if (customMapper == null) {
+            this.customMapper = new ObjectMapper();
+        }
+        return customMapper;
+    }
+
+    public ErrorMessage setCustomMapper(ObjectMapper customMapper) {
+        this.customMapper = customMapper;
+        return this;
+    }
+
     public static String getResponseHeader() {
         return RESPONSE_HEADER;
     }
@@ -151,7 +167,7 @@ public final class ErrorMessage {
     @JsonIgnore
     protected final String toJson() {
         try {
-            return new ObjectMapper()
+            return getObjectMapper()
                     .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(this);
         } catch (IOException ex) {
@@ -169,6 +185,10 @@ public final class ErrorMessage {
     public ResponseEntity toResponseEntity(final HttpHeaders headers) {
         headers.add(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE);
         headers.add(RESPONSE_HEADER, RESPONSE_HEADER_VALUE);
-        return new ResponseEntity(this, headers, this.status);
+        try {
+            return new ResponseEntity(getObjectMapper().writeValueAsString(this), headers, this.status);
+        } catch (JsonProcessingException e) {
+            throw new MuttleyException(e);
+        }
     }
 }

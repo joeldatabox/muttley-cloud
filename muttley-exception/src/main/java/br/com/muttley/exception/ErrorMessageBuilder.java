@@ -7,6 +7,7 @@ import br.com.muttley.exception.throwables.repository.MuttleyRepositoryException
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
@@ -39,8 +40,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Component
 public class ErrorMessageBuilder {
     private static final Logger logger = LoggerFactory.getLogger(ErrorMessageBuilder.class);
+    private final ObjectMapper mapper;
+    private final MuttleyExceptionProperty property;
+
     @Autowired
-    private MuttleyExceptionProperty property;
+    public ErrorMessageBuilder(final ObjectMapper mapper, final MuttleyExceptionProperty property) {
+        this.mapper = mapper;
+        this.property = property;
+    }
 
     public ErrorMessage buildMessage(final MethodArgumentNotValidException ex) {
         final ErrorMessage message = new ErrorMessage()
@@ -53,7 +60,7 @@ public class ErrorMessageBuilder {
             message.addDetails(key, fieldError.getDefaultMessage());
         }
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final ConstraintViolationException ex) {
@@ -79,7 +86,7 @@ public class ErrorMessageBuilder {
             );
         }
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final BindException ex) {
@@ -88,31 +95,31 @@ public class ErrorMessageBuilder {
             message.addDetails(e.getField(), e.getDefaultMessage());
         });
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final TypeMismatchException ex) {
         final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final MissingServletRequestPartException ex) {
         final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final MissingServletRequestParameterException ex) {
         final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final MethodArgumentTypeMismatchException ex) {
         final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final HttpRequestMethodNotSupportedException ex) {
@@ -120,7 +127,7 @@ public class ErrorMessageBuilder {
                 .setStatus(METHOD_NOT_ALLOWED)
                 .setMessage(METHOD_NOT_ALLOWED.getReasonPhrase());
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final HttpMediaTypeNotSupportedException ex) {
@@ -130,7 +137,7 @@ public class ErrorMessageBuilder {
                 .addDetails("ContentType", ex.getContentType() == null ? "uninformed" : ex.getContentType().toString())
                 .addDetails("SupportedMediaTypes", APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE);
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final HttpMessageNotReadableException ex) {
@@ -154,7 +161,7 @@ public class ErrorMessageBuilder {
                     .addDetails("body", "body is empty");
         }
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final MuttleyException ex) {
@@ -164,14 +171,14 @@ public class ErrorMessageBuilder {
                 .setObjectName(ex.getObjectName())
                 .addDetails(ex.getDetails());
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final MuttleyRepositoryException ex) {
         final ErrorMessage message = new ErrorMessage()
                 .setStatus(ex.getStatus());
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     public ErrorMessage buildMessage(final MuttleySecurityUnauthorizedException ex) {
@@ -181,7 +188,7 @@ public class ErrorMessageBuilder {
                 .setObjectName(ex.getObjectName())
                 .addDetails(ex.getDetails());
         printException(ex, message);
-        return message;
+        return message.setCustomMapper(mapper);
     }
 
     /**

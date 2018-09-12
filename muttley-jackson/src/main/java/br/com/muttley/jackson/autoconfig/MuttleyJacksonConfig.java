@@ -46,7 +46,7 @@ public class MuttleyJacksonConfig implements InitializingBean {
     private ObjectProvider<MuttleyJacksonDeserializeService> customizeDeserializers;
 
     @Bean
-    public Jackson2ObjectMapperBuilderCustomizer addCustomBigDecimalDeserialization() {
+    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilder() {
         return new Jackson2ObjectMapperBuilderCustomizer() {
             @Override
             public void customize(Jackson2ObjectMapperBuilder mapperBuilder) {

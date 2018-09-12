@@ -2,8 +2,10 @@ package br.com.muttley.exception.autoconfig;
 
 import br.com.muttley.exception.ErrorMessageBuilder;
 import br.com.muttley.exception.property.MuttleyExceptionProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,8 +29,9 @@ import java.lang.management.ManagementFactory;
 public class MuttleyExceptionConfig implements InitializingBean {
 
     @Bean
-    public ErrorMessageBuilder errorMessageBuilderFactory() {
-        return new ErrorMessageBuilder();
+    @Autowired
+    public ErrorMessageBuilder errorMessageBuilderFactory(final ObjectMapper mapper, final MuttleyExceptionProperty property) {
+        return new ErrorMessageBuilder(mapper, property);
     }
 
     @Override
