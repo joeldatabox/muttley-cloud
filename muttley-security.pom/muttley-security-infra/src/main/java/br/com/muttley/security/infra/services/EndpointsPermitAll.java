@@ -1,4 +1,4 @@
-package br.com.muttley.security.gateway.services;
+package br.com.muttley.security.infra.services;
 
 /**
  * @author Joel Rodrigues Moreira on 22/08/18.

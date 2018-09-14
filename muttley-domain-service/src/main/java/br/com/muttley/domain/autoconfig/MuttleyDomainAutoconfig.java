@@ -14,7 +14,7 @@ import javax.validation.Validator;
  * Ativa validação na camada de serviço
  */
 @Configuration
-public class ValidatorConfig implements InitializingBean {
+public class MuttleyDomainAutoconfig implements InitializingBean {
 
     @Bean
     public MethodValidationPostProcessor methodValidationPostProcessorFactory() {
@@ -35,6 +35,6 @@ public class ValidatorConfig implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        LoggerFactory.getLogger(ValidatorConfig.class).info("Configured BeanValidation");
+        LoggerFactory.getLogger(MuttleyDomainAutoconfig.class).info("Configured BeanValidation");
     }
 }

@@ -1,7 +1,7 @@
 package br.com.muttley.security.gateway.beans;
 
 import br.com.muttley.redis.service.RedisService;
-import br.com.muttley.security.gateway.components.AuthenticationTokenFilterGateway;
+import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.gateway.config.MuttleyFeignSecurityAutoconfig;
 import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;

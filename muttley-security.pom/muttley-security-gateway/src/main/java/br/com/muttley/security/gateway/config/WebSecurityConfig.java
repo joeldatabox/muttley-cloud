@@ -1,9 +1,9 @@
 package br.com.muttley.security.gateway.config;
 
 import br.com.muttley.model.security.JwtUser;
-import br.com.muttley.security.gateway.components.AuthenticationTokenFilterGateway;
+import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
-import br.com.muttley.security.gateway.services.EndpointsPermitAll;
+import br.com.muttley.security.infra.services.EndpointsPermitAll;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.feign.UserServiceClient;
 import org.slf4j.LoggerFactory;
