@@ -1,0 +1,59 @@
+## Configurando seu "domainService-config"
+
+Adicione a dependência em seu serviço de configuração;
+[source,java,indent=0]
+----
+    <dependency>
+        <groupId>br.com.br</groupId>
+        <artifactId>muttley-config-server</artifactId>
+        <version>0.0.2-SNAPSHOT</version>
+    </dependency>
+----
+
+Para poder ativar a configuração basica de segurança no serviço faça em sua classe main  como está no exemplo abaixo:
+
+[source,java,indent=0]
+----
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.cloud.config.server.EnableConfigServer;
+    import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+    import org.springframework.context.annotation.ComponentScan;
+
+    @SpringBootApplication
+    @EnableConfigServer
+    @EnableEurekaClient
+    @ComponentScan(basePackages = {"br.com.muttley.configserver.domainService"})
+    public class ConfigServerApplication {
+    
+        public static void main(String[] args) {
+            SpringApplication.run(SpringConfigApplication.class, args);
+        }
+    }
+----
+
+Não se esqueça de configurar também em seu resource as seguintes variáveis de ambiente:
+[source,java,indent=0]
+----
+    #porta do serviço de configuração
+    server.port=8081
+    #nome da aplicação
+    spring.application.name=config
+    #uri do repositório git
+    spring.cloud.config.server.git.uri=/home/user/application-config
+    #o sistema irá clonar o repositório assim que for startado
+    #spring.cloud.config.server.git.clone-on-start=true
+    #utilizando na região padrão
+    eureka.client.region=default
+    #Intervalo para atulização
+    eureka.client.registryFetchIntervalSeconds=10
+    eureka.client.serviceUrl.defaultZone=http://discUser:discPassword@localhost:8082/eureka/
+    #usuário de seguranca
+    muttley.config-server.security.user.name=configUser
+    #senha de seguranca
+    muttley.config-server.security.user.password=configPassword
+    #Role padrao
+    muttley.config-server.security.user.role=SYSTEM
+----
+
+Essas variáveis serão utilizadas para que os demais serviços possa se comunicar com o serviço de configuração de manera segura;
