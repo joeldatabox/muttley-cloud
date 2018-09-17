@@ -30,7 +30,7 @@ import javax.validation.constraints.NotNull;
 @CompoundIndexes({
         @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })
-@TypeAlias("#{documentNameConfig.getNameCollectionOwner()}")
+@TypeAlias("muttley-owners")
 @Getter
 @Setter
 @Accessors(chain = true)

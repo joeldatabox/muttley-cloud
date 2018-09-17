@@ -23,7 +23,7 @@ import javax.validation.constraints.NotBlank;
 @CompoundIndexes({
         @CompoundIndex(name = "name_index_unique", def = "{'name' : 1}", unique = true)
 })
-@TypeAlias("#{documentNameConfig.getNameCollectionAccessPlan()}")
+@TypeAlias("muttley-access-plans")
 @EqualsAndHashCode(of = {"id"})
 @Getter
 @Setter

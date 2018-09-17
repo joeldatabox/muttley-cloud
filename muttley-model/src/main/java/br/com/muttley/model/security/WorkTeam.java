@@ -26,7 +26,7 @@ import java.util.Set;
 @CompoundIndexes({
         @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })
-@TypeAlias("#{documentNameConfig.getNameCollectionWorkTeam()}")
+@TypeAlias("muttley-work-teams")
 @Getter
 @Setter
 @Accessors(chain = true)

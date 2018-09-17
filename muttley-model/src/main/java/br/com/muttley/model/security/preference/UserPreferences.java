@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -30,6 +31,7 @@ import static org.springframework.util.Assert.notNull;
 @CompoundIndexes({
         @CompoundIndex(name = "user_index_unique", def = "{'user' : 1}", unique = true)
 })
+@TypeAlias("muttley-users-preferences")
 @Accessors(chain = true)
 @Getter
 @Setter

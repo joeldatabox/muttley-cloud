@@ -39,7 +39,7 @@ import static java.util.Objects.isNull;
 @CompoundIndexes({
         @CompoundIndex(name = "email_index_unique", def = "{'email' : 1}", unique = true)
 })
-@TypeAlias("#{documentNameConfig.getNameCollectionUser()}")
+@TypeAlias("muttley-users")
 public class User implements Serializable {
     @Transient
     @JsonIgnore
