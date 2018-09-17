@@ -59,7 +59,7 @@ public class UserController {
 
     @RequestMapping(value = "/{email}", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity update(@PathVariable("email") final String email, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String token, @RequestBody final User user, final JwtTokenUtilService tokenUtil) {
+    public ResponseEntity update(@PathVariable("email") final String email, @RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt}", defaultValue = "") final String token, @RequestBody final User user, final JwtTokenUtilService tokenUtil) {
         if (isNullOrEmpty(token)) {
             throw new MuttleyBadRequestException(null, null, "informe um token válido");
         }

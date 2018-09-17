@@ -2,7 +2,7 @@ package br.com.muttley.security.server.repository;
 
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.UserPreferences;
-import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
+import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * @project spring-cloud
  */
 @Repository
-public interface UserPreferencesRepository extends DocumentMongoRepository<UserPreferences> {
+public interface UserPreferencesRepository extends SimpleTenancyMongoRepository<UserPreferences> {
     UserPreferences findByUser(final User idUser);
 }
 

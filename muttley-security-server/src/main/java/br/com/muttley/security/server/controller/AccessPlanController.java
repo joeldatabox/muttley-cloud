@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
+import static br.com.muttley.security.server.property.MuttleySecurityProperty.TOKEN_HEADER_JWT;
 import static java.util.Objects.isNull;
 
 /**
@@ -45,7 +46,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
             @RequestBody final AccessPlan value,
             final HttpServletResponse response,
             @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity,
-            @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+            @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
 
         final AccessPlan record = service.save(null, value);
 
@@ -60,7 +61,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final AccessPlan model,
-                                 @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+                                 @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         model.setId(id);
         return ResponseEntity.ok(service.update(null, model));
     }
@@ -68,7 +69,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity deleteById(@PathVariable("id") final String id,
-                                     @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+                                     @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
 
         service.deleteById(null, id);
         return ResponseEntity.ok().build();
@@ -77,7 +78,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response,
-                                   @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+                                   @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
 
         final AccessPlan value = service.findById(null, id);
 
@@ -89,7 +90,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
     @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity first(final HttpServletResponse response,
-                                @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+                                @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
 
         final AccessPlan value = service.findFirst(null);
 
@@ -101,7 +102,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
     @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response,
-                                       @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+                                       @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         final Historic historic = service.loadHistoric(null, id);
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
@@ -111,7 +112,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
-                                                 @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+                                                 @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(
                 toPageableResource(eventPublisher, response, this.service, null, allRequestParams)
         );
@@ -120,7 +121,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
     @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public final ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams,
-                                      @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+                                      @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(String.valueOf(service.count(null, allRequestParams)));
     }
 

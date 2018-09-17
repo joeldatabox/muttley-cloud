@@ -3,6 +3,7 @@ package br.com.muttley.model.security.resource;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceSupport;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  * Created by joel on 14/04/17.
  */
 public class UserResource extends ResourceSupport {
+    @Getter
     private Resource<User> user;
 
     public UserResource(final User user) {
@@ -27,10 +29,6 @@ public class UserResource extends ResourceSupport {
 
     public UserResource(final Authentication authentication) {
         this((JwtUser) authentication.getPrincipal());
-    }
-
-    public Resource<User> getUser() {
-        return user;
     }
 
     @JsonIgnore

@@ -1,6 +1,6 @@
 package br.com.muttley.exception.throwables.security;
 
-import br.com.muttley.exception.service.ErrorMessage;
+import br.com.muttley.exception.ErrorMessage;
 import br.com.muttley.exception.throwables.MuttleyException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -24,6 +24,9 @@ public class MuttleySecurityUnauthorizedException extends MuttleyException {
 
     public MuttleySecurityUnauthorizedException(final ErrorMessage errorMessage) {
         super(errorMessage);
+        if(errorMessage.getMessage() == null){
+            this.message = "Usuário e/ou senha incorreto(s)";
+        }
     }
 
     public MuttleySecurityUnauthorizedException(final String message, final HttpStatus status, final Class clazz, final String field, final String info) {

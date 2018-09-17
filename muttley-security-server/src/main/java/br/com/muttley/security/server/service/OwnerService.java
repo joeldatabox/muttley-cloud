@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.service;
 
-import br.com.muttley.domain.service.Service;
+import br.com.muttley.domain.Service;
 import br.com.muttley.model.security.Owner;
 
 /**

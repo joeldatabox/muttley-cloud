@@ -18,7 +18,8 @@ public class UserCreatedEvent extends ApplicationEvent {
         this.user = user;
     }
 
-    public final User getUser() {
+    @Override
+    public User getSource() {
         return this.user;
     }
 }

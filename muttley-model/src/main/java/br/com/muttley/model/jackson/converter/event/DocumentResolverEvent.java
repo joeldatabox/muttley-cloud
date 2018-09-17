@@ -1,6 +1,9 @@
 package br.com.muttley.model.jackson.converter.event;
 
 import br.com.muttley.model.Document;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -10,9 +13,14 @@ import org.springframework.context.ApplicationEvent;
  * <p>
  * Classe que abstrai a criação de eventos para deserializar documentos
  */
+@Accessors(chain = true)
 public abstract class DocumentResolverEvent<T extends Document> extends ApplicationEvent {
     final String id;
+    @Getter
+    @Setter
     protected T valueResolved;
+    @Getter
+    @Setter
     private boolean resolved;
 
     public DocumentResolverEvent(final String id) {
@@ -21,21 +29,8 @@ public abstract class DocumentResolverEvent<T extends Document> extends Applicat
         this.resolved = false;
     }
 
-    public T getValueResolved() {
-        return valueResolved;
-    }
-
-    public DocumentResolverEvent<T> setValueResolved(final T valueResolved) {
-        this.valueResolved = valueResolved;
-        this.resolved = true;
-        return this;
-    }
-
     public String getSource() {
         return id;
     }
 
-    public boolean isResolved() {
-        return resolved;
-    }
 }

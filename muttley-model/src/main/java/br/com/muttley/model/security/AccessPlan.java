@@ -2,13 +2,17 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import org.hibernate.validator.constraints.NotBlank;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 
 import javax.validation.constraints.Min;
-import java.util.Objects;
+import javax.validation.constraints.NotBlank;
 
 /**
  * @author Joel Rodrigues Moreira on 17/04/18.
@@ -19,6 +23,11 @@ import java.util.Objects;
 @CompoundIndexes({
         @CompoundIndex(name = "name_index_unique", def = "{'name' : 1}", unique = true)
 })
+@TypeAlias("muttley-access-plans")
+@EqualsAndHashCode(of = {"id"})
+@Getter
+@Setter
+@Accessors(chain = true)
 public class AccessPlan implements Document {
 
     @Id
@@ -29,66 +38,4 @@ public class AccessPlan implements Document {
     @Min(value = 1, message = "É necessário ter ao menos 1 usuário!")
     private int totalUsers;
     private String description;
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public AccessPlan setId(final String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public Historic getHistoric() {
-        return this.historic;
-    }
-
-    @Override
-    public AccessPlan setHistoric(Historic historic) {
-        this.historic = historic;
-        return this;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public AccessPlan setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public int getTotalUsers() {
-        return this.totalUsers;
-    }
-
-    public AccessPlan setTotalUsers(int totalUsers) {
-        this.totalUsers = totalUsers;
-        return this;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public AccessPlan setDescription(String description) {
-        this.description = description;
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AccessPlan)) return false;
-        AccessPlan that = (AccessPlan) o;
-        return Objects.equals(this.id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.id, 9, 63);
-    }
 }
