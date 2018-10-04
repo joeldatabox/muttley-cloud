@@ -9,6 +9,14 @@ import java.util.Map;
 
 @NoRepositoryBean
 public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoRepository<T> {
+
+    /**
+     * Verifica se a collection está vazia
+     *
+     * @param owner -> dono do registro
+     */
+    boolean isEmpty(final Owner owner);
+
     /**
      * Sava um registro registro simples
      *

@@ -29,6 +29,19 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
     }
 
     @Override
+    public boolean isEmpty(final Owner owner) {
+        validateOwner(owner);
+        final AggregationResults result = operations.aggregate(
+                Aggregation.newAggregation(
+                        Aggregate.createAggregationsCount(
+                                CLASS,
+                                new HashMap(addOwnerQueryParam(owner, new HashMap()))
+                        )),
+                COLLECTION, ResultCount.class);
+        return result.getUniqueMappedResult() != null ? !(((ResultCount) result.getUniqueMappedResult()).getCount() > 0) : false;
+    }
+
+    @Override
     public final T save(final Owner owner, final T value) {
         validateOwner(owner);
         value.setOwner(owner);

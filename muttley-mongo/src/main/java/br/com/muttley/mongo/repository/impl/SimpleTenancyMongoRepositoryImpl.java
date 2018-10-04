@@ -41,6 +41,15 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
 
 
     @Override
+    public boolean isEmpty() {
+        final AggregationResults result = operations.aggregate(
+                Aggregation.newAggregation(
+                        Aggregate.createAggregationsCount(CLASS, new HashMap())
+                ), COLLECTION, ResultCount.class);
+        return result.getUniqueMappedResult() != null ? !(((ResultCount) result.getUniqueMappedResult()).count > 0) : false;
+    }
+
+    @Override
     public T findFirst() {
         return operations.findOne(new Query(), CLASS);
     }
