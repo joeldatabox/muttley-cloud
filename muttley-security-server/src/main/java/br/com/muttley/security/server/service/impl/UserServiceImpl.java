@@ -8,11 +8,13 @@ import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,14 +34,17 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private final ApplicationEventPublisher eventPublisher;
     private final UserRepository repository;
     private final UserPreferencesRepository preferencesRepository;
     private final JwtTokenUtilService tokenUtil;
 
     @Autowired
-    public UserServiceImpl(final UserRepository repository,
+    public UserServiceImpl(final ApplicationEventPublisher eventPublisher,
+                           final UserRepository repository,
                            final UserPreferencesRepository preferencesRepository,
                            final JwtTokenUtilService tokenUtil) {
+        this.eventPublisher = eventPublisher;
         this.repository = repository;
         this.preferencesRepository = preferencesRepository;
         this.tokenUtil = tokenUtil;
@@ -48,6 +53,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User save(final User user) {
         final User salvedUser = merge(user);
+        eventPublisher.publishEvent(new UserCreatedEvent(user));
         salvedUser.setPreferences(this.preferencesRepository.save(new UserPreferences().setUser(salvedUser)));
         return salvedUser;
     }
