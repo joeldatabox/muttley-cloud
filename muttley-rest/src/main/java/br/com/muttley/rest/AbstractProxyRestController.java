@@ -39,7 +39,7 @@ public abstract class AbstractProxyRestController<T extends Document> implements
     @Override
     @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE})
     public ResponseEntity save(@RequestBody final T value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
-        final T record = client.save(value, returnEntity);
+        final T record = client.merger(value);
 
         publishCreateResourceEvent(this.eventPublisher, response, record);
 
