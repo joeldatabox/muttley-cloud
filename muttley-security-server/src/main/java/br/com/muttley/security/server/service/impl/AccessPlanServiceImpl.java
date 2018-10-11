@@ -26,7 +26,7 @@ public class AccessPlanServiceImpl extends SecurityServiceImpl<AccessPlan> imple
 
     @Override
     public AccessPlan findByDescription(final String descricao) {
-        final AccessPlan AccessPlan = this.repository.findByDescription(descricao);
+        final AccessPlan AccessPlan = this.repository.findByName(descricao);
         if (AccessPlan == null) {
             throw new MuttleyNotFoundException(AccessPlan.class, "descricao", "Registro não encontrado");
         }

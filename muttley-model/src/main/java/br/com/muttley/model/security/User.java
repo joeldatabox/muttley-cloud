@@ -11,6 +11,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -68,12 +69,15 @@ public class User implements Serializable {
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo workteam corrente
     @Transient
     private UserPreferences preferences;
+    @Indexed
+    private boolean configured;
 
     public User() {
         this.authorities = new LinkedHashSet();
         this.enable = true;
         this.lastPasswordResetDate = Date.from(Instant.now());
         this.workTeams = new HashSet();
+        this.configured = false;
     }
 
     @JsonCreator
@@ -87,7 +91,8 @@ public class User implements Serializable {
             @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
             @JsonProperty("enable") final Boolean enable,
             @JsonProperty("authorities") final Set<Authority> authorities,
-            @JsonProperty("preferences") final UserPreferences preferences) {
+            @JsonProperty("preferences") final UserPreferences preferences,
+            @JsonProperty("configured") final Boolean configured) {
         this.id = id;
         this.workTeams = workTeams;
         this.currentWorkTeam = currentWorkTeam;
@@ -98,6 +103,7 @@ public class User implements Serializable {
         this.enable = enable;
         this.authorities = authorities;
         this.preferences = preferences;
+        this.configured = configured;
     }
 
     public User(final UserPayLoad payLoad) {
@@ -290,6 +296,16 @@ public class User implements Serializable {
 
     public boolean containsPreference(final String keyPreference) {
         return this.preferences.contains(keyPreference);
+    }
+
+
+    public boolean isConfigured() {
+        return configured;
+    }
+
+    public User setConfigured(final boolean configured) {
+        this.configured = configured;
+        return this;
     }
 
     @Override
