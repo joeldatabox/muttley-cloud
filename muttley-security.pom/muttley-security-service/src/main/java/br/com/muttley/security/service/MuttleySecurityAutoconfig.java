@@ -42,8 +42,8 @@ public class MuttleySecurityAutoconfig implements InitializingBean {
     }
 
     @Bean
-    public AuthenticationTokenFilterClient createAuthenticationTokenFilterClient(@Autowired final CacheUserAuthenticationService cacheAuth) {
-        return new AuthenticationTokenFilterClient(cacheAuth);
+    public AuthenticationTokenFilterClient createAuthenticationTokenFilterClient(final @Value(TOKEN_HEADER_JWT) String tokenHeader, @Autowired final CacheUserAuthenticationService cacheAuth) {
+        return new AuthenticationTokenFilterClient(tokenHeader, cacheAuth);
     }
 
     @Bean

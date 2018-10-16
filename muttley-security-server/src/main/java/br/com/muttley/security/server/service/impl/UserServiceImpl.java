@@ -53,8 +53,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User save(final User user) {
         final User salvedUser = merge(user);
-        eventPublisher.publishEvent(new UserCreatedEvent(user));
         salvedUser.setPreferences(this.preferencesRepository.save(new UserPreferences().setUser(salvedUser)));
+        eventPublisher.publishEvent(new UserCreatedEvent(user));
         return salvedUser;
     }
 
@@ -175,10 +175,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final User user = repository.findByEmail(username);
+        User user = repository.findByEmail(username);
         if (user == null) {
             throw new UsernameNotFoundException("Usuário não encontrado");
         } else {
+            //verifiando se é a primeira vez que o usuário está fazendo login
+            /*if (!user.isConfigured()) {
+                eventPublisher.publishEvent(new FirstLoginUserEvent(user));
+                //marcando como o usuário já teve um login antes
+                user.setConfigured(true);
+                user = update(user);
+            }*/
             return new JwtUser(user);
         }
     }
