@@ -11,6 +11,11 @@ import java.util.Map;
 public interface SimpleTenancyMongoRepository<T> extends MongoRepository<T, String> {
 
     /**
+     * Verifica se a collection está vazia
+     */
+    boolean isEmpty();
+
+    /**
      * Busca o primeiro registro qualquer de uma colection
      */
     T findFirst();

@@ -5,10 +5,12 @@ import br.com.muttley.zuul.components.LocationRewriteFilterOn30x;
 import br.com.muttley.zuul.components.SessionSavingZuulPreFilter;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@EnableZuulProxy
 public class MuttleyZuulConfig implements InitializingBean {
 
     @Bean

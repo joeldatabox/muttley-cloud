@@ -20,7 +20,7 @@ import static java.util.Objects.isNull;
  * @project muttley-cloud
  */
 public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends ServiceImpl<T> implements ModelService<T> {
-    final MultiTenancyMongoRepository<T> repository;
+    protected final MultiTenancyMongoRepository<T> repository;
 
     public ModelServiceImpl(final MultiTenancyMongoRepository<T> repository, final Class<T> clazz) {
         super(repository, clazz);

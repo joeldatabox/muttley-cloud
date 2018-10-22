@@ -1,4 +1,4 @@
-package br.com.muttley.security.server.events;
+package br.com.muttley.model.events;
 
 import br.com.muttley.model.security.Owner;
 import org.springframework.context.ApplicationEvent;

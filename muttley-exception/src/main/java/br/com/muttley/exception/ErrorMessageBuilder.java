@@ -197,10 +197,10 @@ public class ErrorMessageBuilder {
      * @param ex ->exceção para ser logada!
      */
     private void printException(final Exception ex, final ErrorMessage message) {
-        if (property.isStackTrace()) {
+        if (property != null && property.isStackTrace()) {
             ex.printStackTrace();
         }
-        if (property.isResponseException()) {
+        if (property != null && property.isResponseException()) {
             logger.info(message.toJson());
         }
     }
