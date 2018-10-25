@@ -91,7 +91,7 @@ public class OwnerController extends AbstractRestController<Owner> {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
+    public ResponseEntity<PageableResource<Owner>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, null, allRequestParams));
     }
 

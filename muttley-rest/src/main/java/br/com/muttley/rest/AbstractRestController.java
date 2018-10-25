@@ -113,7 +113,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
 
     @Override
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams) {
+    public ResponseEntity<PageableResource<T>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams) {
         checkRoleRead();
         return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, this.userService.getCurrentUser(), allRequestParams));
     }

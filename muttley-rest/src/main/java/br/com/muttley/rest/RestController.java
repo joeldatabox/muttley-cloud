@@ -48,7 +48,7 @@ public interface RestController<T> {
     ResponseEntity loadHistoric(@PathVariable("id") String id, HttpServletResponse response);
 
     @RequestMapping(method = RequestMethod.GET)
-    ResponseEntity<PageableResource> list(HttpServletResponse response, @RequestParam Map<String, String> allRequestParams);
+    ResponseEntity<PageableResource<T>> list(HttpServletResponse response, @RequestParam Map<String, String> allRequestParams);
 
     @RequestMapping(value = "/count", method = RequestMethod.GET, consumes = TEXT_PLAIN_VALUE)
     @ResponseStatus(HttpStatus.OK)

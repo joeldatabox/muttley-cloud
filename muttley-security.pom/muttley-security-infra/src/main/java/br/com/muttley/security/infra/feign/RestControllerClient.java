@@ -86,13 +86,13 @@ public interface RestControllerClient<T extends Serializable> {
      * @return A pageable list of records
      */
     @RequestMapping(method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    PageableResource list(@RequestParam Map<String, String> allRequestParams);
+    PageableResource<T> list(@RequestParam Map<String, String> allRequestParams);
 
     /**
      * @return A pageable list of records
      */
     @RequestMapping(method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    PageableResource list();
+    PageableResource<T> list();
 
     /**
      * Count total record

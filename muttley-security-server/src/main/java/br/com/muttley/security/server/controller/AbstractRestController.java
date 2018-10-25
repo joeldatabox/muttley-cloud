@@ -114,7 +114,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
+    public ResponseEntity<PageableResource<T>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
                                                  @RequestHeader(value =TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleRead(user);
