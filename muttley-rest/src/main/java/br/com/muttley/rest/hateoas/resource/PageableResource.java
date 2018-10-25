@@ -10,12 +10,12 @@ import java.util.List;
  * @author Joel Rodrigues Moreira on 30/01/18.
  * @project muttley-cloud
  */
-public final class PageableResource implements Serializable {
+public final class PageableResource<T> implements Serializable {
 
-    private final List records;
+    private final List<T> records;
     private final MetadataPageable _metadata;
 
-    public PageableResource(final List records, final MetadataPageable _metadata) {
+    public PageableResource(final List<T> records, final MetadataPageable _metadata) {
         this.records = records;
         this._metadata = _metadata;
     }
