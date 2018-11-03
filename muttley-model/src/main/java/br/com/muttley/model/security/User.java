@@ -92,7 +92,7 @@ public class User implements Serializable {
         this.workTeams = workTeams;
         this.currentWorkTeam = currentWorkTeam;
         this.name = name;
-        this.email = email;
+        setEmail(email);
         this.passwd = passwd;
         this.lastPasswordResetDate = lastPasswordResetDate;
         this.enable = enable;
@@ -169,6 +169,9 @@ public class User implements Serializable {
 
     public User setEmail(final String email) {
         this.email = email;
+        if (this.email != null) {
+            this.email = this.email.toLowerCase();
+        }
         return this;
     }
 
