@@ -9,7 +9,6 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.enumeration.Authorities;
 import br.com.muttley.rest.RestResource;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
-import br.com.muttley.security.server.property.MuttleySecurityProperty;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -115,7 +114,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<PageableResource<T>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
-                                                 @RequestHeader(value =TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
+                                                    @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleRead(user);
         return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, user, allRequestParams));

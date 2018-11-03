@@ -7,6 +7,6 @@ package br.com.muttley.zuul.properties;
  * <p>
  */
 public class Properties {
-    public static final String TOKEN_HEADER_JWT ="${muttley.security.jwt.controller.token-header-jwt:Authorization-jwt}";
+    public static final String TOKEN_HEADER_JWT = "${muttley.security.jwt.controller.token-header-jwt:Authorization-jwt}";
     public static final String TOKEN_HEADER = "${muttley.security.jwt.controller.token-header:Authorization}";
 }
