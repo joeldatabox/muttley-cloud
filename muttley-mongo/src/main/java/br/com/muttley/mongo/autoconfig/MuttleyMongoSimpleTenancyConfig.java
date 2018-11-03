@@ -43,9 +43,8 @@ import static java.util.Collections.singletonList;
  * @author Joel Rodrigues Moreira on 10/01/18.
  * @project muttley-cloud
  */
-@Configuration
 @EnableConfigurationProperties(MuttleyMongoProperties.class)
-@ConditionalOnProperty(name = "muttley.mongo.strategy", havingValue = "simpletenancy", matchIfMissing = true)
+//@ConditionalOnProperty(name = "muttley.mongo.strategy", havingValue = "simpletenancy", matchIfMissing = true)
 @EnableMongoRepositories(repositoryBaseClass = SimpleTenancyMongoRepositoryImpl.class)
 public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration implements InitializingBean {
     @Autowired
@@ -135,6 +134,6 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
             }
         }
         builder.append("\"");
-        return builder.toString();
+        return this.toString() + " - " + builder.toString();
     }
 }
