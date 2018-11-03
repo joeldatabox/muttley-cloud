@@ -10,8 +10,10 @@ import br.com.muttley.security.infra.feign.UserServiceClient;
 import br.com.muttley.security.infra.feign.WorkTeamServiceClient;
 import br.com.muttley.security.infra.services.AuthService;
 import br.com.muttley.security.infra.services.CacheUserAuthenticationService;
+import br.com.muttley.security.infra.services.CacheUserPreferences;
 import br.com.muttley.security.infra.services.impl.AuthServiceImpl;
 import br.com.muttley.security.infra.services.impl.CacheUserAuthenticationServiceImpl;
+import br.com.muttley.security.infra.services.impl.CacheUserPreferencesImpl;
 import br.com.muttley.security.service.components.AuthenticationTokenFilterClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +59,13 @@ public class MuttleySecurityAutoconfig implements InitializingBean {
     }
 
     @Bean
-    public UserAfterCacheLoadListener creaUserAfterCacheLoadListener(@Autowired final UserPreferenceServiceClient userPreferenceServiceClient, @Autowired final WorkTeamServiceClient workTeamServiceClient) {
-        return new UserAfterCacheLoadListener(userPreferenceServiceClient, workTeamServiceClient);
+    public CacheUserPreferences createCacheUserPreferences(@Autowired RedisService redisService) {
+        return new CacheUserPreferencesImpl(redisService);
+    }
+
+    @Bean
+    public UserAfterCacheLoadListener createUserAfterCacheLoadListener(@Autowired final UserPreferenceServiceClient userPreferenceServiceClient, @Autowired final WorkTeamServiceClient workTeamServiceClient, @Autowired final CacheUserPreferences cacheUserPreferences) {
+        return new UserAfterCacheLoadListener(userPreferenceServiceClient, workTeamServiceClient, cacheUserPreferences);
     }
 
     @Override
