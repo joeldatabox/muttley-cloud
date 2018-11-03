@@ -30,6 +30,13 @@ public interface RedisService<T> {
     RedisService set(String key, T value, long time);
 
     /**
+     * Recupera o tempo de vida de um objeto salvo temporariamente
+     *
+     * @param key -> chave do objeto desejado
+     */
+    Long getExpire(String key);
+
+    /**
      * Recupera um determinado valor qualquer do banco
      *
      * @param key -> chave desejada

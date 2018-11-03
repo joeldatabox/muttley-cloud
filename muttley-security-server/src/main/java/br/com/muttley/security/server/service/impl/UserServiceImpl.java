@@ -1,5 +1,6 @@
 package br.com.muttley.security.server.service.impl;
 
+import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityConflictException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundException;
@@ -10,8 +11,8 @@ import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.preference.UserPreferences;
-import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.repository.UserRepository;
+import br.com.muttley.security.server.service.UserPreferenceService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,24 +37,30 @@ public class UserServiceImpl implements UserService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final UserRepository repository;
-    private final UserPreferencesRepository preferencesRepository;
+    private final UserPreferenceService userPreferenceService;
     private final JwtTokenUtilService tokenUtil;
 
     @Autowired
     public UserServiceImpl(final ApplicationEventPublisher eventPublisher,
                            final UserRepository repository,
-                           final UserPreferencesRepository preferencesRepository,
+                           final UserPreferenceService userPreferenceService,
                            final JwtTokenUtilService tokenUtil) {
         this.eventPublisher = eventPublisher;
         this.repository = repository;
-        this.preferencesRepository = preferencesRepository;
+        this.userPreferenceService = userPreferenceService;
         this.tokenUtil = tokenUtil;
     }
 
     @Override
     public User save(final User user) {
+        UserPreferences preferences;
+        try {
+            preferences = userPreferenceService.getPreferences(user);
+        } catch (MuttleyNotFoundException ex) {
+            preferences = new UserPreferences();
+        }
         final User salvedUser = merge(user);
-        salvedUser.setPreferences(this.preferencesRepository.save(new UserPreferences().setUser(salvedUser)));
+        salvedUser.setPreferences(this.userPreferenceService.save(salvedUser, preferences.setUser(salvedUser)));
         eventPublisher.publishEvent(new UserCreatedEvent(user));
         return salvedUser;
     }
@@ -61,7 +68,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(final User user, final UserPreferences preferences) {
         preferences.setUser(user);
-        this.preferencesRepository.save(preferences);
+        this.userPreferenceService.save(user, preferences);
     }
 
     @Override
@@ -124,7 +131,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserPreferences loadPreference(final User user) {
-        return this.preferencesRepository.findByUser(user);
+        return this.userPreferenceService.getPreferences(user);
     }
 
     private User merge(final User user) {

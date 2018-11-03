@@ -22,12 +22,12 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @FeignClient(value = "${muttley.security-server.name-server}", path = "/api/v1/user-preferences", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
 public interface UserPreferenceServiceClient {
 
-    @RequestMapping(value = "/{idUser}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public UserPreferences getPreferences(@PathVariable("idUser") String idUser);
+    @RequestMapping(method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public UserPreferences getPreferences();
 
-    @RequestMapping(value = "/{idUser}/preferences", method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public void setPreference(@PathVariable("idUser") final String idUser, @RequestBody final Preference preference);
+    @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public void setPreference(@RequestBody final Preference preference);
 
-    @RequestMapping(value = "/{idUser}/preferences/{key}", method = DELETE, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public void removePreference(@PathVariable("idUser") final String idUser, @PathVariable("key") final String key);
+    @RequestMapping(value = "/{key}", method = DELETE, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public void removePreference(@PathVariable("key") final String key);
 }
