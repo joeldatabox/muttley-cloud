@@ -3,6 +3,7 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.domain.impl.ServiceImpl;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.model.autoconfig.DocumentNameConfig;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserResolverEvent;
@@ -11,11 +12,20 @@ import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.service.UserPreferenceService;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Arrays.asList;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * @author Joel Rodrigues Moreira on 01/11/18.
@@ -25,19 +35,29 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  */
 @Service
 public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> implements UserPreferenceService {
+    private final MongoTemplate template;
     private final UserPreferencesRepository repository;
     private final JwtTokenUtilService tokenService;
     private final RedisService redisService;
     private final ApplicationEventPublisher eventPublisher;
+    private final DocumentNameConfig documentNameConfig;
     private static final String KEY = "preferences";
 
     @Autowired
-    public UserPreferenceServiceImpl(UserPreferencesRepository repository, final JwtTokenUtilService tokenService, final RedisService redisService, final ApplicationEventPublisher eventPublisher) {
+    public UserPreferenceServiceImpl(
+            final MongoTemplate template,
+            final UserPreferencesRepository repository,
+            final JwtTokenUtilService tokenService,
+            final RedisService redisService,
+            final ApplicationEventPublisher eventPublisher,
+            final DocumentNameConfig documentNameConfig) {
         super(repository, UserPreferences.class);
+        this.template = template;
         this.repository = repository;
         this.tokenService = tokenService;
         this.redisService = redisService;
         this.eventPublisher = eventPublisher;
+        this.documentNameConfig = documentNameConfig;
     }
 
     @Override
@@ -68,6 +88,11 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
         }
         final UserPreferences preferences = this.repository.save(getPreferences(user).set(preference));
         updatePreferencesCache(user, preferences);
+    }
+
+    @Override
+    public void setPreferences(String email, Preference preferences) {
+        setPreferences(loadUserByEmail(email), preferences);
     }
 
     @Override
@@ -118,5 +143,21 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
 
     private String createKey(final User user) {
         return createKey(user.getEmail());
+    }
+
+    private User loadUserByEmail(final String email) {
+        final AggregationResults<User> results = this.template
+                .aggregate(
+                        newAggregation(
+                                //pegando somento o objectid para fazer o processo de lookup
+                                project("user").and(context -> new Document("$arrayElemAt", asList("$user.v", 1))).as("user"),
+                                //fazendo join
+                                lookup(documentNameConfig.getNameCollectionUser(), "user", "_id", "user"),
+                                //filtrando
+                                match(where("user.email").is(email))
+                        ), UserPreferences.class,
+                        User.class
+                );
+        return results.getUniqueMappedResult();
     }
 }

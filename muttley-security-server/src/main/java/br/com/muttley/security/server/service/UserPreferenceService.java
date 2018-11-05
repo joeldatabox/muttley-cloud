@@ -22,6 +22,8 @@ public interface UserPreferenceService extends Service<UserPreferences> {
 
     void setPreferences(final User user, final Preference preferences);
 
+    void setPreferences(final String email, final Preference preferences);
+
     void setPreferences(final JwtToken token, final Preference preference);
 
     void removePreference(final User user, final String key);

@@ -53,13 +53,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(final User user) {
+        final User salvedUser = merge(user);
         UserPreferences preferences;
         try {
             preferences = userPreferenceService.getPreferences(user);
         } catch (MuttleyNotFoundException ex) {
             preferences = new UserPreferences();
         }
-        final User salvedUser = merge(user);
         salvedUser.setPreferences(this.userPreferenceService.save(salvedUser, preferences.setUser(salvedUser)));
         eventPublisher.publishEvent(new UserCreatedEvent(user));
         return salvedUser;
