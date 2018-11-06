@@ -25,6 +25,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.look
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -146,15 +147,36 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
     }
 
     private User loadUserByEmail(final String email) {
+        /**
+         * db.getCollection("muttley-users-preferences").aggregate([
+         *     {$project: {"user":{$objectToArray: "$user"}}},
+         *     {$project:{"user":{$arrayElemAt:["$user.v",1]}}},
+         *     {$lookup:{
+         *         from:"muttley-users",
+         *         localField: "user",
+         *         foreignField: "_id",
+         *         as:"user"
+         *     }},
+         *     {$unwind: "$user"},
+         *     {$match: {"user.email": EMAIL_DESEJADO}},
+         *     {$project: {"userId":"$user._id"}}
+         *     ])
+         */
         final AggregationResults<User> results = this.template
                 .aggregate(
                         newAggregation(
+                                //transformando o objeto em array
+                                project("historic").and(context -> new Document("$objectToArray", "$user")).as("user"),
                                 //pegando somento o objectid para fazer o processo de lookup
-                                project("user").and(context -> new Document("$arrayElemAt", asList("$user.v", 1))).as("user"),
+                                project("historic").and(context -> new Document("$arrayElemAt", asList("$user.v", 1))).as("user"),
                                 //fazendo join
                                 lookup(documentNameConfig.getNameCollectionUser(), "user", "_id", "user"),
+                                unwind("user"),
+
                                 //filtrando
                                 match(where("user.email").is(email))
+                                //pegando somente o que é necessário
+                                //project().and("user._id").as("user")
                         ), UserPreferences.class,
                         User.class
                 );

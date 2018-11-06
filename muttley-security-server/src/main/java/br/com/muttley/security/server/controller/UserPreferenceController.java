@@ -6,17 +6,18 @@ import br.com.muttley.security.server.service.UserPreferenceService;
 import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.impl.JwtTokenUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * @author Joel Rodrigues Moreira on 24/04/18.
@@ -38,19 +39,26 @@ public class UserPreferenceController {
         this.tokenUtil = tokenUtil;
     }
 
-    @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     public ResponseEntity getPreferences(@RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt:Authorization-jwt}", defaultValue = "") final String token) {
         return ResponseEntity.ok(service.getPreferences(new JwtToken(token)));
     }
 
-    @RequestMapping(method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(method = POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     public ResponseEntity setPreference(@RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt:Authorization-jwt}", defaultValue = "") final String token, @RequestBody final Preference preference) {
         this.service.setPreferences(new JwtToken(token), preference);
         return ResponseEntity.ok().build();
 
     }
 
-    @RequestMapping(value = "/{key}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/email/{email}", method = POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    public ResponseEntity setPreferenceByEmail(@PathVariable("email") final String email, @RequestBody final Preference preference) {
+        this.service.setPreferences(email, preference);
+        return ResponseEntity.ok().build();
+
+    }
+
+    @RequestMapping(value = "/{key}", method = DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     public ResponseEntity removePreference(@RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt:Authorization-jwt}", defaultValue = "") final String token, @PathVariable("key") final String key) {
         this.service.removePreference(new JwtToken(token), key);
         return ResponseEntity.ok().build();
