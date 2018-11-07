@@ -9,6 +9,7 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserResolverEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
+import br.com.muttley.mongo.result.UniqueResult;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.service.UserPreferenceService;
@@ -162,24 +163,24 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
          *     {$project: {"userId":"$user._id"}}
          *     ])
          */
-        final AggregationResults<User> results = this.template
+        final AggregationResults<UniqueResult> results = this.template
                 .aggregate(
                         newAggregation(
                                 //transformando o objeto em array
-                                project("historic").and(context -> new Document("$objectToArray", "$user")).as("user"),
+                                project().and(context -> new Document("$objectToArray", "$user")).as("user"),
                                 //pegando somento o objectid para fazer o processo de lookup
-                                project("historic").and(context -> new Document("$arrayElemAt", asList("$user.v", 1))).as("user"),
+                                project().and(context -> new Document("$arrayElemAt", asList("$user.v", 1))).as("user"),
                                 //fazendo join
                                 lookup(documentNameConfig.getNameCollectionUser(), "user", "_id", "user"),
-                                unwind("user"),
+                                unwind("$user"),
 
                                 //filtrando
-                                match(where("user.email").is(email))
+                                match(where("user.email").is(email)),
                                 //pegando somente o que é necessário
-                                //project().and("user._id").as("user")
-                        ), UserPreferences.class,
-                        User.class
+                                project().and("user._id").as("result")
+                        ), this.documentNameConfig.getNameCollectionUserPreferences(),
+                        UniqueResult.class
                 );
-        return results.getUniqueMappedResult();
+        return new User().setId(results.getUniqueMappedResult().getResult().toString());
     }
 }
