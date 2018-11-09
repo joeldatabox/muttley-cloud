@@ -8,7 +8,6 @@ import br.com.muttley.mongo.infra.Aggregate;
 import br.com.muttley.mongo.repository.MultiTenancyMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
@@ -17,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static br.com.muttley.mongo.infra.Aggregate.createAggregationsCount;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
@@ -31,14 +31,7 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
     @Override
     public boolean isEmpty(final Owner owner) {
         validateOwner(owner);
-        final AggregationResults result = operations.aggregate(
-                Aggregation.newAggregation(
-                        Aggregate.createAggregationsCount(
-                                CLASS,
-                                new HashMap(addOwnerQueryParam(owner, new HashMap()))
-                        )),
-                COLLECTION, ResultCount.class);
-        return result.getUniqueMappedResult() != null ? !(((ResultCount) result.getUniqueMappedResult()).getCount() > 0) : false;
+        return count(owner, null) == 0l;
     }
 
     @Override
@@ -98,7 +91,7 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
     public final List<T> findAll(final Owner owner, final Map<String, Object> queryParams) {
         validateOwner(owner);
         return operations.aggregate(
-                Aggregation.newAggregation(
+                newAggregation(
                         Aggregate.createAggregations(
                                 CLASS,
                                 new HashMap<>(addOwnerQueryParam(owner, ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())))
@@ -112,8 +105,8 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
     public final long count(final Owner owner, final Map<String, Object> queryParams) {
         validateOwner(owner);
         final AggregationResults result = operations.aggregate(
-                Aggregation.newAggregation(
-                        Aggregate.createAggregationsCount(
+                newAggregation(
+                        createAggregationsCount(
                                 CLASS,
                                 new HashMap<>(addOwnerQueryParam(owner, ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())))
                         )),

@@ -10,7 +10,6 @@ import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -21,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static br.com.muttley.mongo.infra.Aggregate.createAggregationsCount;
 import static org.bson.types.ObjectId.isValid;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -42,11 +42,7 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
 
     @Override
     public boolean isEmpty() {
-        final AggregationResults result = operations.aggregate(
-                Aggregation.newAggregation(
-                        Aggregate.createAggregationsCount(CLASS, new HashMap())
-                ), COLLECTION, ResultCount.class);
-        return result.getUniqueMappedResult() != null ? !(((ResultCount) result.getUniqueMappedResult()).count > 0) : false;
+        return this.count((Map<String, Object>) null) == 0l;
     }
 
     @Override
@@ -58,7 +54,7 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     public List<T> findAll(final Map<String, Object> queryParams) {
         return operations
                 .aggregate(
-                        Aggregation.newAggregation(
+                        newAggregation(
                                 Aggregate.createAggregations(CLASS,
                                         ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())
                                 )
@@ -71,8 +67,8 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     @Override
     public long count(final Map<String, Object> queryParams) {
         final AggregationResults result = operations.aggregate(
-                Aggregation.newAggregation(
-                        Aggregate.createAggregationsCount(
+                newAggregation(
+                        createAggregationsCount(
                                 CLASS,
                                 ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>()))
                 ), COLLECTION, ResultCount.class);
@@ -168,6 +164,10 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
         public ResultCount setCount(final Long count) {
             this.count = count;
             return this;
+        }
+
+        public boolean isEmpty() {
+            return count == 0L;
         }
     }
 }

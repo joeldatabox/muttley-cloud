@@ -61,7 +61,7 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
         //Talvez a requisão já advem de outro subserviço, ou seja já contem no header o "Authorization-jwt"
         final String jwtToken = request.getHeader(this.tokenHeaderJwt);
         if (!isEmpty(jwtToken)) {
-            return jwtToken;
+            return jwtToken.equals("null") ? null : jwtToken;
         }
         //se chegou até aqui quer dizer que ninguem ainda não fez esse tratamento
         //devemos pegar o token no "Authorization"
