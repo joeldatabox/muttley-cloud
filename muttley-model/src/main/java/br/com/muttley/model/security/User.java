@@ -3,6 +3,7 @@ package br.com.muttley.model.security;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.jackson.JsonHelper;
 import br.com.muttley.model.security.preference.UserPreferences;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -66,6 +67,7 @@ public class User implements Serializable {
     private Boolean enable;
     @Transient
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo workteam corrente
+    @JsonBackReference
     @Transient
     private UserPreferences preferences;
 

@@ -5,6 +5,7 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -40,6 +41,7 @@ public class UserPreferences implements Document {
     public static final String WORK_TEAM_PREFERENCE = "WorkTeamPreference";
     @Id
     private String id;
+    @JsonManagedReference
     @JsonIgnore
     @DBRef
     private User user;

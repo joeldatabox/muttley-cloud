@@ -62,8 +62,8 @@ public class RedisServiceImpl<T> implements RedisService<T> {
 
     @Override
     public Long getExpire(String key) {
-        this.redisTemplate.getExpire(createKey(key), MILLISECONDS);
-        return null;
+        final Long expire = this.redisTemplate.getExpire(createKey(key), MILLISECONDS);
+        return expire == null? 0L: expire;
     }
 
     @Override
