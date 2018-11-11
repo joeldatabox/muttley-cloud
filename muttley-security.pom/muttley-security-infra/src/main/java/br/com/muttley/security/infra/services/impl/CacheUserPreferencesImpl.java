@@ -35,7 +35,7 @@ public class CacheUserPreferencesImpl implements CacheUserPreferences {
     }
 
     private String createKey(final String email) {
-        return KEY + "-" + email;
+        return KEY + ":" + email;
     }
 
     private String createKey(final User user) {

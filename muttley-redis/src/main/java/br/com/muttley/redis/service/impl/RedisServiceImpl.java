@@ -63,7 +63,7 @@ public class RedisServiceImpl<T> implements RedisService<T> {
     @Override
     public Long getExpire(String key) {
         final Long expire = this.redisTemplate.getExpire(createKey(key), MILLISECONDS);
-        return expire == null? 0L: expire;
+        return expire == null ? 0L : expire;
     }
 
     @Override
@@ -84,7 +84,7 @@ public class RedisServiceImpl<T> implements RedisService<T> {
 
     @Override
     public RedisService clearAll() {
-        this.redisTemplate.delete(this.redisTemplate.keys(getBasicKey()));
+        this.redisTemplate.delete(this.redisTemplate.keys(getBasicKey() + "*"));
         return this;
     }
 
