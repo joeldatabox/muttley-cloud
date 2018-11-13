@@ -78,7 +78,7 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
 
     @Override
     public boolean exists(final T value) {
-        return this.exists(value.getId());
+        return this.exists("_id", value.getId());
     }
 
     @Override

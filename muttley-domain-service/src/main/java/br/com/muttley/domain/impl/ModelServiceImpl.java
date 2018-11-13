@@ -55,7 +55,7 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível alterar um registro sem informar um id válido");
         }
         //verificando se o registro realmente existe
-        if (!this.repository.exists(value.getId())) {
+        if (!this.repository.exists(value)) {
             throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         value.setOwner(user);
