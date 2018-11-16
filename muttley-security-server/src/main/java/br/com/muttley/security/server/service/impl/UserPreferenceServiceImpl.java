@@ -3,6 +3,7 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.domain.impl.ServiceImpl;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.metadata.headers.HeaderAuthorizationJWT;
 import br.com.muttley.model.autoconfig.DocumentNameConfig;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
@@ -15,6 +16,7 @@ import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.service.UserPreferenceService;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -39,24 +41,26 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> implements UserPreferenceService {
     private final MongoTemplate template;
     private final UserPreferencesRepository repository;
-    private final JwtTokenUtilService tokenService;
+    private final HeaderAuthorizationJWT headerAuthorizationJWT;
     private final RedisService redisService;
     private final ApplicationEventPublisher eventPublisher;
     private final DocumentNameConfig documentNameConfig;
+    @Value("${muttley.security.jwt.token.expiration:3600000}")
+    private Integer expirationToken;
     private static final String KEY = "preferences";
 
     @Autowired
     public UserPreferenceServiceImpl(
             final MongoTemplate template,
             final UserPreferencesRepository repository,
-            final JwtTokenUtilService tokenService,
+            final HeaderAuthorizationJWT headerAuthorizationJWT,
             final RedisService redisService,
             final ApplicationEventPublisher eventPublisher,
             final DocumentNameConfig documentNameConfig) {
         super(repository, UserPreferences.class);
         this.template = template;
         this.repository = repository;
-        this.tokenService = tokenService;
+        this.headerAuthorizationJWT = headerAuthorizationJWT;
         this.redisService = redisService;
         this.eventPublisher = eventPublisher;
         this.documentNameConfig = documentNameConfig;
@@ -117,7 +121,7 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
         if (token.isEmpty()) {
             throw new MuttleyBadRequestException(null, null, "informe um token válido");
         }
-        final String emailFromToken = this.tokenService.getUsernameFromToken(token.getToken());
+        final String emailFromToken = token.getUsername();
 
         if (isNullOrEmpty(emailFromToken)) {
             throw new MuttleyBadRequestException(null, null, "informe um token válido");
@@ -133,18 +137,18 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
      * Irá salvar ou atualizar as preferencias do usuário no cache, caso seja necessário
      */
     private void updatePreferencesCache(final User user, final UserPreferences userPreferences) {
-        if (redisService.hasKey(createKey(user))) {
-            final String key = createKey(user);
-            redisService.set(key, userPreferences, redisService.getExpire(key));
+        updatePreferencesCache(user.getEmail(), userPreferences);
+    }
+
+    private void updatePreferencesCache(final String email, final UserPreferences userPreferences) {
+        final String keyCache = createKey(email);
+        if (redisService.hasKey(keyCache)) {
+            redisService.set(keyCache, userPreferences, redisService.getExpire(keyCache));
         }
     }
 
     private String createKey(final String email) {
-        return KEY + "-" + email;
-    }
-
-    private String createKey(final User user) {
-        return createKey(user.getEmail());
+        return KEY + ":" + email;
     }
 
     private User loadUserByEmail(final String email) {

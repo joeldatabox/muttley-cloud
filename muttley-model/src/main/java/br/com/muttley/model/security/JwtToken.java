@@ -44,6 +44,12 @@ public class JwtToken implements Serializable {
         return Long.valueOf(String.valueOf(payload.get("exp")));
     }
 
+    @JsonIgnore
+    public String getUsername() {
+        decodeToken();
+        return payload.get("sub");
+    }
+
     private void decodeToken() {
 
         if (payload == null) {
