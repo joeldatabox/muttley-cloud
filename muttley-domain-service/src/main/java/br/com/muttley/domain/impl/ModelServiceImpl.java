@@ -154,6 +154,16 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
     }
 
     @Override
+    public boolean exists(User user, T value) {
+        return repository.exists(user.getCurrentOwner(), value);
+    }
+
+    @Override
+    public boolean exists(User user, String id) {
+        return repository.exists(user.getCurrentOwner(), id);
+    }
+
+    @Override
     public List<T> findAll(final User user, final Map<String, Object> allRequestParams) {
         final List<T> results = this.repository.findAll(user.getCurrentOwner(), allRequestParams);
         if (CollectionUtils.isEmpty(results)) {
@@ -172,4 +182,5 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
             throw new MuttleyBadRequestException(clazz, "user", "não é possível fazer a alteração do usuário dono do registro");
         }
     }
+
 }

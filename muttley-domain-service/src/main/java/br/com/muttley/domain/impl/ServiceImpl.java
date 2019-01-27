@@ -192,6 +192,16 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     }
 
     @Override
+    public boolean exists(User user, T value) {
+        return this.repository.exists(value);
+    }
+
+    @Override
+    public boolean exists(User user, String id) {
+        return this.repository.exists("_id", id);
+    }
+
+    @Override
     public List<T> findAll(final User user, final Map<String, Object> allRequestParams) {
         final List<T> results = this.repository.findAll(allRequestParams);
         if (CollectionUtils.isEmpty(results)) {

@@ -209,6 +209,22 @@ public interface Service<T extends Document> {
     Long count(final User user, final Map<String, Object> allRequestParams);
 
     /**
+     * Verifica se existe um determinado registro no banco de dados
+     *
+     * @param user  -> usuário da requisição corrente
+     * @param value -> objeto desejado
+     */
+    boolean exists(final User user, final T value);
+
+    /**
+     * Verifica se existe um determinado registro no banco de dados
+     *
+     * @param user -> usuário da requisição corrente
+     * @param id   -> id do objeto desejado
+     */
+    boolean exists(final User user, final String id);
+
+    /**
      * Realiza o processo de listagem com base nos critérios
      * recebidos como parâmetros;
      *
