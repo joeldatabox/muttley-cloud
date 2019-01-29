@@ -40,7 +40,10 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
         this.validator.validate(value);
         //verificando precondições
         this.checkPrecondictionSave(user, value);
-        return repository.save(user.getCurrentOwner(), value);
+        this.beforeSave(user, value);
+        final T salvedValue = repository.save(user.getCurrentOwner(), value);
+        this.afterSave(user, salvedValue);
+        return salvedValue;
     }
 
     @Override
@@ -65,7 +68,10 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
         this.validator.validate(value);
         //verificando precondições
         checkPrecondictionUpdate(user, value);
-        return repository.save(user.getCurrentOwner(), value);
+        this.beforeUpdate(user, value);
+        final T salvedValue = repository.save(user.getCurrentOwner(), value);
+        afterUpdate(user, salvedValue);
+        return salvedValue;
     }
 
     @Override
@@ -119,8 +125,9 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
         if (!repository.exists(user.getCurrentOwner(), id)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
+        this.beforeDelete(user, id);
         this.repository.delete(user.getCurrentOwner(), id);
-        beforeDelete(user, id);
+        this.afterDelete(user, id);
     }
 
     @Override
@@ -129,8 +136,9 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
         if (!repository.exists(user.getCurrentOwner(), value)) {
             throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
         }
+        this.beforeDelete(user, value);
         this.repository.delete(user.getCurrentOwner(), value);
-        beforeDelete(user, value);
+        this.afterDelete(user, value);
     }
 
     @Override
