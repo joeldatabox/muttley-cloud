@@ -33,16 +33,20 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
         if (value.getId() != null) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
         }
+        //setando o dono do registro
         value.setOwner(user);
         //garantindo que o históriconão ficará nulo
         value.setHistoric(this.createHistoric(user));
-        //validando dados
-        this.validator.validate(value);
+        //processa regra de negocio antes de qualquer validação
+        this.beforeSave(user, value);
         //verificando precondições
         this.checkPrecondictionSave(user, value);
-        this.beforeSave(user, value);
+        //validando dados do objeto
+        this.validator.validate(value);
         final T salvedValue = repository.save(user.getCurrentOwner(), value);
+        //realizando regras de enegocio depois do objeto ter sido salvo
         this.afterSave(user, salvedValue);
+        //valor salvo
         return salvedValue;
     }
 
@@ -64,11 +68,12 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
         value.setOwner(user);
         //gerando histórico de alteração
         value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(user.getCurrentOwner(), value)));
-        //validando dados
-        this.validator.validate(value);
+        //processa regra de negocio antes de qualquer validação
+        this.beforeUpdate(user, value);
         //verificando precondições
         checkPrecondictionUpdate(user, value);
-        this.beforeUpdate(user, value);
+        //validando dados
+        this.validator.validate(value);
         final T salvedValue = repository.save(user.getCurrentOwner(), value);
         afterUpdate(user, salvedValue);
         return salvedValue;
@@ -121,22 +126,22 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
 
     @Override
     public void deleteById(final User user, final String id) {
+        this.beforeDelete(user, id);
         checkPrecondictionDelete(user, id);
         if (!repository.exists(user.getCurrentOwner(), id)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
-        this.beforeDelete(user, id);
         this.repository.delete(user.getCurrentOwner(), id);
         this.afterDelete(user, id);
     }
 
     @Override
     public void delete(final User user, final T value) {
+        this.beforeDelete(user, value);
         checkPrecondictionDelete(user, value.getId());
         if (!repository.exists(user.getCurrentOwner(), value)) {
             throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
         }
-        this.beforeDelete(user, value);
         this.repository.delete(user.getCurrentOwner(), value);
         this.afterDelete(user, value);
     }
@@ -154,6 +159,7 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
     @Override
     public void beforeDelete(final User user, final String id) {
 
+        
     }
 
     @Override

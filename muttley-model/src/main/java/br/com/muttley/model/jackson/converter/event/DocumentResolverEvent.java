@@ -19,18 +19,17 @@ public abstract class DocumentResolverEvent<T extends Document> extends Applicat
     @Getter
     @Setter
     protected T valueResolved;
-    @Getter
-    @Setter
-    private boolean resolved;
 
     public DocumentResolverEvent(final String id) {
         super(id);
         this.id = id;
-        this.resolved = false;
     }
 
     public String getSource() {
         return id;
     }
 
+    public boolean isResolved() {
+        return this.valueResolved != null;
+    }
 }
