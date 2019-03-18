@@ -159,7 +159,7 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
     @Override
     public void beforeDelete(final User user, final String id) {
 
-        
+
     }
 
     @Override

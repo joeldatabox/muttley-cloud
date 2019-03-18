@@ -17,4 +17,42 @@ public class DateUtils {
     public static LocalDateTime toLocalDateTime(final Date date, final ZoneId zoneId) {
         return LocalDateTime.ofInstant(date.toInstant(), zoneId);
     }
+
+    public static boolean isEquals(final Date dateIni, final Date dateEnd) {
+        return toLocalDateTime(dateIni).isEqual(toLocalDateTime(dateEnd));
+    }
+
+    public static boolean isAfter(final Date dateIni, final Date dateEnd) {
+        return toLocalDateTime(dateIni).isAfter(toLocalDateTime(dateEnd));
+    }
+
+    public static boolean isBefore(final Date dateIni, final Date dateEnd) {
+        return toLocalDateTime(dateIni).isBefore(toLocalDateTime(dateEnd));
+    }
+
+    public static boolean lessThanOrEqualTo(final Date dateIni, final Date dateEnd) {
+        final LocalDateTime localDateIni = toLocalDateTime(dateIni);
+        final LocalDateTime localDateEnd = toLocalDateTime(dateEnd);
+        return localDateIni.isEqual(localDateEnd) || localDateIni.isBefore(localDateEnd);
+    }
+
+    public static boolean lessThanOrEqualTo(final LocalDateTime dateIni, final LocalDateTime dateEnd) {
+        return dateIni.isEqual(dateEnd) || dateIni.isBefore(dateEnd);
+    }
+
+    public static boolean greaterthanOrEqualTo(final Date dateIni, final Date dateEnd) {
+        final LocalDateTime localDateIni = toLocalDateTime(dateIni);
+        final LocalDateTime localDateEnd = toLocalDateTime(dateEnd);
+        return localDateIni.isEqual(localDateEnd) || localDateIni.isAfter(localDateEnd);
+    }
+
+    public static boolean greaterthanOrEqualTo(final LocalDateTime localDateIni, final LocalDateTime localDateEnd) {
+        return localDateIni.isEqual(localDateEnd) || localDateIni.isAfter(localDateEnd);
+    }
+
+    public static Date toDate(final LocalDateTime date) {
+        return Date.from(
+                date.atZone(ZoneId.systemDefault()).toInstant()
+        );
+    }
 }
