@@ -1,4 +1,4 @@
-package br.com.muttley.model.validator;
+package br.com.muttley.validators.checkIndex;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
