@@ -66,6 +66,8 @@ public class User implements Serializable {
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo workteam corrente
     @Transient
     private UserPreferences preferences;
+    //Define se o usuário é do odin ou de algum outro owner
+    private boolean odinUser = false;
 
     public User() {
         this.authorities = new LinkedHashSet();
@@ -283,6 +285,15 @@ public class User implements Serializable {
 
     public User setPreferences(final UserPreferences preferences) {
         this.preferences = preferences;
+        return this;
+    }
+
+    public boolean isOdinUser() {
+        return odinUser;
+    }
+
+    public User setOdinUser(final boolean odinUser) {
+        this.odinUser = odinUser;
         return this;
     }
 
