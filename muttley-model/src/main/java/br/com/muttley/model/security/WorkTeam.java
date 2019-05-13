@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import javax.validation.constraints.NotNull;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Joel Rodrigues Moreira on 24/04/18.
@@ -37,7 +38,7 @@ public class WorkTeam implements Document {
     @DBRef
     protected Set<User> members;
     protected Historic historic;
-    protected Set<Authority> authorities;
+    protected Set<Role> authorities;
 
     public WorkTeam() {
         this.members = new LinkedHashSet<>();
@@ -122,17 +123,22 @@ public class WorkTeam implements Document {
     }
 
 
-    public Set<Authority> getAuthorities() {
+    public Set<Role> getAuthorities() {
         return authorities;
     }
 
     public WorkTeam setAuthorities(final Set<Authority> authorities) {
-        this.authorities = authorities;
+        this.authorities = authorities.stream().map(Authority::getRole).collect(Collectors.toSet());
         return this;
     }
 
     public WorkTeam addAuthority(final Authority authority) {
-        this.authorities.add(authority);
+        this.authorities.add(authority.getRole());
+        return this;
+    }
+
+    public WorkTeam addAuthority(final Role role) {
+        this.authorities.add(role);
         return this;
     }
 

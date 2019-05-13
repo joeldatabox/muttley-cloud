@@ -8,29 +8,38 @@ import java.util.Objects;
  * @project muttley-cloud
  */
 public class AuthorityImpl implements Authority {
-    private String name;
+    private Role role;
     private String description;
 
     public AuthorityImpl() {
     }
 
-    public AuthorityImpl(final String name) {
+    public AuthorityImpl(final Role role) {
         this();
-        this.name = name;
+        this.role = role;
     }
 
-    public AuthorityImpl(final String name, final String description) {
-        this(name);
+    public AuthorityImpl(final String role) {
+        this(Role.valueOf(role));
+    }
+
+    public AuthorityImpl(final Role role, final String description) {
+        this(role);
+        this.description = description;
+    }
+
+    public AuthorityImpl(final String role, final String description) {
+        this(role);
         this.description = description;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public Role getRole() {
+        return role;
     }
 
-    public AuthorityImpl setName(final String name) {
-        this.name = name;
+    public AuthorityImpl setRole(final Role role) {
+        this.role = role;
         return this;
     }
 
@@ -49,11 +58,11 @@ public class AuthorityImpl implements Authority {
         if (this == o) return true;
         if ((!(o instanceof AuthorityImpl)) || (!(o instanceof Authority))) return false;
         final Authority authority = (Authority) o;
-        return Objects.equals(name, authority.getName());
+        return Objects.equals(role, authority.getRole());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, 81);
+        return Objects.hash(role, 81);
     }
 }

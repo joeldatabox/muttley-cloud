@@ -133,7 +133,7 @@ public class JwtUser implements UserDetails {
 
     private static final List<GrantedAuthority> mapToGrantedAuthorities(final Collection<Authority> authorities) {
         return authorities.stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                .map(authority -> new SimpleGrantedAuthority(authority.getRole().toString()))
                 .collect(Collectors.toList());
     }
 

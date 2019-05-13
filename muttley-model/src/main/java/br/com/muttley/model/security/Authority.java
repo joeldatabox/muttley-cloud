@@ -2,7 +2,7 @@ package br.com.muttley.model.security;
 
 public interface Authority {
 
-    String getName();
+    Role getRole();
 
     String getDescription();
 

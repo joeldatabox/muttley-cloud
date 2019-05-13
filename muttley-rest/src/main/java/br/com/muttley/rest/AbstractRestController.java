@@ -4,7 +4,7 @@ import br.com.muttley.domain.service.Service;
 import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.security.enumeration.Authorities;
+import br.com.muttley.model.security.Authority;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.infra.service.AuthService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -170,7 +170,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         }
     }
 
-    protected final void checkCredentials(final Authorities... roles) {
+    protected final void checkCredentials(final Authority... roles) {
         if (!this.userService.getCurrentUser().inAnyRole(roles)) {
             throw new MuttleySecurityCredentialException("Você não tem permissão para acessar este recurso ")
                     .addDetails("isNecessary", roles);

@@ -2,7 +2,7 @@ package br.com.muttley.security.server.controller;
 
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.AccessPlan;
-import br.com.muttley.model.security.enumeration.Authorities;
+import br.com.muttley.model.security.Authority;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.AccessPlanService;
 import br.com.muttley.security.server.service.UserService;
@@ -168,7 +168,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         }*/
     }
 
-    protected final void checkCredentials(final Authorities... roles) {
+    protected final void checkCredentials(final Authority... roles) {
         /*if (!user.inAnyRole(roles)) {
             throw new MuttleySecurityCredentialException("Você não tem permissão para acessar este recurso ")
                     .addDetails("isNecessary", roles);
