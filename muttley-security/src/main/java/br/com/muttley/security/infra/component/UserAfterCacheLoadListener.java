@@ -1,6 +1,7 @@
 package br.com.muttley.security.infra.component;
 
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
@@ -34,6 +35,9 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
         final UserPreferences preferences = preferenceServiceClient.getPreferences(user.getId());
         final ObjectId idWorkTeam = new ObjectId(preferences.get(UserPreferences.WORK_TEAM_PREFERENCE).getValue().toString());
         user.setPreferences(preferences);
-        user.setCurrentWorkTeam(workteamService.findById(idWorkTeam.toString()));
+        final WorkTeam workTeam = workteamService.findById(idWorkTeam.toString());
+        user.setCurrentWorkTeam(workTeam);
+        //carregando authorities
+        user.setAuthorities(workTeam.getAuthorities());
     }
 }
