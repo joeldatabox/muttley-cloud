@@ -4,6 +4,7 @@ import br.com.muttley.model.jackson.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.jsonwebtoken.lang.Collections;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -118,6 +119,9 @@ public class JwtUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (Collections.isEmpty(this.authorities)) {
+            return mapToGrantedAuthorities(this.originUser.getAuthorities());
+        }
         return authorities;
     }
 

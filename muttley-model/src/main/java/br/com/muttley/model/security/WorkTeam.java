@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import javax.validation.constraints.NotNull;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Joel Rodrigues Moreira on 24/04/18.
@@ -38,11 +37,11 @@ public class WorkTeam implements Document {
     @DBRef
     protected Set<User> members;
     protected Historic historic;
-    protected Set<Role> authorities;
+    protected Set<Role> roles;
 
     public WorkTeam() {
         this.members = new LinkedHashSet<>();
-        this.authorities = new LinkedHashSet<>();
+        this.roles = new LinkedHashSet<>();
     }
 
     @Override
@@ -122,23 +121,22 @@ public class WorkTeam implements Document {
         return this;
     }
 
-
-    public Set<Role> getAuthorities() {
-        return authorities;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public WorkTeam setAuthorities(final Set<Authority> authorities) {
-        this.authorities = authorities.stream().map(Authority::getRole).collect(Collectors.toSet());
+    public WorkTeam setRoles(final Set<Role> roles) {
+        this.roles = roles;
         return this;
     }
 
-    public WorkTeam addAuthority(final Authority authority) {
-        this.authorities.add(authority.getRole());
+    public WorkTeam addRole(final Authority authority) {
+        this.roles.add(authority.getRole());
         return this;
     }
 
-    public WorkTeam addAuthority(final Role role) {
-        this.authorities.add(role);
+    public WorkTeam addRole(final Role role) {
+        this.roles.add(role);
         return this;
     }
 
@@ -146,7 +144,7 @@ public class WorkTeam implements Document {
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof WorkTeam)) return false;
-        WorkTeam workTeam = (WorkTeam) o;
+        final WorkTeam workTeam = (WorkTeam) o;
         return Objects.equal(id, workTeam.id);
     }
 
