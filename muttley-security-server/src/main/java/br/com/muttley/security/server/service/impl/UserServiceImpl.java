@@ -12,6 +12,7 @@ import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.UserService;
+import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -36,16 +37,22 @@ public class UserServiceImpl implements UserService {
     private final UserPreferencesRepository preferencesRepository;
     private final JwtTokenUtilService tokenUtil;
     private final String tokenHeader;
+    private final UserPreferencesRepository userPreferencesRepository;
+    private final WorkTeamService workTeamService;
 
     @Autowired
     public UserServiceImpl(final UserRepository repository,
                            final UserPreferencesRepository preferencesRepository,
                            @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
-                           final JwtTokenUtilService tokenUtil) {
+                           final JwtTokenUtilService tokenUtil,
+                           final UserPreferencesRepository userPreferencesRepository,
+                           final WorkTeamService workTeamService) {
         this.repository = repository;
         this.preferencesRepository = preferencesRepository;
         this.tokenHeader = tokenHeader;
         this.tokenUtil = tokenUtil;
+        this.userPreferencesRepository = userPreferencesRepository;
+        this.workTeamService = workTeamService;
     }
 
     @Override
@@ -113,7 +120,11 @@ public class UserServiceImpl implements UserService {
         if (token != null && !token.isEmpty()) {
             final String userName = this.tokenUtil.getUsernameFromToken(token.getToken());
             if (!isNullOrEmpty(userName)) {
-                return findByEmail(userName);
+                final User user = findByEmail(userName);
+                final UserPreferences preferences = this.userPreferencesRepository.findByUser(user);
+                user.setPreferences(preferences);
+                user.setCurrentWorkTeam(this.workTeamService.findById(user, preferences.get(UserPreferences.WORK_TEAM_PREFERENCE).getValue().toString()));
+                return user;
             }
         }
         throw new MuttleySecurityUnauthorizedException();
