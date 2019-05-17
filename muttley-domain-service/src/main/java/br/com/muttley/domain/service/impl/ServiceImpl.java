@@ -10,6 +10,7 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
@@ -26,6 +27,9 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
 
     protected final DocumentMongoRepository<T> repository;
     protected final Class<T> clazz;
+    @Value("${muttley.security.check-roles:false}")
+    private boolean checkRoles;
+
 
     @Autowired
     protected Validator validator;
@@ -33,6 +37,15 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     public ServiceImpl(final DocumentMongoRepository<T> repository, final Class<T> clazz) {
         this.repository = repository;
         this.clazz = clazz;
+    }
+
+    @Override
+    public boolean isCheckRole() {
+        return this.checkRoles;
+    }
+
+    public String[] getBasicRoles() {
+        return new String[]{""};
     }
 
     @Override

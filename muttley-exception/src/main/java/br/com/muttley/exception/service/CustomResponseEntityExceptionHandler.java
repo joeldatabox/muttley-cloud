@@ -170,6 +170,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     public ResponseEntity handleAccessDeniedException(final AccessDeniedException ex) {
         final MuttleySecurityUnauthorizedException exx = new MuttleySecurityUnauthorizedException().setStatus(FORBIDDEN);
         exx.addSuppressed(ex);
+        exx.setMessage("Você não tem perissão para acessar esse recurso");
         return handleMuttleySecurityUnauthorizedException(exx);
     }
 

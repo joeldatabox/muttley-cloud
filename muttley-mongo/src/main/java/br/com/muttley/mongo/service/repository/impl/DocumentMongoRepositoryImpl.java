@@ -37,7 +37,6 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
         this.COLLECTION = metadata.getCollectionName();
     }
 
-
     @Override
     public T findFirst() {
         return operations.findOne(new Query(), CLASS);

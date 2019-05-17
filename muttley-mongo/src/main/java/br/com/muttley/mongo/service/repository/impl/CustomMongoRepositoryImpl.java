@@ -1,9 +1,12 @@
 package br.com.muttley.mongo.service.repository.impl;
 
+import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.Owner;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
@@ -35,13 +38,18 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
 
     @Override
     public final T findOne(final Owner owner, final String id) {
-        validateOwner(owner);
-        return operations.findOne(
-                new Query(
-                        where("owner.$id").is(owner.getObjectId())
-                                .and("id").is(newObjectId(id))
-                ), CLASS
-        );
+        try {
+            validateOwner(owner);
+            final ObjectId objectId = newObjectId(id);
+            return operations.findOne(
+                    new Query(
+                            where("owner.$id").is(owner.getObjectId())
+                                    .and("id").is(newObjectId(id))
+                    ), CLASS
+            );
+        } catch (MuttleyRepositoryInvalidIdException ex) {
+            throw new MuttleyNotFoundException(CLASS, "id", "Registro não encontrado");
+        }
     }
 
     @Override
@@ -57,13 +65,17 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
 
     @Override
     public final void delete(final Owner owner, final String id) {
-        validateOwner(owner);
-        operations.remove(
-                new Query(
-                        where("owner.$id").is(owner.getObjectId())
-                                .and("id").is(newObjectId(id))
-                ), CLASS
-        );
+        try {
+            validateOwner(owner);
+            operations.remove(
+                    new Query(
+                            where("owner.$id").is(owner.getObjectId())
+                                    .and("id").is(newObjectId(id))
+                    ), CLASS
+            );
+        } catch (MuttleyRepositoryInvalidIdException ex) {
+            throw new MuttleyNotFoundException(CLASS, "id", "Registro não encontrado");
+        }
     }
 
     @Override
@@ -113,13 +125,17 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
 
     @Override
     public final boolean exists(final Owner owner, final String id) {
-        validateOwner(owner);
-        return operations.exists(
-                new Query(
-                        where("owner.$id").is(owner.getObjectId())
-                                .and("id").is(newObjectId(id))
-                ), CLASS
-        );
+        try {
+            validateOwner(owner);
+            return operations.exists(
+                    new Query(
+                            where("owner.$id").is(owner.getObjectId())
+                                    .and("id").is(newObjectId(id))
+                    ), CLASS
+            );
+        } catch (MuttleyRepositoryInvalidIdException ex) {
+            throw new MuttleyNotFoundException(CLASS, "id", "Registro não encontrado");
+        }
     }
 
     @Override
@@ -155,16 +171,20 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
 
     @Override
     public Historic loadHistoric(final Owner owner, final String id) {
-        final AggregationResults result = operations.aggregate(
-                newAggregation(
-                        match(where("owner.$id").is(owner.getObjectId())
-                                .and("_id").is(newObjectId(id))
-                        ), project().and("$historic.createdBy").as("createdBy")
-                                .and("$historic.dtCreate").as("dtCreate")
-                                .and("$historic.dtChange").as("dtChange")
-                ), COLLECTION, Historic.class);
+        try {
+            final AggregationResults result = operations.aggregate(
+                    newAggregation(
+                            match(where("owner.$id").is(owner.getObjectId())
+                                    .and("_id").is(newObjectId(id))
+                            ), project().and("$historic.createdBy").as("createdBy")
+                                    .and("$historic.dtCreate").as("dtCreate")
+                                    .and("$historic.dtChange").as("dtChange")
+                    ), COLLECTION, Historic.class);
 
-        return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
+            return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
+        } catch (MuttleyRepositoryInvalidIdException ex) {
+            throw new MuttleyNotFoundException(CLASS, "id", "Registro não encontrado");
+        }
     }
 
     private final void validateOwner(final Owner owner) {
