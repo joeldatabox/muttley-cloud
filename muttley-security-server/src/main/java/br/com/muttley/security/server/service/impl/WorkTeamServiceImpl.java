@@ -26,11 +26,17 @@ import static java.util.Objects.isNull;
 @Service
 public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implements WorkTeamService {
     private final WorkTeamRepository repository;
+    private static final String[] basicRoles = new String[]{"work_team"};
 
     @Autowired
     public WorkTeamServiceImpl(final WorkTeamRepository repository) {
         super(repository, WorkTeam.class);
         this.repository = repository;
+    }
+
+    @Override
+    public String[] getBasicRoles() {
+        return basicRoles;
     }
 
     @Override

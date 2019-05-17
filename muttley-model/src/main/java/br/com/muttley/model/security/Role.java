@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Arrays.asList;
-
 /**
  * @author Joel Rodrigues Moreira on 10/05/19.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -21,17 +19,56 @@ import static java.util.Arrays.asList;
 @TypeAlias("role")
 public class Role {
     private final String roleName;
+
+    @JsonIgnore
+    protected static final Set<Role> values = new HashSet<>();
+
     @JsonIgnore
     public static final Role ROLE_OWNER = new Role("ROLE_OWNER");
     @JsonIgnore
     public static final Role ROLE_ROOT = new Role("ROLE_ROOT");
+
     @JsonIgnore
-    protected static final Set<Role> values = new HashSet<>(asList(ROLE_OWNER, ROLE_ROOT));
+    public static final Role ROLE_ACCESS_PLAN_CREATE = new Role("ROLE_ACCESS_PLAN_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_ACCESS_PLAN_READ = new Role("ROLE_ACCESS_PLAN_READ");
+    @JsonIgnore
+    public static final Role ROLE_ACCESS_PLAN_UPDATE = new Role("ROLE_ACCESS_PLAN_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_ACCESS_PLAN_DELETE = new Role("ROLE_ACCESS_PLAN_DELETE");
+
+    @JsonIgnore
+    public static final Role ROLE_OWNER_CREATE = new Role("ROLE_OWNER_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_OWNER_READ = new Role("ROLE_OWNER_READ");
+    @JsonIgnore
+    public static final Role ROLE_OWNER_UPDATE = new Role("ROLE_OWNER_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_OWNER_DELETE = new Role("ROLE_OWNER_DELETE");
+
+    @JsonIgnore
+    public static final Role ROLE_USER_VIEW_CREATE = new Role("ROLE_USER_VIEW_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_USER_VIEW_READ = new Role("ROLE_USER_VIEW_READ");
+    @JsonIgnore
+    public static final Role ROLE_USER_VIEW_UPDATE = new Role("ROLE_USER_VIEW_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_USER_VIEW_DELETE = new Role("ROLE_USER_VIEW_DELETE");
+
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_CREATE = new Role("ROLE_WORK_TEAM_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_READ = new Role("ROLE_WORK_TEAM_READ");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_UPDATE = new Role("ROLE_WORK_TEAM_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_DELETE = new Role("ROLE_WORK_TEAM_DELETE");
 
 
     @JsonCreator
     public Role(@JsonProperty("roleName") final String roleName) {
         this.roleName = roleName.toUpperCase();
+        values.add(this);
     }
 
     public String getRoleName() {

@@ -39,11 +39,17 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserViewService {
     private final MongoTemplate template;
     private static final String VIEW = "view_muttley_users";
+    private static final String[] basicRoles = new String[]{"user_view"};
 
     @Autowired
     public UserViewServiceImpl(final MongoTemplate mongoTemplate) {
         super(null, UserView.class);
         this.template = mongoTemplate;
+    }
+
+    @Override
+    public String[] getBasicRoles() {
+        return basicRoles;
     }
 
     @Override
