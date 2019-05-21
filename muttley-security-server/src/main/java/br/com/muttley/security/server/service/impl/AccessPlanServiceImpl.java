@@ -9,6 +9,8 @@ import br.com.muttley.security.server.service.AccessPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static br.com.muttley.model.security.Role.ROLE_ACCESS_PLAN_CREATE;
+
 /**
  * @author Joel Rodrigues Moreira on 26/02/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccessPlanServiceImpl extends SecurityServiceImpl<AccessPlan> implements AccessPlanService {
     final AccessPlanRepository repository;
-    private static final String[] basicRoles = new String[]{"access_plan"};
+    private static final String[] basicRoles = new String[]{ROLE_ACCESS_PLAN_CREATE.getSimpleName()};
 
     @Autowired
     public AccessPlanServiceImpl(final AccessPlanRepository repository) {

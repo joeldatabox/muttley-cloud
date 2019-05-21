@@ -67,12 +67,29 @@ public class Role {
 
     @JsonCreator
     public Role(@JsonProperty("roleName") final String roleName) {
-        this.roleName = roleName.toUpperCase();
+        if (!roleName.toUpperCase().startsWith("ROLE_")) {
+            this.roleName = "ROLE_" + roleName.toUpperCase();
+        } else {
+            this.roleName = roleName.toUpperCase();
+        }
         values.add(this);
     }
 
     public String getRoleName() {
         return roleName;
+    }
+
+    /**
+     * Retorno o nome de maneira simples da role.
+     * Por exemplo, considere a role 'ROLE_WOKR_TEAM_READ'
+     * o simple name dela será 'WORK_TEAM'
+     */
+    public String getSimpleName() {
+        return this.getRoleName().replace("ROLE_", "")
+                .replace("_CREATE", "")
+                .replace("_READ", "")
+                .replace("_UPDATE", "")
+                .replace("_DELETE", "");
     }
 
     @Override
@@ -104,7 +121,7 @@ public class Role {
     public static final Role valueOf(final String value) {
         return values
                 .stream()
-                .filter(it -> it.getRoleName().equals(value))
+                .filter(it -> it.getRoleName().equalsIgnoreCase(value))
                 .findAny()
                 .orElse(null);
     }
@@ -122,7 +139,7 @@ public class Role {
                 .stream()
                 .filter(it -> {
                     for (final String v : values) {
-                        if (it.getRoleName().equals(v)) {
+                        if (it.getRoleName().equalsIgnoreCase(v)) {
                             return true;
                         }
                     }
