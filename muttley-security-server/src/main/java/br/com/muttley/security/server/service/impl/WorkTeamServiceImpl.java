@@ -7,6 +7,7 @@ import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
+import br.com.muttley.security.server.service.UserRolesView;
 import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,12 +27,14 @@ import static java.util.Objects.isNull;
 @Service
 public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implements WorkTeamService {
     private final WorkTeamRepository repository;
+    private final UserRolesView userRolesView;
     private static final String[] basicRoles = new String[]{"work_team"};
 
     @Autowired
-    public WorkTeamServiceImpl(final WorkTeamRepository repository) {
+    public WorkTeamServiceImpl(final WorkTeamRepository repository, final UserRolesView userRolesView) {
         super(repository, WorkTeam.class);
         this.repository = repository;
+        this.userRolesView = userRolesView;
     }
 
     @Override
@@ -60,6 +63,6 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
     @Override
     public Set<Role> loadCurrentRoles(final User user) {
-        return user.getCurrentWorkTeam().getRoles();
+        return this.userRolesView.findByUser(user);
     }
 }
