@@ -13,6 +13,8 @@ import javax.validation.constraints.NotNull;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 /**
  * @author Joel Rodrigues Moreira on 24/04/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -35,6 +37,7 @@ public class WorkTeam implements Document {
     @DBRef
     protected Owner owner;
     @DBRef
+
     protected Set<User> members;
     protected Historic historic;
     protected Set<Role> roles;
@@ -151,5 +154,12 @@ public class WorkTeam implements Document {
     @Override
     public int hashCode() {
         return Objects.hashCode(id, -33);
+    }
+
+    public boolean containsRole(final Role role) {
+        if (isEmpty(this.roles)) {
+            return false;
+        }
+        return this.roles.contains(role);
     }
 }
