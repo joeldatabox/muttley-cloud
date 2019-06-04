@@ -6,6 +6,7 @@ import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidId
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.mongo.infra.Aggregate;
+import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static br.com.muttley.mongo.infra.Aggregate.createAggregationsCount;
+import static br.com.muttley.mongo.infra.metadata.EntityMetaData.of;
 import static org.bson.types.ObjectId.isValid;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -31,14 +33,15 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     protected final MongoOperations operations;
     protected final Class<T> CLASS;
     protected final String COLLECTION;
+    protected final EntityMetaData entityMetaData;
 
     public SimpleTenancyMongoRepositoryImpl(@Autowired final MongoEntityInformation<T, String> metadata, @Autowired final MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
         this.operations = mongoOperations;
         this.CLASS = metadata.getJavaType();
         this.COLLECTION = metadata.getCollectionName();
+        this.entityMetaData = of(metadata.getJavaType().getName(), metadata.getJavaType());
     }
-
 
     @Override
     public boolean isEmpty() {

@@ -24,6 +24,7 @@
         <java.version>1.8</java.version>
         <spring-cloud.version>Finchley.SR2</spring-cloud.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
+        <commons-lang3.version>3.9</commons-lang3.version>
         <org.projectlombok.version>1.18.2</org.projectlombok.version>
         <revision>2.0.6</revision>
     </properties>
@@ -168,6 +169,12 @@
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
                 <version>${commons-beanutils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
             </dependency>
 
             <dependency>
