@@ -105,7 +105,9 @@ public class ErrorMessageBuilder {
     }
 
     public ErrorMessage buildMessage(final MissingServletRequestParameterException ex) {
-        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
+        final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex))
+                .setMessage("Informe os parametros necessários")
+                .addDetails("nameParam", ex.getParameterName());
         printException(ex, message);
         return message;
     }
