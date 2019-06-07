@@ -21,5 +21,5 @@ public interface WorkTeamService extends Service<WorkTeam> {
 
     Set<Role> loadCurrentRoles(final User user);
 
-    WorkTeam findOwnerGroup(final User user);
+   // WorkTeam findOwnerGroup(final User user);
 }

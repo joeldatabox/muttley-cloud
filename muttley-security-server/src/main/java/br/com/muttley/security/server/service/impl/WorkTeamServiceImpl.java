@@ -58,7 +58,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
     @Override
     public void checkPrecondictionSave(final User user, final WorkTeam value) {
-        if
+
     }
 
     @Override
@@ -100,9 +100,9 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         return this.userRolesView.findByUser(user);
     }
 
-    @Override
+    /*@Override
     public WorkTeam findOwnerGroup(final User user) {
-        /**
+        *//**
          db.getCollection("muttley-work-teams")
          .aggregate([
          {$match:{"owner.$id":ObjectId("5cdb05cbc2183f60addb972c")}},
@@ -118,7 +118,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          {$unwind:"$result"},
          {$project:{"_id":"$result._id", "_class":"$result._class", "name":"$result.name", "description":"$result.description","historic":"$result.historic", "userMaster":"$result.userMaster","owner":"$result.owner", "members":"$result.members", "roles":"$result.roles"}}
          ])
-         */
+         *//*
         this.mongoTemplate.aggregate(
                 newAggregation(
                         match(where("owner.$id").is(user.getCurrentOwner().getObjectId())),
@@ -133,5 +133,5 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                         .and("name")
                 ), "", WorkTeam.class
         )
-    }
+    }*/
 }
