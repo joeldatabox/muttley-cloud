@@ -40,7 +40,7 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
         this.operations = mongoOperations;
         this.CLASS = metadata.getJavaType();
         this.COLLECTION = metadata.getCollectionName();
-        this.entityMetaData = of(metadata.getJavaType().getName(), metadata.getJavaType());
+        this.entityMetaData = of(metadata.getJavaType());
     }
 
     @Override

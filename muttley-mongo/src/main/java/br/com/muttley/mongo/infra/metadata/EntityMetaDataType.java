@@ -19,6 +19,7 @@ public enum EntityMetaDataType {
     STRING,
     NUMBER,
     DBREF,
+    BOOLEAN,
     DATE,
     ARRAY,
     OTHER;
@@ -40,6 +41,9 @@ public enum EntityMetaDataType {
                 (field.getType() == BigInteger.class) ||
                 (field.getType() == BigDecimal.class)) {
             return NUMBER;
+        }
+        if (field.getType() == boolean.class || field.getType() == Boolean.class) {
+            return BOOLEAN;
         }
         if (field.getType() == Date.class) {
             return DATE;
