@@ -5,13 +5,18 @@ import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullE
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.mongo.service.annotations.CompoundIndexes;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +40,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
         this.operations = mongoOperations;
         this.CLASS = metadata.getJavaType();
         this.COLLECTION = metadata.getCollectionName();
+        this.createIndexes(metadata);
     }
 
     @Override
@@ -156,6 +162,33 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
         public ResultCount setCount(final Long count) {
             this.count = count;
             return this;
+        }
+    }
+
+    private void createIndexes(final MongoEntityInformation<T, String> metadata) {
+        System.out.println(this.operations.getCollection(metadata.getCollectionName()).getIndexInfo());
+        final CompoundIndexes compoundIndexes = metadata.getJavaType().getAnnotation(CompoundIndexes.class);
+        if (compoundIndexes != null) {
+            for (final CompoundIndex compoundIndex : compoundIndexes.value()) {
+                final DBObject indexDefinition = BasicDBObject.parse(compoundIndex.def());
+                final DBObject options = new BasicDBObject();
+                if (compoundIndex.background()) {
+                    options.put("background", 1);
+                }
+                if (compoundIndex.unique()) {
+                    options.put("unique", 1);
+                }
+                if (!StringUtils.isEmpty(compoundIndex.name())) {
+                    options.put("name", compoundIndex.name());
+                }
+
+                if (compoundIndex.sparse()) {
+                    options.put("sparse", compoundIndex.sparse());
+                }
+
+                this.operations.getCollection(metadata.getCollectionName())
+                        .createIndex(indexDefinition, options);
+            }
         }
     }
 }
