@@ -8,6 +8,8 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.mongo.service.annotations.CompoundIndexes;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -21,6 +23,7 @@ import org.springframework.util.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static br.com.muttley.mongo.service.infra.Aggregate.createAggregations;
 import static br.com.muttley.mongo.service.infra.Aggregate.createAggregationsCount;
@@ -34,6 +37,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     protected final MongoOperations operations;
     protected final Class<T> CLASS;
     protected final String COLLECTION;
+    protected final Log log = LogFactory.getLog(this.getClass());
 
     public DocumentMongoRepositoryImpl(final MongoEntityInformation<T, String> metadata, final MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
@@ -166,28 +170,45 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     }
 
     private void createIndexes(final MongoEntityInformation<T, String> metadata) {
-        System.out.println(this.operations.getCollection(metadata.getCollectionName()).getIndexInfo());
         final CompoundIndexes compoundIndexes = metadata.getJavaType().getAnnotation(CompoundIndexes.class);
         if (compoundIndexes != null) {
+            final List<String> indexies = this.operations.getCollection(metadata.getCollectionName())
+                    .getIndexInfo()
+                    .stream()
+                    .map(index -> index.get("name"))
+                    .map(Object::toString)
+                    .collect(Collectors.toList());
+
+
             for (final CompoundIndex compoundIndex : compoundIndexes.value()) {
-                final DBObject indexDefinition = BasicDBObject.parse(compoundIndex.def());
-                final DBObject options = new BasicDBObject();
-                if (compoundIndex.background()) {
-                    options.put("background", 1);
-                }
-                if (compoundIndex.unique()) {
-                    options.put("unique", 1);
-                }
-                if (!StringUtils.isEmpty(compoundIndex.name())) {
-                    options.put("name", compoundIndex.name());
-                }
 
-                if (compoundIndex.sparse()) {
-                    options.put("sparse", compoundIndex.sparse());
-                }
+                if (!indexies.contains(compoundIndex.name())) {
+                    final DBObject indexDefinition = BasicDBObject.parse(compoundIndex.def());
+                    final DBObject options = new BasicDBObject();
 
-                this.operations.getCollection(metadata.getCollectionName())
-                        .createIndex(indexDefinition, options);
+                    if (compoundIndex.background()) {
+                        options.put("background", 1);
+                    }
+
+                    if (compoundIndex.unique()) {
+                        options.put("unique", 1);
+                    }
+
+                    if (!StringUtils.isEmpty(compoundIndex.name())) {
+                        options.put("name", compoundIndex.name());
+                    }
+
+                    if (compoundIndex.sparse()) {
+                        options.put("sparse", compoundIndex.sparse());
+                    }
+
+                    this.operations.getCollection(metadata.getCollectionName())
+                            .createIndex(indexDefinition, options);
+
+                    log.info("Created index \"" + compoundIndex.name() + "\" for collection \"" + COLLECTION + "\"");
+                } else {
+                    log.info("The index \"" + compoundIndex.name() + "\" already exists for collection \"" + COLLECTION + "\"");
+                }
             }
         }
     }
