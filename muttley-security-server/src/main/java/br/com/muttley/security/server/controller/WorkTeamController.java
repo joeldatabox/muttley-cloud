@@ -41,4 +41,10 @@ public class WorkTeamController extends AbstractRestController<WorkTeam> {
         return ResponseEntity.ok(service.loadCurrentRoles(userService.getUserFromToken(new JwtToken(tokenHeader))));
     }
 
+    @RequestMapping(value = "/avaliable-roles", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity loadAvaliableRoles(final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+        return ResponseEntity.ok(service.loadAvaliableRoles(userService.getUserFromToken(new JwtToken(tokenHeader))));
+    }
+
 }

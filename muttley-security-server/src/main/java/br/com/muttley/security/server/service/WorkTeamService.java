@@ -5,6 +5,7 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
+import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
 
 import java.util.List;
 import java.util.Set;
@@ -21,5 +22,5 @@ public interface WorkTeamService extends Service<WorkTeam> {
 
     Set<Role> loadCurrentRoles(final User user);
 
-   // WorkTeam findOwnerGroup(final User user);
+    AvaliableRoles loadAvaliableRoles(final User user);
 }
