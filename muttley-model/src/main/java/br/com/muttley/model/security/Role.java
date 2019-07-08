@@ -36,6 +36,8 @@ public class Role {
     public static final Role ROLE_ACCESS_PLAN_UPDATE = new Role("ROLE_ACCESS_PLAN_UPDATE");
     @JsonIgnore
     public static final Role ROLE_ACCESS_PLAN_DELETE = new Role("ROLE_ACCESS_PLAN_DELETE");
+    @JsonIgnore
+    public static final Role ROLE_ACCESS_PLAN_SIMPLE_USE = new Role("ROLE_ACCESS_PLAN_SIMPLE_USE");
 
     @JsonIgnore
     public static final Role ROLE_OWNER_CREATE = new Role("ROLE_OWNER_CREATE");
@@ -45,6 +47,8 @@ public class Role {
     public static final Role ROLE_OWNER_UPDATE = new Role("ROLE_OWNER_UPDATE");
     @JsonIgnore
     public static final Role ROLE_OWNER_DELETE = new Role("ROLE_OWNER_DELETE");
+    @JsonIgnore
+    public static final Role ROLE_OWNER_SIMPLE_USE = new Role("ROLE_OWNER_SIMPLE_USE");
 
     @JsonIgnore
     public static final Role ROLE_USER_VIEW_CREATE = new Role("ROLE_USER_VIEW_CREATE");
@@ -54,6 +58,8 @@ public class Role {
     public static final Role ROLE_USER_VIEW_UPDATE = new Role("ROLE_USER_VIEW_UPDATE");
     @JsonIgnore
     public static final Role ROLE_USER_VIEW_DELETE = new Role("ROLE_USER_VIEW_DELETE");
+    @JsonIgnore
+    public static final Role ROLE_USER_SIMPLE_USE = new Role("ROLE_USER_SIMPLE_USE");
 
     @JsonIgnore
     public static final Role ROLE_WORK_TEAM_CREATE = new Role("ROLE_WORK_TEAM_CREATE");
@@ -63,6 +69,8 @@ public class Role {
     public static final Role ROLE_WORK_TEAM_UPDATE = new Role("ROLE_WORK_TEAM_UPDATE");
     @JsonIgnore
     public static final Role ROLE_WORK_TEAM_DELETE = new Role("ROLE_WORK_TEAM_DELETE");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_SIMPLE_USE = new Role("ROLE_WORK_TEAM_SIMPLE_USE");
 
 
     @JsonCreator
@@ -90,7 +98,8 @@ public class Role {
                 .replace("_CREATE", "")
                 .replace("_READ", "")
                 .replace("_UPDATE", "")
-                .replace("_DELETE", "");
+                .replace("_DELETE", "")
+                .replace("_SIMPLE_USE", "");
     }
 
     @Override

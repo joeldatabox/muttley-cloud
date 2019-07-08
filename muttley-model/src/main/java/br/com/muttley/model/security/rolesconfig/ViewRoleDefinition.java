@@ -1,6 +1,7 @@
 package br.com.muttley.model.security.rolesconfig;
 
 import br.com.muttley.model.security.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -19,11 +20,15 @@ import static java.util.Arrays.stream;
 @Getter
 @EqualsAndHashCode(of = "title")
 public class ViewRoleDefinition {
+    @JsonIgnore
+    protected static int idsCounter = 0;
+    private final int id;
     private final String title;
     private final String description;
     private final Set<RoleDefinition> roleDefinitions;
 
-    public ViewRoleDefinition(final String title, final String description, final RoleDefinition... roleDefinitions) {
+    protected ViewRoleDefinition(final int id, final String title, final String description, final RoleDefinition... roleDefinitions) {
+        this.id = id;
         this.title = title;
         this.description = description;
         if (roleDefinitions == null) {
@@ -33,15 +38,18 @@ public class ViewRoleDefinition {
         }
     }
 
-    public ViewRoleDefinition(final String title, final String description, final Role... roles) {
-        this(title, description, stream(roles).map(it -> new RoleDefinition(it)).toArray(RoleDefinition[]::new));
+    protected ViewRoleDefinition(final int id, final String title, final String description, final Role... roles) {
+        this(id, title, description, stream(roles).map(it -> {
+            idsCounter++;
+            return new RoleDefinition(idsCounter, it);
+        }).toArray(RoleDefinition[]::new));
     }
 
-    public ViewRoleDefinition(final String title, final String description) {
-        this(title, description, (RoleDefinition) null);
+    protected ViewRoleDefinition(final int id, final String title, final String description) {
+        this(id, title, description, (RoleDefinition) null);
     }
 
-    public ViewRoleDefinition add(RoleDefinition roleDefinition) {
+    protected ViewRoleDefinition add(RoleDefinition roleDefinition) {
         this.roleDefinitions.add(roleDefinition);
         return this;
     }
@@ -54,5 +62,15 @@ public class ViewRoleDefinition {
     public ViewRoleDefinition add(Collection<RoleDefinition> roleDefinitions) {
         this.roleDefinitions.addAll(roleDefinitions);
         return this;
+    }
+
+    public static RoleDefinition newRoleDefinition(final Role typeRole, final String description) {
+        idsCounter++;
+        return new RoleDefinition(idsCounter, typeRole, description);
+    }
+
+    public static RoleDefinition newRoleDefinition(final Role typeRole) {
+        idsCounter++;
+        return new RoleDefinition(idsCounter, typeRole);
     }
 }
