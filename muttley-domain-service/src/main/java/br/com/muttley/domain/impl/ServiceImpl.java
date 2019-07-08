@@ -192,7 +192,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     }
 
     @Override
-    public Long count(final User user, final Map<String, Object> allRequestParams) {
+    public Long count(final User user, final Map<String, String> allRequestParams) {
         return this.repository.count(allRequestParams);
     }
 
@@ -207,7 +207,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     }
 
     @Override
-    public List<T> findAll(final User user, final Map<String, Object> allRequestParams) {
+    public List<T> findAll(final User user, final Map<String, String> allRequestParams) {
         final List<T> results = this.repository.findAll(allRequestParams);
         if (CollectionUtils.isEmpty(results)) {
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");
