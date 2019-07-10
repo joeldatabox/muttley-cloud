@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.Fields;
@@ -136,7 +137,10 @@ public class EntityMetaData {
             return entityMetaData
                     .getFields()
                     .stream()
-                    .filter(it -> it.nameField.equals(nameField))
+                    .filter(it -> {
+                        final String referencedName = "$" + it.nameField;
+                        return it.nameField.equals(nameField) || referencedName.equals(nameField);
+                    })
                     .findFirst()
                     .orElse(null);
         }
@@ -170,6 +174,9 @@ public class EntityMetaData {
 
     public Object converteValue(Object object) {
         if (object == null || this.classType == object.getClass()) {
+            if (isId()) {
+                return new ObjectId(object.toString());
+            }
             return object;
         }
         switch (this.type) {
@@ -289,7 +296,7 @@ public class EntityMetaData {
     }
 
     private List<AggregationOperation> createOperation(final String[] keyEntityMetaData, final EntityMetaData entityMetaData) {
-        if (keyEntityMetaData == null || keyEntityMetaData.length == 0) {
+        if (keyEntityMetaData == null || keyEntityMetaData.length == 0 || (keyEntityMetaData.length == 2 && keyEntityMetaData[1].endsWith(".$id"))) {
             return asList();
         }
         final List<AggregationOperation> result = new ArrayList<>();
