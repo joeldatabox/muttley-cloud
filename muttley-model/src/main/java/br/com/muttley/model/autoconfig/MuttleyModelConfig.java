@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
  * <p>
  */
 @Configuration
-@ComponentScan(basePackageClasses = SpelResolveEventListener.class)
+//@ComponentScan(basePackageClasses = SpelResolveEventListener.class)
 @EnableConfigurationProperties(MuttleyModelProperty.class)
 public class MuttleyModelConfig implements InitializingBean {
     @Autowired

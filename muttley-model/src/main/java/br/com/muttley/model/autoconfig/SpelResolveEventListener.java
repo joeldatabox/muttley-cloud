@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@Component
+//@Component
 public class SpelResolveEventListener implements ApplicationListener<SpelResolveEvent> {
     private final ApplicationContext context;
 
