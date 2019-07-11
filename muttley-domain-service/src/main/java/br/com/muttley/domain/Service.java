@@ -206,7 +206,7 @@ public interface Service<T extends Document> {
      * @param user             -> usuário da requisição corrente
      * @param allRequestParams -> Todos os parametros passado na query da requisição
      */
-    Long count(final User user, final Map<String, Object> allRequestParams);
+    Long count(final User user, final Map<String, String> allRequestParams);
 
     /**
      * Verifica se existe um determinado registro no banco de dados
@@ -231,7 +231,7 @@ public interface Service<T extends Document> {
      * @param user             -> usuário da requisição corrente
      * @param allRequestParams -> Todos os parametros passado na query da requisição
      */
-    List<T> findAll(final User user, final Map<String, Object> allRequestParams);
+    List<T> findAll(final User user, final Map<String, String> allRequestParams);
 
     /**
      * Verifica se existe algum registro no DB

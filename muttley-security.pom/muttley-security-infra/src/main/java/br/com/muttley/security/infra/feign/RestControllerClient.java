@@ -101,7 +101,7 @@ public interface RestControllerClient<T extends Serializable> {
      * @return total record
      */
     @RequestMapping(value = "/count", method = GET, consumes = TEXT_PLAIN_VALUE)
-    Long count(@RequestParam Map<String, Object> allRequestParams);
+    Long count(@RequestParam Map<String, String> allRequestParams);
 
     /**
      * Count total record

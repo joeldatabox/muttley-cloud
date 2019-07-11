@@ -163,7 +163,7 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
     }
 
     @Override
-    public Long count(final User user, final Map<String, Object> allRequestParams) {
+    public Long count(final User user, final Map<String, String> allRequestParams) {
         return this.repository.count(user.getCurrentOwner(), allRequestParams);
     }
 
@@ -178,7 +178,7 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
     }
 
     @Override
-    public List<T> findAll(final User user, final Map<String, Object> allRequestParams) {
+    public List<T> findAll(final User user, final Map<String, String> allRequestParams) {
         final List<T> results = this.repository.findAll(user.getCurrentOwner(), allRequestParams);
         if (CollectionUtils.isEmpty(results)) {
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");

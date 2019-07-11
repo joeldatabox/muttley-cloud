@@ -5,11 +5,13 @@ import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullE
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.mongo.infra.Aggregate;
+import br.com.muttley.mongo.infra.AggregationUtils;
+import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -20,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static br.com.muttley.mongo.infra.Aggregate.createAggregationsCount;
+import static br.com.muttley.mongo.infra.metadata.EntityMetaData.of;
 import static org.bson.types.ObjectId.isValid;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -31,18 +33,19 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     protected final MongoOperations operations;
     protected final Class<T> CLASS;
     protected final String COLLECTION;
+    protected final EntityMetaData entityMetaData;
 
     public SimpleTenancyMongoRepositoryImpl(@Autowired final MongoEntityInformation<T, String> metadata, @Autowired final MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
         this.operations = mongoOperations;
         this.CLASS = metadata.getJavaType();
         this.COLLECTION = metadata.getCollectionName();
+        this.entityMetaData = of(metadata.getJavaType());
     }
-
 
     @Override
     public boolean isEmpty() {
-        return this.count((Map<String, Object>) null) == 0l;
+        return this.count((Map<String, String>) null) == 0l;
     }
 
     @Override
@@ -51,11 +54,11 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     }
 
     @Override
-    public List<T> findAll(final Map<String, Object> queryParams) {
+    public List<T> findAll(final Map<String, String> queryParams) {
         return operations
                 .aggregate(
                         newAggregation(
-                                Aggregate.createAggregations(CLASS,
+                                AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.CLASS),
                                         ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())
                                 )
                         ),
@@ -65,12 +68,12 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     }
 
     @Override
-    public long count(final Map<String, Object> queryParams) {
+    public long count(final Map<String, String> queryParams) {
         final AggregationResults result = operations.aggregate(
                 newAggregation(
-                        createAggregationsCount(
-                                CLASS,
-                                ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>()))
+                        AggregationUtils.createAggregationsCount(this.entityMetaData, getBasicPipelines(this.CLASS),
+                                ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())
+                        )
                 ), COLLECTION, ResultCount.class);
 
         return result.getUniqueMappedResult() != null ? ((ResultCount) result.getUniqueMappedResult()).count : 0;
@@ -138,6 +141,14 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
                 ), COLLECTION, Historic.class);
 
         return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
+    }
+
+
+    /**
+     * Retorna uma lista de pipelines para agregação
+     */
+    List<AggregationOperation> getBasicPipelines(final Class<T> clazz) {
+        return null;
     }
 
     protected final void validateId(final String id) {

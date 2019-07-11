@@ -5,7 +5,7 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyPageableRequestException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.security.User;
-import br.com.muttley.mongo.infra.Operators;
+import br.com.muttley.mongo.infra.Operator;
 import br.com.muttley.rest.hateoas.event.PaginatedResultsRetrievedEvent;
 import br.com.muttley.rest.hateoas.event.ResourceCreatedEvent;
 import br.com.muttley.rest.hateoas.event.SingleResourceRetrievedEvent;
@@ -92,8 +92,8 @@ public interface RestResource<T extends Document> {
     default PageableResource toPageableResource(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final Service service, final User user, final Map<String, String> params) {
         //validando os parametros passados
         final Map<String, Object> allRequestParams = validPageable(params);
-        final Long SKIP = Long.valueOf(allRequestParams.get(Operators.SKIP.toString()).toString());
-        final Long LIMIT = Long.valueOf(allRequestParams.get(Operators.LIMIT.toString()).toString());
+        final Long SKIP = Long.valueOf(allRequestParams.get(Operator.SKIP.toString()).toString());
+        final Long LIMIT = Long.valueOf(allRequestParams.get(Operator.LIMIT.toString()).toString());
 
         final long total = service.count(user, createQueryParamForCount(allRequestParams));
 
@@ -153,7 +153,7 @@ public interface RestResource<T extends Document> {
                 .entrySet()
                 .stream()
                 .filter(key ->
-                        !key.getKey().equals(Operators.LIMIT.toString()) && !key.getKey().equals(Operators.SKIP.toString())
+                        !key.getKey().equals(Operator.LIMIT.toString()) && !key.getKey().equals(Operator.SKIP.toString())
                 )
                 .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     }
@@ -166,32 +166,32 @@ public interface RestResource<T extends Document> {
     default Map<String, Object> validPageable(final Map<String, String> allRequestParams) {
         final MuttleyPageableRequestException ex = new MuttleyPageableRequestException();
 
-        if (allRequestParams.containsKey(Operators.LIMIT.toString())) {
+        if (allRequestParams.containsKey(Operator.LIMIT.toString())) {
             Integer limit = null;
             try {
-                limit = Integer.valueOf(allRequestParams.get(Operators.LIMIT.toString()));
+                limit = Integer.valueOf(allRequestParams.get(Operator.LIMIT.toString()));
                 if (limit > 100) {
-                    ex.addDetails(Operators.LIMIT.toString(), "o limite informado foi (" + limit + ") mas o maxímo é(100)");
+                    ex.addDetails(Operator.LIMIT.toString(), "o limite informado foi (" + limit + ") mas o maxímo é(100)");
                 }
             } catch (NumberFormatException nex) {
-                ex.addDetails(Operators.LIMIT.toString(), "deve conter um numero com o tamanho maximo de 100");
+                ex.addDetails(Operator.LIMIT.toString(), "deve conter um numero com o tamanho maximo de 100");
             }
         } else {
-            allRequestParams.put(Operators.LIMIT.toString(), "100");
+            allRequestParams.put(Operator.LIMIT.toString(), "100");
         }
 
-        if (allRequestParams.containsKey(Operators.SKIP.toString())) {
+        if (allRequestParams.containsKey(Operator.SKIP.toString())) {
             Integer page = null;
             try {
-                page = Integer.valueOf(allRequestParams.get(Operators.SKIP.toString()));
+                page = Integer.valueOf(allRequestParams.get(Operator.SKIP.toString()));
                 if (page < 0) {
-                    ex.addDetails(Operators.SKIP.toString(), "a pagina informada foi (" + page + ") mas a deve ter o tamanho minimo de (0)");
+                    ex.addDetails(Operator.SKIP.toString(), "a pagina informada foi (" + page + ") mas a deve ter o tamanho minimo de (0)");
                 }
             } catch (final NumberFormatException nex) {
-                ex.addDetails(Operators.SKIP.toString(), "deve conter um numero com o tamanho minimo de 0");
+                ex.addDetails(Operator.SKIP.toString(), "deve conter um numero com o tamanho minimo de 0");
             }
         } else {
-            allRequestParams.put(Operators.SKIP.toString(), "0");
+            allRequestParams.put(Operator.SKIP.toString(), "0");
         }
 
         if (ex.containsDetais()) {

@@ -25,14 +25,14 @@ public interface SimpleTenancyMongoRepository<T> extends MongoRepository<T, Stri
      *
      * @param queryParams -> parametros para criterios
      */
-    List<T> findAll(final Map<String, Object> queryParams);
+    List<T> findAll(final Map<String, String> queryParams);
 
     /**
      * Conta registros de uma determinada collection
      *
      * @param queryParams -> parametros para criterios
      */
-    long count(final Map<String, Object> queryParams);
+    long count(final Map<String, String> queryParams);
 
     /**
      * Verifica se existe um determinado registro no banco de dados

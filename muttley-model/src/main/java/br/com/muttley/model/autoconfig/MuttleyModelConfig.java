@@ -6,6 +6,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
  * <p>
  */
 @Configuration
+//@ComponentScan(basePackageClasses = SpelResolveEventListener.class)
 @EnableConfigurationProperties(MuttleyModelProperty.class)
 public class MuttleyModelConfig implements InitializingBean {
     @Autowired

@@ -120,7 +120,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
 
     @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public final ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams,
+    public final ResponseEntity count(@RequestParam final Map<String, String> allRequestParams,
                                       @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(String.valueOf(service.count(null, allRequestParams)));
     }
