@@ -256,7 +256,6 @@ public class EntityMetaData {
                 (clazz == Object.class)) {
             return true;
         } else {
-            System.out.println(clazz.getName());
             return false;
         }
     }
