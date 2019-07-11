@@ -1,5 +1,7 @@
 package br.com.muttley.mongo.infra.metadata;
 
+import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.model.security.Owner;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -303,6 +305,9 @@ public class EntityMetaData {
         for (int i = 0; i < keyEntityMetaData.length; i++) {
             final EntityMetaData currentField = entityMetaData.getFieldByName(keyEntityMetaData[i]);
             if (currentField != null && currentField.isDBRef()) {
+                if (currentField.getClassType() == Owner.class) {
+                    throw new MuttleyBadRequestException(currentField.getClassType(), currentField.getNameField(), "Acesso indevido a propriedade");
+                }
                 //auxilia na concatenação
                 final int aux = i;
                 if (i == 0) {
