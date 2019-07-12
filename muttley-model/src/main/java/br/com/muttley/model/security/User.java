@@ -38,7 +38,7 @@ import static java.util.Objects.isNull;
 /**
  * Created by joel on 16/01/17.
  */
-@Document(collection = "#{documentNameConfig.getNameCollectionUser()}")
+@Document(collection = "#{@documentNameConfig.getNameCollectionUser()}")
 @CompoundIndexes({
         @CompoundIndex(name = "email_index_unique", def = "{'email' : 1}", unique = true)
 })

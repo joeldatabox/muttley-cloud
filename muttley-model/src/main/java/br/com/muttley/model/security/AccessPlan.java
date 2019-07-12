@@ -19,7 +19,7 @@ import javax.validation.constraints.NotBlank;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@org.springframework.data.mongodb.core.mapping.Document(collection = "#{documentNameConfig.getNameCollectionAccessPlan()}")
+@org.springframework.data.mongodb.core.mapping.Document(collection = "#{@documentNameConfig.getNameCollectionAccessPlan()}")
 @CompoundIndexes({
         @CompoundIndex(name = "name_index_unique", def = "{'name' : 1}", unique = true)
 })

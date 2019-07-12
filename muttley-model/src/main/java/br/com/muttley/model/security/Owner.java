@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@Document(collection = "#{documentNameConfig.getNameCollectionOwner()}")
+@Document(collection = "#{@documentNameConfig.getNameCollectionOwner()}")
 @CompoundIndexes({
         @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })
