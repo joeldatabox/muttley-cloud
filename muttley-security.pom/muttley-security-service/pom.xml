@@ -49,7 +49,6 @@
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-security-infra</artifactId>
-            <version>${revision}</version>
         </dependency>
 
     </dependencies>

@@ -30,7 +30,6 @@
         <dependency>
             <groupId>io.github.openfeign</groupId>
             <artifactId>feign-okhttp</artifactId>
-            <version>10.0.1</version>
         </dependency>
 
         <dependency>

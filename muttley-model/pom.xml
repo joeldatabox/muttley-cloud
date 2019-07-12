@@ -14,9 +14,6 @@
     <name>muttley-model</name>
     <description>Demo project for Spring Boot</description>
 
-    <properties>
-        <jsonwebtoken.version>0.9.1</jsonwebtoken.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -66,7 +63,6 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
-            <version>${jsonwebtoken.version}</version>
         </dependency>
     </dependencies>
 </project>

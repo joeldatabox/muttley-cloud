@@ -28,7 +28,7 @@ import static org.springframework.util.Assert.notNull;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@org.springframework.data.mongodb.core.mapping.Document(collection = "#{documentNameConfig.getNameCollectionUserPreferences()}")
+@org.springframework.data.mongodb.core.mapping.Document(collection = "#{@documentNameConfig.getNameCollectionUserPreferences()}")
 @CompoundIndexes({
         @CompoundIndex(name = "user_index_unique", def = "{'user' : 1}", unique = true)
 })
