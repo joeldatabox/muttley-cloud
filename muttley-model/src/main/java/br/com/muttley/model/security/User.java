@@ -31,9 +31,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Created by joel on 16/01/17.
@@ -239,9 +241,15 @@ public class User implements Serializable {
         return authorities;
     }
 
+    @JsonProperty
     public User setAuthorities(final Set<Authority> authorities) {
         authorities.forEach(a -> checkAuthority(a));
         this.authorities = authorities;
+        return this;
+    }
+
+    public User setAuthorities(final Collection<Role> roles) {
+        this.authorities = roles.stream().map(it -> new AuthorityImpl(it)).collect(toSet());
         return this;
     }
 
