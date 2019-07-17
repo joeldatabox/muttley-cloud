@@ -4,6 +4,7 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.events.WorkTeamCreateEvent;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Objects.isNull;
 
@@ -58,5 +60,11 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
             throw new MuttleyNoContentException(WorkTeam.class, "name", "Nenhum time de trabalho encontrado");
         }
         return itens;
+    }
+
+
+    @Override
+    public Set<Role> loadCurrentRoles(final User user) {
+        return user.getCurrentWorkTeam().getRoles();
     }
 }
