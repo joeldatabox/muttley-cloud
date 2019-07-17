@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccessPlanServiceImpl extends SecurityServiceImpl<AccessPlan> implements AccessPlanService {
     final AccessPlanRepository repository;
+    private static final String[] basicRoles = new String[]{"access_plan"};
 
     @Autowired
     public AccessPlanServiceImpl(final AccessPlanRepository repository) {
@@ -31,6 +32,11 @@ public class AccessPlanServiceImpl extends SecurityServiceImpl<AccessPlan> imple
             throw new MuttleyNotFoundException(AccessPlan.class, "descricao", "Registro não encontrado");
         }
         return AccessPlan;
+    }
+
+    @Override
+    public String[] getBasicRoles() {
+        return basicRoles;
     }
 
     @Override
