@@ -1,4 +1,4 @@
-package br.com.muttley.security.server.autoconfig.view.source;
+package br.com.muttley.security.server.autoconfig.view;
 
 import br.com.muttley.mongo.views.source.ViewSource;
 import org.bson.BsonDocument;

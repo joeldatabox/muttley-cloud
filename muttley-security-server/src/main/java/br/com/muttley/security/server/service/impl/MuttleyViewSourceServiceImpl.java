@@ -2,8 +2,8 @@ package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.mongo.service.MuttleyViewSourceService;
 import br.com.muttley.mongo.views.source.ViewSource;
-import br.com.muttley.security.server.autoconfig.view.source.ViewMuttleyUsers;
-import br.com.muttley.security.server.autoconfig.view.source.ViewMuttleyWorkTeam;
+import br.com.muttley.security.server.autoconfig.view.ViewMuttleyUsers;
+import br.com.muttley.security.server.autoconfig.view.ViewMuttleyWorkTeam;
 import org.springframework.stereotype.Service;
 
 /**

@@ -2,7 +2,7 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.jackson.converter.DocumentSerializer;
+import br.com.muttley.model.jackson.converter.ListDocumentSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,7 +17,6 @@ import java.util.Set;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@org.springframework.data.mongodb.core.mapping.Document(collection = "view_muttley_users")
 @Getter
 @Setter
 @Accessors(chain = true)
@@ -27,7 +26,7 @@ public class UserView implements Document {
     private String name;
     private String email;
     @DBRef
-    @JsonSerialize(using = DocumentSerializer.class)
+    @JsonSerialize(using = ListDocumentSerializer.class)
     private Set<Owner> owners;
     private Historic historic;
 
