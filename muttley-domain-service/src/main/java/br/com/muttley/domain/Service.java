@@ -13,6 +13,10 @@ import java.util.Map;
  * @project muttley-cloud
  */
 public interface Service<T extends Document> {
+    boolean isCheckRole();
+
+    String[] getBasicRoles();
+
     /**
      * Este método é sempre chamado antes de persistir algum registro no banco de dados,
      * e também antes de se chamar o metodo {@link #beforeSave(User, Document)}.
