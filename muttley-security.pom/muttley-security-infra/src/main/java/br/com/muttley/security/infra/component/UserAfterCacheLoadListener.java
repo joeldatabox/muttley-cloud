@@ -64,6 +64,6 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
         }
         user.setPreferences(preferences);
         user.setCurrentWorkTeam(workTeam);
-        user.setAuthorities(workTeam.getAuthorities());
+        user.setAuthorities(workTeam.getRoles());
     }
 }

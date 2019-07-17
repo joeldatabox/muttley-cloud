@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.jsonwebtoken.lang.Collections.isEmpty;
+
 /**
  * @author Joel Rodrigues Moreira on 08/01/18.
  * @project demo
@@ -118,6 +120,9 @@ public class JwtUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (isEmpty(this.authorities)) {
+            return mapToGrantedAuthorities(this.originUser.getAuthorities());
+        }
         return authorities;
     }
 

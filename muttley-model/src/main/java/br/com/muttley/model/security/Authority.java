@@ -1,8 +1,5 @@
 package br.com.muttley.model.security;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-@JsonDeserialize(as = AuthorityImpl.class)
 public interface Authority {
 
     Role getRole();

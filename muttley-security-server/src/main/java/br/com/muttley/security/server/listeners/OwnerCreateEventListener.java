@@ -45,7 +45,7 @@ public class OwnerCreateEventListener implements ApplicationListener<OwnerCreate
                         .setOwner(ownerCreateEvent.getSource())
                         .setUserMaster(userMaster)
                         .addMember(userMaster)
-                        .addAuthority(ROLE_OWNER)
+                        .addRole(ROLE_OWNER)
         );
 
         /*Já que acabamos de criar um Owner, devemos verificar se o usuário master já tem algumas preferencias básicas

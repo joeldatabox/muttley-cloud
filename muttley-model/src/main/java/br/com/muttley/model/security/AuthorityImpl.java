@@ -1,5 +1,7 @@
 package br.com.muttley.model.security;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +32,8 @@ public class AuthorityImpl implements Authority {
         this(Role.valueOf(role));
     }
 
-    public AuthorityImpl(final Role role, final String description) {
+    @JsonCreator
+    public AuthorityImpl(@JsonProperty("role") final Role role, @JsonProperty("description") final String description) {
         this(role);
         this.description = description;
     }

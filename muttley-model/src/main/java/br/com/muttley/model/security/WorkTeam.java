@@ -47,11 +47,11 @@ public class WorkTeam implements Document {
     @DBRef
     protected Set<User> members;
     protected Historic historic;
-    protected Set<Role> authorities;
+    protected Set<Role> roles;
 
     public WorkTeam() {
         this.members = new LinkedHashSet<>();
-        this.authorities = new LinkedHashSet<>();
+        this.roles = new LinkedHashSet<>();
     }
 
     public WorkTeam setUserMaster(final User userMaster) {
@@ -65,22 +65,22 @@ public class WorkTeam implements Document {
         return this;
     }
 
-    public Set<Role> getAuthorities() {
-        return authorities;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public WorkTeam setAuthorities(final Set<Authority> authorities) {
-        this.authorities = authorities.stream().map(Authority::getRole).collect(Collectors.toSet());
+    public WorkTeam setRoles(final Set<Authority> roles) {
+        this.roles = roles.stream().map(Authority::getRole).collect(Collectors.toSet());
         return this;
     }
 
-    public WorkTeam addAuthority(final Authority authority) {
-        this.authorities.add(authority.getRole());
+    public WorkTeam addRole(final Authority role) {
+        this.roles.add(role.getRole());
         return this;
     }
 
-    public WorkTeam addAuthority(final Role role) {
-        this.authorities.add(role);
+    public WorkTeam addRole(final Role role) {
+        this.roles.add(role);
         return this;
     }
 
