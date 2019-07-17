@@ -4,9 +4,9 @@ import br.com.muttley.domain.Service;
 import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.security.Authority;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.enumeration.Authorities;
 import br.com.muttley.rest.RestResource;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.UserService;
@@ -172,7 +172,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         }
     }
 
-    protected final void checkCredentials(final User user, final Authorities... roles) {
+    protected final void checkCredentials(final User user, final Authority... roles) {
         if (!user.inAnyRole(roles)) {
             throw new MuttleySecurityCredentialException("Você não tem permissão para acessar este recurso ")
                     .addDetails("isNecessary", roles);

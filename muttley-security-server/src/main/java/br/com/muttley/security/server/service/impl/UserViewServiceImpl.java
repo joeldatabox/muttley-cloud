@@ -26,6 +26,7 @@ import java.util.Map;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -99,8 +100,11 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
 
     @Override
     public List<UserView> list(final String criterio, final String idOwner) {
-
-        final List<UserView> views = this.template.aggregate(newAggregation(this.createQuery(criterio, idOwner)), "view_muttley_users", UserView.class).getMappedResults();
+        final List<AggregationOperation> operations = this.createQuery(criterio, idOwner);
+        if (operations.isEmpty()) {
+            operations.add(project("_id", "name", "email", "owners"));
+        }
+        final List<UserView> views = this.template.aggregate(newAggregation(operations), "view_muttley_users", UserView.class).getMappedResults();
         if (views == null || views.isEmpty()) {
             throw new MuttleyNoContentException(UserView.class, "", "nenhum registro encontrado");
         }

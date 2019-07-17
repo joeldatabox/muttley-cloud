@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.listeners;
 
 import br.com.muttley.model.events.OwnerCreateEvent;
+import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.preference.UserPreferences;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import static br.com.muttley.model.security.Role.ROLE_OWNER;
 import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM_PREFERENCE;
 
 /**
@@ -43,6 +45,7 @@ public class OwnerCreateEventListener implements ApplicationListener<OwnerCreate
                         .setOwner(ownerCreateEvent.getSource())
                         .setUserMaster(userMaster)
                         .addMember(userMaster)
+                        .addAuthority(ROLE_OWNER)
         );
 
         /*Já que acabamos de criar um Owner, devemos verificar se o usuário master já tem algumas preferencias básicas
