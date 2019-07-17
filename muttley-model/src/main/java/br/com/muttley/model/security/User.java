@@ -72,6 +72,8 @@ public class User implements Serializable {
     @JsonBackReference
     @Transient
     private UserPreferences preferences;
+    //Define se o usuário é do odin ou de algum outro owner
+    private boolean odinUser = false;
 
     public User() {
         this.authorities = new LinkedHashSet();
@@ -302,6 +304,15 @@ public class User implements Serializable {
 
     public boolean containsPreference(final String keyPreference) {
         return this.preferences.contains(keyPreference);
+    }
+
+    public boolean isOdinUser() {
+        return odinUser;
+    }
+
+    public User setOdinUser(final boolean odinUser) {
+        this.odinUser = odinUser;
+        return this;
     }
 
     @Override
