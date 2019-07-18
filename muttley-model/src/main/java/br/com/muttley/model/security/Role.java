@@ -86,6 +86,7 @@ public class Role {
      * Por exemplo, considere a role 'ROLE_WOKR_TEAM_READ'
      * o simple name dela será 'WORK_TEAM'
      */
+    @JsonIgnore
     public String getSimpleName() {
         return this.getRoleName().replace("ROLE_", "")
                 .replace("_CREATE", "")

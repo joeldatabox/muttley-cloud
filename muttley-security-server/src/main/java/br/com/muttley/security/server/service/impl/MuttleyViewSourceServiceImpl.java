@@ -4,6 +4,7 @@ import br.com.muttley.mongo.service.MuttleyViewSourceService;
 import br.com.muttley.mongo.views.source.ViewSource;
 import br.com.muttley.security.server.autoconfig.view.ViewMuttleyUsers;
 import br.com.muttley.security.server.autoconfig.view.ViewMuttleyWorkTeam;
+import br.com.muttley.security.server.autoconfig.view.ViewMuttleyWorkTeamRolesUser;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,6 +16,10 @@ import org.springframework.stereotype.Service;
 public class MuttleyViewSourceServiceImpl implements MuttleyViewSourceService {
     @Override
     public ViewSource[] getCustomViewSource() {
-        return new ViewSource[]{new ViewMuttleyUsers(), new ViewMuttleyWorkTeam()};
+        return new ViewSource[]{
+                new ViewMuttleyWorkTeam(),
+                new ViewMuttleyUsers(),
+                new ViewMuttleyWorkTeamRolesUser()
+        };
     }
 }

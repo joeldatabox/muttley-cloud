@@ -8,6 +8,7 @@ import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
+import br.com.muttley.security.server.service.UserRolesViewService;
 import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,12 +30,14 @@ import static java.util.Objects.isNull;
 public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implements WorkTeamService {
     private final WorkTeamRepository repository;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserRolesViewService userRolesViewService;
     private static final String[] basicRoles = new String[]{"work_team"};
 
     @Autowired
-    public WorkTeamServiceImpl(final WorkTeamRepository repository, final ApplicationEventPublisher eventPublisher) {
+    public WorkTeamServiceImpl(final WorkTeamRepository repository, final UserRolesViewService userRolesViewService, final ApplicationEventPublisher eventPublisher) {
         super(repository, WorkTeam.class);
         this.repository = repository;
+        this.userRolesViewService = userRolesViewService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -71,6 +74,6 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
     @Override
     public Set<Role> loadCurrentRoles(final User user) {
-        return user.getCurrentWorkTeam().getRoles();
+        return this.userRolesViewService.findByUser(user);
     }
 }
