@@ -18,6 +18,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 /**
  * @author Joel Rodrigues Moreira on 24/04/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -84,4 +86,10 @@ public class WorkTeam implements Document {
         return this;
     }
 
+    public boolean containsRole(final Role role) {
+        if (isEmpty(this.roles)) {
+            return false;
+        }
+        return this.roles.contains(role);
+    }
 }
