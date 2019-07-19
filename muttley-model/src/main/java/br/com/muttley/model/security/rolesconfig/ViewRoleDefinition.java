@@ -26,6 +26,7 @@ public class ViewRoleDefinition {
     private final String title;
     private final String description;
     private final Set<RoleDefinition> roleDefinitions;
+    private final Set<Role> dependencies = new HashSet<>();
 
     protected ViewRoleDefinition(final int id, final String title, final String description, final RoleDefinition... roleDefinitions) {
         this.id = id;
@@ -61,6 +62,11 @@ public class ViewRoleDefinition {
 
     public ViewRoleDefinition add(Collection<RoleDefinition> roleDefinitions) {
         this.roleDefinitions.addAll(roleDefinitions);
+        return this;
+    }
+
+    public ViewRoleDefinition addDependencies(final Role... dependencies) {
+        this.dependencies.addAll(asList(dependencies));
         return this;
     }
 

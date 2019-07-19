@@ -339,7 +339,7 @@ public interface Service<T extends Document> {
                     "): " +
                     "   true"
     )
-    Long count(final User user, final Map<String, Object> allRequestParams);
+    Long count(final User user, final Map<String, String> allRequestParams);
 
     /**
      * Realiza o processo de listagem com base nos critérios
@@ -362,7 +362,7 @@ public interface Service<T extends Document> {
                     "): " +
                     "   true"
     )
-    List<T> findAll(final User user, final Map<String, Object> allRequestParams);
+    List<T> findAll(final User user, final Map<String, String> allRequestParams);
 
     /**
      * Verifica se existe algum registro no DB
