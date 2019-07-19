@@ -16,6 +16,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * @author Joel Rodrigues Moreira on 24/04/18.
@@ -46,11 +49,11 @@ public class WorkTeam implements Document {
     @DBRef
     protected Set<User> members;
     protected Historic historic;
-    protected Set<Authority> authorities;
+    protected Set<Role> roles;
 
     public WorkTeam() {
         this.members = new LinkedHashSet<>();
-        this.authorities = new LinkedHashSet<>();
+        this.roles = new LinkedHashSet<>();
     }
 
     public WorkTeam setUserMaster(final User userMaster) {
@@ -64,9 +67,29 @@ public class WorkTeam implements Document {
         return this;
     }
 
-    public WorkTeam addAuthority(final Authority authority) {
-        this.authorities.add(authority);
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public WorkTeam setRoles(final Set<Authority> roles) {
+        this.roles = roles.stream().map(Authority::getRole).collect(Collectors.toSet());
         return this;
     }
 
+    public WorkTeam addRole(final Authority role) {
+        this.roles.add(role.getRole());
+        return this;
+    }
+
+    public WorkTeam addRole(final Role role) {
+        this.roles.add(role);
+        return this;
+    }
+
+    public boolean containsRole(final Role role) {
+        if (isEmpty(this.roles)) {
+            return false;
+        }
+        return this.roles.contains(role);
+    }
 }

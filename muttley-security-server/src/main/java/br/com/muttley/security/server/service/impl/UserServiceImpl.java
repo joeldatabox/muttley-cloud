@@ -14,6 +14,7 @@ import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.UserPreferenceService;
 import br.com.muttley.security.server.service.UserService;
+import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -39,16 +40,19 @@ public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final UserPreferenceService userPreferenceService;
     private final JwtTokenUtilService tokenUtil;
+    private final WorkTeamService workTeamService;
 
     @Autowired
     public UserServiceImpl(final ApplicationEventPublisher eventPublisher,
                            final UserRepository repository,
                            final UserPreferenceService userPreferenceService,
-                           final JwtTokenUtilService tokenUtil) {
+                           final JwtTokenUtilService tokenUtil,
+                           final WorkTeamService workTeamService) {
         this.eventPublisher = eventPublisher;
         this.repository = repository;
         this.userPreferenceService = userPreferenceService;
         this.tokenUtil = tokenUtil;
+        this.workTeamService = workTeamService;
     }
 
     @Override
@@ -123,7 +127,11 @@ public class UserServiceImpl implements UserService {
         if (token != null && !token.isEmpty()) {
             final String userName = this.tokenUtil.getUsernameFromToken(token.getToken());
             if (!isNullOrEmpty(userName)) {
-                return findByEmail(userName);
+                final User user = this.findByEmail(userName);
+                final UserPreferences preferences = this.userPreferenceService.getPreferences(user);
+                user.setPreferences(preferences);
+                user.setCurrentWorkTeam(this.workTeamService.findById(user, preferences.get(UserPreferences.WORK_TEAM_PREFERENCE).getValue().toString()));
+                return user;
             }
         }
         throw new MuttleySecurityUnauthorizedException();

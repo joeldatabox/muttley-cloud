@@ -5,6 +5,7 @@ import br.com.muttley.jackson.service.MuttleyJacksonDeserializeService;
 import br.com.muttley.jackson.service.MuttleyJacksonSerializeService;
 import br.com.muttley.jackson.service.infra.MuttleyJacksonDeserialize;
 import br.com.muttley.jackson.service.infra.MuttleyJacksonSerialize;
+import br.com.muttley.jackson.service.infra.deserializer.BigDecimalDeserializer;
 import br.com.muttley.jackson.service.infra.deserializer.ObjectIdDeserializer;
 import br.com.muttley.jackson.service.infra.serializer.ObjectIdSerializer;
 import br.com.muttley.model.jackson.DefaultDateFormatConfig;
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 
 
@@ -50,6 +52,7 @@ public class MuttleyJacksonConfig implements InitializingBean {
         return new Jackson2ObjectMapperBuilderCustomizer() {
             @Override
             public void customize(Jackson2ObjectMapperBuilder mapperBuilder) {
+                mapperBuilder.deserializerByType(BigDecimal.class, new BigDecimalDeserializer());
                 mapperBuilder.deserializerByType(ObjectId.class, new ObjectIdDeserializer());
                 mapperBuilder.serializerByType(ObjectId.class, new ObjectIdSerializer());
                 //se não existe um formatador de data padrão, devemos adicionar o nosso

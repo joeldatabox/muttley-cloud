@@ -15,7 +15,7 @@ public class DefaultAuthorityToDocumentConverter implements Converter<Authority,
     @Override
     public Document convert(final Authority authority) {
         final Document document = new Document();
-        document.put("name", authority.getName());
+        document.put("name", authority.getRole().toString());
         document.put("description", authority.getDescription());
         return document;
     }

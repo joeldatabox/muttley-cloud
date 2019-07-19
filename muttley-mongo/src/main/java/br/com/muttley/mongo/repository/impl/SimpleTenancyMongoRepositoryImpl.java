@@ -8,16 +8,24 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.mongo.infra.AggregationUtils;
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
+import br.com.muttley.mongo.service.annotations.CompoundIndexes;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.IndexOptions;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +42,7 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     protected final Class<T> CLASS;
     protected final String COLLECTION;
     protected final EntityMetaData entityMetaData;
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public SimpleTenancyMongoRepositoryImpl(@Autowired final MongoEntityInformation<T, String> metadata, @Autowired final MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
@@ -41,6 +50,7 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
         this.CLASS = metadata.getJavaType();
         this.COLLECTION = metadata.getCollectionName();
         this.entityMetaData = of(metadata.getJavaType());
+        this.createIndexes(metadata);
     }
 
     @Override
@@ -163,6 +173,42 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     protected final ObjectId newObjectId(final String id) {
         this.validateId(id);
         return new ObjectId(id);
+    }
+
+    private void createIndexes(final MongoEntityInformation<T, String> metadata) {
+        final CompoundIndexes compoundIndexes = metadata.getJavaType().getAnnotation(CompoundIndexes.class);
+        if (compoundIndexes != null) {
+            final MongoCursor<String> indexiesIterator = this.operations.getCollection(metadata.getCollectionName())
+                    .listIndexes()
+                    .map(index -> index.get("name"))
+                    .map(Object::toString)
+                    .iterator();
+            final List<String> indexies = new ArrayList<>();
+
+            //pegando os nomes dos indices
+            indexiesIterator.forEachRemaining(indexies::add);
+
+            for (final CompoundIndex compoundIndex : compoundIndexes.value()) {
+
+                if (!indexies.contains(compoundIndex.name())) {
+
+                    final BasicDBObject indexDefinition = BasicDBObject.parse(compoundIndex.def());
+                    final IndexOptions options = new IndexOptions();
+
+                    options.background(compoundIndex.background());
+                    options.unique(compoundIndex.unique());
+                    options.name(compoundIndex.name());
+                    options.sparse(compoundIndex.sparse());
+
+                    this.operations.getCollection(metadata.getCollectionName())
+                            .createIndex(indexDefinition, options);
+
+                    log.info("Created index \"" + compoundIndex.name() + "\" for collection \"" + COLLECTION + "\"");
+                } else {
+                    log.info("The index \"" + compoundIndex.name() + "\" already exists for collection \"" + COLLECTION + "\"");
+                }
+            }
+        }
     }
 
     protected final class ResultCount {

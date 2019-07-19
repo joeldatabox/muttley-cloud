@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.util.Date;
@@ -24,11 +23,9 @@ public class Historic {
     @JsonSerialize(using = UserSerializer.class)
     @DBRef
     private User createdBy;
-    @Indexed
     private Date dtCreate;
     @DBRef
     private User lastChangeBy;
-    @Indexed
     private Date dtChange;
 
     public Historic() {

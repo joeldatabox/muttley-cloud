@@ -3,6 +3,7 @@ package br.com.muttley.domain;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,11 @@ import java.util.Map;
  * @project muttley-cloud
  */
 public interface Service<T extends Document> {
+
+    boolean isCheckRole();
+
+    String[] getBasicRoles();
+
     /**
      * Este método é sempre chamado antes de persistir algum registro no banco de dados,
      * e também antes de se chamar o metodo {@link #beforeSave(User, Document)}.
@@ -45,6 +51,20 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser salvo
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('create', this.getBasicRoles())" +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     T save(final User user, final T value);
 
     /**
@@ -53,7 +73,6 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser salvo
      */
-
     void afterSave(final User user, final T value);
 
     /**
@@ -87,6 +106,20 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser atualizado
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('update', this.getBasicRoles())" +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     T update(final User user, final T value);
 
     /**
@@ -104,6 +137,21 @@ public interface Service<T extends Document> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id procurado
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   ) " +
+                    "): " +
+                    "   true"
+    )
     T findById(final User user, final String id);
 
     /**
@@ -111,6 +159,21 @@ public interface Service<T extends Document> {
      *
      * @param user -> usuário da requisição corrente
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     T findFirst(final User user);
 
     /**
@@ -120,6 +183,20 @@ public interface Service<T extends Document> {
      * @param id   -> id do registro a ser buscado
      * @return Historic
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     Historic loadHistoric(final User user, final String id);
 
     /**
@@ -129,6 +206,20 @@ public interface Service<T extends Document> {
      * @param value -> instancia do registro a ser buscado
      * @return Historic
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     Historic loadHistoric(final User user, final T value);
 
     /**
@@ -157,6 +248,20 @@ public interface Service<T extends Document> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id procurado
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('delete', this.getBasicRoles())" +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     void deleteById(final User user, final String id);
 
 
@@ -188,6 +293,20 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser deletado
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('delete', this.getBasicRoles())" +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     void delete(final User user, final T value);
 
     /**
@@ -206,6 +325,21 @@ public interface Service<T extends Document> {
      * @param user             -> usuário da requisição corrente
      * @param allRequestParams -> Todos os parametros passado na query da requisição
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())," +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     Long count(final User user, final Map<String, String> allRequestParams);
 
     /**
@@ -214,6 +348,21 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> objeto desejado
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())," +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     boolean exists(final User user, final T value);
 
     /**
@@ -222,6 +371,21 @@ public interface Service<T extends Document> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id do objeto desejado
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())," +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     boolean exists(final User user, final String id);
 
     /**
@@ -231,10 +395,38 @@ public interface Service<T extends Document> {
      * @param user             -> usuário da requisição corrente
      * @param allRequestParams -> Todos os parametros passado na query da requisição
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     List<T> findAll(final User user, final Map<String, String> allRequestParams);
 
     /**
      * Verifica se existe algum registro no DB
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
     boolean isEmpty(final User user);
 }

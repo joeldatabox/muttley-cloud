@@ -1,11 +1,14 @@
 package br.com.muttley.mongo.autoconfig;
 
+import br.com.muttley.model.View;
 import br.com.muttley.mongo.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.converters.Decimal128ToBigDecimalConverter;
 import br.com.muttley.mongo.properties.MuttleyMongoProperties;
 import br.com.muttley.mongo.repository.impl.MultiTenancyMongoRepositoryImpl;
 import br.com.muttley.mongo.repository.impl.SimpleTenancyMongoRepositoryImpl;
 import br.com.muttley.mongo.service.MuttleyConvertersService;
+import br.com.muttley.mongo.service.MuttleyViewSourceService;
+import br.com.muttley.mongo.views.source.ViewSource;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
@@ -18,7 +21,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 
@@ -27,6 +32,7 @@ import java.util.List;
 
 import static com.mongodb.MongoCredential.createCredential;
 import static java.util.Collections.singletonList;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * Classe de configuração de conexão do mongodb<br/>
@@ -49,6 +55,8 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
 
     @Autowired
     private ObjectProvider<MuttleyConvertersService> convertersSErviceProvider;
+    @Autowired
+    private ObjectProvider<MuttleyViewSourceService> viewSourceServiceProvider;
 
 
     @Value("${spring.data.mongodb.database}")
@@ -112,7 +120,57 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        final MuttleyViewSourceService service = this.viewSourceServiceProvider.getIfAvailable();
+        if (service != null) {
+            this.createViews(service.getCustomViewSource());
+        }
         LoggerFactory.getLogger(MuttleyMongoSimpleTenancyConfig.class).info(getMessageLog());
+    }
+
+    private void createViews(final ViewSource[] sources) throws Exception {
+        if (sources != null && sources.length > 0) {
+
+            final MongoClient client = this.mongoClient();
+            final MongoTemplate template = new MongoTemplate(client, this.dataBaseName);
+
+
+            for (final ViewSource source : sources) {
+                final Query query = new Query();
+                query.addCriteria(where("name").is(source.getViewName()));
+                //verificando se a view existe
+                final View view = template.findOne(new Query(where("name").is(source.getViewName())), View.class);
+
+
+                if (view == null) {
+                    //a view não existe, logo devemos criar a mesma
+                    client
+                            .getDatabase(this.dataBaseName)
+                            .createView(source.getViewName(), source.getViewOn(), source.getPipeline());
+                    //salvando informações da view criada
+                    template.save(new View(source.getViewName(), source.getVersion(), source.getDescription()));
+                } else {
+                    //se a view já existe devemos verificar a versão da mesma
+                    //se a versão for diferente devemos dropar essa view
+                    if (!view.getVersion().equals(source.getVersion())) {
+                        client
+                                .getDatabase(this.dataBaseName)
+                                .getCollection(source.getViewName())
+                                .drop();
+
+                        //adicionando novamente a view
+                        client
+                                .getDatabase(this.dataBaseName)
+                                .createView(source.getViewName(), source.getViewOn(), source.getPipeline());
+
+                        //atualizando info da view
+                        //this.template.save(view.updateInfo(source));
+                        template.save(view.setDescription(source.getDescription())
+                                .setVersion(source.getVersion()));
+                    }
+                }
+            }
+            client.close();
+        }
     }
 
     protected String getMessageLog() {
