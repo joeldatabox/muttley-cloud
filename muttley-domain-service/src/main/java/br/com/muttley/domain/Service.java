@@ -334,12 +334,59 @@ public interface Service<T extends Document> {
                     "   ) " +
                     "or " +
                     "   hasAnyRole(" +
-                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())," +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
                     "   )" +
                     "): " +
                     "   true"
     )
     Long count(final User user, final Map<String, String> allRequestParams);
+
+    /**
+     * Verifica se existe um determinado registro no banco de dados
+     *
+     * @param user  -> usuário da requisição corrente
+     * @param value -> objeto desejado
+     */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())," +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
+    boolean exists(final User user, final T value);
+
+    /**
+     * Verifica se existe um determinado registro no banco de dados
+     *
+     * @param user -> usuário da requisição corrente
+     * @param id   -> id do objeto desejado
+     */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())," +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
+    boolean exists(final User user, final String id);
 
     /**
      * Realiza o processo de listagem com base nos critérios
