@@ -12,15 +12,17 @@ import lombok.Getter;
 @Getter
 @EqualsAndHashCode(of = "typeRole")
 public class RoleDefinition {
+    private final int id;
     private final Role typeRole;
     private final String description;
 
-    public RoleDefinition(final Role typeRole, final String description) {
+    protected RoleDefinition(final int id, final Role typeRole, final String description) {
+        this.id = id;
         this.typeRole = typeRole;
         this.description = description;
     }
 
-    public RoleDefinition(final Role typeRole) {
-        this(typeRole, null);
+    protected RoleDefinition(final int id, final Role typeRole) {
+        this(id, typeRole, null);
     }
 }

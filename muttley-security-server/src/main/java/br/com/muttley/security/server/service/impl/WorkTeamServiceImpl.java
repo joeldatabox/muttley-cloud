@@ -9,7 +9,6 @@ import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
-import br.com.muttley.model.security.rolesconfig.ViewRoleDefinition;
 import br.com.muttley.model.security.rolesconfig.event.AvaliableRolesEvent;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
 import br.com.muttley.security.server.service.UserRolesViewService;
@@ -30,6 +29,8 @@ import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_CREATE;
 import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_DELETE;
 import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_READ;
 import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_UPDATE;
+import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newAvaliableRoles;
+import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newViewRoleDefinition;
 import static java.util.Objects.isNull;
 
 /**
@@ -77,7 +78,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                 throw new MuttleyBadRequestException(WorkTeam.class, "roles", "Não se pode existir mais de um grupo principal");
             }
         }
-        final Map<String, Object> filter = new HashMap<>(2);
+        final Map<String, Object> filter = new HashMap(2);
         filter.put("owner.$id", user.getCurrentOwner().getObjectId());
         filter.put("userMaster", workTeam.getUserMaster());
         filter.put("name", workTeam.getName());
@@ -142,8 +143,8 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     @Override
     public AvaliableRoles loadAvaliableRoles(final User user) {
         final AvaliableRolesEvent event = new AvaliableRolesEvent(user,
-                new AvaliableRoles(
-                        new ViewRoleDefinition("Times de trabalho", "Ações relacionada a times de trabalho", ROLE_WORK_TEAM_CREATE, ROLE_WORK_TEAM_READ, ROLE_WORK_TEAM_UPDATE, ROLE_WORK_TEAM_DELETE)
+                newAvaliableRoles(
+                        newViewRoleDefinition("Times de trabalho", "Ações relacionada a times de trabalho", ROLE_WORK_TEAM_CREATE, ROLE_WORK_TEAM_READ, ROLE_WORK_TEAM_UPDATE, ROLE_WORK_TEAM_DELETE)
                 )
         );
 
