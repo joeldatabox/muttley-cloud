@@ -13,9 +13,13 @@ import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
 import br.com.muttley.security.server.service.UserRolesView;
 import br.com.muttley.security.server.service.WorkTeamService;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -32,6 +36,9 @@ import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_UPDATE;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newAvaliableRoles;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newViewRoleDefinition;
 import static java.util.Objects.isNull;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * @author Joel Rodrigues Moreira on 26/02/18.
@@ -153,38 +160,59 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         return event.getSource();
     }
 
-    /*@Override
-    public WorkTeam findOwnerGroup(final User user) {
-        *//**
-     db.getCollection("muttley-work-teams")
-     .aggregate([
-     {$match:{"owner.$id":ObjectId("5cdb05cbc2183f60addb972c")}},
-     {$unwind:"$roles"},
-     {$match:{ "roles":{roleName:"ROLE_OWNER"}}},
-     {$project:{_id:1}},
-     {$lookup:{
-     from:"muttley-work-teams",
-     localField:"_id",
-     foreignField: "_id",
-     as:"result"
-     }},
-     {$unwind:"$result"},
-     {$project:{"_id":"$result._id", "_class":"$result._class", "name":"$result.name", "description":"$result.description","historic":"$result.historic", "userMaster":"$result.userMaster","owner":"$result.owner", "members":"$result.members", "roles":"$result.roles"}}
-     ])
-     *//*
-        this.mongoTemplate.aggregate(
+    @Override
+    public void configWorkTeams(final User user) {
+        //verificando se não existe workTeam para o Owner
+        if (!existWorkTeamForOwner(user)) {
+            //criando grupo principal
+            final WorkTeam workTeam = new WorkTeam()
+                    .setName("Grupo principal")
+                    .setDescription("Grupo principal do sistema criado específicamente para dar autorizações de uso do usuário principal do sistema (Owner)")
+                    .setUserMaster(user)
+                    .addRole(ROLE_OWNER);
+
+            workTeam.setUserMaster(user);
+
+            //criando grupo
+        }
+
+
+    }
+
+    /**
+     * Checando se existe grupo de trabalho para o Owner
+     */
+    private boolean existWorkTeamForOwner(final User user) {
+        /**
+         * db.getCollection("muttley-work-teams").aggregate([
+         *     {$match:{
+         *         owner: {'$ref' : 'muttley-owners', '$id' : ObjectId('5d07cece444c5b2ceb5e0942')},
+         *         userMaster:{'$ref' : 'muttley-users', '$id' : ObjectId('5d07cada444c5b2ceb5e0940')},
+         *         roles:{$elemMatch:{'roleName':'ROLE_OWNER'}}
+         *     }},
+         *     {
+         *       $count: "count"
+         *     }
+         *     ])
+         */
+        final AggregationResults<UserViewServiceImpl.ResultCount> result = this.mongoTemplate.aggregate(
                 newAggregation(
-                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId())),
-                        unwind("$roles"),
-                        match(where("roles").is(ROLE_OWNER)),
-                        project("_id"),
-                        lookup(documentNameConfig.getNameCollectionWorkTeam(), "_id", "_id", "result"),
-                        unwind("$result"),
-                        project()
-                                .and("_id").as("$result._id")
-                                .and("_class").as("$result._class")
-                        .and("name")
-                ), "", WorkTeam.class
-        )
-    }*/
+                        match(
+                                //filtrando o owner
+                                where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                        //filtrando o usuário principal
+                                        .and("userMaster.$id").is(new ObjectId(user.getCurrentOwner().getUserMaster().getId()))
+                                        //filtrando as roles
+                                        .and("roles").elemMatch(
+                                        new Criteria().is(ROLE_OWNER)
+                                )
+                        ),
+                        Aggregation.count().as("count")
+                ), WorkTeam.class, UserViewServiceImpl.ResultCount.class
+        );
+        if (result == null || result.getUniqueMappedResult() != null) {
+            return result.getUniqueMappedResult().getCount() > 0;
+        }
+        return false;
+    }
 }

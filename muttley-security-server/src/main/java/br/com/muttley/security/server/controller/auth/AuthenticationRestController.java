@@ -64,7 +64,7 @@ public class AuthenticationRestController {
             //gerando o token de autorização
             JwtToken token = new JwtToken(jwtTokenUtil.generateToken(userDetails, device));
             //lançando evento de usuário logado
-            this.eventPublisher.publishEvent(new UserLoggedEvent(userDetails.getOriginUser()));
+            //this.eventPublisher.publishEvent(new UserLoggedEvent(userDetails.getOriginUser()));
             //devolvendo token gerado
             return ResponseEntity.ok(token);
         } catch (BadCredentialsException ex) {

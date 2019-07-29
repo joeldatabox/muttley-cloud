@@ -40,6 +40,15 @@ public class Role {
     public static final Role ROLE_ACCESS_PLAN_SIMPLE_USE = new Role("ROLE_ACCESS_PLAN_SIMPLE_USE");
 
     @JsonIgnore
+    public static final Role ROLE_MOBILE_ACCESS_PLAN_CREATE = new Role("ROLE_MOBILE_ACCESS_PLAN_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_ACCESS_PLAN_READ = new Role("ROLE_MOBILE_ACCESS_PLAN_READ");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_ACCESS_PLAN_UPDATE = new Role("ROLE_MOBILE_ACCESS_PLAN_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_ACCESS_PLAN_DELETE = new Role("ROLE_MOBILE_ACCESS_PLAN_DELETE");
+
+    @JsonIgnore
     public static final Role ROLE_OWNER_CREATE = new Role("ROLE_OWNER_CREATE");
     @JsonIgnore
     public static final Role ROLE_OWNER_READ = new Role("ROLE_OWNER_READ");
@@ -72,6 +81,14 @@ public class Role {
     @JsonIgnore
     public static final Role ROLE_WORK_TEAM_SIMPLE_USE = new Role("ROLE_WORK_TEAM_SIMPLE_USE");
 
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_CREATE = new Role("ROLE_MOBILE_WORK_TEAM_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_READ = new Role("ROLE_MOBILE_WORK_TEAM_READ");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_UPDATE = new Role("ROLE_MOBILE_WORK_TEAM_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_DELETE = new Role("ROLE_MOBILE_WORK_TEAM_DELETE");
 
     @JsonCreator
     public Role(@JsonProperty("roleName") final String roleName) {

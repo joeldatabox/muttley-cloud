@@ -83,7 +83,7 @@ public class AuthenticationRestController {
             //notificando que o token foi gerado
             this.afterGeneratedToken(userDetails, jwtToken);
             //lançando evento de usuário logado
-            this.eventPublisher.publishEvent(new UserLoggedEvent(userDetails.getOriginUser()));
+            this.eventPublisher.publishEvent(new UserLoggedEvent(jwtToken, userDetails.getOriginUser()));
             //devolvendo token gerado
             return ResponseEntity.ok(jwtToken);
         } catch (BadCredentialsException ex) {

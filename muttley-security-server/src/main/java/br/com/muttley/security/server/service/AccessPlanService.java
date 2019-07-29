@@ -20,6 +20,13 @@ public interface AccessPlanService extends SecurityService<AccessPlan> {
                     "   hasAnyRole(" +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
                     "   )" +
+                    "or " +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
                     "): " +
                     "   true"
     )
