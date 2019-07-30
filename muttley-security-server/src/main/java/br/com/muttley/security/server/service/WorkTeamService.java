@@ -16,7 +16,7 @@ import java.util.Set;
  * @project muttley-cloud
  */
 public interface WorkTeamService extends Service<WorkTeam> {
-    WorkTeam findByName(final Owner owner, final String name);
+    WorkTeam findByName(final User user, final String name);
 
     List<WorkTeam> findByUserMaster(final Owner owner, final User user);
 

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,6 +46,12 @@ public class WorkTeamController extends AbstractRestController<WorkTeam> {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity loadAvaliableRoles(final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(service.loadAvaliableRoles(userService.getUserFromToken(new JwtToken(tokenHeader))));
+    }
+
+    @RequestMapping(value = "/find-by-name", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity findByName(@RequestParam(name = "name", defaultValue = "") final String name, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+        return ResponseEntity.ok(this.service.findByName(userService.getUserFromToken(new JwtToken(tokenHeader)), name));
     }
 
 }

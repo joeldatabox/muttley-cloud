@@ -124,8 +124,8 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     @Override
-    public WorkTeam findByName(final Owner owner, final String name) {
-        final WorkTeam cwt = repository.findByName(owner, name);
+    public WorkTeam findByName(final User user, final String name) {
+        final WorkTeam cwt = repository.findByName(user.getCurrentOwner(), name);
         if (isNull(cwt)) {
             throw new MuttleyNotFoundException(WorkTeam.class, "name", "Registro não encontrado")
                     .addDetails("name", name);
