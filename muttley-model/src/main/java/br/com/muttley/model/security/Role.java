@@ -119,6 +119,11 @@ public class Role {
                 .replace("_SIMPLE_USE", "");
     }
 
+    @JsonIgnore
+    public static Set<Role> getValues() {
+        return Role.values;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;

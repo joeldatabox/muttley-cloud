@@ -2,6 +2,13 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.security.jackson.UserListDeserializer;
+import br.com.muttley.model.security.jackson.UserCollectionSerializer;
+import br.com.muttley.model.security.jackson.UserDeserializer;
+import br.com.muttley.model.security.jackson.UserSerializer;
+import br.com.muttley.model.security.jackson.UserSetDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
@@ -31,13 +38,16 @@ public class WorkTeam implements Document {
     protected String name;
     protected String description;
     @NotNull(message = "É nécessário ter um usuário master no grupo de trabalho")
+    @JsonSerialize(using = UserSerializer.class)
+    @JsonDeserialize(using = UserDeserializer.class)
     @DBRef
     protected User userMaster;
     @NotNull(message = "É nécessário informar quem é o owner do grupo de trabalho")
     @DBRef
     protected Owner owner;
     @DBRef
-
+    @JsonSerialize(using = UserCollectionSerializer.class)
+    @JsonDeserialize(using = UserSetDeserializer.class)
     protected Set<User> members;
     protected Historic historic;
     protected Set<Role> roles;

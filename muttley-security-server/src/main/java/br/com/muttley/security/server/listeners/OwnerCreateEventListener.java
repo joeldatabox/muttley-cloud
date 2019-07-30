@@ -1,6 +1,5 @@
 package br.com.muttley.security.server.listeners;
 
-import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.preference.UserPreferences;
@@ -37,16 +36,16 @@ public class OwnerCreateEventListener implements ApplicationListener<OwnerCreate
     @Override
     public void onApplicationEvent(final OwnerCreateEvent ownerCreateEvent) {
         final User userMaster = ownerCreateEvent.getSource().getUserMaster();
-        final WorkTeam workTeam = this.service.save(
-                userMaster,
-                new WorkTeam()
-                        .setName("Master")
-                        .setDescription("Esse é o grupo principal")
-                        .setOwner(ownerCreateEvent.getSource())
-                        .setUserMaster(userMaster)
-                        .addMember(userMaster)
-                        .addRole(ROLE_OWNER)
-        );
+        WorkTeam workTeam = new WorkTeam()
+                .setName("Master")
+                .setDescription("Esse é o grupo principal")
+                .setOwner(ownerCreateEvent.getSource())
+                .setUserMaster(userMaster)
+                .addMember(userMaster)
+                .addRole(ROLE_OWNER);
+        userMaster.setCurrentWorkTeam(workTeam);
+
+        workTeam = this.service.save(userMaster, workTeam);
 
         /*Já que acabamos de criar um Owner, devemos verificar se o usuário master já tem algumas preferencias básicas
          * tudo isso para evitar erros

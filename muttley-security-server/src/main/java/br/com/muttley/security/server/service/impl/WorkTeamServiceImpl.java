@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static br.com.muttley.model.security.Role.ROLE_OWNER;
 import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_CREATE;
@@ -80,18 +81,23 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     @Override
     public void checkPrecondictionSave(final User user, final WorkTeam workTeam) {
         //só podemo aceitar salvar um grupo pro owner caso ainda não exista um
-        if (workTeam.containsRole(ROLE_OWNER)) {
+        if (this.existWorkTeamForOwner(workTeam) && workTeam.containsRole(ROLE_OWNER)) {
             if (!this.isEmpty(user)) {
                 throw new MuttleyBadRequestException(WorkTeam.class, "roles", "Não se pode existir mais de um grupo principal");
             }
         }
         final Map<String, Object> filter = new HashMap(2);
-        filter.put("owner.$id", user.getCurrentOwner().getObjectId());
-        filter.put("userMaster", workTeam.getUserMaster());
+        filter.put("owner.$id", user.getCurrentOwner() == null ? workTeam.getOwner().getObjectId() : user.getCurrentOwner().getObjectId());
+        filter.put("userMaster", workTeam.getUserMaster() == null ? user : workTeam.getUserMaster());
         filter.put("name", workTeam.getName());
         if (this.repository.exists(filter)) {
             throw new MuttleyBadRequestException(WorkTeam.class, "name", "Já existe um grupo de trabalho com este nome");
         }
+
+        //validando usuário
+        workTeam.setMembers(
+                workTeam.getMembers().stream().filter(it -> it.getId() != null && "".equals(it.getEmail())).collect(Collectors.toSet())
+        );
     }
 
     @Override
@@ -104,7 +110,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     @Override
     public void checkPrecondictionUpdate(final User user, final WorkTeam workTeam) {
         //não se pode alterar workteam que seja do owner
-        if (workTeam.containsRole(ROLE_OWNER)) {
+        if (this.existWorkTeamForOwner(workTeam) && workTeam.containsRole(ROLE_OWNER)) {
             throw new MuttleyBadRequestException(WorkTeam.class, "roles", "Não se pode editar o grupo principal");
         }
         //verificando se o workteam é do owner ou não
@@ -162,14 +168,16 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
     @Override
     public void configWorkTeams(final User user) {
+        //criando grupo principal
+        final WorkTeam workTeam = new WorkTeam()
+                .setName("Grupo principal")
+                .setDescription("Grupo principal do sistema criado específicamente para dar autorizações de uso do usuário principal do sistema (Owner)")
+                .setUserMaster(user)
+                .addRole(ROLE_OWNER);
+
         //verificando se não existe workTeam para o Owner
-        if (!existWorkTeamForOwner(user)) {
-            //criando grupo principal
-            final WorkTeam workTeam = new WorkTeam()
-                    .setName("Grupo principal")
-                    .setDescription("Grupo principal do sistema criado específicamente para dar autorizações de uso do usuário principal do sistema (Owner)")
-                    .setUserMaster(user)
-                    .addRole(ROLE_OWNER);
+        if (!existWorkTeamForOwner(workTeam)) {
+
 
             workTeam.setUserMaster(user);
 
@@ -182,7 +190,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     /**
      * Checando se existe grupo de trabalho para o Owner
      */
-    private boolean existWorkTeamForOwner(final User user) {
+    private boolean existWorkTeamForOwner(final WorkTeam workTeam) {
         /**
          * db.getCollection("muttley-work-teams").aggregate([
          *     {$match:{
@@ -199,9 +207,9 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                 newAggregation(
                         match(
                                 //filtrando o owner
-                                where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                where("owner.$id").is(workTeam.getOwner().getObjectId())
                                         //filtrando o usuário principal
-                                        .and("userMaster.$id").is(new ObjectId(user.getCurrentOwner().getUserMaster().getId()))
+                                        .and("userMaster.$id").is(new ObjectId(workTeam.getUserMaster().getId()))
                                         //filtrando as roles
                                         .and("roles").elemMatch(
                                         new Criteria().is(ROLE_OWNER)
