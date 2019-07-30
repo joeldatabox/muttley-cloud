@@ -1,7 +1,7 @@
 package br.com.muttley.security.infra.feign;
 
 import br.com.muttley.model.Historic;
-import br.com.muttley.security.infra.resource.PageableResource;
+import br.com.muttley.rest.hateoas.resource.PageableResource;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -40,10 +40,6 @@ public interface UserServiceClient {
     @RequestMapping(method = DELETE)
     void deleteByEmail(@RequestParam("email") String email);
 
-    @Deprecated
-    @RequestMapping(value = "/ad$/{id}", method = GET)
-    User findById(@PathVariable("id") String id);
-
     @RequestMapping(method = GET)
     User findByEmail(@RequestParam("email") String email);
 
