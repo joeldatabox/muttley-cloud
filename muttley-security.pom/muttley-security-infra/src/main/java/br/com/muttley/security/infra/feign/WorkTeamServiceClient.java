@@ -7,6 +7,7 @@ import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
 import br.com.muttley.security.infra.server.FeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Set;
 
@@ -20,6 +21,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
  */
 @FeignClient(value = "${muttley.security-server.name-server}", path = "/api/v1/work-teams", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
 public interface WorkTeamServiceClient extends RestControllerClient<WorkTeam> {
+    @RequestMapping(value = "/find-by-name", method = GET, consumes = {APPLICATION_JSON_UTF8_VALUE})
+    public WorkTeam findByName(@RequestParam(name = "name", defaultValue = "") final String name);
 
     @RequestMapping(value = "/roles/current-roles", method = GET, consumes = {APPLICATION_JSON_UTF8_VALUE})
     Set<Role> loadCurrentRoles();
