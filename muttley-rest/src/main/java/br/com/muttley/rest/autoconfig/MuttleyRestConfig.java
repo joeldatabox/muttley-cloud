@@ -1,6 +1,7 @@
 package br.com.muttley.rest.autoconfig;
 
 import br.com.muttley.metadata.headers.HeaderAuthorizationJWT;
+import br.com.muttley.metadata.headers.HeaderUserAgent;
 import br.com.muttley.rest.service.listenerEventsHateoas.PaginatedResultsRetrievedDiscoverabilityListener;
 import br.com.muttley.rest.service.listenerEventsHateoas.ResourceCreatedListener;
 import br.com.muttley.rest.service.listenerEventsHateoas.SingleResourceRetrievedDiscoverabilityListener;
@@ -43,5 +44,11 @@ public class MuttleyRestConfig {
     @Scope(value = SCOPE_REQUEST, proxyMode = TARGET_CLASS)
     public HeaderAuthorizationJWT headerAuthorizationJWTFactory(@Value("${muttley.security.jwt.controller.token-header-jwt:Authorization-jwt}") String tokenHeader, @Autowired final HttpServletRequest request) {
         return new HeaderAuthorizationJWT(tokenHeader, request);
+    }
+
+    @Bean(name = "userAgente")
+    @Scope(value = SCOPE_REQUEST, proxyMode = TARGET_CLASS)
+    public HeaderUserAgent headerUserAgentFactory(@Autowired final HttpServletRequest request) {
+        return new HeaderUserAgent(request);
     }
 }

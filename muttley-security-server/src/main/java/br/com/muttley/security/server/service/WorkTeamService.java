@@ -23,4 +23,9 @@ public interface WorkTeamService extends Service<WorkTeam> {
     Set<Role> loadCurrentRoles(final User user);
 
     AvaliableRoles loadAvaliableRoles(final User user);
+
+    /**
+     * Realiza as configurações
+     */
+    void configWorkTeams(final User user);
 }
