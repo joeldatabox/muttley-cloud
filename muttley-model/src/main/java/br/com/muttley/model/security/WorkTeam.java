@@ -2,6 +2,12 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.security.jackson.UserCollectionSerializer;
+import br.com.muttley.model.security.jackson.UserDeserializer;
+import br.com.muttley.model.security.jackson.UserSerializer;
+import br.com.muttley.model.security.jackson.UserSetDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +22,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -41,12 +46,16 @@ public class WorkTeam implements Document {
     protected String name;
     protected String description;
     @NotNull(message = "É nécessário ter um usuário master no grupo de trabalho")
+    @JsonSerialize(using = UserSerializer.class)
+    @JsonDeserialize(using = UserDeserializer.class)
     @DBRef
     protected User userMaster;
     @NotNull(message = "É nécessário informar quem é o owner do grupo de trabalho")
     @DBRef
     protected Owner owner;
     @DBRef
+    @JsonSerialize(using = UserCollectionSerializer.class)
+    @JsonDeserialize(using = UserSetDeserializer.class)
     protected Set<User> members;
     protected Historic historic;
     protected Set<Role> roles;
@@ -71,8 +80,8 @@ public class WorkTeam implements Document {
         return roles;
     }
 
-    public WorkTeam setRoles(final Set<Authority> roles) {
-        this.roles = roles.stream().map(Authority::getRole).collect(Collectors.toSet());
+    public WorkTeam setRoles(final Set<Role> roles) {
+        this.roles = roles;
         return this;
     }
 
