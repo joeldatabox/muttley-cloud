@@ -104,6 +104,11 @@ public class Role {
                 .replace("_SIMPLE_USE", "");
     }
 
+    @JsonIgnore
+    public static Set<Role> getValues() {
+        return Role.values;
+    }
+
     @Override
     public String toString() {
         return roleName;
