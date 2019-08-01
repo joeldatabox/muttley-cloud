@@ -1,5 +1,6 @@
 package br.com.muttley.security.server.service.impl;
 
+import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityConflictException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundException;
@@ -8,21 +9,27 @@ import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.repository.UserRepository;
+import br.com.muttley.security.server.service.InmutablesPreferencesService;
 import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.WorkTeamService;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -37,22 +44,23 @@ public class UserServiceImpl implements UserService {
     private final UserPreferencesRepository preferencesRepository;
     private final JwtTokenUtilService tokenUtil;
     private final String tokenHeader;
-    private final UserPreferencesRepository userPreferencesRepository;
+    //private final UserPreferencesRepository userPreferencesRepository;
     private final WorkTeamService workTeamService;
+    private final InmutablesPreferencesService inmutablesPreferencesService;
 
     @Autowired
     public UserServiceImpl(final UserRepository repository,
                            final UserPreferencesRepository preferencesRepository,
                            @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
                            final JwtTokenUtilService tokenUtil,
-                           final UserPreferencesRepository userPreferencesRepository,
-                           final WorkTeamService workTeamService) {
+                           final WorkTeamService workTeamService,
+                           final ObjectProvider<InmutablesPreferencesService> inmutablesPreferencesService) {
         this.repository = repository;
         this.preferencesRepository = preferencesRepository;
         this.tokenHeader = tokenHeader;
         this.tokenUtil = tokenUtil;
-        this.userPreferencesRepository = userPreferencesRepository;
         this.workTeamService = workTeamService;
+        this.inmutablesPreferencesService = inmutablesPreferencesService.getIfAvailable();
     }
 
     @Override
@@ -65,6 +73,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(final User user, final UserPreferences preferences) {
         preferences.setUser(user);
+        this.validatePreferences(preferences);
         this.preferencesRepository.save(preferences);
     }
 
@@ -121,7 +130,7 @@ public class UserServiceImpl implements UserService {
             final String userName = this.tokenUtil.getUsernameFromToken(token.getToken());
             if (!isNullOrEmpty(userName)) {
                 final User user = findByEmail(userName);
-                final UserPreferences preferences = this.userPreferencesRepository.findByUser(user);
+                final UserPreferences preferences = this.preferencesRepository.findByUser(user);
                 user.setPreferences(preferences);
                 user.setCurrentWorkTeam(this.workTeamService.findById(user, preferences.get(UserPreferences.WORK_TEAM_PREFERENCE).getValue().toString()));
                 return user;
@@ -212,6 +221,36 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException("Usuário não encontrado");
         } else {
             return new JwtUser(user);
+        }
+    }
+
+    private void validatePreferences(final UserPreferences preferences) {
+        //se o serviço foi injetado, devemos validar
+        //se a preferencia do usuário já tiver o id, devemo validar
+        if (this.inmutablesPreferencesService != null && !StringUtils.isEmpty(preferences.getId())) {
+            final Set<String> inmutableKeys = this.inmutablesPreferencesService.getInmutablesKeysPreferences();
+            if (!CollectionUtils.isEmpty(inmutableKeys)) {
+                //recuperando as preferencias sem alterações
+                final UserPreferences otherPreferences = this.preferencesRepository.findByUser(preferences.getUser());
+                if (otherPreferences != null) {
+                    //percorrendo todas a keys que nsão proibidas as alterações
+                    inmutableKeys.forEach(inmutableKey -> {
+                        if (!StringUtils.isEmpty(inmutableKey)) {
+                            //se as preferencias existir no banco
+                            if (otherPreferences.contains(inmutableKey)) {
+                                //recuperando a preferencia do objeto atual
+                                final Preference pre = preferences.get(inmutableKey);
+                                //se a preferencial atual for null ou tiver sido modificada
+                                if (pre == null || !pre.getValue().equals(otherPreferences.get(inmutableKey).getValue())) {
+                                    throw new MuttleyBadRequestException(Preference.class, "key", "Não é possível fazer a alteração da preferencia [" + inmutableKey + ']')
+                                            .addDetails("key", inmutableKey)
+                                            .addDetails("currentValue", otherPreferences.get(inmutableKey).getValue());
+                                }
+                            }
+                        }
+                    });
+                }
+            }
         }
     }
 }

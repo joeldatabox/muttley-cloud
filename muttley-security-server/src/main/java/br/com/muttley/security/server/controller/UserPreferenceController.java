@@ -28,19 +28,18 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(value = "/api/v1/user-preferences", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
 public class UserPreferenceController {
 
-    private final UserPreferencesRepository repository;
     private final UserService userService;
 
     @Autowired
     public UserPreferenceController(final UserPreferencesRepository repository,
                                     final UserService userService) {
-        this.repository = repository;
+
         this.userService = userService;
     }
 
     @RequestMapping(value = "/{idUser}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity getPreferences(@PathVariable("idUser") String idUser) {
-        final UserPreferences preferences = this.repository.findByUser(new User().setId(idUser));
+        final UserPreferences preferences = this.userService.loadPreference(new User().setId(idUser));
         if (preferences == null) {
             throw new MuttleyNotFoundException(UserPreferences.class, "user", "Nenhuma preferencia encontrada");
         }
@@ -54,7 +53,7 @@ public class UserPreferenceController {
             throw new MuttleyBadRequestException(Preference.class, "key", "valor inválido");
         }
         userPreferences.set(preference);
-        this.repository.save(userPreferences);
+        this.userService.save(new User().setId(idUser), userPreferences);
         return ResponseEntity.ok().build();
 
     }
@@ -63,7 +62,7 @@ public class UserPreferenceController {
     public ResponseEntity removePreference(@PathVariable("idUser") final String idUser, @PathVariable("key") final String key) {
         final UserPreferences userPreferences = (UserPreferences) getPreferences(idUser).getBody();
         userPreferences.remove(key);
-        this.repository.save(userPreferences);
+        this.userService.save(new User().setId(idUser), userPreferences);
         return ResponseEntity.ok().build();
     }
 }
