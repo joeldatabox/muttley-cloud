@@ -85,8 +85,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean removeByEmail(final String email) {
-        return this.remove(findByEmail(email));
+    public boolean removeByUserName(final String userName) {
+        return this.remove(findByUserName(userName));
     }
 
     @Override
@@ -102,10 +102,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByEmail(final String email) {
-        final User user = repository.findByEmail(email);
+    public User findByUserName(final String userName) {
+        final User user = repository.findByUserName(userName);
         if (user == null) {
-            throw new MuttleySecurityNotFoundException(User.class, "email", email + " este registro não foi encontrado");
+            throw new MuttleySecurityNotFoundException(User.class, "userName", userName + " este registro não foi encontrado");
         }
         return user;
     }
@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
         if (token != null && !token.isEmpty()) {
             final String userName = this.tokenUtil.getUsernameFromToken(token.getToken());
             if (!isNullOrEmpty(userName)) {
-                final User user = findByEmail(userName);
+                final User user = findByUserName(userName);
                 final UserPreferences preferences = this.preferencesRepository.findByUser(user);
                 user.setPreferences(preferences);
                 user.setCurrentWorkTeam(this.workTeamService.findById(user, preferences.get(UserPreferences.WORK_TEAM_PREFERENCE).getValue().toString()));
@@ -172,14 +172,14 @@ public class UserServiceImpl implements UserService {
         if (user.getName() == null || user.getName().length() < 4) {
             throw new MuttleySecurityBadRequestException(User.class, "nome", "O campo nome deve ter de 4 a 200 caracteres!");
         }
-        if (!user.isValidEmail()) {
-            throw new MuttleySecurityBadRequestException(User.class, "email", "Informe um email válido!");
+        if (!user.isValidUserName()) {
+            throw new MuttleySecurityBadRequestException(User.class, "userName", "Informe um userName válido!");
         }
         if (user.getId() == null) {
             //validando se já existe esse usuário no sistema
             try {
-                if (findByEmail(user.getEmail()) != null) {
-                    throw new MuttleySecurityConflictException(User.class, "email", "Email já cadastrado!");
+                if (findByUserName(user.getUserName()) != null) {
+                    throw new MuttleySecurityConflictException(User.class, "userName", "UserName já cadastrado!");
                 }
             } catch (MuttleySecurityNotFoundException ex) {
             }
@@ -191,8 +191,8 @@ public class UserServiceImpl implements UserService {
         } else {
             final User self = findById(user.getId());
 
-            if (!self.getEmail().equals(user.getEmail())) {
-                throw new MuttleySecurityBadRequestException(User.class, "email", "O email não pode ser modificado!").setStatus(HttpStatus.NOT_ACCEPTABLE);
+            if (!self.getUserName().equals(user.getUserName())) {
+                throw new MuttleySecurityBadRequestException(User.class, "userName", "O userName não pode ser modificado!").setStatus(HttpStatus.NOT_ACCEPTABLE);
             }
 
             //garantindo que a senha não irá ser modificada
@@ -216,7 +216,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final User user = repository.findByEmail(username);
+        final User user = repository.findByUserName(username);
         if (user == null) {
             throw new UsernameNotFoundException("Usuário não encontrado");
         } else {

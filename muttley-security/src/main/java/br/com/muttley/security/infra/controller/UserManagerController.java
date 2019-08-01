@@ -34,7 +34,7 @@ public class UserManagerController {
     @RequestMapping(value = "${muttley.security.jwt.controller.managerUserEndPoint}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity update(@RequestBody User user, final @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") String tokenHeader) {
-        return ResponseEntity.ok(service.update(user.getEmail(), tokenHeader, user));
+        return ResponseEntity.ok(service.update(user.getUserName(), tokenHeader, user));
     }
 
     @RequestMapping(value = "${muttley.security.jwt.controller.managerUserEndPoint}", method = RequestMethod.GET, consumes = MediaType.ALL_VALUE)

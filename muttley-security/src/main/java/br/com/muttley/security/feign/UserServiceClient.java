@@ -30,21 +30,21 @@ public interface UserServiceClient {
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public User save(@RequestBody UserPayLoad value, @RequestParam(required = false, value = "returnEntity", defaultValue = "") String returnEntity);
 
-    @RequestMapping(value = "/{email}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public User update(@PathVariable("email") final String email, @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String token, @RequestBody final User user);
+    @RequestMapping(value = "/{userName}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public User update(@PathVariable("userName") final String userName, @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String token, @RequestBody final User user);
 
     @RequestMapping(value = "/passwd", method = PUT)
     public void updatePasswd(@RequestBody final Passwd passwd);
 
     @RequestMapping(method = DELETE)
-    void deleteByEmail(@RequestParam("email") String email);
+    void deleteByUserName(@RequestParam("userName") String userName);
 
     @Deprecated
     @RequestMapping(value = "/ad$/{id}", method = GET)
     User findById(@PathVariable("id") String id);
 
     @RequestMapping(method = GET)
-    User findByEmail(@RequestParam("email") String email);
+    User findByUserName(@RequestParam("userName") String userName);
 
     @RequestMapping(value = "/user-from-token", method = GET)
     public User getUserFromToken(@RequestBody final JwtToken token);

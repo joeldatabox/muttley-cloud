@@ -59,7 +59,7 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
                 .userDetailsService(new UserDetailsService() {
                     @Override
                     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-                        return new JwtUser(userServiceClient.findByEmail(username));
+                        return new JwtUser(userServiceClient.findByUserName(username));
                     }
                 })
                 .passwordEncoder(new BCryptPasswordEncoder());

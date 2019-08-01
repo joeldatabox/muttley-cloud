@@ -26,7 +26,7 @@ public class CreateUserController {
     protected final ApplicationEventPublisher eventPublisher;
     protected UserServiceClient service;
     protected static final String NOME = "name";
-    protected static final String EMAIL = "email";
+    protected static final String USER_NAME = "userName";
     protected static final String PASSWD = "password";
 
     @Autowired
@@ -38,20 +38,20 @@ public class CreateUserController {
     @RequestMapping(value = "${muttley.security.jwt.controller.createEndPoint}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void save(@RequestBody Map<String, String> payload, HttpServletResponse response) {
-        if (payload.isEmpty() || payload.size() < 3 || !payload.containsKey(NOME) || !payload.containsKey(EMAIL) || !payload.containsKey(PASSWD)) {
-            throw new MuttleySecurityBadRequestException(User.class, null, "Informe o nome, email e a senha")
+        if (payload.isEmpty() || payload.size() < 3 || !payload.containsKey(NOME) || !payload.containsKey(USER_NAME) || !payload.containsKey(PASSWD)) {
+            throw new MuttleySecurityBadRequestException(User.class, null, "Informe o nome, userName e a senha")
                     .addDetails(NOME, "Nome completo")
-                    .addDetails(EMAIL, "Informe um email válido")
+                    .addDetails(USER_NAME, "Informe um userName válido")
                     .addDetails(PASSWD, "Informe uma senha válida");
         }
 
         if (payload.size() > 3) {
-            throw new MuttleySecurityBadRequestException(User.class, null, "Por favor informe somente o nome, email e a senha")
+            throw new MuttleySecurityBadRequestException(User.class, null, "Por favor informe somente o nome, userName e a senha")
                     .addDetails(NOME, "Nome completo")
-                    .addDetails(EMAIL, "Informe um email válido")
+                    .addDetails(USER_NAME, "Informe um userName válido")
                     .addDetails(PASSWD, "Informe uma senha válida");
         }
-        final UserPayLoad user = new UserPayLoad(payload.get(NOME), payload.get(EMAIL), payload.get(PASSWD));
+        final UserPayLoad user = new UserPayLoad(payload.get(NOME), payload.get(USER_NAME), payload.get(PASSWD));
         this.eventPublisher.publishEvent(new UserCreatedEvent(service.save(user, "true")));
     }
 }

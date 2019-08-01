@@ -17,7 +17,7 @@ import java.util.Set;
 public class UserView implements Document {
     private String id;
     private String name;
-    private String email;
+    private String userName;
     @DBRef
     @JsonSerialize(using = ListDocumentSerializer.class)
     private Set<Owner> owners;
@@ -43,12 +43,12 @@ public class UserView implements Document {
         return this;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUserName() {
+        return userName;
     }
 
-    public UserView setEmail(final String email) {
-        this.email = email;
+    public UserView setUserName(final String userName) {
+        this.userName = userName;
         return this;
     }
 

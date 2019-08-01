@@ -16,6 +16,6 @@ import java.io.IOException;
 public class UserSerializer extends JsonSerializer<User> {
     @Override
     public void serialize(final User user, final JsonGenerator gen, final SerializerProvider serializers) throws IOException, JsonProcessingException {
-        gen.writeString(user != null ? user.getEmail() : null);
+        gen.writeString(user != null ? user.getUserName() : null);
     }
 }

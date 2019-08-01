@@ -23,8 +23,8 @@ public class UserCollectionSerializer extends JsonSerializer<Collection<User>> {
         } else {
             gen.writeStartArray();
             for (final User currentUser : user) {
-                if (currentUser != null && !StringUtils.isEmpty(currentUser.getEmail())) {
-                    gen.writeString(currentUser != null ? currentUser.getEmail() : null);
+                if (currentUser != null && !StringUtils.isEmpty(currentUser.getUserName())) {
+                    gen.writeString(currentUser != null ? currentUser.getUserName() : null);
                 }
             }
             gen.writeEndArray();

@@ -45,7 +45,7 @@ public class ViewMuttleyUsers implements ViewSource {
          //removendo usuários do odin
          {$match:{odinUser : false}},
          //pegando apenas os dados necessários
-         {$project:{_id:1, _class:1, name:1, email:1}},
+         {$project:{_id:1, _class:1, name:1, userName:1}},
          //pegando os possíveis owners linkados ao usuário
          {$lookup:{
          from: 'view_muttley_work_teams',
@@ -54,7 +54,7 @@ public class ViewMuttleyUsers implements ViewSource {
          as: 'owners'
          }},
          //exibindo apenas os dados necessários
-         {$project:{_id:1, _class:1, name:1, email:1, owners:'$owners.owner'}},
+         {$project:{_id:1, _class:1, name:1, userName:1, owners:'$owners.owner'}},
          ])
          */
         return asList(
@@ -67,7 +67,7 @@ public class ViewMuttleyUsers implements ViewSource {
                                         new BsonElement("_id", _TRUE),
                                         new BsonElement("_class", _TRUE),
                                         new BsonElement("name", _TRUE),
-                                        new BsonElement("email", _TRUE)
+                                        new BsonElement("userName", _TRUE)
                                 )
                         )
                 ),
@@ -89,7 +89,7 @@ public class ViewMuttleyUsers implements ViewSource {
                                         new BsonElement("_id", _TRUE),
                                         new BsonElement("_class", _TRUE),
                                         new BsonElement("name", _TRUE),
-                                        new BsonElement("email", _TRUE),
+                                        new BsonElement("userName", _TRUE),
                                         new BsonElement("owners", new BsonString("$owners.owner"))
                                 )
                         )

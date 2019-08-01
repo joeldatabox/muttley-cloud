@@ -24,7 +24,7 @@ public class JwtUser implements UserDetails {
     private final String name;
 
     private final String password;
-    private final String email;
+    private final String userName;
     private final Collection<? extends GrantedAuthority> authorities;
     private final boolean enabled;
     private final Date lastPasswordResetDate;
@@ -36,7 +36,7 @@ public class JwtUser implements UserDetails {
         this.id = user.getId();
         this.name = user.getName();
         this.password = user.getPasswd();
-        this.email = user.getEmail();
+        this.userName = user.getUserName();
         this.authorities = mapToGrantedAuthorities(user.getAuthorities());
         this.enabled = user.isEnable();
         this.lastPasswordResetDate = user.getLastPasswordResetDate();
@@ -47,7 +47,7 @@ public class JwtUser implements UserDetails {
         this.id = userBuilder.id;
         this.name = userBuilder.name;
         this.password = userBuilder.password;
-        this.email = userBuilder.email;
+        this.userName = userBuilder.userName;
         this.authorities = userBuilder.authorities;
         this.enabled = userBuilder.enabled;
         this.lastPasswordResetDate = userBuilder.lastPasswordResetDate;
@@ -59,7 +59,7 @@ public class JwtUser implements UserDetails {
             @JsonProperty("id") final String id,
             @JsonProperty("name") final String name,
             @JsonProperty("password") final String password,
-            @JsonProperty("username") final String userName,
+            @JsonProperty("userName") final String userName,
             @JsonProperty("authorities") final Collection<? extends GrantedAuthority> authorities,
             @JsonProperty("enabled") final boolean enabled,
             @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
@@ -67,7 +67,7 @@ public class JwtUser implements UserDetails {
         this.id = id;
         this.name = name;
         this.password = password;
-        this.email = userName;
+        this.userName = userName;
         this.authorities = authorities;
         this.enabled = enabled;
         this.lastPasswordResetDate = lastPasswordResetDate;
@@ -86,7 +86,7 @@ public class JwtUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return userName;
     }
 
     @JsonIgnore
@@ -107,8 +107,8 @@ public class JwtUser implements UserDetails {
         return true;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUserName() {
+        return userName;
     }
 
     @JsonIgnore
@@ -150,7 +150,7 @@ public class JwtUser implements UserDetails {
         private String name;
 
         private String password;
-        private String email;
+        private String userName;
         private Collection<? extends GrantedAuthority> authorities;
         private boolean enabled;
         private Date lastPasswordResetDate;
@@ -173,8 +173,8 @@ public class JwtUser implements UserDetails {
             return this;
         }
 
-        public UserBuilder setEmail(final String email) {
-            this.email = email;
+        public UserBuilder setUserName(final String userName) {
+            this.userName = userName;
             return this;
         }
 

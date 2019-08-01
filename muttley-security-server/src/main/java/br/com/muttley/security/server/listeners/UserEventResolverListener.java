@@ -22,6 +22,6 @@ public class UserEventResolverListener implements ApplicationListener<UserResolv
 
     @Override
     public void onApplicationEvent(final UserResolverEvent userEventResolver) {
-        userEventResolver.setValueResolved(this.service.findByEmail(userEventResolver.getEmail()));
+        userEventResolver.setValueResolved(this.service.findByUserName(userEventResolver.getUserName()));
     }
 }
