@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,7 +29,9 @@ public class CreateUserController {
     protected UserServiceClient service;
     protected static final String NOME = "name";
     protected static final String USER_NAME = "userName";
+    protected static final String EMAIL = "email";
     protected static final String PASSWD = "password";
+    protected static final String NICK_NAMES = "nickNames";
 
     @Autowired
     public CreateUserController(final ApplicationEventPublisher eventPublisher, final UserServiceClient service) {
@@ -37,21 +41,50 @@ public class CreateUserController {
 
     @RequestMapping(value = "${muttley.security.jwt.controller.createEndPoint}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public void save(@RequestBody Map<String, String> payload, HttpServletResponse response) {
-        if (payload.isEmpty() || payload.size() < 3 || !payload.containsKey(NOME) || !payload.containsKey(USER_NAME) || !payload.containsKey(PASSWD)) {
-            throw new MuttleySecurityBadRequestException(User.class, null, "Informe o nome, userName e a senha")
+    public void save(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
+
+        /*if (payload.isEmpty() || (payload.size() < 3 || payload.size() > 4) ||
+                !(payload.containsKey(NOME) && payload.containsKey(USER_NAME) && payload.containsKey(PASSWD)) ||
+                !(payload.containsKey(NOME) && payload.containsKey(NICK_NAMES) && payload.containsKey(PASSWD))
+
+        ) {
+            throw new MuttleySecurityBadRequestException(User.class, null, "Informe o nome, email e ou userName juntamente com a senha")
                     .addDetails(NOME, "Nome completo")
                     .addDetails(USER_NAME, "Informe um userName válido")
-                    .addDetails(PASSWD, "Informe uma senha válida");
+                    .addDetails(PASSWD, "Informe uma senha válida")
+                    .addDetails(NICK_NAMES, "Informe possíveis nickNames");
+        }*/
+
+        if (
+                !((payload.containsKey("name") && payload.containsKey("password") && payload.containsKey("email")) ||
+                        (payload.containsKey("name") && payload.containsKey("password") && payload.containsKey("userName")) ||
+                        (payload.containsKey("name") && payload.containsKey("password") && payload.containsKey("nickNames")))
+        ) {
+            throw new MuttleySecurityBadRequestException(User.class, null, "Informe o nome, email e ou userName juntamente com a senha")
+                    .addDetails(NOME, "Nome completo")
+                    .addDetails(USER_NAME, "Informe um userName válido")
+                    .addDetails(PASSWD, "Informe uma senha válida")
+                    .addDetails(NICK_NAMES, "Informe possíveis nickNames");
+        }
+        /*if (payload.isEmpty() || payload.size() < 3 || !payload.containsKey(NOME) || !payload.containsKey(USER_NAME) || !payload.containsKey(PASSWD)) {
+
+        }*/
+
+        if (payload.size() > 4) {
+            throw new MuttleySecurityBadRequestException(User.class, null, "Por favor informe somente o nome, userName, nickNames e a senha")
+                    .addDetails(NOME, "Nome completo")
+                    .addDetails(USER_NAME, "Informe um userName válido")
+                    .addDetails(PASSWD, "Informe uma senha válida")
+                    .addDetails(NICK_NAMES, "Informe possíveis nickNames");
         }
 
-        if (payload.size() > 3) {
-            throw new MuttleySecurityBadRequestException(User.class, null, "Por favor informe somente o nome, userName e a senha")
-                    .addDetails(NOME, "Nome completo")
-                    .addDetails(USER_NAME, "Informe um userName válido")
-                    .addDetails(PASSWD, "Informe uma senha válida");
-        }
-        final UserPayLoad user = new UserPayLoad(payload.get(NOME), payload.get(USER_NAME), payload.get(PASSWD));
+        final UserPayLoad user = new UserPayLoad(
+                (String) payload.get(NOME),
+                (String) payload.get(EMAIL),
+                (String) payload.get(USER_NAME),
+                payload.containsKey(NICK_NAMES) ? new HashSet((List) payload.get(NICK_NAMES)) : null,
+                (String) payload.get(PASSWD)
+        );
         this.eventPublisher.publishEvent(new UserCreatedEvent(service.save(user, "true")));
     }
 }

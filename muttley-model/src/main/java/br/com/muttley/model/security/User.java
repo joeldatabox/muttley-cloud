@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.util.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -28,17 +28,21 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static java.util.stream.Collectors.toSet;
+import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * Created by joel on 16/01/17.
  */
 @Document(collection = "#{documentNameConfig.getNameCollectionUser()}")
 @CompoundIndexes({
-        @CompoundIndex(name = "userName_index_unique", def = "{'userName' : 1}", unique = true)
+        @CompoundIndex(name = "userName_index_unique", def = "{'userName' : 1}", unique = true),
+        @CompoundIndex(name = "email_index", def = "{'email' : 1}"),
+        @CompoundIndex(name = "nickUsers_index", def = "{'nickUsers' : 1}")
 })
 public class User implements Serializable {
     @Transient
@@ -47,6 +51,9 @@ public class User implements Serializable {
     @Transient
     @JsonIgnore
     private static final String EMAIL_PATTERN = "\\b(^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@([A-Za-z0-9-])+(\\.[A-Za-z0-9-]+)*((\\.[A-Za-z0-9]{2,})|(\\.[A-Za-z0-9]{2,}\\.[A-Za-z0-9]{2,}))$)\\b";
+    @Transient
+    @JsonIgnore
+    private static final String NICK_PATTERN = "[^a-zA-Z0-9]";
 
     @Id
     private String id;
@@ -57,10 +64,11 @@ public class User implements Serializable {
     @NotBlank(message = "O campo nome não pode ser nulo!")
     @Size(min = 4, max = 200, message = "O campo nome deve ter de 4 a 200 caracteres!")
     private String name;
-    @NotBlank(message = "Informe um email válido!")
     @Email(message = "Informe um email válido!")
-    private String email1;
+    private String email;
+    @NotBlank(message = "Informe um userName válido")
     private String userName;
+    private Set<String> nickUsers = new HashSet<>();
     @NotBlank(message = "Informe uma senha valida!")
     private String passwd;
     private Date lastPasswordResetDate;
@@ -85,7 +93,9 @@ public class User implements Serializable {
             @JsonProperty("workTeams") final Set<WorkTeam> workTeams,
             @JsonProperty("currentWorkTeam") final WorkTeam currentWorkTeam,
             @JsonProperty("name") final String name,
-            @JsonProperty("email1") final String email1,
+            @JsonProperty("userName") final String userName,
+            @JsonProperty("email") final String email,
+            @JsonProperty("nickUsers") final Set<String> nickUsers,
             @JsonProperty("passwd") final String passwd,
             @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
             @JsonProperty("enable") final Boolean enable,
@@ -95,7 +105,9 @@ public class User implements Serializable {
         this.workTeams = workTeams;
         this.currentWorkTeam = currentWorkTeam;
         this.name = name;
-        this.email1 = email1;
+        this.userName = userName;
+        this.email = email;
+        this.nickUsers = nickUsers;
         this.passwd = passwd;
         this.lastPasswordResetDate = lastPasswordResetDate;
         this.enable = enable;
@@ -107,6 +119,8 @@ public class User implements Serializable {
         this();
         this.setName(payLoad.getName());
         this.setUserName(payLoad.getUserName());
+        this.setEmail(payLoad.getEmail());
+        this.setNickUsers(payLoad.getNickUsers());
         this.setPasswd(payLoad.getPasswd());
     }
 
@@ -175,12 +189,33 @@ public class User implements Serializable {
         return this;
     }
 
-    public String getEmail1() {
-        return email1;
+    public String getEmail() {
+        return email;
     }
 
-    public User setEmail1(final String email) {
-        this.email1 = email;
+    public User setEmail(final String email) {
+        this.email = email != null ? email.toLowerCase() : email;
+        return this;
+    }
+
+    public Set<String> getNickUsers() {
+        return nickUsers;
+    }
+
+    public User setNickUsers(final Set<String> nickUsers) {
+        this.nickUsers = nickUsers != null ? nickUsers.stream().map(String::toLowerCase).collect(toSet()) : null;
+        return this;
+    }
+
+    public User addNickUsers(final String nick) {
+        if (nick != null) {
+            this.nickUsers.add(nick.toLowerCase());
+        }
+        return this;
+    }
+
+    public User addNickUsers(final String... nick) {
+        this.nickUsers.addAll(Stream.of(nick).filter(it -> it != null).map(String::toLowerCase).collect(toSet()));
         return this;
     }
 
@@ -245,7 +280,7 @@ public class User implements Serializable {
     }
 
     public User setAuthorities(final Collection<Role> roles) {
-        this.authorities = roles.stream().map(it -> new AuthorityImpl(it)).collect(Collectors.toSet());
+        this.authorities = roles.stream().map(it -> new AuthorityImpl(it)).collect(toSet());
         return this;
     }
 
@@ -337,16 +372,42 @@ public class User implements Serializable {
     }
 
     @JsonIgnore
-    public boolean isValidEmail() {
-        if ((email1 == null) || (email1.trim().isEmpty()))
+    private boolean isValidEmail() {
+        if ((email == null) || (email.trim().isEmpty()))
             return false;
-        final Pattern pattern = Pattern.compile(EMAIL_PATTERN, Pattern.CASE_INSENSITIVE);
-        final Matcher matcher = pattern.matcher(email1);
+        final Pattern pattern = Pattern.compile(EMAIL_PATTERN, CASE_INSENSITIVE);
+        final Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
 
-    public boolean isValidUserName() {
-        return !StringUtils.isEmpty(this.userName);
+    private boolean isValidUserName() {
+        return !isEmpty(this.userName);
+    }
+
+    /**
+     * realiza validações basicar para o email, userName e nickNames
+     */
+    public void validateBasicInfoForLogin() {
+        if (!isEmpty(this.email)) {
+            if (!this.isValidEmail()) {
+                throw new MuttleySecurityBadRequestException(User.class, "email", "Informe um email válido!");
+            }
+        }
+        final Pattern patternNick = Pattern.compile(NICK_PATTERN, CASE_INSENSITIVE);
+        if (!CollectionUtils.isEmpty(this.nickUsers)) {
+
+            for (final String nick : this.nickUsers) {
+                final Matcher matcher = patternNick.matcher(nick);
+                if (isEmpty(nick) || !matcher.matches()) {
+                    new MuttleySecurityBadRequestException(User.class, "nickUsers", "Informe nickUser válidos")
+                            .addDetails("informed", this.nickUsers);
+                }
+            }
+        }
+        if (!isEmpty(this.userName) && !patternNick.matcher(this.userName).matches()) {
+            new MuttleySecurityBadRequestException(User.class, "nickUsers", "Informe nickUser válidos")
+                    .addDetails("informed", this.nickUsers);
+        }
     }
 
     /**
