@@ -54,4 +54,10 @@ public class WorkTeamController extends AbstractRestController<WorkTeam> {
         return ResponseEntity.ok(this.service.findByName(userService.getUserFromToken(new JwtToken(tokenHeader)), name));
     }
 
+    @RequestMapping(value = "/find-by-user", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity findByUser(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+        return ResponseEntity.ok(service.findByUser(userService.getUserFromToken(new JwtToken(tokenHeader))));
+    }
+
 }

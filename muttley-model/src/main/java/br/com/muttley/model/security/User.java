@@ -30,7 +30,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.isNull;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.stream.Collectors.toSet;
@@ -200,7 +199,7 @@ public class User implements Serializable {
     }
 
     public Set<String> getNickUsers() {
-        return unmodifiableSet(nickUsers);
+        return nickUsers;
     }
 
     public User setNickUsers(final Set<String> nickUsers) {

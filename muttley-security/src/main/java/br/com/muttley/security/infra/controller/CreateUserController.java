@@ -43,18 +43,6 @@ public class CreateUserController {
     @ResponseStatus(HttpStatus.CREATED)
     public void save(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
 
-        /*if (payload.isEmpty() || (payload.size() < 3 || payload.size() > 4) ||
-                !(payload.containsKey(NOME) && payload.containsKey(USER_NAME) && payload.containsKey(PASSWD)) ||
-                !(payload.containsKey(NOME) && payload.containsKey(NICK_NAMES) && payload.containsKey(PASSWD))
-
-        ) {
-            throw new MuttleySecurityBadRequestException(User.class, null, "Informe o nome, email e ou userName juntamente com a senha")
-                    .addDetails(NOME, "Nome completo")
-                    .addDetails(USER_NAME, "Informe um userName válido")
-                    .addDetails(PASSWD, "Informe uma senha válida")
-                    .addDetails(NICK_NAMES, "Informe possíveis nickNames");
-        }*/
-
         if (
                 !((payload.containsKey("name") && payload.containsKey("password") && payload.containsKey("email")) ||
                         (payload.containsKey("name") && payload.containsKey("password") && payload.containsKey("userName")) ||

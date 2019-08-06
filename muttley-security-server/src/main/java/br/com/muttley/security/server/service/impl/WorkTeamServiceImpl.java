@@ -74,7 +74,9 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     @Override
     public void beforeSave(final User user, final WorkTeam workTeam) {
         //garantindo que não será alterado informações cruciais
-        workTeam.setOwner(user.getCurrentOwner());
+        if (!(user.getCurrentOwner() == null && workTeam.getOwner() != null)) {
+            workTeam.setOwner(user.getCurrentOwner());
+        }
         super.beforeSave(user, workTeam);
     }
 
@@ -96,7 +98,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
         //validando usuário
         workTeam.setMembers(
-                workTeam.getMembers().stream().filter(it -> it.getId() != null && "".equals(it.getUserName())).collect(Collectors.toSet())
+                workTeam.getMembers().stream().filter(it -> it.getId() != null && !"".equals(it.getUserName())).collect(Collectors.toSet())
         );
     }
 
@@ -118,7 +120,10 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         if (other.containsRole(ROLE_OWNER)) {
             throw new MuttleyBadRequestException(WorkTeam.class, "roles", "Não se pode editar o grupo principal");
         }
-
+        //validando usuário
+        workTeam.setMembers(
+                workTeam.getMembers().stream().filter(it -> it.getId() != null && !"".equals(it.getUserName())).collect(Collectors.toSet())
+        );
     }
 
     @Override
@@ -146,6 +151,33 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
             throw new MuttleyNoContentException(WorkTeam.class, "name", "Nenhum time de trabalho encontrado");
         }
         return itens;
+    }
+
+    @Override
+    public List<WorkTeam> findByUser(final User user) {
+        /**
+         *db.getCollection("muttley-work-teams").aggregate([
+         *    {$match:{$or:[{"userMaster.$id": ObjectId("5d49cca5a1d16f19595be983")}, {"members.$id":ObjectId("5d49cca5a1d16f19595be983")}]}},
+         * ])
+         */
+        final AggregationResults<WorkTeam> workTeamsResult = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(
+                                new Criteria().orOperator(
+                                        where("userMaster.$id").is(new ObjectId(user.getId())),
+                                        where("members.$id").is(new ObjectId(user.getId()))
+                                )
+                        )
+                )
+                , WorkTeam.class, WorkTeam.class);
+        if (workTeamsResult == null) {
+            throw new MuttleyNotFoundException(WorkTeam.class, "members", "Nenhum workteam encontrado para o usuário informado");
+        }
+        final List<WorkTeam> workTeams = workTeamsResult.getMappedResults();
+        if (CollectionUtils.isEmpty(workTeams)) {
+            throw new MuttleyNotFoundException(WorkTeam.class, "members", "Nenhum workteam encontrado para o usuário informado");
+        }
+        return workTeams;
     }
 
     @Override
