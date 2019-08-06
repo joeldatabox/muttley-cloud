@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.isNull;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.stream.Collectors.toSet;
@@ -107,7 +108,7 @@ public class User implements Serializable {
         this.name = name;
         this.userName = userName;
         this.email = email;
-        this.nickUsers = nickUsers;
+        this.setNickUsers(nickUsers);
         this.passwd = passwd;
         this.lastPasswordResetDate = lastPasswordResetDate;
         this.enable = enable;
@@ -199,11 +200,13 @@ public class User implements Serializable {
     }
 
     public Set<String> getNickUsers() {
-        return nickUsers;
+        return unmodifiableSet(nickUsers);
     }
 
     public User setNickUsers(final Set<String> nickUsers) {
-        this.nickUsers = nickUsers != null ? nickUsers.stream().map(String::toLowerCase).collect(toSet()) : null;
+        if (nickUsers != null) {
+            this.nickUsers = nickUsers.stream().map(String::toLowerCase).collect(toSet());
+        }
         return this;
     }
 
