@@ -13,14 +13,20 @@ import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.mongo.result.UniqueResult;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
+import br.com.muttley.security.server.service.InmutablesPreferencesService;
 import br.com.muttley.security.server.service.UserPreferenceService;
 import org.bson.Document;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.util.Set;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Arrays.asList;
@@ -45,6 +51,7 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
     private final RedisService redisService;
     private final ApplicationEventPublisher eventPublisher;
     private final DocumentNameConfig documentNameConfig;
+    private final InmutablesPreferencesService inmutablesPreferencesService;
     @Value("${muttley.security.jwt.token.expiration:3600000}")
     private Integer expirationToken;
     private static final String KEY = "preferences";
@@ -56,7 +63,8 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
             final HeaderAuthorizationJWT headerAuthorizationJWT,
             final RedisService redisService,
             final ApplicationEventPublisher eventPublisher,
-            final DocumentNameConfig documentNameConfig) {
+            final DocumentNameConfig documentNameConfig,
+            final ObjectProvider<InmutablesPreferencesService> inmutablesPreferencesService) {
         super(repository, UserPreferences.class);
         this.template = template;
         this.repository = repository;
@@ -64,10 +72,12 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
         this.redisService = redisService;
         this.eventPublisher = eventPublisher;
         this.documentNameConfig = documentNameConfig;
+        this.inmutablesPreferencesService = inmutablesPreferencesService.getIfAvailable();
     }
 
     @Override
     public UserPreferences save(User user, UserPreferences userPreferences) {
+        this.validatePreferences(userPreferences);
         final UserPreferences salvedPreferences = this.repository.save(userPreferences.setUser(user));
         updatePreferencesCache(user, salvedPreferences);
         return salvedPreferences;
@@ -141,6 +151,7 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
     }
 
     private void updatePreferencesCache(final String email, final UserPreferences userPreferences) {
+        this.validatePreferences(userPreferences);
         final String keyCache = createKey(email);
         if (redisService.hasKey(keyCache)) {
             redisService.set(keyCache, userPreferences, redisService.getExpire(keyCache));
@@ -186,5 +197,35 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
                         UniqueResult.class
                 );
         return new User().setId(results.getUniqueMappedResult().getResult().toString());
+    }
+
+    private void validatePreferences(final UserPreferences preferences) {
+        //se o serviço foi injetado, devemos validar
+        //se a preferencia do usuário já tiver o id, devemo validar
+        if (this.inmutablesPreferencesService != null && !StringUtils.isEmpty(preferences.getId())) {
+            final Set<String> inmutableKeys = this.inmutablesPreferencesService.getInmutablesKeysPreferences();
+            if (!CollectionUtils.isEmpty(inmutableKeys)) {
+                //recuperando as preferencias sem alterações
+                final UserPreferences otherPreferences = this.repository.findByUser(preferences.getUser());
+                if (otherPreferences != null) {
+                    //percorrendo todas a keys que nsão proibidas as alterações
+                    inmutableKeys.forEach(inmutableKey -> {
+                        if (!StringUtils.isEmpty(inmutableKey)) {
+                            //se as preferencias existir no banco
+                            if (otherPreferences.contains(inmutableKey)) {
+                                //recuperando a preferencia do objeto atual
+                                final Preference pre = preferences.get(inmutableKey);
+                                //se a preferencial atual for null ou tiver sido modificada
+                                if (pre == null || !pre.getValue().equals(otherPreferences.get(inmutableKey).getValue())) {
+                                    throw new MuttleyBadRequestException(Preference.class, "key", "Não é possível fazer a alteração da preferencia [" + inmutableKey + ']')
+                                            .addDetails("key", inmutableKey)
+                                            .addDetails("currentValue", otherPreferences.get(inmutableKey).getValue());
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
     }
 }

@@ -12,20 +12,25 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.repository.UserRepository;
+import br.com.muttley.security.server.service.InmutablesPreferencesService;
 import br.com.muttley.security.server.service.UserPreferenceService;
 import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.WorkTeamService;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -41,18 +46,21 @@ public class UserServiceImpl implements UserService {
     private final UserPreferenceService userPreferenceService;
     private final JwtTokenUtilService tokenUtil;
     private final WorkTeamService workTeamService;
+    private final InmutablesPreferencesService inmutablesPreferencesService;
 
     @Autowired
     public UserServiceImpl(final ApplicationEventPublisher eventPublisher,
                            final UserRepository repository,
                            final UserPreferenceService userPreferenceService,
                            final JwtTokenUtilService tokenUtil,
-                           final WorkTeamService workTeamService) {
+                           final WorkTeamService workTeamService,
+                           final ObjectProvider<InmutablesPreferencesService> inmutablesPreferencesService) {
         this.eventPublisher = eventPublisher;
         this.repository = repository;
         this.userPreferenceService = userPreferenceService;
         this.tokenUtil = tokenUtil;
         this.workTeamService = workTeamService;
+        this.inmutablesPreferencesService = inmutablesPreferencesService.getIfAvailable();
     }
 
     @Override
@@ -204,4 +212,6 @@ public class UserServiceImpl implements UserService {
             return new JwtUser(user);
         }
     }
+
+
 }

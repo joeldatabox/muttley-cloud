@@ -52,7 +52,7 @@ public class UserPreferences implements Document {
         this.preferences = new HashSet<>();
     }
 
-    public UserPreferences(Preference... preferences) {
+    public UserPreferences(final Preference... preferences) {
         notNull(preferences, "preferences is null");
         this.preferences = new HashSet<>();
         Stream.of(preferences)
@@ -90,16 +90,19 @@ public class UserPreferences implements Document {
     }
 
     public UserPreferences set(final Preference preference) {
+        this.remove(preference.getKey());
         this.preferences.add(preference);
         return this;
     }
 
     public UserPreferences set(final String key, final Object value) {
+        this.remove(key);
         this.preferences.add(new Preference(key, value));
         return this;
     }
 
     public UserPreferences set(final String key, final Document value) {
+        this.remove(key);
         this.preferences.add(new Preference(key, value.getId()));
         return this;
     }
