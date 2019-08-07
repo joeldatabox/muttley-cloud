@@ -53,7 +53,9 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
             final WorkTeam workTeam = workteamService.findById(idWorkTeam.toString());
             user.setCurrentWorkTeam(workTeam);
             //carregando authorities
-            user.setAuthorities(workTeam.getRoles());
+            if (workTeam != null) {
+                user.setAuthorities(workTeam.getRoles());
+            }
         }
 
     }
