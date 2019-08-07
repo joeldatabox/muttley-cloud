@@ -62,13 +62,14 @@ public interface Service<T extends Document> {
                     "   hasAnyRole( " +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('create', this.getBasicRoles()) " +
                     "   ) " +
-                    "or " +
+                    "or (" +
                     "   @userAgent.isMobile()? " +
                     "       ( " +
                     "           hasAnyRole( " +
                     "               T(br.com.muttley.model.security.Role).toPatternRole('create', 'MOBILE_' + this.getBasicRoles()) " +
                     "           ) " +
                     "       ):false " +
+                    "   )" +
                     "): " +
                     "   true "
     )
@@ -124,13 +125,14 @@ public interface Service<T extends Document> {
                     "   hasAnyRole( " +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('update', this.getBasicRoles()) " +
                     "   )" +
-                    "or " +
+                    "or (" +
                     "   @userAgent.isMobile()? " +
                     "       ( " +
                     "           hasAnyRole( " +
                     "               T(br.com.muttley.model.security.Role).toPatternRole('update', 'MOBILE_' + this.getBasicRoles()) " +
                     "           ) " +
                     "       ):false " +
+                    "   )" +
                     "): " +
                     "   true "
     )
@@ -163,13 +165,14 @@ public interface Service<T extends Document> {
                     "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
                     "   ) " +
-                    "or " +
+                    "or (" +
                     "   @userAgent.isMobile()? " +
                     "       ( " +
                     "           hasAnyRole( " +
                     "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
                     "           ) " +
                     "       ):false " +
+                    "   )" +
                     "): " +
                     "   true"
     )
@@ -192,13 +195,14 @@ public interface Service<T extends Document> {
                     "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
                     "   )" +
-                    "or " +
+                    "or (" +
                     "   @userAgent.isMobile()? " +
                     "       ( " +
                     "           hasAnyRole( " +
                     "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
                     "           ) " +
                     "       ):false " +
+                    "   )" +
                     "): " +
                     "   true"
     )
@@ -222,13 +226,14 @@ public interface Service<T extends Document> {
                     "   hasAnyRole(" +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
                     "   )" +
-                    "or " +
+                    "or (" +
                     "   @userAgent.isMobile()? " +
                     "       ( " +
                     "           hasAnyRole( " +
                     "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
                     "           ) " +
                     "       ):false " +
+                    "   )" +
                     "): " +
                     "   true"
     )
@@ -252,13 +257,14 @@ public interface Service<T extends Document> {
                     "   hasAnyRole(" +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
                     "   )" +
-                    "or " +
+                    "or (" +
                     "   @userAgent.isMobile()? " +
                     "       ( " +
                     "           hasAnyRole( " +
                     "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
                     "           ) " +
                     "       ):false " +
+                    "   )" +
                     "): " +
                     "   true"
     )
@@ -301,13 +307,14 @@ public interface Service<T extends Document> {
                     "   hasAnyRole(" +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('delete', this.getBasicRoles())" +
                     "   )" +
-                    "or " +
+                    "or (" +
                     "   @userAgent.isMobile()? " +
                     "       ( " +
                     "           hasAnyRole( " +
                     "               T(br.com.muttley.model.security.Role).toPatternRole('delete', 'MOBILE_' + this.getBasicRoles()) " +
                     "           ) " +
                     "       ):false " +
+                    "   )" +
                     "): " +
                     "   true"
     )
@@ -353,13 +360,14 @@ public interface Service<T extends Document> {
                     "   hasAnyRole(" +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('delete', this.getBasicRoles())" +
                     "   )" +
-                    "or " +
+                    "or (" +
                     "   @userAgent.isMobile()? " +
                     "       ( " +
                     "           hasAnyRole( " +
                     "               T(br.com.muttley.model.security.Role).toPatternRole('delete', 'MOBILE_' + this.getBasicRoles()) " +
                     "           ) " +
                     "       ):false " +
+                    "   )" +
                     "): " +
                     "   true"
     )
@@ -392,13 +400,14 @@ public interface Service<T extends Document> {
                     "   hasAnyRole(" +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
                     "   )" +
-                    "or " +
+                    "or (" +
                     "   @userAgent.isMobile()? " +
                     "       ( " +
                     "           hasAnyRole( " +
                     "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
                     "           ) " +
                     "       ):false " +
+                    "   )" +
                     "): " +
                     "   true"
     )
@@ -422,13 +431,14 @@ public interface Service<T extends Document> {
                     "   hasAnyRole(" +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
                     "   )" +
-                    "or " +
+                    "or (" +
                     "   @userAgent.isMobile()? " +
                     "       ( " +
                     "           hasAnyRole( " +
                     "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
                     "           ) " +
                     "       ):false " +
+                    "   )" +
                     "): " +
                     "   true"
     )
@@ -448,13 +458,14 @@ public interface Service<T extends Document> {
                     "   hasAnyRole(" +
                     "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
                     "   )" +
-                    "or " +
+                    "or (" +
                     "   @userAgent.isMobile()? " +
                     "       ( " +
                     "           hasAnyRole( " +
                     "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
                     "           ) " +
                     "       ):false " +
+                    "   )" +
                     "): " +
                     "   true"
     )
