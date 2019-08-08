@@ -145,13 +145,28 @@ public class ErrorMessageBuilder {
         if (throwable instanceof MuttleyException) {
             return buildMessage((MuttleyException) throwable);
         } else if (ex.getCause() instanceof com.fasterxml.jackson.core.JsonParseException) {
-            JsonLocation location = ((com.fasterxml.jackson.core.JsonParseException) ex.getCause()).getLocation();
+            final JsonLocation location = ((com.fasterxml.jackson.core.JsonParseException) ex.getCause()).getLocation();
             message.setMessage("Illegal character in line:" + location.getLineNr() + " column:" + location.getColumnNr());
         } else if (ex.getCause() instanceof JsonMappingException) {
-            JsonLocation location = ((JsonMappingException) ex.getCause()).getLocation();
-            if (location != null) {
-                message.setMessage("Illegal character in line:" + location.getLineNr() + " column:" + location.getColumnNr());
+            final JsonLocation location = ((JsonMappingException) ex.getCause()).getLocation();
+            final String messageStr = ex.getMessage();
+
+            if (messageStr.startsWith("JSON parse error: Can not deserialize instance of ")) {
+                final String clazz = messageStr.replace("JSON parse error: Can not deserialize instance of ", "").replace(messageStr.substring(messageStr.indexOf(" out of START")), "");
+                final String[] packageClazz = clazz.split("\\.");
+                final String type = packageClazz[packageClazz.length - 1];
+                final String typeStr = type.equals("ArrayList") || type.equals("HashSet") ? "Array" : type;
+                final String typeSeted = messageStr.contains("START_OBJECT") ? "Object" : messageStr.contains("START_ARRAY") ? "Array" : "Unknown";
+                message.setMessage("Era esperado um " + typeStr + " porem foi passado um " + typeSeted);
+                if (location != null) {
+                    message.addDetails("info", "Illegal character in line:" + location.getLineNr() + " column:" + location.getColumnNr());
+                }
+            } else {
+                if (location != null) {
+                    message.setMessage("Illegal character in line:" + location.getLineNr() + " column:" + location.getColumnNr());
+                }
             }
+
         } else if (ex.getMessage().contains("Required request body is missing:")) {
             message.setMessage("Insira o corpo na requisição!")
                     .addDetails("body", "body is empty");

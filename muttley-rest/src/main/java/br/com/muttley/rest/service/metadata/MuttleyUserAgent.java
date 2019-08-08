@@ -16,7 +16,7 @@ import static org.springframework.http.HttpHeaders.USER_AGENT;
 @Component("userAgente")
 @RequestScope
 public class MuttleyUserAgent extends MuttleyHeader {
-    private static final String MOBILE = "ANDROID";
+    private static final String MOBILE = "MOBILE";
 
     public MuttleyUserAgent(@Autowired final HttpServletRequest request) {
         super(USER_AGENT, request);
