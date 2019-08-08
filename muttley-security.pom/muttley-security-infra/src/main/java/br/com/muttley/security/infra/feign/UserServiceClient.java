@@ -31,18 +31,19 @@ public interface UserServiceClient {
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public User save(@RequestBody UserPayLoad value, @RequestParam(required = false, value = "returnEntity", defaultValue = "") String returnEntity);
 
-    @RequestMapping(value = "/{email}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public User update(@PathVariable("email") final String email, @RequestHeader(Properties.TOKEN_HEADER) final String token, @RequestBody final User user);
+    @RequestMapping(value = "/{userName}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public User update(@PathVariable("userName") final String email, @RequestHeader(Properties.TOKEN_HEADER) final String token, @RequestBody final User user);
 
     @RequestMapping(value = "/passwd", method = PUT)
     public void updatePasswd(@RequestBody final Passwd passwd);
 
     @RequestMapping(method = DELETE)
-    void deleteByEmail(@RequestParam("email") String email);
+    void deleteByUserName(@RequestParam("userName") String userName);
 
     @RequestMapping(method = GET)
-    User findByEmail(@RequestParam("email") String email);
+    User findByUserName(@RequestParam("userName") String userName);
 
     @RequestMapping(value = "/user-from-token", method = GET)
     public User getUserFromToken(@RequestBody final JwtToken token);
 }
+

@@ -14,14 +14,14 @@ import org.springframework.context.ApplicationEvent;
 @Accessors(chain = true)
 public class UserResolverEvent extends ApplicationEvent {
     @Getter
-    final String email;
+    final String userName;
     @Getter
     @Setter
     protected User userResolved;
 
-    public UserResolverEvent(final String email) {
-        super(email);
-        this.email = email;
+    public UserResolverEvent(final String userName) {
+        super(userName);
+        this.userName = userName;
     }
 
     public boolean isResolved() {

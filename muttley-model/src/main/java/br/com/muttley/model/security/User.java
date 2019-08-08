@@ -3,7 +3,6 @@ package br.com.muttley.model.security;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.jackson.JsonHelper;
 import br.com.muttley.model.security.preference.UserPreferences;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,14 +34,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.toSet;
 
 /**
  * Created by joel on 16/01/17.
  */
 @Document(collection = "#{@documentNameConfig.getNameCollectionUser()}")
 @CompoundIndexes({
-        @CompoundIndex(name = "email_index_unique", def = "{'email' : 1}", unique = true)
+        @CompoundIndex(name = "userName_index_unique", def = "{'userName' : 1}", unique = true)
 })
 @TypeAlias("muttley-users")
 public class User implements Serializable {
@@ -64,14 +62,14 @@ public class User implements Serializable {
     private String name;
     @NotBlank(message = "Informe um email válido!")
     @Email(message = "Informe um email válido!")
-    private String email;
+    private String email1;
+    private String userName;
     @NotBlank(message = "Informe uma senha valida!")
     private String passwd;
     private Date lastPasswordResetDate;
     private Boolean enable;
     @Transient
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo workteam corrente
-    @JsonBackReference
     @Transient
     private UserPreferences preferences;
     //Define se o usuário é do odin ou de algum outro owner
@@ -90,7 +88,7 @@ public class User implements Serializable {
             @JsonProperty("workTeams") final Set<WorkTeam> workTeams,
             @JsonProperty("currentWorkTeam") final WorkTeam currentWorkTeam,
             @JsonProperty("name") final String name,
-            @JsonProperty("email") final String email,
+            @JsonProperty("email1") final String email1,
             @JsonProperty("passwd") final String passwd,
             @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
             @JsonProperty("enable") final Boolean enable,
@@ -100,7 +98,7 @@ public class User implements Serializable {
         this.workTeams = workTeams;
         this.currentWorkTeam = currentWorkTeam;
         this.name = name;
-        setEmail(email);
+        this.email1 = email1;
         this.passwd = passwd;
         this.lastPasswordResetDate = lastPasswordResetDate;
         this.enable = enable;
@@ -111,7 +109,7 @@ public class User implements Serializable {
     public User(final UserPayLoad payLoad) {
         this();
         this.setName(payLoad.getName());
-        this.setEmail(payLoad.getEmail());
+        this.setUserName(payLoad.getUserName());
         this.setPasswd(payLoad.getPasswd());
     }
 
@@ -176,15 +174,21 @@ public class User implements Serializable {
         return this;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUserName() {
+        return userName;
     }
 
-    public User setEmail(final String email) {
-        this.email = email;
-        if (this.email != null) {
-            this.email = this.email.toLowerCase();
-        }
+    public User setUserName(final String userName) {
+        this.userName = userName;
+        return this;
+    }
+
+    public String getEmail1() {
+        return email1;
+    }
+
+    public User setEmail1(final String email) {
+        this.email1 = email;
         return this;
     }
 
@@ -249,7 +253,7 @@ public class User implements Serializable {
     }
 
     public User setAuthorities(final Collection<Role> roles) {
-        this.authorities = roles.stream().map(it -> new AuthorityImpl(it)).collect(toSet());
+        this.authorities = roles.stream().map(it -> new AuthorityImpl(it)).collect(Collectors.toSet());
         return this;
     }
 
@@ -342,11 +346,15 @@ public class User implements Serializable {
 
     @JsonIgnore
     public boolean isValidEmail() {
-        if ((email == null) || (email.trim().isEmpty()))
+        if ((email1 == null) || (email1.trim().isEmpty()))
             return false;
         final Pattern pattern = Pattern.compile(EMAIL_PATTERN, Pattern.CASE_INSENSITIVE);
-        final Matcher matcher = pattern.matcher(email);
+        final Matcher matcher = pattern.matcher(email1);
         return matcher.matches();
+    }
+
+    public boolean isValidUserName() {
+        return !StringUtils.isEmpty(this.userName);
     }
 
     /**

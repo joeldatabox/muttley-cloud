@@ -147,7 +147,7 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
      * Irá salvar ou atualizar as preferencias do usuário no cache, caso seja necessário
      */
     private void updatePreferencesCache(final User user, final UserPreferences userPreferences) {
-        updatePreferencesCache(user.getEmail(), userPreferences);
+        updatePreferencesCache(user.getUserName(), userPreferences);
     }
 
     private void updatePreferencesCache(final String email, final UserPreferences userPreferences) {

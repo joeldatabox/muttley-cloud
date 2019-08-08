@@ -24,7 +24,7 @@ import java.util.Set;
 public class UserView implements Document {
     private String id;
     private String name;
-    private String email;
+    private String userName;
     @DBRef
     @JsonSerialize(using = ListDocumentSerializer.class)
     private Set<Owner> owners;

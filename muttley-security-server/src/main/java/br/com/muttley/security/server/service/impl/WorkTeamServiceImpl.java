@@ -96,7 +96,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
         //validando usuário
         workTeam.setMembers(
-                workTeam.getMembers().stream().filter(it -> it.getId() != null && "".equals(it.getEmail())).collect(toSet())
+                workTeam.getMembers().stream().filter(it -> it.getId() != null && "".equals(it.getUserName())).collect(toSet())
         );
     }
 

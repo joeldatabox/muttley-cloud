@@ -39,6 +39,6 @@ public class CacheUserPreferencesImpl implements CacheUserPreferences {
     }
 
     private String createKey(final User user) {
-        return createKey(user.getEmail());
+        return createKey(user.getUserName());
     }
 }

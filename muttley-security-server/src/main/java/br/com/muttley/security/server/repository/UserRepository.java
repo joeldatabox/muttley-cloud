@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserRepository extends SimpleTenancyMongoRepository<User> {
-    User findByEmail(String email);
+    User findByUserName(String userName);
 }
 

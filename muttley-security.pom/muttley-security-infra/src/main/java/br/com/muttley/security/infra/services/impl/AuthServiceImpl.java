@@ -67,6 +67,6 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        return new JwtUser(this.userServiceClient.findByEmail(username));
+        return new JwtUser(this.userServiceClient.findByUserName(username));
     }
 }

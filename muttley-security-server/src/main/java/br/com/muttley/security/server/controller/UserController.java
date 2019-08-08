@@ -57,23 +57,23 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @RequestMapping(value = "/{email}", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{userName}", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity update(@PathVariable("email") final String email, @RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt}", defaultValue = "") final String token, @RequestBody final User user, final JwtTokenUtilService tokenUtil) {
+    public ResponseEntity update(@PathVariable("userName") final String userName, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String token, @RequestBody final User user, final JwtTokenUtilService tokenUtil) {
         if (isNullOrEmpty(token)) {
             throw new MuttleyBadRequestException(null, null, "informe um token válido");
         }
 
-        final String emailFromToken = tokenUtil.getUsernameFromToken(token);
+        final String usernameFromToken = tokenUtil.getUsernameFromToken(token);
 
-        if (isNullOrEmpty(emailFromToken)) {
+        if (isNullOrEmpty(usernameFromToken)) {
             throw new MuttleyBadRequestException(null, null, "informe um token válido");
         }
 
-        if (!emailFromToken.equals(email)) {
-            throw new MuttleyBadRequestException(null, null, "O token informado não contem o email " + email);
+        if (!usernameFromToken.equals(userName)) {
+            throw new MuttleyBadRequestException(null, null, "O token informado não contem o userName " + userName);
         }
-        user.setId(service.findByEmail(email).getId());
+        user.setId(service.findByUserName(userName).getId());
         //é necessário válidar a regra de négocio no processo de crud de usuário
         throw new MuttleyMethodNotAllowedException(null, null, "Verifique a regra de negócios");
         //return ResponseEntity.ok(service.update(user));
@@ -87,22 +87,22 @@ public class UserController {
     }
 
     /**
-     * Faz a deleção por email ao invez de ID
+     * Faz a deleção por userName ao invez de ID
      */
     @RequestMapping(method = DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity deleteByEmail(@RequestParam("email") final String email) {
-        service.removeByEmail(email);
+    public ResponseEntity deleteByUserName(@RequestParam("userName") final String userName) {
+        service.removeByUserName(userName);
         return ResponseEntity.ok().build();
     }
 
     /**
-     * Faz a pesquisa pelo email ao invez do ID
+     * Faz a pesquisa pelo userName ao invez do ID
      */
     @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity findByEmail(@RequestParam("email") final String email, final HttpServletResponse response) {
-        return ResponseEntity.ok(service.findByEmail(email).toJson());
+    public ResponseEntity findByUserName(@RequestParam("userName") final String userName, final HttpServletResponse response) {
+        return ResponseEntity.ok(service.findByUserName(userName).toJson());
     }
 
     @RequestMapping(value = "/user-from-token", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})

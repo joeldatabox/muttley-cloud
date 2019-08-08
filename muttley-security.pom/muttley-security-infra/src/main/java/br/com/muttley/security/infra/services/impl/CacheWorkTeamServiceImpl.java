@@ -45,7 +45,7 @@ public class CacheWorkTeamServiceImpl implements CacheWorkTeamService {
     }
 
     private String createKey(final User user, String idWorkTeam) {
-        return KEY + ":" + user.getEmail() + ":" + idWorkTeam;
+        return KEY + ":" + user.getUserName() + ":" + idWorkTeam;
     }
 
     private Map<String, Object> toMap(final WorkTeam workTeam) {
@@ -61,7 +61,7 @@ public class CacheWorkTeamServiceImpl implements CacheWorkTeamService {
             final Map<String, String> userMaster = new HashMap();
             userMaster.put("id", workTeam.getUserMaster().getId());
             userMaster.put("name", workTeam.getUserMaster().getName());
-            userMaster.put("email", workTeam.getUserMaster().getEmail());
+            userMaster.put("userName", workTeam.getUserMaster().getUserName());
             map.put("userMaster", userMaster);
         }
 
@@ -80,7 +80,7 @@ public class CacheWorkTeamServiceImpl implements CacheWorkTeamService {
             for (final User user : workTeam.getMembers()) {
                 final Map<String, String> userMaster = new HashMap();
                 userMaster.put("id", user.getId());
-                userMaster.put("email", user.getEmail());
+                userMaster.put("userName", user.getUserName());
                 members.add(userMaster);
             }
             map.put("members", members);
@@ -103,7 +103,7 @@ public class CacheWorkTeamServiceImpl implements CacheWorkTeamService {
             final User userMaster = new User()
                     .setId(mapUserMaster.get("id"))
                     .setName(mapUserMaster.get("name"))
-                    .setEmail(mapUserMaster.get("email"));
+                    .setUserName(mapUserMaster.get("email"));
             workTeam.setUserMaster(userMaster);
         }
 
@@ -121,7 +121,7 @@ public class CacheWorkTeamServiceImpl implements CacheWorkTeamService {
         if (map.containsKey("members")) {
             final List<Map<String, String>> mapMembers = (List<Map<String, String>>) map.get("members");
             mapMembers.forEach(member -> {
-                workTeam.addMember(new User().setId(member.get("id")).setEmail(member.get("email")));
+                workTeam.addMember(new User().setId(member.get("id")).setUserName(member.get("userName")));
             });
         }
         return workTeam;

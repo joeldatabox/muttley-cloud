@@ -22,13 +22,13 @@ public interface UserService extends UserDetailsService {
 
     boolean remove(final User user);
 
-    boolean removeByEmail(final String email);
+    boolean removeByUserName(final String userName);
 
     User update(final User user);
 
     User updatePasswd(final Passwd user);
 
-    User findByEmail(final String email);
+    User findByUserName(final String userName);
 
     User findById(final String id);
 
