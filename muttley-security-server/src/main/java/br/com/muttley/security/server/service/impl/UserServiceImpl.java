@@ -33,11 +33,15 @@ import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.stream.Collectors.toList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -120,11 +124,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUserName(final String userName) {
-        final User user = repository.findByUserName(userName);
-        if (user == null) {
+        final AggregationResults<User> result = template.aggregate(newAggregation(
+                match(
+                        new Criteria().orOperator(
+                                where("userName").is(userName),
+                                where("email").is(userName),
+                                where("nickUsers").in(userName)
+                        )
+                )
+        ), User.class, User.class);
+        if (result == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
+
+        final List<User> users = result.getMappedResults();
+        if (CollectionUtils.isEmpty(users)) {
             throw new MuttleySecurityNotFoundException(User.class, "userName", userName + " este registro não foi encontrado");
         }
-        return user;
+        if (users.size() > 1) {
+            throw new MuttleyException("Erro interno no sistema");
+        }
+
+        return users.get(0);
     }
 
     public User findByEmail(final String email) {
@@ -191,9 +212,10 @@ public class UserServiceImpl implements UserService {
 
             //validando se já existe esse usuário no sistema
             //devemos garantir que qualquer info de email, userName e ou nickUsers sejam unicos
-            checkIsUniqueUserName(user);
+            /*checkIsUniqueUserName(user);
             checkIsUniqueEmail(user);
-            checkIsUniqueNickUsers(user);
+            checkIsUniqueNickUsers(user);*/
+            this.checkIndexUser(user);
 
             //validando se preencheu a senha corretamente
             if (!user.isValidPasswd()) {
@@ -203,9 +225,10 @@ public class UserServiceImpl implements UserService {
         } else {
             final User self = findById(user.getId());
 
-            checkIsUniqueUserName(user);
+            /*checkIsUniqueUserName(user);
             checkIsUniqueEmail(user);
-            checkIsUniqueNickUsers(user);
+            checkIsUniqueNickUsers(user);*/
+            this.checkIndexUser(user);
 
 /*
             if (!self.getUserName().equals(user.getUserName())) {
@@ -221,67 +244,83 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkIndexUser(final User user) {
+        final Set<String> userNames = new HashSet<>(user.getNickUsers());
+        userNames.add(user.getEmail());
+        userNames.add(user.getUserName());
 
-    }
+        final Criteria basicCriteria = new Criteria().orOperator(
+                where("userName").in(userNames),
+                where("email").in(userNames),
+                where("nickUsers").in(userNames)
+        );
 
-    private void checkIsUniqueUserName(final User user) {
-        if (!StringUtils.isEmpty(user.getUserName())) {
-            try {
-                if (user.getId() == null) {
-                    //verificando pelo userName
-                    if (findByUserName(user.getUserName()) != null) {
-                        throw new MuttleySecurityConflictException(User.class, "userName", "UserName indisponível!");
-                    }
-                } else {
-                    final User otherUser = findByUserName(user.getUserName());
-                    if (otherUser != null && !user.equals(otherUser)) {
-                        throw new MuttleySecurityConflictException(User.class, "userName", "UserName indisponível!");
-                    }
-                }
-            } catch (MuttleySecurityNotFoundException ex) {
+        Aggregation aggregation = null;
+
+        if (StringUtils.isEmpty(user.getId())) {
+            aggregation = newAggregation(
+                    match(basicCriteria),
+                    Aggregation.count().as("count")
+            );
+        } else {
+            aggregation = newAggregation(
+                    match(basicCriteria.and("_id").ne(new ObjectId(user.getId()))),
+                    Aggregation.count().as("count")
+            );
+        }
+
+        final AggregationResults<UserViewServiceImpl.ResultCount> result = template.aggregate(aggregation, User.class, UserViewServiceImpl.ResultCount.class);
+
+        if (result != null) {
+            final UserViewServiceImpl.ResultCount resultCount = result.getUniqueMappedResult();
+            if (resultCount != null && resultCount.getCount() > 0) {
+                final MuttleySecurityConflictException ex = new MuttleySecurityConflictException(User.class, null, "Por favor, busque utilizar outra opção!");
+                //para devolver uma resposta adequada, vamos verificar quais nomes estão indisponíveis;
+                ex.addDetails("indisponivel", userNames
+                        .stream()
+                        .filter(u -> this.existUserName(user.getId(), u))
+                        .collect(toList()));
+                throw ex;
             }
         }
+
     }
 
-    private void checkIsUniqueEmail(final User user) {
-        if (!StringUtils.isEmpty(user.getEmail())) {
-            try {
-                if (user.getId() == null) {
-                    //verificando pelo email
-                    if (findByEmail(user.getEmail()) != null) {
-                        throw new MuttleySecurityConflictException(User.class, "email", "Email indisponível!!");
-                    }
-                } else {
-                    final User otherUser = findByEmail(user.getUserName());
-                    if (otherUser != null && !user.equals(otherUser)) {
-                        throw new MuttleySecurityConflictException(User.class, "email", "Email indisponível!");
-                    }
-                }
-            } catch (MuttleySecurityNotFoundException ex) {
-            }
-        }
-    }
-
-    private void checkIsUniqueNickUsers(final User user) {
-        if (!CollectionUtils.isEmpty(user.getNickUsers())) {
-            if (user.getId() == null) {
-                //verificando pelo nickUser
-                for (final String nick : user.getNickUsers()) {
-                    if (this.existNickUsers(nick)) {
-                        throw new MuttleySecurityConflictException(User.class, "nickUsers", "nickUser indisponível [" + nick + "]");
-                    }
-                }
+    /**
+     * Metodo usado para verificar se um determinado nome esta disponivel ou não
+     */
+    private boolean existUserName(final String id, final String userName) {
+        if (!StringUtils.isEmpty(userName)) {
+            final AggregationResults<UserViewServiceImpl.ResultCount> result;
+            if (StringUtils.isEmpty(id)) {
+                result = template.aggregate(newAggregation(
+                        match(
+                                new Criteria().orOperator(
+                                        where("userName").in(userName),
+                                        where("email").in(userName),
+                                        where("nickUsers").in(userName)
+                                )
+                        ),
+                        Aggregation.count().as("count")
+                ), User.class, UserViewServiceImpl.ResultCount.class);
             } else {
-                for (final String nick : user.getNickUsers()) {
-                    if (this.existNickUsers(new ObjectId(user.getId()), nick)) {
-                        throw new MuttleySecurityConflictException(User.class, "nickUsers", "nickUser indisponível [" + nick + "]");
-                    }
-                }
+                result = template.aggregate(newAggregation(
+                        match(
+                                new Criteria().orOperator(
+                                        where("userName").in(userName),
+                                        where("email").in(userName),
+                                        where("nickUsers").in(userName)
+                                ).and("_id").ne(new ObjectId(id))
+                        ),
+                        Aggregation.count().as("count")
+                ), User.class, UserViewServiceImpl.ResultCount.class);
+            }
+            if (result != null) {
+                final UserViewServiceImpl.ResultCount resultCount = result.getUniqueMappedResult();
+                return resultCount != null && resultCount.getCount() > 0;
             }
         }
+        return false;
     }
-
-    public void checkIndex
 
     public Long count(final User user, final Map<String, Object> allRequestParams) {
         //return repository.count(allRequestParams);
