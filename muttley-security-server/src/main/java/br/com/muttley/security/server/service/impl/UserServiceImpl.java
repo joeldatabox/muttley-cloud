@@ -1,5 +1,6 @@
 package br.com.muttley.security.server.service.impl;
 
+import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityConflictException;
@@ -16,10 +17,14 @@ import br.com.muttley.security.server.service.InmutablesPreferencesService;
 import br.com.muttley.security.server.service.UserPreferenceService;
 import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.WorkTeamService;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -27,12 +32,15 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * @author Joel Rodrigues Moreira on 12/01/18.
@@ -47,6 +55,7 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenUtilService tokenUtil;
     private final WorkTeamService workTeamService;
     private final InmutablesPreferencesService inmutablesPreferencesService;
+    private final MongoTemplate template;
 
     @Autowired
     public UserServiceImpl(final ApplicationEventPublisher eventPublisher,
@@ -54,13 +63,15 @@ public class UserServiceImpl implements UserService {
                            final UserPreferenceService userPreferenceService,
                            final JwtTokenUtilService tokenUtil,
                            final WorkTeamService workTeamService,
-                           final ObjectProvider<InmutablesPreferencesService> inmutablesPreferencesService) {
+                           final ObjectProvider<InmutablesPreferencesService> inmutablesPreferencesService,
+                           final MongoTemplate template) {
         this.eventPublisher = eventPublisher;
         this.repository = repository;
         this.userPreferenceService = userPreferenceService;
         this.tokenUtil = tokenUtil;
         this.workTeamService = workTeamService;
         this.inmutablesPreferencesService = inmutablesPreferencesService.getIfAvailable();
+        this.template = template;
     }
 
     @Override
@@ -116,6 +127,14 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    public User findByEmail(final String email) {
+        final User user = repository.findByEmail(email);
+        if (user == null) {
+            throw new MuttleySecurityNotFoundException(User.class, "email", email + " este registro não foi encontrado");
+        }
+        return user;
+    }
+
     @Override
     public User findById(final String id) {
         final Optional<User> user = repository.findById(id);
@@ -154,17 +173,28 @@ public class UserServiceImpl implements UserService {
         if (user.getName() == null || user.getName().length() < 4) {
             throw new MuttleySecurityBadRequestException(User.class, "nome", "O campo nome deve ter de 4 a 200 caracteres!");
         }
-        if (!user.isValidUserName()) {
-            throw new MuttleySecurityBadRequestException(User.class, "userName", "Informe um userName válido!");
+
+        //validando infos do usuário
+        user.validateBasicInfoForLogin();
+
+        //se não preencheu nada bloqueamos
+        if (StringUtils.isEmpty(user.getUserName()) && StringUtils.isEmpty(user.getEmail()) && CollectionUtils.isEmpty(user.getNickUsers())) {
+            throw new MuttleySecurityBadRequestException(User.class, null, "Informe o email, userName ou os nickUsers");
         }
+
+        //caso não tenha se inform um userName, vamos gerar um randomicamente
+        if (StringUtils.isEmpty(user.getUserName())) {
+            user.setUserName(user.getName() + new ObjectId(new Date()).toString());
+        }
+
         if (user.getId() == null) {
+
             //validando se já existe esse usuário no sistema
-            try {
-                if (findByUserName(user.getUserName()) != null) {
-                    throw new MuttleySecurityConflictException(User.class, "userName", "UserName já cadastrado!");
-                }
-            } catch (MuttleySecurityNotFoundException ex) {
-            }
+            //devemos garantir que qualquer info de email, userName e ou nickUsers sejam unicos
+            checkIsUniqueUserName(user);
+            checkIsUniqueEmail(user);
+            checkIsUniqueNickUsers(user);
+
             //validando se preencheu a senha corretamente
             if (!user.isValidPasswd()) {
                 throw new MuttleySecurityBadRequestException(User.class, "passwd", "Informe uma senha válida!");
@@ -173,9 +203,15 @@ public class UserServiceImpl implements UserService {
         } else {
             final User self = findById(user.getId());
 
+            checkIsUniqueUserName(user);
+            checkIsUniqueEmail(user);
+            checkIsUniqueNickUsers(user);
+
+/*
             if (!self.getUserName().equals(user.getUserName())) {
                 throw new MuttleySecurityBadRequestException(User.class, "userName", "O userName não pode ser modificado!").setStatus(HttpStatus.NOT_ACCEPTABLE);
             }
+*/
 
             //garantindo que a senha não irá ser modificada
             user.setPasswd(self);
@@ -184,6 +220,68 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    private void checkIndexUser(final User user) {
+
+    }
+
+    private void checkIsUniqueUserName(final User user) {
+        if (!StringUtils.isEmpty(user.getUserName())) {
+            try {
+                if (user.getId() == null) {
+                    //verificando pelo userName
+                    if (findByUserName(user.getUserName()) != null) {
+                        throw new MuttleySecurityConflictException(User.class, "userName", "UserName indisponível!");
+                    }
+                } else {
+                    final User otherUser = findByUserName(user.getUserName());
+                    if (otherUser != null && !user.equals(otherUser)) {
+                        throw new MuttleySecurityConflictException(User.class, "userName", "UserName indisponível!");
+                    }
+                }
+            } catch (MuttleySecurityNotFoundException ex) {
+            }
+        }
+    }
+
+    private void checkIsUniqueEmail(final User user) {
+        if (!StringUtils.isEmpty(user.getEmail())) {
+            try {
+                if (user.getId() == null) {
+                    //verificando pelo email
+                    if (findByEmail(user.getEmail()) != null) {
+                        throw new MuttleySecurityConflictException(User.class, "email", "Email indisponível!!");
+                    }
+                } else {
+                    final User otherUser = findByEmail(user.getUserName());
+                    if (otherUser != null && !user.equals(otherUser)) {
+                        throw new MuttleySecurityConflictException(User.class, "email", "Email indisponível!");
+                    }
+                }
+            } catch (MuttleySecurityNotFoundException ex) {
+            }
+        }
+    }
+
+    private void checkIsUniqueNickUsers(final User user) {
+        if (!CollectionUtils.isEmpty(user.getNickUsers())) {
+            if (user.getId() == null) {
+                //verificando pelo nickUser
+                for (final String nick : user.getNickUsers()) {
+                    if (this.existNickUsers(nick)) {
+                        throw new MuttleySecurityConflictException(User.class, "nickUsers", "nickUser indisponível [" + nick + "]");
+                    }
+                }
+            } else {
+                for (final String nick : user.getNickUsers()) {
+                    if (this.existNickUsers(new ObjectId(user.getId()), nick)) {
+                        throw new MuttleySecurityConflictException(User.class, "nickUsers", "nickUser indisponível [" + nick + "]");
+                    }
+                }
+            }
+        }
+    }
+
+    public void checkIndex
 
     public Long count(final User user, final Map<String, Object> allRequestParams) {
         //return repository.count(allRequestParams);
@@ -198,19 +296,60 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        User user = repository.findByUserName(username);
-        if (user == null) {
+        final AggregationResults<User> result = template.aggregate(newAggregation(
+                match(
+                        new Criteria().orOperator(
+                                where("userName").is(username),
+                                where("email").is(username),
+                                where("nickUsers").in(username)
+                        )
+                ),
+                Aggregation.count().as("count")
+        ), User.class, User.class);
+        if (result == null) {
             throw new UsernameNotFoundException("Usuário não encontrado");
-        } else {
-            //verifiando se é a primeira vez que o usuário está fazendo login
-            /*if (!user.isConfigured()) {
-                eventPublisher.publishEvent(new FirstLoginUserEvent(user));
-                //marcando como o usuário já teve um login antes
-                user.setConfigured(true);
-                user = update(user);
-            }*/
-            return new JwtUser(user);
         }
+
+        final List<User> users = result.getMappedResults();
+        if (CollectionUtils.isEmpty(users)) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
+        if (users.size() > 1) {
+            throw new MuttleyException("Erro interno no sistema");
+        }
+        return new JwtUser(users.get(0));
+    }
+
+    /**
+     * Retorna true caso encontre algum nickUser com idUser diferente do informado
+     */
+    private boolean existNickUsers(final ObjectId idUser, final String nickUsers) {
+        final AggregationResults<UserViewServiceImpl.ResultCount> result = template.aggregate(newAggregation(
+                match(where("_id").ne(idUser).and("nickUsers").in(nickUsers)),
+                Aggregation.count().as("count")
+        ), User.class, UserViewServiceImpl.ResultCount.class);
+
+        if (result == null) {
+            return false;
+        }
+        return result.getUniqueMappedResult().getCount() > 0;
+    }
+
+    /**
+     * Retorna true caso encontre algum nickUser
+     */
+    private boolean existNickUsers(final String nickUsers) {
+
+
+        final AggregationResults<UserViewServiceImpl.ResultCount> result = template.aggregate(newAggregation(
+                match(where("nickUsers").in(nickUsers)),
+                Aggregation.count().as("count")
+        ), User.class, UserViewServiceImpl.ResultCount.class);
+
+        if (result == null) {
+            return false;
+        }
+        return result.getUniqueMappedResult().getCount() > 0;
     }
 
 
