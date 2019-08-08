@@ -1,5 +1,7 @@
 package br.com.muttley.security.infra.component;
 
+import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
@@ -38,25 +40,28 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
         final User user = event.getSource();
         //carregando preferencias
         final UserPreferences preferences = preferenceServiceClient.getPreferences(user.getId());
-        if (!preferences.contains(WORK_TEAM_PREFERENCE)) {
-            final List<WorkTeam> itens = workteamService.findByUser();
-            final Preference preference = new Preference(WORK_TEAM_PREFERENCE, itens.get(0).getId());
-            preferences.set(preference);
-            preferenceServiceClient.setPreference(user.getId(), preference);
+        try {
+            if (!preferences.contains(WORK_TEAM_PREFERENCE)) {
+                final List<WorkTeam> itens = workteamService.findByUser();
+                final Preference preference = new Preference(WORK_TEAM_PREFERENCE, itens.get(0).getId());
+                preferences.set(preference);
+                preferenceServiceClient.setPreference(user.getId(), preference);
 
-            user.setCurrentWorkTeam(itens.get(0));
-            //carregando authorities
-            user.setAuthorities(itens.get(0).getRoles());
-        } else {
-            final ObjectId idWorkTeam = new ObjectId(preferences.get(WORK_TEAM_PREFERENCE).getValue().toString());
-            user.setPreferences(preferences);
-            final WorkTeam workTeam = workteamService.findById(idWorkTeam.toString());
-            user.setCurrentWorkTeam(workTeam);
-            //carregando authorities
-            if (workTeam != null) {
-                user.setAuthorities(workTeam.getRoles());
+                user.setCurrentWorkTeam(itens.get(0));
+                //carregando authorities
+                user.setAuthorities(itens.get(0).getRoles());
+            } else {
+                final ObjectId idWorkTeam = new ObjectId(preferences.get(WORK_TEAM_PREFERENCE).getValue().toString());
+                user.setPreferences(preferences);
+                final WorkTeam workTeam = workteamService.findById(idWorkTeam.toString());
+                user.setCurrentWorkTeam(workTeam);
+                //carregando authorities
+                if (workTeam != null) {
+                    user.setAuthorities(workTeam.getRoles());
+                }
             }
+        } catch (MuttleyNotFoundException ex) {
+            throw new MuttleySecurityCredentialException("Não foi possível recuperar informações do seu usuáiro");
         }
-
     }
 }
