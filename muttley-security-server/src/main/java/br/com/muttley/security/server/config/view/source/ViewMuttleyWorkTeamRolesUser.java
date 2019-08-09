@@ -49,7 +49,7 @@ public class ViewMuttleyWorkTeamRolesUser implements ViewSource {
          {$project:{ _id:1, owner:1, users:["$userMaster", "$members"], roles:1}},
          {$unwind:'$users'},
          {$group:{
-         _id:{_id:"$_id", owner:"$owner", user:"$users" },
+         _id:{owner:"$owner", user:"$users" },
          roles:{$addToSet:"$roles"}
          }},
          {$project:{ _id: {$arrayElemAt:[{$objectToArray:"$_id.user"},1]}, owner:"$_id.owner", user:"$_id.user", roles:1}},
@@ -99,7 +99,6 @@ public class ViewMuttleyWorkTeamRolesUser implements ViewSource {
                                         new BsonElement("_id",
                                                 new BsonDocument(
                                                         asList(
-                                                                new BsonElement("_id", new BsonString("$_id")),
                                                                 new BsonElement("owner", new BsonString("$owner")),
                                                                 new BsonElement("user", new BsonString("$users"))
                                                         )

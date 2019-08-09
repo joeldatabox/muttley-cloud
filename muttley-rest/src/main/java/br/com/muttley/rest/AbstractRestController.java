@@ -4,7 +4,6 @@ import br.com.muttley.domain.service.Service;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
-import br.com.muttley.security.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.infra.service.AuthService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -33,13 +32,11 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     protected final Service<T> service;
     protected final AuthService userService;
     protected final ApplicationEventPublisher eventPublisher;
-    protected final UserPreferenceServiceClient userPreferenceService;
 
-    public AbstractRestController(final Service service, final AuthService userService, final ApplicationEventPublisher eventPublisher, final UserPreferenceServiceClient userPreferenceService) {
+    public AbstractRestController(final Service service, final AuthService userService, final ApplicationEventPublisher eventPublisher) {
         this.service = service;
         this.userService = userService;
         this.eventPublisher = eventPublisher;
-        this.userPreferenceService = userPreferenceService;
     }
 
     @Override
