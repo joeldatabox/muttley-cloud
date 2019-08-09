@@ -7,6 +7,7 @@ import br.com.muttley.model.security.preference.UserPreferences;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira on 12/01/18.
@@ -29,6 +30,10 @@ public interface UserService extends UserDetailsService {
     User updatePasswd(final Passwd user);
 
     User findByUserName(final String userName);
+
+    User findUserByEmailOrUserNameOrNickUsers(final String email, final String userName, final Set<String> nickUsers);
+
+    boolean existUserByEmailOrUserNameOrNickUsers(final String email, final String userName, final Set<String> nickUsers);
 
     User findById(final String id);
 

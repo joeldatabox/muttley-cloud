@@ -9,6 +9,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
@@ -29,4 +30,7 @@ public interface WorkTeamServiceClient extends RestControllerClient<WorkTeam> {
 
     @RequestMapping(value = "/avaliable-roles", method = GET, consumes = {APPLICATION_JSON_UTF8_VALUE})
     public AvaliableRoles loadAvaliableRoles();
+
+    @RequestMapping(value = "/find-by-user", method = GET, consumes = {APPLICATION_JSON_UTF8_VALUE})
+    List<WorkTeam> findByUser();
 }

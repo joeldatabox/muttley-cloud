@@ -28,8 +28,8 @@ public interface UserPreferenceServiceClient {
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public void setPreference(@RequestBody final Preference preference);
 
-    @RequestMapping(value = "/email/{email}", method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public void setPreferenceByEmail(@PathVariable("email") final String email, @RequestBody final Preference preference);
+    @RequestMapping(value = "/userName/{userName}", method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public void setPreferenceByUserName(@PathVariable("userName") final String userName, @RequestBody final Preference preference);
 
     @RequestMapping(value = "/{key}", method = DELETE, consumes = APPLICATION_JSON_UTF8_VALUE)
     public void removePreference(@PathVariable("key") final String key);

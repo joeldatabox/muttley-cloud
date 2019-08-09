@@ -38,8 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM_PREFERENCE;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
@@ -148,6 +148,69 @@ public class UserServiceImpl implements UserService {
         return users.get(0);
     }
 
+    @Override
+    public User findUserByEmailOrUserNameOrNickUsers(final String email, final String userName, final Set<String> nickUsers) {
+        final Set<String> nicks = createSetForNicks(email, userName, nickUsers);
+        final AggregationResults<User> result = template.aggregate(newAggregation(
+                match(
+                        new Criteria().orOperator(
+                                where("userName").in(nicks),
+                                where("email").in(nicks),
+                                where("nickUsers").in(nicks)
+                        )
+                )
+        ), User.class, User.class);
+        if (result == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
+
+        final List<User> users = result.getMappedResults();
+        if (CollectionUtils.isEmpty(users)) {
+            throw new MuttleySecurityNotFoundException(User.class, null, userName + " este registro não foi encontrado");
+        }
+        if (users.size() > 1) {
+            throw new MuttleyException("Mais de um usuário foi encontrado");
+        }
+        return users.get(0);
+    }
+
+    @Override
+    public boolean existUserByEmailOrUserNameOrNickUsers(final String email, final String userName, final Set<String> nickUsers) {
+        final Set<String> nicks = createSetForNicks(email, userName, nickUsers);
+        final AggregationResults<UserViewServiceImpl.ResultCount> result = template.aggregate(newAggregation(
+                match(
+                        new Criteria().orOperator(
+                                where("userName").in(nicks),
+                                where("email").in(nicks),
+                                where("nickUsers").in(nicks)
+                        )
+                ), Aggregation.count().as("count")
+        ), User.class, UserViewServiceImpl.ResultCount.class);
+        if (result == null) {
+            return false;
+        }
+
+        final UserViewServiceImpl.ResultCount resultCount = result.getUniqueMappedResult();
+        if (resultCount == null) {
+            return false;
+        }
+        return resultCount.getCount() > 0;
+    }
+
+    private Set<String> createSetForNicks(final String email, final String userName, final Set<String> nickUsers) {
+        final Set<String> nicks = new HashSet<>();
+        if (!StringUtils.isEmpty(email)) {
+            nicks.add(email);
+        }
+        if (!StringUtils.isEmpty(userName)) {
+            nicks.add(userName);
+        }
+        if (!CollectionUtils.isEmpty(nickUsers)) {
+            nickUsers.stream().filter(it -> !StringUtils.isEmpty(it)).forEach(it -> nicks.add(it));
+        }
+        return nicks;
+    }
+
     public User findByEmail(final String email) {
         final User user = repository.findByEmail(email);
         if (user == null) {
@@ -178,7 +241,9 @@ public class UserServiceImpl implements UserService {
                 final User user = findByUserName(userName);
                 final UserPreferences preferences = this.userPreferenceService.getPreferences(user);
                 user.setPreferences(preferences);
-                user.setCurrentWorkTeam(this.workTeamService.findById(user, preferences.get(UserPreferences.WORK_TEAM_PREFERENCE).getValue().toString()));
+                if (preferences.contains(WORK_TEAM_PREFERENCE)) {
+                    user.setCurrentWorkTeam(this.workTeamService.findById(user, preferences.get(WORK_TEAM_PREFERENCE).getValue().toString()));
+                }
                 return user;
             }
         }
@@ -245,8 +310,12 @@ public class UserServiceImpl implements UserService {
 
     private void checkIndexUser(final User user) {
         final Set<String> userNames = new HashSet<>(user.getNickUsers());
-        userNames.add(user.getEmail());
-        userNames.add(user.getUserName());
+        if (!StringUtils.isEmpty(user.getEmail())) {
+            userNames.add(user.getEmail());
+        }
+        if (!StringUtils.isEmpty(user.getUserName())) {
+            userNames.add(user.getUserName());
+        }
 
         final Criteria basicCriteria = new Criteria().orOperator(
                 where("userName").in(userNames),

@@ -51,9 +51,9 @@ public class UserPreferenceController {
 
     }
 
-    @RequestMapping(value = "/email/{email}", method = POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-    public ResponseEntity setPreferenceByEmail(@PathVariable("email") final String email, @RequestBody final Preference preference) {
-        this.service.setPreferences(email, preference);
+    @RequestMapping(value = "/userName/{userName}", method = POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    public ResponseEntity setPreferenceByUserName(@PathVariable("userName") final String userName, @RequestBody final Preference preference) {
+        this.service.setPreferences(userName, preference);
         return ResponseEntity.ok().build();
 
     }

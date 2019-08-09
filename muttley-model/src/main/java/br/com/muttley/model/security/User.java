@@ -16,7 +16,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -24,7 +23,6 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -32,10 +30,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.isNull;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.stream.Collectors.toSet;
@@ -180,6 +176,7 @@ public class User implements Serializable {
 
     public User setCurrentWorkTeam(final WorkTeam currentWorkTeam) {
         this.currentWorkTeam = currentWorkTeam;
+        this.setAuthorities(currentWorkTeam.getRoles());
         return this;
     }
 
@@ -211,7 +208,7 @@ public class User implements Serializable {
     }
 
     public Set<String> getNickUsers() {
-        return unmodifiableSet(nickUsers);
+        return nickUsers;
     }
 
     public User setNickUsers(final Set<String> nickUsers) {

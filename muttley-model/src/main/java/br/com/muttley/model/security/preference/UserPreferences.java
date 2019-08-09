@@ -86,7 +86,7 @@ public class UserPreferences implements Document {
         return this.preferences.stream()
                 .filter(p -> p.key.equals(key))
                 .findAny()
-                .get();
+                .orElse(null);
     }
 
     public UserPreferences set(final Preference preference) {

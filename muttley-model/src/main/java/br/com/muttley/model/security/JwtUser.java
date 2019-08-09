@@ -25,19 +25,19 @@ public class JwtUser implements UserDetails {
     private final String name;
 
     private final String password;
-    private final String userName;
+    private final String username;
     private final Collection<? extends GrantedAuthority> authorities;
     private final boolean enabled;
     private final Date lastPasswordResetDate;
     /*@Value("${springboot..security.jwt.issuer}")
-    private String issuer;*/
+    private String issuer ;*/
     private final User originUser;
 
     public JwtUser(final User user) {
         this.id = user.getId();
         this.name = user.getName();
         this.password = user.getPasswd();
-        this.userName = user.getUserName();
+        this.username = user.getUserName();
         this.authorities = mapToGrantedAuthorities(user.getAuthorities());
         this.enabled = user.isEnable();
         this.lastPasswordResetDate = user.getLastPasswordResetDate();
@@ -48,7 +48,7 @@ public class JwtUser implements UserDetails {
         this.id = userBuilder.id;
         this.name = userBuilder.name;
         this.password = userBuilder.password;
-        this.userName = userBuilder.userName;
+        this.username = userBuilder.userName;
         this.authorities = userBuilder.authorities;
         this.enabled = userBuilder.enabled;
         this.lastPasswordResetDate = userBuilder.lastPasswordResetDate;
@@ -60,7 +60,7 @@ public class JwtUser implements UserDetails {
             @JsonProperty("id") final String id,
             @JsonProperty("name") final String name,
             @JsonProperty("password") final String password,
-            @JsonProperty("userName") final String userName,
+            @JsonProperty("username") final String userName,
             @JsonProperty("authorities") final Collection<? extends GrantedAuthority> authorities,
             @JsonProperty("enabled") final boolean enabled,
             @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
@@ -68,7 +68,7 @@ public class JwtUser implements UserDetails {
         this.id = id;
         this.name = name;
         this.password = password;
-        this.userName = userName;
+        this.username = userName;
         this.authorities = authorities;
         this.enabled = enabled;
         this.lastPasswordResetDate = lastPasswordResetDate;
@@ -87,7 +87,7 @@ public class JwtUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userName;
+        return username;
     }
 
     @JsonIgnore
@@ -106,10 +106,6 @@ public class JwtUser implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
-    }
-
-    public String getUserName() {
-        return userName;
     }
 
     @JsonIgnore

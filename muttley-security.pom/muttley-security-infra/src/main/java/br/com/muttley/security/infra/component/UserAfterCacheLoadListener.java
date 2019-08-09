@@ -4,6 +4,7 @@ import br.com.muttley.metadata.headers.HeaderAuthorizationJWT;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
+import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.infra.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.infra.feign.WorkTeamServiceClient;
@@ -12,6 +13,8 @@ import br.com.muttley.security.infra.services.CacheWorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM_PREFERENCE;
 
@@ -52,18 +55,36 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
             this.cacheUserPreferences.set(user, preferences, authorizationJWT.getToken().getExpiration());
         }
 
-        //carregando o workteam
-        //verificando se tem algum cache
-        final String idWorkTeam = preferences.get(WORK_TEAM_PREFERENCE).getValue().toString();
-        WorkTeam workTeam = this.cacheWorkTeamService.get(user, idWorkTeam);
-        if (workTeam == null) {
-            //se não existe cache, devemos buscar no servidor de segurança
-            workTeam = workteamService.findById(idWorkTeam);
+        if (preferences.contains(WORK_TEAM_PREFERENCE)) {
+            //carregando o workteam
+            //verificando se tem algum cache
+            final String idWorkTeam = preferences.get(WORK_TEAM_PREFERENCE).getValue().toString();
+            WorkTeam workTeam = this.cacheWorkTeamService.get(user, idWorkTeam);
+            if (workTeam == null) {
+                //se não existe cache, devemos buscar no servidor de segurança
+                workTeam = workteamService.findById(idWorkTeam);
+                //salvando o workteam carregado no cache
+                this.cacheWorkTeamService.set(user, workTeam, authorizationJWT.getToken().getExpiration());
+            }
+
+            user.setCurrentWorkTeam(workTeam);
+            user.setAuthorities(workTeam.getRoles());
+        } else {
+            //buscando qualquer workteam
+            final List<WorkTeam> itens = workteamService.findByUser();
+            final Preference preference = new Preference(WORK_TEAM_PREFERENCE, itens.get(0).getId());
+            preferences.set(preference);
+
+            preferenceServiceClient.setPreferenceByUserName(user.getUserName(), preference);
             //salvando o workteam carregado no cache
-            this.cacheWorkTeamService.set(user, workTeam, authorizationJWT.getToken().getExpiration());
+            this.cacheWorkTeamService.set(user, itens.get(0), authorizationJWT.getToken().getExpiration());
+            //atualizando o cache local
+            this.cacheUserPreferences.set(user, preferences, authorizationJWT.getToken().getExpiration());
+            user.setCurrentWorkTeam(itens.get(0));
+            user.setAuthorities(itens.get(0).getRoles());
         }
+
         user.setPreferences(preferences);
-        user.setCurrentWorkTeam(workTeam);
-        user.setAuthorities(workTeam.getRoles());
+
     }
 }

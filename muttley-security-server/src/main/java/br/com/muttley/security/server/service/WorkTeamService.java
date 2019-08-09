@@ -20,6 +20,8 @@ public interface WorkTeamService extends Service<WorkTeam> {
 
     List<WorkTeam> findByUserMaster(final Owner owner, final User user);
 
+    List<WorkTeam> findByUser(final User user);
+
     Set<Role> loadCurrentRoles(final User user);
 
     AvaliableRoles loadAvaliableRoles(final User user);
