@@ -84,7 +84,6 @@ public class UserViewController extends AbstractRestController<UserView> {
     @ResponseStatus(OK)
     public ResponseEntity count(@RequestParam final Map<String, String> allRequestParams, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        checkRoleRead(user);
         return ResponseEntity.ok(String.valueOf(service.count(allRequestParams.get("q"), allRequestParams.get("owner"))));
     }
 }
