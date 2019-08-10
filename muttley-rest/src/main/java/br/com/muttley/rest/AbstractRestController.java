@@ -46,7 +46,6 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity save(@RequestBody final T value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
-        this.checkRoleCreate();
         final T record = service.save(this.userService.getCurrentUser(), value);
 
         publishCreateResourceEvent(this.eventPublisher, response, record);
@@ -61,7 +60,6 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final T model) {
-        checkRoleUpdate();
         model.setId(id);
         return ResponseEntity.ok(service.update(this.userService.getCurrentUser(), model));
     }
@@ -70,7 +68,6 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity deleteById(@PathVariable("id") final String id) {
-        checkRoleDelete();
         service.deleteById(this.userService.getCurrentUser(), id);
         return ResponseEntity.ok().build();
     }
@@ -79,7 +76,6 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response) {
-        checkRoleRead();
         final T value = service.findById(this.userService.getCurrentUser(), id);
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
@@ -91,7 +87,6 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity first(final HttpServletResponse response) {
-        checkRoleRead();
         final T value = service.findFirst(this.userService.getCurrentUser());
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
@@ -103,7 +98,6 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
-        checkRoleRead();
         final Historic historic = service.loadHistoric(this.userService.getCurrentUser(), id);
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
@@ -114,7 +108,6 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     @Override
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<PageableResource<T>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams) {
-        checkRoleRead();
         return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, this.userService.getCurrentUser(), allRequestParams));
     }
 
@@ -122,58 +115,6 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(OK)
     public final ResponseEntity count(final Map<String, String> allRequestParams) {
-        checkRoleRead();
         return ResponseEntity.ok(String.valueOf(service.count(this.userService.getCurrentUser(), allRequestParams)));
-    }
-
-    protected String[] getCreateRoles() {
-        return null;
-    }
-
-    protected String[] getReadRoles() {
-        return null;
-    }
-
-    protected String[] getUpdateRoles() {
-        return null;
-    }
-
-    protected String[] getDeleteRoles() {
-        return null;
-    }
-
-    protected final void checkRoleCreate() {
-        if (!isNull(getCreateRoles()))
-            this.checkCredentials(getCreateRoles());
-
-    }
-
-    protected final void checkRoleRead() {
-        if (!isNull(getReadRoles()))
-            this.checkCredentials(getReadRoles());
-    }
-
-    protected final void checkRoleUpdate() {
-        if (!isNull(getUpdateRoles()))
-            this.checkCredentials(this.getUpdateRoles());
-    }
-
-    protected final void checkRoleDelete() {
-        if (!isNull(getDeleteRoles()))
-            this.checkCredentials(this.getDeleteRoles());
-    }
-
-    protected final void checkCredentials(final String... roles) {
-        if (!this.userService.getCurrentUser().inAnyRole(roles)) {
-            throw new MuttleySecurityCredentialException("Você não tem permissão para acessar este recurso ")
-                    .addDetails("isNecessary", roles);
-        }
-    }
-
-    protected final void checkCredentials(final Authority... roles) {
-        if (!this.userService.getCurrentUser().inAnyRole(roles)) {
-            throw new MuttleySecurityCredentialException("Você não tem permissão para acessar este recurso ")
-                    .addDetails("isNecessary", roles);
-        }
     }
 }
