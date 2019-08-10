@@ -13,6 +13,7 @@ import br.com.muttley.security.infra.services.CacheWorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -80,8 +81,10 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
             this.cacheWorkTeamService.set(user, itens.get(0), authorizationJWT.getToken().getExpiration());
             //atualizando o cache local
             this.cacheUserPreferences.set(user, preferences, authorizationJWT.getToken().getExpiration());
-            user.setCurrentWorkTeam(itens.get(0));
-            user.setAuthorities(itens.get(0).getRoles());
+            if (!CollectionUtils.isEmpty(itens)) {
+                user.setCurrentWorkTeam(itens.get(0));
+                user.setAuthorities(itens.get(0).getRoles());
+            }
         }
 
         user.setPreferences(preferences);
