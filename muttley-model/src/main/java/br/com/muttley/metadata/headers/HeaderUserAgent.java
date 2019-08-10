@@ -16,7 +16,13 @@ import static org.springframework.http.HttpHeaders.USER_AGENT;
 @Component
 @RequestScope
 public class HeaderUserAgent extends HeaderMuttley {
+    private static final String MOBILE = "MOBILE";
+
     public HeaderUserAgent(HttpServletRequest request) {
         super(USER_AGENT, request);
+    }
+
+    public boolean isMobile() {
+        return MOBILE.equalsIgnoreCase(getCurrentValue());
     }
 }
