@@ -1,5 +1,7 @@
 package br.com.muttley.security.infra.component;
 
+import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.metadata.headers.HeaderAuthorizationJWT;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
@@ -43,51 +45,56 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
 
     @Override
     public void onApplicationEvent(final UserAfterCacheLoadEvent event) {
-        final User user = event.getSource();
+        try {
+            final User user = event.getSource();
 
-        //carregando preferencias
-        //verificando se tem algum cache
-        UserPreferences preferences = this.cacheUserPreferences.get(user);
 
-        if (preferences == null) {
-            //se não existe cache, devemos buscar no servidor de segurança
-            preferences = preferenceServiceClient.getPreferences();
-            //salvando as preferencias carregadas no cache
-            this.cacheUserPreferences.set(user, preferences, authorizationJWT.getToken().getExpiration());
-        }
-
-        if (preferences.contains(WORK_TEAM_PREFERENCE)) {
-            //carregando o workteam
+            //carregando preferencias
             //verificando se tem algum cache
-            final String idWorkTeam = preferences.get(WORK_TEAM_PREFERENCE).getValue().toString();
-            WorkTeam workTeam = this.cacheWorkTeamService.get(user, idWorkTeam);
-            if (workTeam == null) {
+            UserPreferences preferences = this.cacheUserPreferences.get(user);
+
+            if (preferences == null) {
                 //se não existe cache, devemos buscar no servidor de segurança
-                workTeam = workteamService.findById(idWorkTeam);
+                preferences = preferenceServiceClient.getPreferences();
+                //salvando as preferencias carregadas no cache
+                this.cacheUserPreferences.set(user, preferences, authorizationJWT.getToken().getExpiration());
+            }
+
+            if (preferences.contains(WORK_TEAM_PREFERENCE)) {
+                //carregando o workteam
+                //verificando se tem algum cache
+                final String idWorkTeam = preferences.get(WORK_TEAM_PREFERENCE).getValue().toString();
+                WorkTeam workTeam = this.cacheWorkTeamService.get(user, idWorkTeam);
+                if (workTeam == null) {
+                    //se não existe cache, devemos buscar no servidor de segurança
+                    workTeam = workteamService.findById(idWorkTeam);
+                    //salvando o workteam carregado no cache
+                    this.cacheWorkTeamService.set(user, workTeam, authorizationJWT.getToken().getExpiration());
+                }
+
+                user.setCurrentWorkTeam(workTeam);
+                user.setAuthorities(workTeam.getRoles());
+            } else {
+                //buscando qualquer workteam
+                final List<WorkTeam> itens = workteamService.findByUser();
+                final Preference preference = new Preference(WORK_TEAM_PREFERENCE, itens.get(0).getId());
+                preferences.set(preference);
+
+                preferenceServiceClient.setPreferenceByUserName(user.getUserName(), preference);
                 //salvando o workteam carregado no cache
-                this.cacheWorkTeamService.set(user, workTeam, authorizationJWT.getToken().getExpiration());
+                this.cacheWorkTeamService.set(user, itens.get(0), authorizationJWT.getToken().getExpiration());
+                //atualizando o cache local
+                this.cacheUserPreferences.set(user, preferences, authorizationJWT.getToken().getExpiration());
+                if (!CollectionUtils.isEmpty(itens)) {
+                    user.setCurrentWorkTeam(itens.get(0));
+                    user.setAuthorities(itens.get(0).getRoles());
+                }
             }
 
-            user.setCurrentWorkTeam(workTeam);
-            user.setAuthorities(workTeam.getRoles());
-        } else {
-            //buscando qualquer workteam
-            final List<WorkTeam> itens = workteamService.findByUser();
-            final Preference preference = new Preference(WORK_TEAM_PREFERENCE, itens.get(0).getId());
-            preferences.set(preference);
+            user.setPreferences(preferences);
 
-            preferenceServiceClient.setPreferenceByUserName(user.getUserName(), preference);
-            //salvando o workteam carregado no cache
-            this.cacheWorkTeamService.set(user, itens.get(0), authorizationJWT.getToken().getExpiration());
-            //atualizando o cache local
-            this.cacheUserPreferences.set(user, preferences, authorizationJWT.getToken().getExpiration());
-            if (!CollectionUtils.isEmpty(itens)) {
-                user.setCurrentWorkTeam(itens.get(0));
-                user.setAuthorities(itens.get(0).getRoles());
-            }
+        } catch (MuttleyNotFoundException ex) {
+            throw new MuttleySecurityCredentialException("Não foi possível recuperar informações do seu usuáiro");
         }
-
-        user.setPreferences(preferences);
-
     }
 }
