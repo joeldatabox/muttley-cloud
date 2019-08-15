@@ -3,6 +3,8 @@ package br.com.muttley.feign.service;
 import br.com.muttley.feign.service.converters.BooleanHttpMessageConverter;
 import br.com.muttley.feign.service.converters.DateHttpMessageConverter;
 import br.com.muttley.feign.service.converters.LongHttpMessageConverter;
+import br.com.muttley.feign.service.interceptors.PropagateHeadersInterceptor;
+import br.com.muttley.feign.service.service.MuttleyPropagateHeadersService;
 import feign.Feign;
 import feign.Logger;
 import feign.Retryer;
@@ -10,6 +12,7 @@ import feign.codec.Decoder;
 import feign.okhttp.OkHttpClient;
 import feign.slf4j.Slf4jLogger;
 import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
@@ -36,6 +39,8 @@ public class FeignConfig extends FeignClientsConfiguration {
     private final String PROPERTY_SOURCE = "applicationConfig: [classpath:/bootstrap.properties]";
     @Autowired
     private ObjectFactory<HttpMessageConverters> messageConverters;
+    @Autowired
+    private ObjectProvider<MuttleyPropagateHeadersService> muttleyPropagateHeadersService;
 
 
     @Bean
@@ -45,6 +50,17 @@ public class FeignConfig extends FeignClientsConfiguration {
             final @Value("${muttley.feign.loggin.level:#{null}}") String logLevel) {
         final Map<String, Object> map = (Map<String, Object>) env.getPropertySources().get(PROPERTY_SOURCE).getSource();
         map.put("feign.okhttp.enabled", "true");
+
+        final Feign.Builder builder = super.feignBuilder(retryer).client(new OkHttpClient());
+
+        //injetando o serviço de headers a ser propagados
+        final MuttleyPropagateHeadersService service = this.muttleyPropagateHeadersService.getIfAvailable();
+        //foi injetado?
+        if (service != null) {
+            //adicionando o interceptor
+            builder.requestInterceptor(new PropagateHeadersInterceptor(service));
+        }
+
 
         return includeLogger(logLevel, super.feignBuilder(retryer).client(new OkHttpClient()));
     }

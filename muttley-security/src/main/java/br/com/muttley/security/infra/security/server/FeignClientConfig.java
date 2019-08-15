@@ -1,5 +1,9 @@
 package br.com.muttley.security.infra.security.server;
 
+import br.com.muttley.feign.service.interceptors.PropagateHeadersInterceptor;
+import br.com.muttley.feign.service.service.MuttleyPropagateHeadersService;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,5 +21,10 @@ public class FeignClientConfig {
             @Value("${muttley.config-server.security.user.name}") final String userName,
             @Value("${muttley.config-server.security.user.password}") final String passWord) {
         return new BasicAuthorizationJWTRequestInterceptor(userName, passWord);
+    }
+
+    @Bean
+    public PropagateHeadersInterceptor createPropagateHeadersInterceptor(@Autowired final ObjectProvider<MuttleyPropagateHeadersService> muttleyPropagateHeadersService){
+        return new PropagateHeadersInterceptor(muttleyPropagateHeadersService.getIfAvailable());
     }
 }
