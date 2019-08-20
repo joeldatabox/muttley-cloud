@@ -404,28 +404,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final AggregationResults<User> result = template.aggregate(newAggregation(
-                match(
-                        new Criteria().orOperator(
-                                where("userName").is(username),
-                                where("email").is(username),
-                                where("nickUsers").in(username)
-                        )
-                ),
-                Aggregation.count().as("count")
-        ), User.class, User.class);
-        if (result == null) {
-            throw new UsernameNotFoundException("Usuário não encontrado");
-        }
-
-        final List<User> users = result.getMappedResults();
-        if (CollectionUtils.isEmpty(users)) {
-            throw new UsernameNotFoundException("Usuário não encontrado");
-        }
-        if (users.size() > 1) {
-            throw new MuttleyException("Erro interno no sistema");
-        }
-        return new JwtUser(users.get(0));
+        return new JwtUser(this.findByUserName(username));
     }
 
     /**

@@ -35,7 +35,7 @@ public interface RestResource<T extends Document> {
      * @param response       -> objeto response
      * @param model          -> objeto criado
      */
-    default void publishCreateResourceEvent(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final T model) {
+    default void publishCreateResourceEvent(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final Document model) {
         eventPublisher.publishEvent(this.newResourceCreatedEvent(model, response));
     }
 
@@ -45,7 +45,7 @@ public interface RestResource<T extends Document> {
      * @param model    -> objeto criado
      * @param response -> objeto response
      */
-    default ApplicationEvent newResourceCreatedEvent(final T model, final HttpServletResponse response) {
+    default ApplicationEvent newResourceCreatedEvent(final Document model, final HttpServletResponse response) {
         return new ResourceCreatedEvent(model, response);
     }
 

@@ -4,6 +4,8 @@ import br.com.muttley.feign.converters.BooleanHttpMessageConverter;
 import br.com.muttley.feign.converters.DateHttpMessageConverter;
 import br.com.muttley.feign.converters.LongHttpMessageConverter;
 import br.com.muttley.feign.property.MuttleyFeignProperty;
+import br.com.muttley.feign.service.MuttleyPropagateHeadersService;
+import br.com.muttley.feign.service.interceptors.PropagateHeadersInterceptor;
 import feign.Feign;
 import feign.Logger;
 import feign.Retryer;
@@ -14,6 +16,7 @@ import feign.slf4j.Slf4jLogger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -30,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.util.StringUtils.isEmpty;
+
 /**
  * @author Joel Rodrigues Moreira on 23/04/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -43,12 +48,24 @@ public class FeignConfig extends FeignClientsConfiguration implements Initializi
     private MuttleyFeignProperty property;
     @Autowired
     private ObjectFactory<HttpMessageConverters> messageConverters;
+    @Autowired
+    private ObjectProvider<MuttleyPropagateHeadersService> muttleyPropagateHeadersService;
 
 
     @Bean
     public Feign.Builder feignBuilder(final Retryer retryer, final @Autowired ConfigurableEnvironment env) {
         final PropertySource<?> propertySource = env.getPropertySources().get(PROPERTY_SOURCE);
         final Feign.Builder builder = super.feignBuilder(retryer).client(new OkHttpClient());
+
+        //injetando o serviço de headers a ser propagados
+        final MuttleyPropagateHeadersService service = this.muttleyPropagateHeadersService.getIfAvailable();
+
+        //foi injetado?
+        if (service != null) {
+            //adicionando o interceptor
+            builder.requestInterceptor(new PropagateHeadersInterceptor(service));
+        }
+
         if (propertySource != null) {
             final Map<String, Object> map = (Map<String, Object>) propertySource.getSource();
             map.put("feign.okhttp.enabled", "true");
@@ -70,6 +87,32 @@ public class FeignConfig extends FeignClientsConfiguration implements Initializi
 
         return new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(() -> new HttpMessageConverters(decoderConverters))));
         //return new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(this.messageConverters)));
+    }
+
+    /**
+     * Verifica se é necessário incluir algum log no sistema
+     */
+    private Feign.Builder includeLogger(final String logLevel, final Feign.Builder builder) {
+        Logger.Level level = Logger.Level.NONE;
+        if (!isEmpty(logLevel)) {
+            switch (logLevel) {
+                case "BASIC":
+                    level = Logger.Level.BASIC;
+                    break;
+                case "HEADERS":
+                    level = Logger.Level.HEADERS;
+                    break;
+                case "FULL":
+                    level = Logger.Level.FULL;
+                default:
+                    level = Logger.Level.NONE;
+            }
+        }
+        if (level != Logger.Level.NONE) {
+            return builder.logger(new Slf4jLogger())
+                    .logLevel(level);
+        }
+        return builder;
     }
 
     @Override
