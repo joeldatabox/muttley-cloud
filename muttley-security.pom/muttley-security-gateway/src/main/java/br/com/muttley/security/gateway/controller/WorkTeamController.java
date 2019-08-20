@@ -4,7 +4,6 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.infra.feign.WorkTeamServiceClient;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -80,17 +79,12 @@ public class WorkTeamController {
         return ResponseEntity.ok(value);
     }
 
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{id}/historic", method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
         final Historic historic = client.loadHistoric(id);
         return ResponseEntity.ok(historic);
     }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams) {
-        final PageableResource pageableResource = client.list(allRequestParams);
-        return ResponseEntity.ok(pageableResource);
-    }
 
     @RequestMapping(value = "/count", method = GET, produces = TEXT_PLAIN_VALUE)
     public ResponseEntity count(@RequestParam final Map<String, String> allRequestParams) {
@@ -105,5 +99,11 @@ public class WorkTeamController {
     @RequestMapping(value = "/avaliable-roles", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     public ResponseEntity loadAvaliableRoles(final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(client.loadAvaliableRoles());
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<PageableResource> list(@RequestParam final Map<String, String> allRequestParams) {
+        final PageableResource pageableResource = client.list(allRequestParams);
+        return ResponseEntity.ok(pageableResource);
     }
 }

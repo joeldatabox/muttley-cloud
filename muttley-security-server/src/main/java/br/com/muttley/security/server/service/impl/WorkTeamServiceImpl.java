@@ -136,6 +136,11 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     @Override
+    public List<WorkTeam> findAll(User user, Map<String, String> allRequestParams) {
+        return this.findByUser(user);
+    }
+
+    @Override
     public WorkTeam findByName(final User user, final String name) {
         final WorkTeam cwt = repository.findByName(user.getCurrentOwner(), name);
         if (isNull(cwt)) {
