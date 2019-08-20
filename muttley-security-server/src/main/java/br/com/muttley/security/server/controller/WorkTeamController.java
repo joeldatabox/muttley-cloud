@@ -39,25 +39,25 @@ public class WorkTeamController extends AbstractRestController<WorkTeam> {
 
     @RequestMapping(value = "/roles/current-roles", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity loadCurrentRoles(final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+    public ResponseEntity loadCurrentRoles(final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt}", defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(service.loadCurrentRoles(userService.getUserFromToken(new JwtToken(tokenHeader))));
     }
 
     @RequestMapping(value = "/avaliable-roles", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity loadAvaliableRoles(final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+    public ResponseEntity loadAvaliableRoles(final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt}", defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(service.loadAvaliableRoles(userService.getUserFromToken(new JwtToken(tokenHeader))));
     }
 
     @RequestMapping(value = "/find-by-name", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity findByName(@RequestParam(name = "name", defaultValue = "") final String name, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+    public ResponseEntity findByName(@RequestParam(name = "name", defaultValue = "") final String name, @RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt}", defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(this.service.findByName(userService.getUserFromToken(new JwtToken(tokenHeader)), name));
     }
 
     @RequestMapping(value = "/find-by-user", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity findByUser(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+    public ResponseEntity findByUser(@RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt}", defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(service.findByUser(userService.getUserFromToken(new JwtToken(tokenHeader))));
     }
 }

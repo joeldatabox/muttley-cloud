@@ -33,7 +33,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@RestController("/secured/api/v1/work-teams")
+@RestController
+@RequestMapping(value = "/secured/api/v1/work-teams", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
 public class WorkTeamController {
     private final WorkTeamServiceClient client;
     private final ApplicationEventPublisher eventPublisher;
@@ -97,13 +98,13 @@ public class WorkTeamController {
     }
 
     @RequestMapping(value = "/avaliable-roles", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-    public ResponseEntity loadAvaliableRoles(final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+    public ResponseEntity loadAvaliableRoles(final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt}", defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(client.loadAvaliableRoles());
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    /*@RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<PageableResource> list(@RequestParam final Map<String, String> allRequestParams) {
         final PageableResource pageableResource = client.list(allRequestParams);
         return ResponseEntity.ok(pageableResource);
-    }
+    }*/
 }
