@@ -85,19 +85,19 @@ public class MongoConfig extends AbstractMongoConfiguration {
     public Mongo mongo() {
         BSON.addEncodingHook(BigDecimal.class, new BigDecimalTransformer());
 
-/*        CodecRegistry condecRegistry = CodecRegistries.fromRegistries(
+        final CodecRegistry condecRegistry = CodecRegistries.fromRegistries(
                 CodecRegistries.fromProviders(new BigDecimalCodecProvider()),
                 MongoClient.getDefaultCodecRegistry()
         );
 
-        MongoClientOptions.Builder builder = MongoClientOptions.builder().codecRegistry(condecRegistry);*/
+        final MongoClientOptions.Builder builder = MongoClientOptions.builder().codecRegistry(condecRegistry);
 
 
         return new MongoClient(
                 singletonList(new ServerAddress(this.hostDataBase, Integer.valueOf(this.portDataBase))),
-                singletonList(createCredential(this.userName, this.dataBaseName, password.toCharArray()))/*,
-                builder.build()*/
-                );
+                singletonList(createCredential(this.userName, this.dataBaseName, password.toCharArray())),
+                builder.build()
+        );
     }
 
     /**
