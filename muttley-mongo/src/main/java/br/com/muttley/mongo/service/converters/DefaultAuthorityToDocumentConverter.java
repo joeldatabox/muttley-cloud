@@ -3,6 +3,7 @@ package br.com.muttley.mongo.service.converters;
 import br.com.muttley.model.security.Authority;
 import org.bson.Document;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.convert.WritingConverter;
 
 /**
  * @author Joel Rodrigues Moreira on 28/02/18.
@@ -11,6 +12,7 @@ import org.springframework.core.convert.converter.Converter;
  * <p>
  * Converter padrão para a interface Authority
  */
+@WritingConverter
 public class DefaultAuthorityToDocumentConverter implements Converter<Authority, Document> {
     @Override
     public Document convert(final Authority authority) {

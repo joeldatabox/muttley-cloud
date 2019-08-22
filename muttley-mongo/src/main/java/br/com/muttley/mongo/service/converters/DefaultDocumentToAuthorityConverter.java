@@ -4,6 +4,7 @@ import br.com.muttley.model.security.Authority;
 import br.com.muttley.model.security.AuthorityImpl;
 import org.bson.Document;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.convert.ReadingConverter;
 
 /**
  * @author Joel Rodrigues Moreira on 28/02/18.
@@ -12,6 +13,7 @@ import org.springframework.core.convert.converter.Converter;
  * <p>
  * Converter padrão para a interface Authority
  */
+@ReadingConverter
 public class DefaultDocumentToAuthorityConverter implements Converter<Document, Authority> {
     @Override
     public Authority convert(final Document source) {
