@@ -1,10 +1,16 @@
 package br.com.muttley.mongo.service;
 
+import br.com.muttley.mongo.service.codec.BigDecimalCodecProvider;
+import br.com.muttley.mongo.service.codec.BigDecimalTransformer;
 import br.com.muttley.mongo.service.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.service.converters.Decimal128ToBigDecimalConverter;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
+import org.bson.BSON;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
@@ -12,6 +18,7 @@ import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,9 +83,21 @@ public class MongoConfig extends AbstractMongoConfiguration {
     @Override
     @Bean
     public Mongo mongo() {
+        BSON.addEncodingHook(BigDecimal.class, new BigDecimalTransformer());
+
+/*        CodecRegistry condecRegistry = CodecRegistries.fromRegistries(
+                CodecRegistries.fromProviders(new BigDecimalCodecProvider()),
+                MongoClient.getDefaultCodecRegistry()
+        );
+
+        MongoClientOptions.Builder builder = MongoClientOptions.builder().codecRegistry(condecRegistry);*/
+
+
         return new MongoClient(
                 singletonList(new ServerAddress(this.hostDataBase, Integer.valueOf(this.portDataBase))),
-                singletonList(createCredential(this.userName, this.dataBaseName, password.toCharArray())));
+                singletonList(createCredential(this.userName, this.dataBaseName, password.toCharArray()))/*,
+                builder.build()*/
+                );
     }
 
     /**
