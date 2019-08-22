@@ -1,17 +1,21 @@
 package br.com.muttley.mongo.autoconfig;
 
 import br.com.muttley.model.View;
+import br.com.muttley.mongo.codec.MuttleyMongoCodec;
+import br.com.muttley.mongo.codec.impl.BigDecimalCodec;
 import br.com.muttley.mongo.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.converters.Decimal128ToBigDecimalConverter;
 import br.com.muttley.mongo.properties.MuttleyMongoProperties;
 import br.com.muttley.mongo.repository.impl.MultiTenancyMongoRepositoryImpl;
 import br.com.muttley.mongo.repository.impl.SimpleTenancyMongoRepositoryImpl;
 import br.com.muttley.mongo.service.MuttleyConvertersService;
+import br.com.muttley.mongo.service.MuttleyMongoCodecsService;
 import br.com.muttley.mongo.service.MuttleyViewSourceService;
 import br.com.muttley.mongo.views.source.ViewSource;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
@@ -30,8 +34,12 @@ import org.springframework.data.mongodb.repository.support.MongoRepositoryFactor
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.mongodb.MongoClient.getDefaultCodecRegistry;
 import static com.mongodb.MongoCredential.createCredential;
 import static java.util.Collections.singletonList;
+import static org.bson.BSON.addEncodingHook;
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -54,7 +62,11 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
     protected MuttleyMongoProperties properties;
 
     @Autowired
-    private ObjectProvider<MuttleyConvertersService> convertersSErviceProvider;
+    private ObjectProvider<MuttleyConvertersService> convertersServiceProvider;
+
+    @Autowired
+    private ObjectProvider<MuttleyMongoCodecsService> mongoCodecsServiceProvider;
+
     @Autowired
     private ObjectProvider<MuttleyViewSourceService> viewSourceServiceProvider;
 
@@ -75,9 +87,7 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
         return new MongoClient(
                 singletonList(new ServerAddress(this.hostDataBase, portDataBase)),
                 createCredential(this.userName, this.dataBaseName, this.password.toCharArray()),
-                MongoClientOptions
-                        .builder()
-                        .build()
+                getMongoClientOption()
         );
     }
 
@@ -94,7 +104,7 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
         converters.add(new Decimal128ToBigDecimalConverter());
 
         //pegando instancia do serviço de conversores caso exista
-        final MuttleyConvertersService convertersService = convertersSErviceProvider.getIfAvailable();
+        final MuttleyConvertersService convertersService = convertersServiceProvider.getIfAvailable();
         if (convertersService != null) {
             //pegando o conversores customizados
             final Converter[] customConversions = convertersService.getCustomConverters();
@@ -125,6 +135,42 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
             this.createViews(service.getCustomViewSource());
         }
         LoggerFactory.getLogger(MuttleyMongoSimpleTenancyConfig.class).info(getMessageLog());
+    }
+
+    private MongoClientOptions getMongoClientOption() {
+        //registrando os codecs básicos
+        final BigDecimalCodec bigDecimalCodec = new BigDecimalCodec();
+
+        addEncodingHook(bigDecimalCodec.getEncoderClass(), bigDecimalCodec.getTransformer());
+        //lista para armazenar os registros de codecs
+        final List<CodecRegistry> codecRegistries = new ArrayList();
+        //adicionando o codec para bigdecimal
+        codecRegistries.add(fromProviders(bigDecimalCodec.getCodecProvider()));
+
+
+        //pegando os codecs customizados que foram implementados no servidor
+        final MuttleyMongoCodecsService service = this.mongoCodecsServiceProvider.getIfAvailable();
+        if (service != null) {
+            final MuttleyMongoCodec[] customCondecs = service.getCustomCodecs();
+            if (customCondecs != null) {
+                for (final MuttleyMongoCodec codec : customCondecs) {
+                    //adicionando no bson
+                    addEncodingHook(codec.getEncoderClass(), codec.getTransformer());
+
+                    //adicionando na lista
+                    codecRegistries.add(fromProviders(codec.getCodecProvider()));
+                }
+            }
+        }
+
+        //adicionando codecs basicos
+        codecRegistries.add(getDefaultCodecRegistry());
+
+        return MongoClientOptions
+                .builder()
+                .codecRegistry(
+                        fromRegistries(codecRegistries)
+                ).build();
     }
 
     private void createViews(final ViewSource[] sources) throws Exception {
