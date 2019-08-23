@@ -1,6 +1,7 @@
 package br.com.muttley.model;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /**
  * @author Joel Rodrigues Moreira on 19/06/19.
