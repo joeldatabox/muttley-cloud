@@ -123,6 +123,29 @@ public interface RestResource<T extends Document> {
         return new PageableResource(records, metadataPageable);
     }
 
+    default PageableResource toPageableResource(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final List records, final Long total, final Long skip, final Long limit) {
+        if (total == 0) {
+            throw new MuttleyNoContentException(null, null, "registros não encontrados!");
+        }
+
+        final Long recordSize = Long.valueOf(records.size());
+
+        final MetadataPageable metadataPageable = new MetadataPageable(
+                ServletUriComponentsBuilder.fromCurrentRequest(),
+                limit,
+                skip,
+                recordSize, total);
+
+        publishPaginatedResultsRetrievedEvent(
+                eventPublisher,
+                response,
+                ServletUriComponentsBuilder.fromCurrentRequest(),
+                metadataPageable
+        );
+
+        return new PageableResource(records, metadataPageable);
+    }
+
     /**
      * Realiza a paginação de registro utilizando o padrão Rest
      */
