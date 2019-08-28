@@ -94,6 +94,11 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         if (ObjectUtils.isEmpty(ids)) {
             throw new MuttleyBadRequestException(clazz, "id", "informe pelo menos um id válido");
         }
+        if (ids.length > 50) {
+            throw new MuttleyBadRequestException(clazz, "ids", "Quantidade máxima excedida")
+                    .addDetails("min", 1)
+                    .addDetails("max", 50);
+        }
         final Set<T> records = this.repository.findMulti(user.getCurrentOwner(), ids);
         if (records == null) {
             return Collections.emptySet();
