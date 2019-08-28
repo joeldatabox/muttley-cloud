@@ -5,6 +5,7 @@ import br.com.muttley.model.security.Owner;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface CustomMongoRepository<T> extends DocumentMongoRepository<T> {
     /**
@@ -22,6 +23,14 @@ public interface CustomMongoRepository<T> extends DocumentMongoRepository<T> {
      * @param id    -> id do objeto desejado
      */
     T findOne(final Owner owner, final String id);
+
+    /**
+     * Busca vários registros simples
+     *
+     * @param owner -> dono do registro
+     * @param ids   -> ids dos registros desejado
+     */
+    Set<T> findMulti(final Owner owner, final String ids[]);
 
     /**
      * Busca o primeiro registro qualquer de uma colection

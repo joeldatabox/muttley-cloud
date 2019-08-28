@@ -18,11 +18,16 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.Set;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 /**
  * @author Joel Rodrigues Moreira on 30/01/18.
@@ -41,20 +46,20 @@ public abstract class AbstractRestController<T extends Document> implements Rest
 
     @Override
     @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(CREATED)
     public ResponseEntity save(@RequestBody final T value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
         final T record = service.save(this.userService.getCurrentUser(), value);
 
         publishCreateResourceEvent(this.eventPublisher, response, record);
 
         if (returnEntity != null && returnEntity.equals("true")) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(record);
+            return ResponseEntity.status(CREATED).body(record);
         }
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(CREATED).build();
     }
 
     @Override
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final T model) {
         model.setId(id);
@@ -62,7 +67,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     }
 
     @Override
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity deleteById(@PathVariable("id") final String id) {
         service.deleteById(this.userService.getCurrentUser(), id);
@@ -70,7 +75,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     }
 
     @Override
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response) {
         final T value = service.findById(this.userService.getCurrentUser(), id);
@@ -81,7 +86,18 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     }
 
     @Override
-    @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/ids", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
+    public ResponseEntity findByIds(@RequestParam(required = false, value = "ids") String[] ids, HttpServletResponse response) {
+        final Set<T> value = service.findByIds(this.userService.getCurrentUser(), ids);
+
+        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
+
+        return ResponseEntity.ok(value);
+    }
+
+    @Override
+    @RequestMapping(value = "/first", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity first(final HttpServletResponse response) {
         final T value = service.findFirst(this.userService.getCurrentUser());
@@ -92,7 +108,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     }
 
     @Override
-    @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}/historic", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
         final Historic historic = service.loadHistoric(this.userService.getCurrentUser(), id);
@@ -103,13 +119,13 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     }
 
     @Override
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = GET)
     public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams) {
         return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, this.userService.getCurrentUser(), allRequestParams));
     }
 
     @Override
-    @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
+    @RequestMapping(value = "/count", method = GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity count(final Map<String, Object> allRequestParams) {
         return ResponseEntity.ok(String.valueOf(service.count(this.userService.getCurrentUser(), allRequestParams)));

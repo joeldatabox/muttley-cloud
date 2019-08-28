@@ -9,9 +9,12 @@ import br.com.muttley.model.Model;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.Objects.isNull;
 
@@ -84,6 +87,18 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return result;
+    }
+
+    @Override
+    public Set<T> findByIds(final User user, final String[] ids) {
+        if (ObjectUtils.isEmpty(ids)) {
+            throw new MuttleyBadRequestException(clazz, "id", "informe pelo menos um id válido");
+        }
+        final Set<T> records = this.repository.findMulti(user.getCurrentOwner(), ids);
+        if (records == null) {
+            return Collections.emptySet();
+        }
+        return records;
     }
 
     @Override

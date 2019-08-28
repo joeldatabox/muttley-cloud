@@ -12,10 +12,13 @@ import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.Objects.isNull;
 
@@ -126,6 +129,18 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return result;
+    }
+
+    @Override
+    public Set<T> findByIds(final User user, final String[] ids) {
+        if (ObjectUtils.isEmpty(ids)) {
+            throw new MuttleyBadRequestException(clazz, "id", "informe pelo menos um id válido");
+        }
+        final Set<T> records = this.repository.findMulti(ids);
+        if (records == null) {
+            return Collections.emptySet();
+        }
+        return records;
     }
 
     @Override

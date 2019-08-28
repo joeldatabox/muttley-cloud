@@ -18,15 +18,21 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static br.com.muttley.mongo.service.infra.Aggregate.createAggregations;
 import static br.com.muttley.mongo.service.infra.Aggregate.createAggregationsCount;
+import static java.util.stream.Stream.of;
 import static org.bson.types.ObjectId.isValid;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -45,6 +51,38 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
         this.CLASS = metadata.getJavaType();
         this.COLLECTION = metadata.getCollectionName();
         this.createIndexes(metadata);
+    }
+
+    @Override
+    public Set<T> findMulti(final String[] ids) {
+
+        //criando um array de ObjecIds
+        final ObjectId[] objectIds = of(ids)
+                .map(id -> {
+                    try {
+                        return newObjectId(id);
+                    } catch (MuttleyRepositoryInvalidIdException ex) {
+                        return null;
+                    }
+                    //pegando apenas ids válidos
+                }).filter(Objects::nonNull).toArray(ObjectId[]::new);
+
+        //filtrando os ids válidos
+        if (!ObjectUtils.isEmpty(objectIds)) {
+            final List<T> records = operations.find(
+                    new Query(
+                            where("id").in(objectIds)
+                    ), CLASS
+            );
+
+            if (CollectionUtils.isEmpty(records)) {
+                return null;
+            }
+
+            return new HashSet<>(records);
+        }
+
+        return null;
     }
 
     @Override
