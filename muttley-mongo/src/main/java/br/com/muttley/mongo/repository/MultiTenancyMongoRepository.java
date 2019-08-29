@@ -6,6 +6,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @NoRepositoryBean
 public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoRepository<T> {
@@ -32,6 +33,14 @@ public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoReposi
      * @param id    -> id do objeto desejado
      */
     T findOne(final Owner owner, final String id);
+
+    /**
+     * Busca vários registros simples
+     *
+     * @param owner -> dono do registro
+     * @param ids   -> ids dos registros desejado
+     */
+    Set<T> findMulti(final Owner owner, final String ids[]);
 
     /**
      * Busca o primeiro registro qualquer de uma colection

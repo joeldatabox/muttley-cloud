@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
@@ -67,6 +68,10 @@ public interface RestControllerClient<T extends Serializable> {
      */
     @RequestMapping(value = "/{id}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     T findById(@PathVariable("id") String id);
+
+    @RequestMapping(value = "/ids", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    Set<T> findByIds(@RequestParam(required = false, value = "ids") String[] ids);
+
 
     /**
      * Return first record found in database

@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira on 23/02/18.
@@ -178,6 +179,37 @@ public interface Service<T extends Document> {
                     "   true "
     )
     T findById(final User user, final String id);
+
+    /**
+     * Busca varios registros pelo id
+     *
+     * @param user -> usuário da requisição corrente
+     * @param ids   -> array de id a ser procurado
+     */
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString() " +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   ) " +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
+    Set<T> findByIds(User user, String[] ids);
 
     /**
      * Pega o primeiro registro que encontrar

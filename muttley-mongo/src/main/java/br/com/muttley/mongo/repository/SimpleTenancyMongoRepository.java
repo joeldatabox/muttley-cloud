@@ -6,6 +6,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @NoRepositoryBean
 public interface SimpleTenancyMongoRepository<T> extends MongoRepository<T, String> {
@@ -14,6 +15,13 @@ public interface SimpleTenancyMongoRepository<T> extends MongoRepository<T, Stri
      * Verifica se a collection está vazia
      */
     boolean isEmpty();
+
+    /**
+     * Busca vários registros simples
+     *
+     * @param ids   -> ids dos registros desejado
+     */
+    Set<T> findMulti(final String ids[]);
 
     /**
      * Busca o primeiro registro qualquer de uma colection

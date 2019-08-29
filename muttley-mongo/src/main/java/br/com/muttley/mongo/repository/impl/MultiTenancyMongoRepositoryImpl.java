@@ -14,11 +14,18 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
 
+import static java.util.stream.Stream.of;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
@@ -60,8 +67,44 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
     }
 
     @Override
+    public Set<T> findMulti(final Owner owner, final String[] ids) {
+
+        validateOwner(owner);
+
+        //criando um array de ObjecIds
+        final ObjectId[] objectIds = of(ids)
+                .map(id -> {
+                    try {
+                        return newObjectId(id);
+                    } catch (MuttleyRepositoryInvalidIdException ex) {
+                        return null;
+                    }
+                    //pegando apenas ids válidos
+                }).filter(Objects::nonNull).toArray(ObjectId[]::new);
+
+        //filtrando os ids válidos
+        if (!ObjectUtils.isEmpty(objectIds)) {
+            final List<T> records = operations.find(
+                    new Query(
+                            where("owner.$id").is(owner.getObjectId())
+                                    .and("id").in(objectIds)
+                    ), CLASS
+            );
+
+            if (CollectionUtils.isEmpty(records)) {
+                return null;
+            }
+
+            return new HashSet<>(records);
+        }
+
+        return null;
+    }
+
+    @Override
     public T findFirst(final Owner owner) {
         validateOwner(owner);
+
         return operations
                 .findOne(
                         new Query(
