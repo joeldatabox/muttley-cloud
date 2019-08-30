@@ -89,8 +89,10 @@ public enum Operator {
             case "$or":
                 return OR;
             case "$orderByAsc":
+            case "$orderbyasc":
                 return ORDER_BY_ASC;
             case "$orderByDesc":
+            case "$orderbydesc":
                 return ORDER_BY_DESC;
             default:
                 return IS;

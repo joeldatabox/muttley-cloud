@@ -322,7 +322,8 @@ public class AggregationUtils {
                 //criterionsOr[i] = extractCriteria(entityMetaData, of(expr[0]), replaceAllOperators(expr[0]), "");
             }
         }
-        return pipelines;
+        return asList(new Pipelines(new Criteria().orOperator(pipelines.stream().map(it -> it.getCriteria()).toArray(Criteria[]::new))));
+        //return pipelines;
 
     }
 
