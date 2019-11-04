@@ -105,6 +105,15 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
     }
 
     @Override
+    public UserView findByUserName(final String userName, final String idOwner) {
+        try {
+            return this.list(userName, idOwner).get(0);
+        } catch (MuttleyNoContentException ex) {
+            throw new MuttleyNotFoundException(UserView.class, "userName", "Usuário não encontrad");
+        }
+    }
+
+    @Override
     public List<UserView> list(final String criterio, final String idOwner) {
         final List<AggregationOperation> operations = this.createQuery(criterio, idOwner);
         if (operations.isEmpty()) {
