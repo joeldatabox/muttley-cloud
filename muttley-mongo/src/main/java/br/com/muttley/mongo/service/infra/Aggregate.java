@@ -154,6 +154,8 @@ public final class Aggregate {
                 return new Criteria(key).regex(value.toString(), "si");
             case GTE:
                 return new Criteria(key).gte(value);
+            case LTE:
+                return new Criteria(key).lte(value);
             case LT:
                 return new Criteria(key).lt(value);
             case IN:
@@ -205,6 +207,9 @@ public final class Aggregate {
                     break;
                 case GTE:
                     addParam(trimap, keyTrimap, Operators.GTE, value);
+                    break;
+                case LTE:
+                    addParam(trimap, keyTrimap, Operators.LTE, value);
                     break;
                 case LT:
                     addParam(trimap, keyTrimap, Operators.LT, value);

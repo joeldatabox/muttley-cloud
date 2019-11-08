@@ -2,6 +2,7 @@ package br.com.muttley.mongo.service.infra;
 
 public enum Operators {
     GTE(".$gte"),
+    LTE(".$lte"),
     LT(".$lt"),
     IN(".$in") {
         @Override
@@ -60,6 +61,8 @@ public enum Operators {
         switch (value) {
             case ".$gte":
                 return GTE;
+            case ".$lte":
+                return LTE;
             case ".$lt":
                 return LT;
             case ".$in":
