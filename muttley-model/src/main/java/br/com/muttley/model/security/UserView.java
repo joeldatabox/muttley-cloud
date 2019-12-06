@@ -18,6 +18,8 @@ public class UserView implements Document {
     private String id;
     private String name;
     private String userName;
+    private String email;
+    private Set<String> nickUsers;
     @DBRef
     @JsonSerialize(using = ListDocumentSerializer.class)
     private Set<Owner> owners;
@@ -50,6 +52,22 @@ public class UserView implements Document {
     public UserView setUserName(final String userName) {
         this.userName = userName;
         return this;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(final String email) {
+        this.email = email;
+    }
+
+    public Set<String> getNickUsers() {
+        return nickUsers;
+    }
+
+    public void setNickUsers(final Set<String> nickUsers) {
+        this.nickUsers = nickUsers;
     }
 
     public Set<Owner> getOwners() {

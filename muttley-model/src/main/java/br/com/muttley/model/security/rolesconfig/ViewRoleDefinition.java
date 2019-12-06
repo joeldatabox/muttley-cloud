@@ -23,13 +23,15 @@ public class ViewRoleDefinition {
     @JsonIgnore
     protected static int idsCounter = 0;
     private final int id;
+    private final IconMenu icon;
     private final String title;
     private final String description;
     private final Set<RoleDefinition> roleDefinitions;
     private final Set<Role> dependencies = new HashSet<>();
 
-    protected ViewRoleDefinition(final int id, final String title, final String description, final RoleDefinition... roleDefinitions) {
+    protected ViewRoleDefinition(final int id, final IconMenu icon, final String title, final String description, final RoleDefinition... roleDefinitions) {
         this.id = id;
+        this.icon = icon;
         this.title = title;
         this.description = description;
         if (roleDefinitions == null) {
@@ -39,15 +41,15 @@ public class ViewRoleDefinition {
         }
     }
 
-    protected ViewRoleDefinition(final int id, final String title, final String description, final Role... roles) {
-        this(id, title, description, stream(roles).map(it -> {
+    protected ViewRoleDefinition(final int id, final IconMenu icon, final String title, final String description, final Role... roles) {
+        this(id, icon, title, description, stream(roles).map(it -> {
             idsCounter++;
             return new RoleDefinition(idsCounter, it);
         }).toArray(RoleDefinition[]::new));
     }
 
-    protected ViewRoleDefinition(final int id, final String title, final String description) {
-        this(id, title, description, (RoleDefinition) null);
+    protected ViewRoleDefinition(final int id, final IconMenu icon, final String title, final String description) {
+        this(id, icon, title, description, (RoleDefinition) null);
     }
 
     protected ViewRoleDefinition add(RoleDefinition roleDefinition) {

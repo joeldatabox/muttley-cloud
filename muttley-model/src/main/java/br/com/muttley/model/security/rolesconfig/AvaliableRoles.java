@@ -33,19 +33,48 @@ public class AvaliableRoles {
 
     public static ViewRoleDefinition newViewRoleDefinition(final String title, final String description, final RoleDefinition... roleDefinitions) {
         idsCounter++;
-        return new ViewRoleDefinition(idsCounter, title, description, roleDefinitions);
+        return new ViewRoleDefinition(idsCounter, null, title, description, roleDefinitions);
     }
 
     public static ViewRoleDefinition newViewRoleDefinition(final String title, final String description, final Role... roles) {
         idsCounter++;
-        return new ViewRoleDefinition(idsCounter, title, description,
+        return new ViewRoleDefinition(idsCounter, null, title, description,
+                stream(roles).map(it -> newRoleDefinition(it)).toArray(RoleDefinition[]::new)
+        );
+    }
+
+    public static ViewRoleDefinition newViewRoleDefinition(final IconMenu iconMenu, final String title, final String description, final Role... roles) {
+        idsCounter++;
+        return new ViewRoleDefinition(idsCounter, iconMenu, title, description,
+                stream(roles).map(it -> newRoleDefinition(it)).toArray(RoleDefinition[]::new)
+        );
+    }
+
+    public static ViewRoleDefinition newViewRoleDefinition(final String icon, final String title, final String description, final Role... roles) {
+        idsCounter++;
+        final IconMenu iconMenu = new IconMenu(icon);
+        return new ViewRoleDefinition(idsCounter, iconMenu, title, description,
+                stream(roles).map(it -> newRoleDefinition(it)).toArray(RoleDefinition[]::new)
+        );
+    }
+
+    public static ViewRoleDefinition newViewRoleDefinition(final String icon, final String title, final String description, final RoleDefinition... roleDefinitions) {
+        idsCounter++;
+        final IconMenu iconMenu = new IconMenu(icon);
+        return new ViewRoleDefinition(idsCounter, iconMenu, title, description, roleDefinitions);
+    }
+
+    public static ViewRoleDefinition newViewRoleDefinition(final String icon, final FontSet fontSet, final String title, final String description, final Role... roles) {
+        idsCounter++;
+        final IconMenu iconMenu = new IconMenu(icon, fontSet);
+        return new ViewRoleDefinition(idsCounter, iconMenu, title, description,
                 stream(roles).map(it -> newRoleDefinition(it)).toArray(RoleDefinition[]::new)
         );
     }
 
     public static ViewRoleDefinition newViewRoleDefinition(final String title, final String description) {
         idsCounter++;
-        return new ViewRoleDefinition(idsCounter, title, description, (RoleDefinition) null);
+        return new ViewRoleDefinition(idsCounter, null, title, description, (RoleDefinition) null);
     }
 
     public static AvaliableRoles newAvaliableRoles(final Collection<ViewRoleDefinition> viewRoleDefinitions) {

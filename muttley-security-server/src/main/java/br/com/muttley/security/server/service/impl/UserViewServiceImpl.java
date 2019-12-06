@@ -117,7 +117,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
     public List<UserView> list(final String criterio, final String idOwner) {
         final List<AggregationOperation> operations = this.createQuery(criterio, idOwner);
         if (operations.isEmpty()) {
-            operations.add(project("_id", "name", "userName", "owners"));
+            operations.add(project("_id", "name", "userName", "email", "nickUsers", "owners"));
         }
         final List<UserView> views = this.template.aggregate(newAggregation(operations), "view_muttley_users", UserView.class).getMappedResults();
         if (views == null || views.isEmpty()) {
@@ -141,7 +141,9 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
                     match(
                             new Criteria().orOperator(
                                     where("name").regex(criterio, "si"),
-                                    where("userName").regex(criterio, "si")
+                                    where("userName").regex(criterio, "si"),
+                                    where("email").regex(criterio, "si"),
+                                    where("nickUsers").in(criterio)
                             )
                     )
             );
