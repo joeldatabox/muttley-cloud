@@ -26,4 +26,19 @@ public class IconMenu {
         this.icon = icon;
         this.fontSet = fontSet;
     }
+
+    public String getIcon() {
+        if (fontSet != null && icon != null) {
+            if (fontSet.equals(FontSet.FONT_AWESOME)) {
+                return this.icon.startsWith("fa-") ? this.icon : "fa-" + this.icon;
+            } else if (fontSet.equals(FontSet.MDI)) {
+                return this.icon.startsWith("mdi-") ? this.icon : "mdi-" + this.icon;
+            }
+        }
+        return icon;
+    }
+
+    public FontSet getFontSet() {
+        return fontSet;
+    }
 }

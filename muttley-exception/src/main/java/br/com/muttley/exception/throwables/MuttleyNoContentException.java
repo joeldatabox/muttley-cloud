@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 public class MuttleyNoContentException extends MuttleyException {
 
     public MuttleyNoContentException(final Class clazz, final String field, final String message) {
-        super("No Content", HttpStatus.NO_CONTENT, clazz, field, message);
+        super(message, HttpStatus.NO_CONTENT, clazz, field, message);
     }
 
     public MuttleyNoContentException(final ErrorMessage errorMessage) {
