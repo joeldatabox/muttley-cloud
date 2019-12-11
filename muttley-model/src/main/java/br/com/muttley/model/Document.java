@@ -1,5 +1,6 @@
 package br.com.muttley.model;
 
+import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
@@ -24,7 +25,11 @@ public interface Document extends Serializable {
     @JsonIgnore
     default ObjectId getObjectId() {
         if (!isEmpty(getId())) {
-            return new ObjectId(getId());
+            try {
+                return new ObjectId(getId());
+            } catch (IllegalArgumentException ex) {
+                throw new MuttleyInvalidObjectIdException(this.getClass(), "id", "ObjectId inválido");
+            }
         }
         return null;
     }
