@@ -1,7 +1,6 @@
 package br.com.muttley.mongo.service.repository;
 
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.security.Owner;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
@@ -13,9 +12,9 @@ public interface DocumentMongoRepository<T> extends MongoRepository<T, String> {
     /**
      * Busca vários registros simples
      *
-     * @param ids   -> ids dos registros desejado
+     * @param ids -> ids dos registros desejado
      */
-    Set<T> findMulti( final String ids[]);
+    Set<T> findMulti(final String ids[]);
 
     /**
      * Busca o primeiro registro qualquer de uma colection

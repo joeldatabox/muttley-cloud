@@ -2,7 +2,6 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.security.jackson.UserListDeserializer;
 import br.com.muttley.model.security.jackson.UserCollectionSerializer;
 import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;

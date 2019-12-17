@@ -1,10 +1,6 @@
 package br.com.muttley.model.security;
 
 
-import br.com.muttley.model.security.Authority;
-import br.com.muttley.model.security.AuthorityImpl;
-import br.com.muttley.model.security.Role;
-
 import java.util.HashSet;
 import java.util.Set;
 
