@@ -10,6 +10,7 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +34,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     @Override
     public T save(final User user, final T value) {
         //verificando se realmente está criando um novo registro
-        if (value.getId() != null) {
+        if (!StringUtils.isEmpty(value.getId())) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
         }
         value.setOwner(user);

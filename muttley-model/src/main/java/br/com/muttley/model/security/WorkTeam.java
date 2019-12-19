@@ -2,10 +2,13 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.jackson.converter.DocumentSerializer;
+import br.com.muttley.model.security.jackson.OwnerDeserializer;
 import br.com.muttley.model.security.jackson.UserCollectionSerializer;
 import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;
 import br.com.muttley.model.security.jackson.UserSetDeserializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
@@ -41,7 +44,10 @@ public class WorkTeam implements Document {
     @JsonDeserialize(using = UserDeserializer.class)
     @DBRef
     protected User userMaster;
-    @NotNull(message = "É nécessário informar quem é o owner do grupo de trabalho")
+    /*@NotNull(message = "É nécessário informar quem é o owner do grupo de trabalho")
+    @DBRef*/
+    @JsonSerialize(using = DocumentSerializer.class)
+    @JsonDeserialize(using = OwnerDeserializer.class)
     @DBRef
     protected Owner owner;
     @DBRef
