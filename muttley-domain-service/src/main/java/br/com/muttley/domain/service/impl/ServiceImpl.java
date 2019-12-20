@@ -66,6 +66,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         if (!StringUtils.isEmpty(value.getId())) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
         }
+        value.setId(null);
         //garantindo que o históriconão ficará nulo
         value.setHistoric(this.createHistoric(user));
         //validando dados

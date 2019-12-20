@@ -49,16 +49,18 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
 
                 user.setCurrentWorkTeam(itens.get(0));
                 //carregando authorities
-                user.setAuthorities(itens.get(0).getRoles());
+                user.setAuthorities(this.workteamService.loadCurrentRoles());
+                //user.setAuthorities(itens.get(0).getRoles());
             } else {
                 final ObjectId idWorkTeam = new ObjectId(preferences.get(WORK_TEAM_PREFERENCE).getValue().toString());
                 user.setPreferences(preferences);
                 final WorkTeam workTeam = workteamService.findById(idWorkTeam.toString());
                 user.setCurrentWorkTeam(workTeam);
                 //carregando authorities
-                if (workTeam != null) {
+                /*if (workTeam != null) {
                     user.setAuthorities(workTeam.getRoles());
-                }
+                }*/
+                user.setAuthorities(this.workteamService.loadCurrentRoles());
             }
         } catch (MuttleyNotFoundException ex) {
             throw new MuttleySecurityCredentialException("Não foi possível recuperar informações do seu usuáiro");

@@ -37,6 +37,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         if (!StringUtils.isEmpty(value.getId())) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
         }
+        value.setId(null);
         value.setOwner(user);
         //garantindo que o históriconão ficará nulo
         value.setHistoric(this.createHistoric(user));

@@ -8,7 +8,6 @@ import br.com.muttley.model.security.jackson.UserCollectionSerializer;
 import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;
 import br.com.muttley.model.security.jackson.UserSetDeserializer;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
@@ -19,8 +18,10 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -149,12 +150,30 @@ public class WorkTeam implements Document {
     }
 
     public WorkTeam addRole(final Authority authority) {
-        this.roles.add(authority.getRole());
+        if (authority != null) {
+            this.roles.add(authority.getRole());
+        }
         return this;
     }
 
     public WorkTeam addRole(final Role role) {
-        this.roles.add(role);
+        if (role != null) {
+            this.roles.add(role);
+        }
+        return this;
+    }
+
+    public WorkTeam addRoles(final Role... roles) {
+        if (roles != null) {
+            Stream.of(roles).filter(java.util.Objects::nonNull).forEach(it -> this.roles.add(it));
+        }
+        return this;
+    }
+
+    public WorkTeam addRoles(final Collection<Role> roles) {
+        if (roles != null) {
+            roles.stream().filter(java.util.Objects::nonNull).forEach(it -> this.roles.add(it));
+        }
         return this;
     }
 

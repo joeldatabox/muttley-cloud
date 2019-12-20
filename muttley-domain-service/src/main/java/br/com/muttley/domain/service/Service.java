@@ -430,7 +430,8 @@ public interface Service<T extends Document> {
                     "   ) " +
                     "or " +
                     "   hasAnyRole(" +
-                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
                     "   )" +
                     "or (" +
                     "   @userAgent.isMobile()? " +
@@ -461,7 +462,8 @@ public interface Service<T extends Document> {
                     "   ) " +
                     "or " +
                     "   hasAnyRole(" +
-                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
                     "   )" +
                     "or (" +
                     "   @userAgent.isMobile()? " +

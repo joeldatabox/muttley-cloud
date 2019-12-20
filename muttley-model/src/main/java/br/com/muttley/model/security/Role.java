@@ -3,6 +3,7 @@ package br.com.muttley.model.security;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 
 import java.util.HashSet;
@@ -120,6 +121,7 @@ public class Role {
     }
 
     @JsonIgnore
+    @Transient
     public static Set<Role> getValues() {
         return Role.values;
     }

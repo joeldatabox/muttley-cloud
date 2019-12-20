@@ -4,6 +4,8 @@ import br.com.muttley.model.security.Role;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.util.Objects;
+
 /**
  * @author Joel Rodrigues Moreira on 02/07/19.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>

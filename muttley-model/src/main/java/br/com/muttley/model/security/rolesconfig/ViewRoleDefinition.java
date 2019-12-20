@@ -72,6 +72,14 @@ public class ViewRoleDefinition {
         return this;
     }
 
+    public boolean contains(final RoleDefinition role) {
+        return this.roleDefinitions.contains(role);
+    }
+
+    public boolean contains(final Role role) {
+        return this.contains(new RoleDefinition(0, role));
+    }
+
     public static RoleDefinition newRoleDefinition(final Role typeRole, final String description) {
         idsCounter++;
         return new RoleDefinition(idsCounter, typeRole, description);
