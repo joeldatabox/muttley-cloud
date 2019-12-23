@@ -116,6 +116,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     public void beforeUpdate(final User user, final WorkTeam workTeam) {
         //garantindo que não será alterado informações cruciais
         workTeam.setOwner(user.getCurrentOwner());
+        workTeam.addRoles(this.loadAvaliableRoles(user).getDependenciesRolesFrom(workTeam.getRoles()));
         super.beforeUpdate(user, workTeam);
     }
 
@@ -142,6 +143,21 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
             throw new MuttleyBadRequestException(WorkTeam.class, "roles", "Não se pode excluir o grupo principal");
         }
         super.checkPrecondictionDelete(user, id);
+    }
+
+    @Override
+    public Long count(final User user, final Map<String, Object> allRequestParams) {
+        return this.repository.count(user.getCurrentOwner());
+    }
+
+    @Override
+    public List<WorkTeam> findAll(final User user, final Map<String, Object> allRequestParams) {
+        List<WorkTeam> results = this.repository.findAll(user.getCurrentOwner());
+        if (CollectionUtils.isEmpty(results)) {
+            throw new MuttleyNoContentException(this.clazz, "", "Não foi encontrado nenhum registro");
+        } else {
+            return results;
+        }
     }
 
     @Override
