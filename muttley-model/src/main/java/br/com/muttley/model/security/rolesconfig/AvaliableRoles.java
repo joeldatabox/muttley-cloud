@@ -38,7 +38,7 @@ public class AvaliableRoles {
                     acc.addAll(roles);
                     return acc;
                 })
-                .orElse(emptySet());
+                .orElse(new HashSet<>(0));
 
     }
 
@@ -49,7 +49,7 @@ public class AvaliableRoles {
                 .reduce((acc, roles) -> {
                     acc.addAll(roles);
                     return acc;
-                }).orElse(emptySet());
+                }).orElse(new HashSet<>(0));
     }
 
     public static ViewRoleDefinition newViewRoleDefinition(final String title, final String description, final RoleDefinition... roleDefinitions) {
