@@ -20,7 +20,15 @@ public interface Document extends Serializable {
 
     Document setId(final String id);
 
+    MetaDataDocument getMetaData();
+
+    Document setMetaData(final MetaDataDocument metaData);
+
     Document setHistoric(final Historic historic);
+
+
+    @JsonIgnore
+    Historic getHistoric();
 
     @JsonIgnore
     default ObjectId getObjectId() {
@@ -42,8 +50,6 @@ public interface Document extends Serializable {
         return false;
     }
 
-    @JsonIgnore
-    Historic getHistoric();
 
     default String toJson() {
         try {

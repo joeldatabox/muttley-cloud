@@ -7,6 +7,7 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetaDataDocument;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -242,6 +243,9 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
                 .setLastChangeBy(user)
                 .setDtChange(now);
     }
+
+    /*protected MetaDataDocument createMetaData(final User user) {
+    }*/
 
     protected Historic generateHistoricUpdate(final User user, final Historic historic) {
         return historic

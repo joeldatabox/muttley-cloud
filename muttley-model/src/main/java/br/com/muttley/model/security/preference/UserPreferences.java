@@ -2,6 +2,7 @@ package br.com.muttley.model.security.preference;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetaDataDocument;
 import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,6 +35,7 @@ public class UserPreferences implements Document {
     @DBRef
     private User user;
     private Historic historic;
+    private MetaDataDocument metaData;
     private Set<Preference> preferences;
 
     public UserPreferences() {
@@ -54,14 +56,16 @@ public class UserPreferences implements Document {
 
     @JsonCreator
     public UserPreferences(
-            @JsonProperty("id") String id,
-            @JsonProperty("user") User user,
-            @JsonProperty("historic") Historic historic,
-            @JsonProperty("preferences") Set<Preference> preferences) {
+            final @JsonProperty("id") String id,
+            final @JsonProperty("user") User user,
+            final @JsonProperty("historic") Historic historic,
+            final @JsonProperty("preferences") Set<Preference> preferences,
+            final @JsonProperty("metaData") MetaDataDocument metaData) {
         this.id = id;
         this.user = user;
         this.historic = historic;
         this.preferences = preferences;
+        this.metaData = metaData;
     }
 
     @Override
@@ -84,6 +88,17 @@ public class UserPreferences implements Document {
     @Override
     public Historic getHistoric() {
         return this.historic;
+    }
+
+    @Override
+    public MetaDataDocument getMetaData() {
+        return metaData;
+    }
+
+    @Override
+    public UserPreferences setMetaData(final MetaDataDocument metaData) {
+        this.metaData = metaData;
+        return this;
     }
 
     public boolean contains(final String key) {
