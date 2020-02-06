@@ -41,6 +41,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         value.setOwner(user);
         //garantindo que o históriconão ficará nulo
         value.setHistoric(this.createHistoric(user));
+        //garantindo que o metadata ta preenchido
+        this.createMetaData(user, value);
         //validando dados
         this.validator.validate(value);
         //verificando precondições
@@ -66,6 +68,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         value.setOwner(user);
         //gerando histórico de alteração
         value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(user.getCurrentOwner(), value)));
+        //gerando metadata de alteração
+        this.generateMetaDataUpdate(user, value);
         //validando dados
         this.validator.validate(value);
         //verificando precondições
