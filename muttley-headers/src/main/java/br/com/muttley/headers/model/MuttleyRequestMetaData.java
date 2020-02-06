@@ -1,4 +1,4 @@
-package br.com.muttley.headers;
+package br.com.muttley.headers.model;
 
 /**
  * @author Joel Rodrigues Moreira on 29/07/19.

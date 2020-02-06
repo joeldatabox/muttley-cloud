@@ -7,23 +7,17 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static org.springframework.http.HttpHeaders.USER_AGENT;
-
 /**
  * @author Joel Rodrigues Moreira on 29/07/19.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@Component("userAgente")
+@Component("userAgentName")
 @RequestScope
-public class MuttleyUserAgent extends MuttleyHeader {
-    private static final String MOBILE = "MOBILE";
+public class MuttleyUserAgentName extends MuttleyHeader {
+    private static final String USER_AGENT_NAME = "User-Agent-Name";
 
-    public MuttleyUserAgent(@Autowired final HttpServletRequest request) {
-        super(USER_AGENT, request);
-    }
-
-    public boolean isMobile() {
-        return MOBILE.equalsIgnoreCase(getCurrentValue());
+    public MuttleyUserAgentName(@Autowired final HttpServletRequest request) {
+        super(USER_AGENT_NAME, request);
     }
 }

@@ -1,4 +1,4 @@
-package br.com.muttley.headers;
+package br.com.muttley.headers.model;
 
 import javax.servlet.http.HttpServletRequest;
 
