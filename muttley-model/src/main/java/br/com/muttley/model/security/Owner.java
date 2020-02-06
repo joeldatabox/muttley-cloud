@@ -1,7 +1,7 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.MetaDataDocument;
+import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
 import br.com.muttley.model.security.jackson.AccessPlanDeserializer;
 import br.com.muttley.model.security.jackson.UserDeserializer;
@@ -43,7 +43,7 @@ public class Owner implements br.com.muttley.model.Document {
     @DBRef
     protected AccessPlan accessPlan;
     protected Historic historic;
-    protected MetaDataDocument metaData;
+    protected MetadataDocument metadata;
 
     @Override
     public String getId() {
@@ -102,13 +102,13 @@ public class Owner implements br.com.muttley.model.Document {
     }
 
     @Override
-    public MetaDataDocument getMetaData() {
-        return metaData;
+    public MetadataDocument getMetadata() {
+        return metadata;
     }
 
     @Override
-    public Owner setMetaData(final MetaDataDocument metaData) {
-        this.metaData = metaData;
+    public Owner setMetadata(final MetadataDocument metaData) {
+        this.metadata = metaData;
         return this;
     }
 

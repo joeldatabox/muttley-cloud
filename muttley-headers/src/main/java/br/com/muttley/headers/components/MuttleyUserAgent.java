@@ -1,5 +1,6 @@
-package br.com.muttley.rest.service.metadata;
+package br.com.muttley.headers;
 
+import br.com.muttley.headers.model.MuttleyHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;

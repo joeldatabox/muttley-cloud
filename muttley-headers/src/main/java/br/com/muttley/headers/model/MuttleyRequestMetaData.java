@@ -1,4 +1,4 @@
-package br.com.muttley.rest.service.metadata;
+package br.com.muttley.headers;
 
 /**
  * @author Joel Rodrigues Moreira on 29/07/19.

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * @author Joel Rodrigues Moreira on 30/01/20.
@@ -12,16 +13,25 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class MetaDataDocument {
+@Accessors(chain = true)
+public class MetadataDocument {
     private TimeZoneDocument timeZones;
     private VersionDocument versionDocument;
 
-    public MetaDataDocument() {
+    public MetadataDocument() {
     }
 
     @JsonCreator
-    public MetaDataDocument(@JsonProperty("timeZones") final TimeZoneDocument timeZones, @JsonProperty("versionDocument") final VersionDocument versionDocument) {
+    public MetadataDocument(@JsonProperty("timeZones") final TimeZoneDocument timeZones, @JsonProperty("versionDocument") final VersionDocument versionDocument) {
         this.timeZones = timeZones;
         this.versionDocument = versionDocument;
+    }
+
+    public boolean containsTimeZones() {
+        return this.getTimeZones() != null;
+    }
+
+    public boolean containsVersionDocument() {
+        return this.getVersionDocument() != null;
     }
 }

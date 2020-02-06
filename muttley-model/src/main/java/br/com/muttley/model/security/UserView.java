@@ -2,7 +2,7 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.MetaDataDocument;
+import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.jackson.converter.ListDocumentSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -25,7 +25,7 @@ public class UserView implements Document {
     @JsonSerialize(using = ListDocumentSerializer.class)
     private Set<Owner> owners;
     private Historic historic;
-    private MetaDataDocument metaData;
+    private MetadataDocument metadata;
 
     @Override
     public String getId() {
@@ -93,13 +93,13 @@ public class UserView implements Document {
     }
 
     @Override
-    public MetaDataDocument getMetaData() {
-        return metaData;
+    public MetadataDocument getMetadata() {
+        return metadata;
     }
 
     @Override
-    public UserView setMetaData(final MetaDataDocument metaData) {
-        this.metaData = metaData;
+    public UserView setMetadata(final MetadataDocument metaData) {
+        this.metadata = metaData;
         return this;
     }
 

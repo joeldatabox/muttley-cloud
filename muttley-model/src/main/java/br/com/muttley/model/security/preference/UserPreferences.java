@@ -2,7 +2,7 @@ package br.com.muttley.model.security.preference;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.MetaDataDocument;
+import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,7 +35,7 @@ public class UserPreferences implements Document {
     @DBRef
     private User user;
     private Historic historic;
-    private MetaDataDocument metaData;
+    private MetadataDocument metadata;
     private Set<Preference> preferences;
 
     public UserPreferences() {
@@ -60,12 +60,12 @@ public class UserPreferences implements Document {
             final @JsonProperty("user") User user,
             final @JsonProperty("historic") Historic historic,
             final @JsonProperty("preferences") Set<Preference> preferences,
-            final @JsonProperty("metaData") MetaDataDocument metaData) {
+            final @JsonProperty("metadata") MetadataDocument metadata) {
         this.id = id;
         this.user = user;
         this.historic = historic;
         this.preferences = preferences;
-        this.metaData = metaData;
+        this.metadata = metadata;
     }
 
     @Override
@@ -91,13 +91,13 @@ public class UserPreferences implements Document {
     }
 
     @Override
-    public MetaDataDocument getMetaData() {
-        return metaData;
+    public MetadataDocument getMetadata() {
+        return metadata;
     }
 
     @Override
-    public UserPreferences setMetaData(final MetaDataDocument metaData) {
-        this.metaData = metaData;
+    public UserPreferences setMetadata(final MetadataDocument metaData) {
+        this.metadata = metaData;
         return this;
     }
 

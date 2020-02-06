@@ -20,15 +20,20 @@ public interface Document extends Serializable {
 
     Document setId(final String id);
 
-    MetaDataDocument getMetaData();
+    MetadataDocument getMetadata();
 
-    Document setMetaData(final MetaDataDocument metaData);
+    Document setMetadata(final MetadataDocument metaData);
 
     Document setHistoric(final Historic historic);
 
 
     @JsonIgnore
     Historic getHistoric();
+
+    @JsonIgnore
+    default boolean containsMetadata() {
+        return this.getMetadata() != null;
+    }
 
     @JsonIgnore
     default ObjectId getObjectId() {

@@ -1,4 +1,4 @@
-package br.com.muttley.rest.service.metadata;
+package br.com.muttley.headers;
 
 import javax.servlet.http.HttpServletRequest;
 

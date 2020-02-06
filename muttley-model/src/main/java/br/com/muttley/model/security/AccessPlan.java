@@ -2,7 +2,7 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.MetaDataDocument;
+import br.com.muttley.model.MetadataDocument;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -25,7 +25,7 @@ public class AccessPlan implements Document {
     @Id
     private String id;
     private Historic historic;
-    private MetaDataDocument metaData;
+    private MetadataDocument metadata;
     @NotBlank(message = "Informe um nome válido")
     private String name;
     @Min(value = 1, message = "É necessário ter ao menos 1 usuário!")
@@ -55,13 +55,13 @@ public class AccessPlan implements Document {
     }
 
     @Override
-    public MetaDataDocument getMetaData() {
-        return metaData;
+    public MetadataDocument getMetadata() {
+        return metadata;
     }
 
     @Override
-    public AccessPlan setMetaData(final MetaDataDocument metaData) {
-        this.metaData = metaData;
+    public AccessPlan setMetadata(final MetadataDocument metadata) {
+        this.metadata = metadata;
         return this;
     }
 
