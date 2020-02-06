@@ -4,6 +4,7 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.Owner;
 import org.bson.types.ObjectId;
@@ -212,6 +213,19 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     }
 
     @Override
+    public MetadataDocument loadMetaData(final Owner owner, final T value) {
+        final AggregationResults result = operations.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(owner.getObjectId())
+                                .and("_id").is(value.getObjectId())
+                        ), project().and("$metaData.timeZones").as("timeZones")
+                                .and("$metaData.versionDocument").as("versionDocument")
+                ), COLLECTION, MetadataDocument.class);
+
+        return result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;
+    }
+
+    @Override
     public Historic loadHistoric(final Owner owner, final String id) {
         try {
             final AggregationResults result = operations.aggregate(
@@ -227,6 +241,19 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
         } catch (MuttleyRepositoryInvalidIdException ex) {
             throw new MuttleyNotFoundException(CLASS, "id", "Registro não encontrado");
         }
+    }
+
+    @Override
+    public MetadataDocument loadMetaData(final Owner owner, final String id) {
+        final AggregationResults result = operations.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(owner.getObjectId())
+                                .and("_id").is(newObjectId(id))
+                        ), project().and("$metadata.timeZones").as("timeZones")
+                                .and("$metadata.versionDocument").as("versionDocument")
+                ), COLLECTION, MetadataDocument.class);
+
+        return result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;
     }
 
     private final void validateOwner(final Owner owner) {

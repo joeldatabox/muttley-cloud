@@ -1,6 +1,7 @@
 package br.com.muttley.mongo.service.repository;
 
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetadataDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
@@ -64,9 +65,23 @@ public interface DocumentMongoRepository<T> extends MongoRepository<T, String> {
     Historic loadHistoric(final T value);
 
     /**
+     * Carrega o metadata de um determinado registro
+     *
+     * @param value -> registro a ser carregado
+     */
+    MetadataDocument loadMetadata(final T value);
+
+    /**
      * Carrega o historico de um determinado registro
      *
      * @param id -> id do registro a ser carregado
      */
     Historic loadHistoric(final String id);
+
+    /**
+     * Carrega o metadata de um determinado registro
+     *
+     * @param id -> id do registro a ser carregado
+     */
+    MetadataDocument loadMetadata(final String id);
 }

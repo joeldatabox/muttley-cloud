@@ -2,8 +2,12 @@ package br.com.muttley.mongo.service;
 
 import br.com.muttley.mongo.service.codec.BigDecimalCodecProvider;
 import br.com.muttley.mongo.service.codec.BigDecimalTransformer;
+import br.com.muttley.mongo.service.codec.ZonedDateTimeCodecProvider;
+import br.com.muttley.mongo.service.codec.ZonedDateTimeTransformer;
 import br.com.muttley.mongo.service.converters.BigDecimalToDecimal128Converter;
+import br.com.muttley.mongo.service.converters.BsonDocumentToZonedDateTimeConverter;
 import br.com.muttley.mongo.service.converters.Decimal128ToBigDecimalConverter;
+import br.com.muttley.mongo.service.converters.ZonedDateTimeToBsonDocumentConverter;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -19,6 +23,7 @@ import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,9 +89,11 @@ public class MongoConfig extends AbstractMongoConfiguration {
     @Bean
     public Mongo mongo() {
         BSON.addEncodingHook(BigDecimal.class, new BigDecimalTransformer());
+        BSON.addEncodingHook(OffsetDateTime.class, new ZonedDateTimeTransformer());
 
         final CodecRegistry condecRegistry = CodecRegistries.fromRegistries(
                 CodecRegistries.fromProviders(new BigDecimalCodecProvider()),
+                CodecRegistries.fromProviders(new ZonedDateTimeCodecProvider()),
                 MongoClient.getDefaultCodecRegistry()
         );
 
@@ -111,6 +118,8 @@ public class MongoConfig extends AbstractMongoConfiguration {
         final List converters = new ArrayList(2);
         converters.add(new BigDecimalToDecimal128Converter());
         converters.add(new Decimal128ToBigDecimalConverter());
+        converters.add(new ZonedDateTimeToBsonDocumentConverter());
+        converters.add(new BsonDocumentToZonedDateTimeConverter());
 
         //pegando o conversores customizados
         final Converter[] customConversions = getConverters();
