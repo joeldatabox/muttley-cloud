@@ -2,9 +2,11 @@ package br.com.muttley.model.util;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
@@ -100,7 +102,11 @@ public class DateUtils {
         );
     }
 
-    public static Date toDate(final ZonedDateTime date){
-        return Date.from(date.toInstant());
+    public static Date toDate(final ZonedDateTime date) {
+        return toDate(date, UTC);
+    }
+
+    public static Date toDate(final ZonedDateTime date, ZoneOffset zoneOffset) {
+        return new Date(date.toLocalDateTime().toInstant(zoneOffset).toEpochMilli());
     }
 }

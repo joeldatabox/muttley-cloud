@@ -20,6 +20,7 @@ public class MetadataPageable {
     private Long totalPages;
     private Long totalRecords;
     private Long totalRecordsInPage;
+    private Long totalAll;
     private final List<LinkResource> links;
     @JsonIgnore
     private Long limit;
@@ -57,6 +58,11 @@ public class MetadataPageable {
         addLastPage(components);
     }
 
+    public MetadataPageable(final UriComponentsBuilder componentsBuilder, final Long limit, final Long skip, final Long pageSize, final Long totalRecords, final Long totalAll) {
+        this(componentsBuilder, limit, skip, pageSize, totalRecords);
+        this.totalAll = totalAll;
+    }
+
     public Long getPage() {
         return page;
     }
@@ -71,6 +77,10 @@ public class MetadataPageable {
 
     public Long getTotalRecords() {
         return totalRecords;
+    }
+
+    public Long getTotalAll() {
+        return totalAll;
     }
 
     public List<LinkResource> getLinks() {

@@ -100,6 +100,7 @@ public interface RestResource<T extends Document> {
         if (total == 0) {
             throw new MuttleyNoContentException(null, null, "registros não encontrados!");
         }
+        final long totalAll = service.count(user, null);
 
         final List records = service
                 .findAll(user, allRequestParams);
@@ -110,7 +111,9 @@ public interface RestResource<T extends Document> {
                 ServletUriComponentsBuilder.fromCurrentRequest(),
                 LIMIT,
                 SKIP,
-                recordSize, total);
+                recordSize,
+                total,
+                totalAll);
 
         publishPaginatedResultsRetrievedEvent(
                 eventPublisher,
@@ -135,6 +138,31 @@ public interface RestResource<T extends Document> {
                 limit,
                 skip,
                 recordSize, total);
+
+        publishPaginatedResultsRetrievedEvent(
+                eventPublisher,
+                response,
+                ServletUriComponentsBuilder.fromCurrentRequest(),
+                metadataPageable
+        );
+
+        return new PageableResource(records, metadataPageable);
+    }
+
+    default PageableResource toPageableResource(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final List records, final Long total, final Long totalAll, final Long skip, final Long limit) {
+        if (total == 0) {
+            throw new MuttleyNoContentException(null, null, "registros não encontrados!");
+        }
+
+        final Long recordSize = Long.valueOf(records.size());
+
+        final MetadataPageable metadataPageable = new MetadataPageable(
+                ServletUriComponentsBuilder.fromCurrentRequest(),
+                limit,
+                skip,
+                recordSize,
+                total,
+                totalAll);
 
         publishPaginatedResultsRetrievedEvent(
                 eventPublisher,
