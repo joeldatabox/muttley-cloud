@@ -4,6 +4,7 @@ import br.com.muttley.mongo.service.codec.BigDecimalCodecProvider;
 import br.com.muttley.mongo.service.codec.BigDecimalTransformer;
 import br.com.muttley.mongo.service.codec.ZonedDateTimeCodecProvider;
 import br.com.muttley.mongo.service.codec.ZonedDateTimeTransformer;
+import br.com.muttley.mongo.service.config.ConfigVersioning;
 import br.com.muttley.mongo.service.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.service.converters.BsonDocumentToZonedDateTimeConverter;
 import br.com.muttley.mongo.service.converters.Decimal128ToBigDecimalConverter;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 
@@ -84,6 +86,11 @@ public class MongoConfig extends AbstractMongoConfiguration {
     protected UserCredentials getUserCredentials() {
         return super.getUserCredentials();
     }*/
+
+    @Bean
+    protected ConfigVersioning configVersioningFactory(@Value("${muttley.mongodb.versioningCollection:_versioning}") final String collection, final MongoOperations operations) {
+        return new ConfigVersioning(collection, operations);
+    }
 
     @Override
     @Bean
