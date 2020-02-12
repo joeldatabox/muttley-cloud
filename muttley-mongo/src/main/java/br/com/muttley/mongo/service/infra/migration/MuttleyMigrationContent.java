@@ -1,11 +1,11 @@
-package br.com.muttley.mongo.service.infra;
+package br.com.muttley.mongo.service.infra.migration;
 
 /**
  * @author Joel Rodrigues Moreira on 10/02/20.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface VersoningContent {
+public interface MuttleyMigrationContent {
 
     /**
      * Collections que devem ser atualizadas

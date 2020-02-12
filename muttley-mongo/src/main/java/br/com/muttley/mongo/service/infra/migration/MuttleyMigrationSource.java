@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.service.infra;
+package br.com.muttley.mongo.service.infra.migration;
 
 import java.util.Set;
 
@@ -7,7 +7,7 @@ import java.util.Set;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface VersioningSource {
+public interface MuttleyMigrationSource {
     /**
      * Versão da atualização
      */
@@ -20,7 +20,7 @@ public interface VersioningSource {
      * .
      * Itens a ser processados
      */
-    Set<VersoningContent> getContents();
+    Set<MuttleyMigrationContent> getContents();
 
 
 }
