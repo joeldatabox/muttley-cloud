@@ -3,12 +3,12 @@ package br.com.muttley.mongo.service.listeners;
 import br.com.muttley.mongo.service.infra.migration.MuttleyMigrationEvent;
 import br.com.muttley.mongo.service.infra.migration.MuttleyMigrationModel;
 import br.com.muttley.mongo.service.infra.migration.MuttleyMigrationSource;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
@@ -36,11 +36,13 @@ public class MuttleyMigrationListener implements ApplicationListener<Application
     protected final ApplicationEventPublisher publisher;
     protected final MongoOperations operations;
     protected final Log log = LogFactory.getLog(this.getClass());
+    protected final String APPLICATION_NAME;
 
     @Autowired
-    public MuttleyMigrationListener(final ApplicationEventPublisher publisher, final MongoOperations operations) {
+    public MuttleyMigrationListener(final ApplicationEventPublisher publisher, final MongoOperations operations, @Value("${spring.cloud.config.name}") final String applicationName) {
         this.publisher = publisher;
         this.operations = operations;
+        this.APPLICATION_NAME = applicationName;
     }
 
 
@@ -79,7 +81,7 @@ public class MuttleyMigrationListener implements ApplicationListener<Application
 
 
             //salvando o historico de adaptação
-            this.operations.insert(new MuttleyMigrationModel(source));
+            this.operations.insert(new MuttleyMigrationModel(source, APPLICATION_NAME));
         }
     }
 

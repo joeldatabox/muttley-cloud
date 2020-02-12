@@ -9,7 +9,11 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 /**
  * @author Joel Rodrigues Moreira on 11/02/20.
@@ -34,14 +38,21 @@ public class MuttleyMigrationModel {
 
     @Id
     private String id;
+    private String applicationName;
     private long version;
     private Date updatedIn;
     private String description;
+    private Set<String> onCollections;
 
-    public MuttleyMigrationModel(final MuttleyMigrationSource source) {
+    public MuttleyMigrationModel(final MuttleyMigrationSource source, final String applicationName) {
         this.version = source.getVersion();
         this.description = source.getDescription();
         this.updatedIn = new Date();
+        this.applicationName = applicationName;
+        this.onCollections = new HashSet<>();
+        source.getContents().forEach(it ->
+                this.onCollections.addAll(asList(it.onCollections()))
+        );
     }
 
     public MuttleyMigrationModel() {
@@ -53,6 +64,15 @@ public class MuttleyMigrationModel {
 
     public MuttleyMigrationModel setId(final String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public MuttleyMigrationModel setApplicationName(final String applicationName) {
+        this.applicationName = applicationName;
         return this;
     }
 
@@ -80,6 +100,15 @@ public class MuttleyMigrationModel {
 
     public MuttleyMigrationModel setDescription(final String description) {
         this.description = description;
+        return this;
+    }
+
+    public Set<String> getOnCollections() {
+        return onCollections;
+    }
+
+    public MuttleyMigrationModel setOnCollections(final Set<String> onCollections) {
+        this.onCollections = onCollections;
         return this;
     }
 
