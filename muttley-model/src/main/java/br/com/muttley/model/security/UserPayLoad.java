@@ -19,6 +19,7 @@ public class UserPayLoad implements Serializable {
     @NotBlank(message = "O campo nome não pode ser nulo!")
     @Size(min = 4, max = 200, message = "O campo nome deve ter de 4 a 200 caracteres!")
     private String name;
+    private String description;
     @Email(message = "Informe um email válido!")
     private String email;
     private String userName;
@@ -29,11 +30,13 @@ public class UserPayLoad implements Serializable {
     @JsonCreator
     public UserPayLoad(
             @JsonProperty("name") final String name,
+            @JsonProperty("description") final String description,
             @JsonProperty("email") final String email,
             @JsonProperty("userName") final String userName,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
             @JsonProperty("passwd") final String passwd) {
         this.name = name;
+        this.description = description;
         this.email = email;
         this.userName = userName;
         this.nickUsers = nickUsers;
@@ -42,6 +45,10 @@ public class UserPayLoad implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public String getEmail() {

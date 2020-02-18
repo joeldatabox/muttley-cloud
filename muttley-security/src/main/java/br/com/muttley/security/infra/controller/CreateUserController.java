@@ -28,6 +28,7 @@ public class CreateUserController {
     protected final ApplicationEventPublisher eventPublisher;
     protected UserServiceClient service;
     protected static final String NOME = "name";
+    protected static final String DECRIPTION = "description";
     protected static final String USER_NAME = "userName";
     protected static final String EMAIL = "email";
     protected static final String PASSWD = "password";
@@ -68,6 +69,7 @@ public class CreateUserController {
 
         final UserPayLoad user = new UserPayLoad(
                 (String) payload.get(NOME),
+                (String) payload.get(DECRIPTION),
                 (String) payload.get(EMAIL),
                 (String) payload.get(USER_NAME),
                 payload.containsKey(NICK_NAMES) ? new HashSet((List) payload.get(NICK_NAMES)) : null,

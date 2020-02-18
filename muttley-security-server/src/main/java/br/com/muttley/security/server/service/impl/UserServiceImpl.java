@@ -104,8 +104,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(final User user) {
-        return merge(user);
+    public User update(final User user, final JwtToken token) {
+
+        final User otherUser = this.getUserFromToken(token);
+        user.setId(otherUser.getId())
+                .setEmail(otherUser.getEmail())
+                .setUserName(otherUser.getUserName())
+                .setNickUsers(otherUser.getNickUsers())
+                .setPasswd(otherUser.getPasswd())
+                .setLastPasswordResetDate(otherUser.getLastPasswordResetDate())
+                .setEnable(otherUser.isEnable())
+                .setOdinUser(otherUser.isOdinUser());
+
+
+        checkNameIsValid(user);
+        //validando infos do usuário
+        user.validateBasicInfoForLogin();
+        return repository.save(user);
+    }
+
+    private void checkNameIsValid(final User user) {
+        if (user.getName() == null || user.getName().length() < 4) {
+            throw new MuttleySecurityBadRequestException(User.class, "nome", "O campo nome deve ter de 4 a 200 caracteres!");
+        }
     }
 
     @Override
@@ -249,9 +270,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private User merge(final User user) {
-        if (user.getName() == null || user.getName().length() < 4) {
-            throw new MuttleySecurityBadRequestException(User.class, "nome", "O campo nome deve ter de 4 a 200 caracteres!");
-        }
+        checkNameIsValid(user);
 
         //validando infos do usuário
         user.validateBasicInfoForLogin();
