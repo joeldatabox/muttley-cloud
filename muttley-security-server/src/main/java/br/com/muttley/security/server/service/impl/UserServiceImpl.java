@@ -15,6 +15,7 @@ import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.InmutablesPreferencesService;
+import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.WorkTeamService;
 import org.bson.types.ObjectId;
@@ -111,7 +112,7 @@ public class UserServiceImpl implements UserService {
                 .setEmail(otherUser.getEmail())
                 .setUserName(otherUser.getUserName())
                 .setNickUsers(otherUser.getNickUsers())
-                .setPasswd(otherUser.getPasswd())
+                .setPasswd(otherUser)
                 .setLastPasswordResetDate(otherUser.getLastPasswordResetDate())
                 .setEnable(otherUser.isEnable())
                 .setOdinUser(otherUser.isOdinUser());
@@ -133,7 +134,10 @@ public class UserServiceImpl implements UserService {
     public User updatePasswd(final Passwd passwd) {
         final User user = getUserFromToken(passwd.getToken());
         user.setPasswd(passwd);
-        return save(user);
+        checkNameIsValid(user);
+        //validando infos do usuário
+        user.validateBasicInfoForLogin();
+        return repository.save(user);
     }
 
     @Override

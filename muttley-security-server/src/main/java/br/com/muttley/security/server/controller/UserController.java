@@ -6,8 +6,8 @@ import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
+import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.UserService;
-import br.com.muttley.security.server.service.impl.JwtTokenUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,11 +41,13 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 @RequestMapping(value = "/api/v1/users", produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
 public class UserController {
 
-    private UserService service;
+    private final UserService service;
+    private final JwtTokenUtilService tokenUtil;
 
     @Autowired
-    public UserController(final UserService service) {
+    public UserController(final UserService service, final JwtTokenUtilService tokenUtil) {
         this.service = service;
+        this.tokenUtil = tokenUtil;
     }
 
     @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
@@ -60,7 +62,7 @@ public class UserController {
 
     @RequestMapping(value = "/{userName}", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity update(@PathVariable("userName") final String userName, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String token, @RequestBody final User user, final JwtTokenUtilService tokenUtil) {
+    public ResponseEntity update(@PathVariable("userName") final String userName, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String token, @RequestBody final User user) {
         if (isNullOrEmpty(token)) {
             throw new MuttleyBadRequestException(null, null, "informe um token válido");
         }
@@ -76,8 +78,10 @@ public class UserController {
         }
         user.setId(service.findByUserName(userName).getId());
         //é necessário válidar a regra de négocio no processo de crud de usuário
-        throw new MuttleyMethodNotAllowedException(null, null, "Verifique a regra de negócios");
-        //return ResponseEntity.ok(service.update(user));
+        //throw new MuttleyMethodNotAllowedException(null, null, "Verifique a regra de negócios");
+
+
+        return ResponseEntity.ok(service.update(user, new JwtToken(token)));
     }
 
     @RequestMapping(value = "/passwd", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})

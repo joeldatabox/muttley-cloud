@@ -6,7 +6,7 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPas
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.events.UserLoggedEvent;
-import br.com.muttley.security.server.service.impl.JwtTokenUtilService;
+import br.com.muttley.security.server.service.JwtTokenUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;

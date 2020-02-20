@@ -4,8 +4,8 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedE
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
+import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.UserService;
-import br.com.muttley.security.server.service.impl.JwtTokenUtilService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

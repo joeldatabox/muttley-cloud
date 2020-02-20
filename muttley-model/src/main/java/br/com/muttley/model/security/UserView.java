@@ -18,6 +18,7 @@ import java.util.Set;
 public class UserView implements Document {
     private String id;
     private String name;
+    private String description;
     private String userName;
     private String email;
     private Set<String> nickUsers;
@@ -44,6 +45,15 @@ public class UserView implements Document {
 
     public UserView setName(final String name) {
         this.name = name;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public UserView setDescription(final String description) {
+        this.description = description;
         return this;
     }
 
