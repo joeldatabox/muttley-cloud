@@ -41,6 +41,7 @@
         <module>muttley-jackson</module>
         <module>muttley-feign</module>
         <module>muttley-zuul</module>
+        <module>muttley-report</module>
     </modules>
 
     <dependencies>
@@ -86,6 +87,12 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-exception</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-report</artifactId>
                 <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
