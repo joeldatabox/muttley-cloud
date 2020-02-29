@@ -11,16 +11,23 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.ALL_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.web.servlet.HandlerMapping.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE;
 
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
@@ -163,8 +170,31 @@ public final class ErrorMessage {
 
     @JsonIgnore
     public ResponseEntity toResponseEntity(final HttpHeaders headers) {
-        headers.add(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE);
-        headers.add(RESPONSE_HEADER, RESPONSE_HEADER_VALUE);
-        return new ResponseEntity(this, headers, this.status);
+        return this.toResponseEntity(true, headers);
     }
+
+    @JsonIgnore
+    public ResponseEntity toResponseEntity(boolean serializeResponse, final HttpHeaders headers) {
+        headers.add(RESPONSE_HEADER, RESPONSE_HEADER_VALUE);
+        if (serializeResponse) {
+            headers.add(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE);
+            return new ResponseEntity(this, headers, this.status);
+        }
+        return ResponseEntity.status(this.status).headers(headers).build();
+    }
+
+    @JsonIgnore
+    public ResponseEntity toResponseEntity(final HttpServletRequest request) {
+        //verificando se tem algum Media type que possa retornar json
+        if (((LinkedHashSet<MediaType>) request.getAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE)).stream()
+                .filter(it -> APPLICATION_JSON.equals(it) || APPLICATION_JSON_UTF8.equals(it) || ALL_VALUE.equals(it))
+                .count() > 0) {
+            //se chegou aqui quer dizer que podemo retornar um json,
+            //vamos remover qualquer coisa que possa dar outra exception relacionada a media type
+            request.removeAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
+            return this.toResponseEntity(true, new HttpHeaders());
+        }
+        return this.toResponseEntity(false, new HttpHeaders());
+    }
+
 }

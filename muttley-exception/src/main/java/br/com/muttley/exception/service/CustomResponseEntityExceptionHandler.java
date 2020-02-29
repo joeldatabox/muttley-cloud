@@ -31,6 +31,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
@@ -123,36 +124,36 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     }
 
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity handleException(final Exception ex) {
+    public ResponseEntity handleException(final HttpServletRequest request, final Exception ex) {
         if (ex instanceof MuttleyException) {
-            return handleMuttleyException((MuttleyException) ex);
+            return handleMuttleyException(request, (MuttleyException) ex);
         }
         return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
     }
 
     @ExceptionHandler(value = RuntimeException.class)
-    public ResponseEntity exceptionRuntime(final RuntimeException ex) {
+    public ResponseEntity exceptionRuntime(final HttpServletRequest request, final RuntimeException ex) {
         if (ex instanceof MuttleyException) {
-            return handleMuttleyException((MuttleyException) ex);
+            return handleMuttleyException(request, (MuttleyException) ex);
         }
         if (ex.getCause() instanceof MuttleyConflictException) {
-            return handleMuttleyException((MuttleyException) ex.getCause());
+            return handleMuttleyException(request, (MuttleyException) ex.getCause());
         }
         return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
     }
 
     @ExceptionHandler(value = Throwable.class)
-    public ResponseEntity exceptionThrowable(final Throwable ex) {
+    public ResponseEntity exceptionThrowable(final HttpServletRequest request, final Throwable ex) {
         if (ex instanceof MuttleyException) {
-            return handleMuttleyException((MuttleyException) ex);
+            return handleMuttleyException(request, (MuttleyException) ex);
         }
         return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
     }
 
 
     @ExceptionHandler(MuttleyException.class)
-    public ResponseEntity handleMuttleyException(final MuttleyException ex) {
-        return messageBuilder.buildMessage(ex).toResponseEntity();
+    public ResponseEntity handleMuttleyException(HttpServletRequest request, final MuttleyException ex) {
+        return messageBuilder.buildMessage(ex).toResponseEntity(request);
     }
 
     @ExceptionHandler(MuttleyRepositoryException.class)
