@@ -505,4 +505,88 @@ public interface Service<T extends Document> {
                     "   true"
     )
     boolean isEmpty(final User user);
+
+    /**
+     * Recupera valor de uma propriedade especifica de um registro no banco de dados, levando em consideração o id
+     */
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
+    Object getPropertyValueFromId(final User user, final String id, final String property);
+
+    /**
+     * Recupera valor de propriedades especificas de registro no banco de dados, levando em consideração a condição de filtro
+     */
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
+    Object getPropertyValueFrom(final User user, final Map<String, Object> condictions, final String property);
+
+    /**
+     * Recupera valor de propriedades especificas de um registro no banco de dados, levando em consideração a condição de filtro
+     */
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
+    Object[] getPropertiesValueFrom(final User user, final Map<String, Object> condictions, final String... properties);
 }

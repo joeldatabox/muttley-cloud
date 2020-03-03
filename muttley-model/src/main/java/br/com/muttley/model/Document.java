@@ -1,11 +1,14 @@
 package br.com.muttley.model;
 
+import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.bson.types.ObjectId;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -64,6 +67,17 @@ public interface Document extends Serializable {
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
+        }
+    }
+
+    static Object getPropertyFrom(final Object instance, final String nameProperty) {
+        try {
+            if (instance == null) {
+                return null;
+            }
+            return PropertyUtils.getProperty(instance, nameProperty);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new MuttleyException(e);
         }
     }
 }

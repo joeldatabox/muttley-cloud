@@ -37,14 +37,12 @@ import static org.springframework.data.mongodb.core.query.Query.query;
  */
 @Service
 public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserViewService {
-    private final MongoTemplate template;
     private static final String VIEW = "view_muttley_users";
     private static final String[] basicRoles = new String[]{"user_view"};
 
     @Autowired
     public UserViewServiceImpl(final MongoTemplate mongoTemplate) {
-        super(null, UserView.class);
-        this.template = mongoTemplate;
+        super(null, mongoTemplate, UserView.class);
     }
 
     @Override
@@ -69,7 +67,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
 
     @Override
     public UserView findById(final User user, final String id) {
-        final UserView view = this.template.findOne(query(where("_id").is(new ObjectId(id))), UserView.class, VIEW);
+        final UserView view = this.mongoTemplate.findOne(query(where("_id").is(new ObjectId(id))), UserView.class, VIEW);
         if (view == null) {
             throw new MuttleyNotFoundException(UserView.class, "id", "Registro não encontrado");
         }
@@ -78,7 +76,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
 
     @Override
     public UserView findFirst(final User user) {
-        final UserView view = this.template.aggregate(
+        final UserView view = this.mongoTemplate.aggregate(
                 newAggregation(
                         limit(1)
                 ), "view_muttley_users", UserView.class
@@ -119,7 +117,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
         if (operations.isEmpty()) {
             operations.add(project("_id", "name", "userName", "email", "nickUsers", "owners"));
         }
-        final List<UserView> views = this.template.aggregate(newAggregation(operations), "view_muttley_users", UserView.class).getMappedResults();
+        final List<UserView> views = this.mongoTemplate.aggregate(newAggregation(operations), "view_muttley_users", UserView.class).getMappedResults();
         if (views == null || views.isEmpty()) {
             throw new MuttleyNoContentException(UserView.class, "", "nenhum registro encontrado");
         }
@@ -130,7 +128,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
     public long count(final String criterio, final String idOwner) {
         final List<AggregationOperation> operations = this.createQuery(criterio, idOwner);
         operations.add(Aggregation.count().as("count"));
-        final AggregationResults<ResultCount> result = this.template.aggregate(newAggregation(operations), "view_muttley_users", ResultCount.class);
+        final AggregationResults<ResultCount> result = this.mongoTemplate.aggregate(newAggregation(operations), "view_muttley_users", ResultCount.class);
         return result.getUniqueMappedResult() != null ? result.getUniqueMappedResult().getCount() : 0L;
     }
 

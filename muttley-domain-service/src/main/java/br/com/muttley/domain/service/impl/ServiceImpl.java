@@ -16,17 +16,27 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
+import static br.com.muttley.model.Document.getPropertyFrom;
 import static java.util.Objects.isNull;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 
 /**
  * @author Joel Rodrigues Moreira on 30/01/18.
@@ -35,6 +45,7 @@ import static java.util.Objects.isNull;
 public abstract class ServiceImpl<T extends Document> implements Service<T> {
 
     protected final DocumentMongoRepository<T> repository;
+    protected final MongoTemplate mongoTemplate;
     protected final Class<T> clazz;
     @Value("${muttley.security.check-roles:false}")
     private boolean checkRoles;
@@ -50,8 +61,9 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     @Autowired
     protected Validator validator;
 
-    public ServiceImpl(final DocumentMongoRepository<T> repository, final Class<T> clazz) {
+    public ServiceImpl(final DocumentMongoRepository<T> repository, final MongoTemplate mongoTemplate, final Class<T> clazz) {
         this.repository = repository;
+        this.mongoTemplate = mongoTemplate;
         this.clazz = clazz;
     }
 
@@ -370,5 +382,51 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     @Override
     public boolean isEmpty(final User user) {
         return this.count(user, null) == 0l;
+    }
+
+
+
+    @Override
+    public Object getPropertyValueFromId(final User user, final String id, final String property) {
+        final Map<String, Object> map = new HashMap<>(1);
+        map.put("id", id);
+        return this.getPropertyValueFrom(user, map, property);
+    }
+
+    @Override
+    public Object getPropertyValueFrom(final User user, final Map<String, Object> condictions, final String property) {
+        //Criteria condiction = Criteria.where("owner.$id").is(user.getCurrentOwner().getObjectId());
+        final AggregationResults<T> results = createAggregateForLoadProperties(user, condictions, property);
+        return getPropertyFrom(results.getUniqueMappedResult(), property);
+    }
+
+    @Override
+    public Object[] getPropertiesValueFrom(final User user, final Map<String, Object> condictions, final String... properties) {
+        //Criteria condiction = Criteria.where("owner.$id").is(user.getCurrentOwner().getObjectId());
+        final AggregationResults<T> results = createAggregateForLoadProperties(user, condictions, properties);
+
+        final T result = results.getUniqueMappedResult();
+
+        return Stream.of(properties)
+                .map(it -> getPropertyFrom(result, it))
+                .toArray(Object[]::new);
+    }
+
+    protected AggregationResults<T> createAggregateForLoadProperties(final User user, final Map<String, Object> condictions, final String... properties) {
+        Criteria condiction = new Criteria();
+        final Set<String> keysOfCondictions = condictions.keySet();
+
+        for (final String key : keysOfCondictions) {
+            condiction = condiction.and(key).is(condictions.get(key));
+        }
+
+        return this.mongoTemplate
+                .aggregate(
+                        newAggregation(
+                                match(condiction),
+                                project(properties),
+                                limit(1)
+                        ), clazz, clazz
+                );
     }
 }
