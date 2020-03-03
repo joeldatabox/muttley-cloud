@@ -19,6 +19,8 @@ public class MetadataDocument {
     private VersionDocument versionDocument;
 
     public MetadataDocument() {
+        this.timeZones = new TimeZoneDocument();
+        this.versionDocument = new VersionDocument();
     }
 
     @JsonCreator

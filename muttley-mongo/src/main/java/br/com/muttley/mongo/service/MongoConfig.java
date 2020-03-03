@@ -8,7 +8,6 @@ import br.com.muttley.mongo.service.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.service.converters.BsonDocumentToZonedDateTimeConverter;
 import br.com.muttley.mongo.service.converters.Decimal128ToBigDecimalConverter;
 import br.com.muttley.mongo.service.converters.ZonedDateTimeToBsonDocumentConverter;
-import br.com.muttley.mongo.service.listeners.MuttleyMigrationListener;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -16,15 +15,10 @@ import com.mongodb.ServerAddress;
 import org.bson.BSON;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 
@@ -91,11 +85,6 @@ public class MongoConfig extends AbstractMongoConfiguration {
         return super.getUserCredentials();
     }*/
 
-    @Bean
-    @Scope(value = "prototype")
-    protected MuttleyMigrationListener configVersioningFactory(@Autowired final ApplicationEventPublisher publisher, @Autowired final MongoOperations operations, @Value("${spring.cloud.config.name}") final String applicationName) {
-        return new MuttleyMigrationListener(publisher, operations, applicationName);
-    }
 
     @Override
     @Bean
