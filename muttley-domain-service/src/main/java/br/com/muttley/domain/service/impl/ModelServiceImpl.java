@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,20 +35,26 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     @Override
     public T save(final User user, final T value) {
         //verificando se realmente está criando um novo registro
-        if (!StringUtils.isEmpty(value.getId())) {
+        if (value.getId() != null) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
         }
-        value.setId(null);
+        //setando o dono do registro
         value.setOwner(user);
         //garantindo que o históriconão ficará nulo
         value.setHistoric(this.createHistoric(user));
         //garantindo que o metadata ta preenchido
         this.createMetaData(user, value);
-        //validando dados
-        this.validator.validate(value);
+        //processa regra de negocio antes de qualquer validação
+        this.beforeSave(user, value);
         //verificando precondições
         this.checkPrecondictionSave(user, value);
-        return repository.save(user.getCurrentOwner(), value);
+        //validando dados do objeto
+        this.validator.validate(value);
+        final T salvedValue = repository.save(user.getCurrentOwner(), value);
+        //realizando regras de enegocio depois do objeto ter sido salvo
+        this.afterSave(user, salvedValue);
+        //valor salvo
+        return salvedValue;
     }
 
     @Override
@@ -64,7 +69,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível alterar um registro sem informar um id válido");
         }
         //verificando se o registro realmente existe
-        if (!this.repository.exists(value.getId())) {
+        if (!this.repository.exists(value)) {
             throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         value.setOwner(user);
@@ -72,11 +77,15 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(user.getCurrentOwner(), value)));
         //gerando metadata de alteração
         this.generateMetaDataUpdate(user, value);
-        //validando dados
-        this.validator.validate(value);
+        //processa regra de negocio antes de qualquer validação
+        this.beforeUpdate(user, value);
         //verificando precondições
         checkPrecondictionUpdate(user, value);
-        return repository.save(user.getCurrentOwner(), value);
+        //validando dados
+        this.validator.validate(value);
+        final T salvedValue = repository.save(user.getCurrentOwner(), value);
+        afterUpdate(user, salvedValue);
+        return salvedValue;
     }
 
     @Override
@@ -143,22 +152,24 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
 
     @Override
     public void deleteById(final User user, final String id) {
+        this.beforeDelete(user, id);
         checkPrecondictionDelete(user, id);
         if (!repository.exists(user.getCurrentOwner(), id)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         this.repository.delete(user.getCurrentOwner(), id);
-        beforeDelete(user, id);
+        this.afterDelete(user, id);
     }
 
     @Override
     public void delete(final User user, final T value) {
+        this.beforeDelete(user, value);
         checkPrecondictionDelete(user, value.getId());
         if (!repository.exists(user.getCurrentOwner(), value)) {
             throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
         }
         this.repository.delete(user.getCurrentOwner(), value);
-        beforeDelete(user, value);
+        this.afterDelete(user, value);
     }
 
     @Override

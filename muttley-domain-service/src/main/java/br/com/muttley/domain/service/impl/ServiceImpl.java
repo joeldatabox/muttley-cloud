@@ -87,22 +87,23 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     @Override
     public T save(final User user, final T value) {
         //verificando se realmente está criando um novo registro
-        if (!StringUtils.isEmpty(value.getId())) {
+        if (value.getId() != null) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
         }
-        value.setId(null);
         //garantindo que o metadata ta preenchido
-
         this.createMetaData(user, value);
         //garantindo que o históriconão ficará nulo
         value.setHistoric(this.createHistoric(user));
-        //validando dados
-        this.validator.validate(value);
+        //processa regra de negocio antes de qualquer validação
+        this.beforeSave(user, value);
         //verificando precondições
         this.checkPrecondictionSave(user, value);
-        this.beforeSave(user, value);
+        //validando dados do objeto
+        this.validator.validate(value);
         final T otherValue = repository.save(value);
+        //realizando regras de enegocio depois do objeto ter sido salvo
         this.afterSave(user, otherValue);
+        //valor salvo
         return otherValue;
     }
 
@@ -134,12 +135,14 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         generateMetaDataUpdate(user, value);
         //gerando histórico de alteração
         value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(value)));
-        //validando dados
-        this.validator.validate(value);
+        //processa regra de negocio antes de qualquer validação
+        beforeUpdate(user, value);
         //verificando precondições
         checkPrecondictionUpdate(user, value);
-        beforeUpdate(user, value);
+        //validando dados
+        this.validator.validate(value);
         final T otherValue = repository.save(value);
+        //realizando regras de enegocio depois do objeto ter sido alterado
         afterUpdate(user, value);
         return otherValue;
     }
@@ -214,11 +217,11 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
 
     @Override
     public void deleteById(final User user, final String id) {
+        beforeDelete(user, id);
         checkPrecondictionDelete(user, id);
         if (!repository.exists(id)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
-        beforeDelete(user, id);
         this.repository.delete(id);
         afterDelete(user, id);
     }
@@ -235,11 +238,11 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
 
     @Override
     public void delete(final User user, final T value) {
+        beforeDelete(user, value);
         checkPrecondictionDelete(user, value.getId());
         if (!repository.exists(value)) {
             throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
         }
-        beforeDelete(user, value);
         this.repository.delete(value);
         afterDelete(user, value);
     }

@@ -23,7 +23,7 @@ import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,7 +90,7 @@ public class MongoConfig extends AbstractMongoConfiguration {
     @Bean
     public Mongo mongo() {
         BSON.addEncodingHook(BigDecimal.class, new BigDecimalTransformer());
-        BSON.addEncodingHook(OffsetDateTime.class, new ZonedDateTimeTransformer());
+        BSON.addEncodingHook(ZonedDateTime.class, new ZonedDateTimeTransformer());
 
         final CodecRegistry condecRegistry = CodecRegistries.fromRegistries(
                 CodecRegistries.fromProviders(new BigDecimalCodecProvider()),
