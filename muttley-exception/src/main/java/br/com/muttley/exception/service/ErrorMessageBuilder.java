@@ -212,7 +212,7 @@ public class ErrorMessageBuilder {
             ex.printStackTrace();
         }
         if (RESPONSE_EXCEPTION == null || RESPONSE_EXCEPTION) {
-            logger.info(message.toJson());
+            logger.info(message.toJsonPretty());
         }
     }
 

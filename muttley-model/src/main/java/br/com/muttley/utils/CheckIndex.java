@@ -1,4 +1,4 @@
-package br.com.muttley.validator;
+package br.com.muttley.utils;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

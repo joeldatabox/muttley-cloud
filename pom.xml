@@ -33,6 +33,7 @@
         <module>muttley-discovery-server</module>
         <module>muttley-exception</module>
         <module>muttley-model</module>
+        <module>muttley-utils</module>
         <module>muttley-redis</module>
         <module>muttley-security</module>
         <module>muttley-mongo</module>
@@ -100,6 +101,12 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-model</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-utils</artifactId>
                 <version>0.0.2-SNAPSHOT</version>
             </dependency>
 

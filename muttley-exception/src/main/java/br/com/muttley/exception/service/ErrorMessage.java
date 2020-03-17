@@ -152,10 +152,21 @@ public final class ErrorMessage {
     }
 
     @JsonIgnore
-    protected final String toJson() {
+    public final String toJsonPretty() {
         try {
             return new ObjectMapper()
                     .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(this);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    @JsonIgnore
+    public final String toJson() {
+        try {
+            return new ObjectMapper()
                     .writeValueAsString(this);
         } catch (IOException ex) {
             ex.printStackTrace();
