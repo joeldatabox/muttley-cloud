@@ -24,7 +24,8 @@
         <java.version>1.8</java.version>
         <spring-cloud.version>Edgware.SR3</spring-cloud.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
-        <jasperreports.version>6.11.0</jasperreports.version>
+        <jasperreports.version>6.12.2</jasperreports.version>
+        <zxing-parent.version>3.4.0</zxing-parent.version>
     </properties>
 
     <modules>
@@ -181,6 +182,20 @@
                 <artifactId>jasperreports-fonts</artifactId>
                 <version>${jasperreports.version}</version>
             </dependency>
+
+
+            <dependency>
+                <groupId>com.google.zxing</groupId>
+                <artifactId>core</artifactId>
+                <version>${zxing-parent.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.zxing</groupId>
+                <artifactId>javase</artifactId>
+                <version>${zxing-parent.version}</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>org.springframework.cloud</groupId>

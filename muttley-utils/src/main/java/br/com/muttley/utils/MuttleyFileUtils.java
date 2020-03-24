@@ -48,7 +48,7 @@ public class MuttleyFileUtils {
      */
     public static InputStream fromURL(final String url, final String urlDefault) {
         final InputStream inputStream = fromURL(url);
-        if (url != null) {
+        if (inputStream != null) {
             return inputStream;
         }
         return fromURL(urlDefault);
