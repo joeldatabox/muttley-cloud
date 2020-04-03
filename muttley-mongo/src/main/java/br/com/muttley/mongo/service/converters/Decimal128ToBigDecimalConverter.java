@@ -11,12 +11,14 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+import static br.com.muttley.model.util.BigDeciamalUtils.setDefaultScale;
+
 @Component
 @ReadingConverter
 public class Decimal128ToBigDecimalConverter implements Converter<Decimal128, BigDecimal> {
 
     @Override
     public BigDecimal convert(final Decimal128 source) {
-        return source == null ? null : source.bigDecimalValue();
+        return source == null ? null : setDefaultScale(source.bigDecimalValue());
     }
 }
