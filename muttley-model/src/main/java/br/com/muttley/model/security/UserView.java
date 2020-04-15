@@ -6,9 +6,13 @@ import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.jackson.converter.ListDocumentSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Joel Rodrigues Moreira on 29/04/19.
@@ -27,6 +31,19 @@ public class UserView implements Document {
     private Set<Owner> owners;
     private Historic historic;
     private MetadataDocument metadata;
+
+    public UserView() {
+    }
+
+    public UserView(final User user) {
+        this.setId(user.getId())
+                .setName(user.getName())
+                .setDescription(user.getDescription())
+                .setUserName(user.getUserName())
+                .setEmail(user.getEmail())
+                .setNickUsers(user.getNickUsers())
+                .setOwners(user.getWorkTeams());
+    }
 
     @Override
     public String getId() {
@@ -70,16 +87,18 @@ public class UserView implements Document {
         return email;
     }
 
-    public void setEmail(final String email) {
+    public UserView setEmail(final String email) {
         this.email = email;
+        return this;
     }
 
     public Set<String> getNickUsers() {
         return nickUsers;
     }
 
-    public void setNickUsers(final Set<String> nickUsers) {
+    public UserView setNickUsers(final Set<String> nickUsers) {
         this.nickUsers = nickUsers;
+        return this;
     }
 
     public Set<Owner> getOwners() {
@@ -88,6 +107,17 @@ public class UserView implements Document {
 
     public UserView setOwners(final Set<Owner> owners) {
         this.owners = owners;
+        return this;
+    }
+
+    public UserView setOwners(final Collection<WorkTeam> workTeams) {
+        if (!CollectionUtils.isEmpty(workTeams)) {
+            this.setOwners(
+                    workTeams.stream()
+                            .map(WorkTeam::getOwner)
+                            .collect(toSet())
+            );
+        }
         return this;
     }
 

@@ -8,16 +8,19 @@ import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * @author Joel Rodrigues Moreira on 24/04/18.
@@ -37,7 +40,7 @@ public class UserPreferenceController {
         this.userService = userService;
     }
 
-    @RequestMapping(value = "/{idUser}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{idUser}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     public ResponseEntity getPreferences(@PathVariable("idUser") String idUser) {
         final UserPreferences preferences = this.userService.loadPreference(new User().setId(idUser));
         if (preferences == null) {
@@ -46,7 +49,7 @@ public class UserPreferenceController {
         return ResponseEntity.ok(preferences);
     }
 
-    @RequestMapping(value = "/{idUser}/preferences", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{idUser}/preferences", method = POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     public ResponseEntity setPreference(@PathVariable("idUser") final String idUser, @RequestBody final Preference preference) {
         final UserPreferences userPreferences = (UserPreferences) getPreferences(idUser).getBody();
         if (!preference.isValid()) {
@@ -58,11 +61,16 @@ public class UserPreferenceController {
 
     }
 
-    @RequestMapping(value = "/{idUser}/preferences/{key}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{idUser}/preferences/{key}", method = DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     public ResponseEntity removePreference(@PathVariable("idUser") final String idUser, @PathVariable("key") final String key) {
         final UserPreferences userPreferences = (UserPreferences) getPreferences(idUser).getBody();
         userPreferences.remove(key);
         this.userService.save(new User().setId(idUser), userPreferences);
         return ResponseEntity.ok().build();
+    }
+
+    @RequestMapping(value = "/{idUser}/preferences/contains", method = GET, produces = TEXT_PLAIN_VALUE)
+    public ResponseEntity containsPreferences(@PathVariable("idUser") String idUser, @RequestParam(name = "key", required = false) final String keyPreference) {
+        return ResponseEntity.ok("" + this.userService.constainsPreference(new User().setId(idUser), keyPreference));
     }
 }

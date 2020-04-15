@@ -8,8 +8,10 @@ import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -30,4 +32,7 @@ public interface UserPreferenceServiceClient {
 
     @RequestMapping(value = "/{idUser}/preferences/{key}", method = DELETE, consumes = APPLICATION_JSON_UTF8_VALUE)
     public void removePreference(@PathVariable("idUser") final String idUser, @PathVariable("key") final String key);
+
+    @RequestMapping(value = "/{idUser}/preferences/contains", method = GET, consumes = TEXT_PLAIN_VALUE)
+    public boolean containsPreferences(@PathVariable("idUser") String idUser, @RequestParam(name = "key", required = false) final String keyPreference);
 }

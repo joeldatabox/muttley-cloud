@@ -6,12 +6,14 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestExc
 import br.com.muttley.exception.throwables.security.MuttleySecurityConflictException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
+import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
+import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.InmutablesPreferencesService;
@@ -44,6 +46,8 @@ import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -60,6 +64,7 @@ public class UserServiceImpl implements UserService {
     private final WorkTeamService workTeamService;
     private final InmutablesPreferencesService inmutablesPreferencesService;
     private final MongoTemplate template;
+    private final DocumentNameConfig documentNameConfig;
 
     @Autowired
     public UserServiceImpl(final UserRepository repository,
@@ -68,7 +73,8 @@ public class UserServiceImpl implements UserService {
                            final JwtTokenUtilService tokenUtil,
                            final WorkTeamService workTeamService,
                            final ObjectProvider<InmutablesPreferencesService> inmutablesPreferencesService,
-                           final MongoTemplate template) {
+                           final MongoTemplate template,
+                           final DocumentNameConfig documentNameConfig) {
         this.repository = repository;
         this.preferencesRepository = preferencesRepository;
         this.tokenHeader = tokenHeader;
@@ -76,6 +82,7 @@ public class UserServiceImpl implements UserService {
         this.workTeamService = workTeamService;
         this.inmutablesPreferencesService = inmutablesPreferencesService.getIfAvailable();
         this.template = template;
+        this.documentNameConfig = documentNameConfig;
     }
 
     @Override
@@ -271,6 +278,39 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserPreferences loadPreference(final User user) {
         return this.preferencesRepository.findByUser(user);
+    }
+
+    @Override
+    public boolean constainsPreference(final User user, final String keyPreference) {
+        /**
+         * db.getCollection("muttley-users-preferences").aggregate([
+         *     {$match:{_id:ObjectId("5e4c1bdb30c49e00012d924c")}},
+         *     {$project:{preferences:1}},
+         *     {$unwind:"$preferences"},
+         *     {$match:{"preferences.key":"UserColaborador"}},
+         *     {$count:"result"}
+         * ])
+         */
+
+        if (StringUtils.isEmpty(keyPreference)) {
+            return false;
+        }
+
+        final AggregationResults<BasicAggregateResultCount> result = this.template.aggregate(
+                newAggregation(
+                        match(where("_id").is(new ObjectId(user.getId()))),
+                        project("preferences"),
+                        unwind("$preferences"),
+                        match(where("preferences.key").is(keyPreference)),
+                        Aggregation.count().as("resul")
+                ),
+                UserPreferences.class,
+                BasicAggregateResultCount.class
+        );
+        if (result == null || result.getUniqueMappedResult() == null) {
+            return false;
+        }
+        return result.getUniqueMappedResult().getResult() > 0;
     }
 
     private User merge(final User user) {

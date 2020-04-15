@@ -50,4 +50,6 @@ public interface UserService extends UserDetailsService {
     User getCurrentUser();*/
 
     UserPreferences loadPreference(final User user);
+
+    boolean constainsPreference(final User user, final String keyPreference);
 }

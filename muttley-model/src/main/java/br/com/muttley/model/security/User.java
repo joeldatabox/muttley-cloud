@@ -369,6 +369,10 @@ public class User implements Serializable {
         return this.preferences.contains(keyPreference);
     }
 
+    public boolean preferencesIsEmpty() {
+        return this.preferences != null ? this.preferences.isEmpty() : true;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;

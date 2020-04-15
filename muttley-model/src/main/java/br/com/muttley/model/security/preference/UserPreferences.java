@@ -11,6 +11,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -104,6 +105,10 @@ public class UserPreferences implements Document {
     public boolean contains(final String key) {
         final Preference p = new Preference(key, null);
         return this.preferences.contains(p);
+    }
+
+    public boolean isEmpty() {
+        return CollectionUtils.isEmpty(this.preferences);
     }
 
     public User getUser() {
