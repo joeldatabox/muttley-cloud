@@ -107,6 +107,7 @@ public class UserPreferences implements Document {
         return this.preferences.contains(p);
     }
 
+    @JsonIgnore
     public boolean isEmpty() {
         return CollectionUtils.isEmpty(this.preferences);
     }

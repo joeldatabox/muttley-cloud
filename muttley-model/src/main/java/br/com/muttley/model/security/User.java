@@ -365,10 +365,12 @@ public class User implements Serializable {
         return this;
     }
 
+    @JsonIgnore
     public boolean containsPreference(final String keyPreference) {
         return this.preferences.contains(keyPreference);
     }
 
+    @JsonIgnore
     public boolean preferencesIsEmpty() {
         return this.preferences != null ? this.preferences.isEmpty() : true;
     }

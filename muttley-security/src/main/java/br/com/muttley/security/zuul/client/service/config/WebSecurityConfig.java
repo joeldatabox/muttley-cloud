@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 /**
  * Configurações dos beans necessários para segurança do client
@@ -42,6 +43,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    @Primary
     public AuthService createAuthService(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader) {
         return new AuthServiceImpl(tokenHeader);
     }
