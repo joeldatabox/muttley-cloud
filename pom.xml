@@ -39,6 +39,7 @@
         <module>muttley-security</module>
         <module>muttley-mongo</module>
         <module>muttley-headers</module>
+        <module>muttley-notification</module>
         <module>muttley-rest</module>
         <module>muttley-domain-service</module>
         <module>muttley-jackson</module>
@@ -132,6 +133,12 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-headers</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-notification</artifactId>
                 <version>0.0.2-SNAPSHOT</version>
             </dependency>
 

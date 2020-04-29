@@ -15,6 +15,7 @@ public class DocumentNameConfig {
     private final String nameCollectionUser;
     private final String nameCollectionAccessPlan;
     private final String nameCollectionUserPreferences;
+    private final String nameCollectionUserTokensNotification;
     private final String nameCollectionWorkTeam;
 
     public DocumentNameConfig(
@@ -22,11 +23,13 @@ public class DocumentNameConfig {
             @Value("${br.com.muttley.security.server.user-document:muttley-users}") final String nameCollectionUser,
             @Value("${br.com.muttley.security.server.access-plan-document:muttley-access-plans}") final String nameCollectionAccessPlan,
             @Value("${br.com.muttley.security.server.user-preference-document:muttley-users-preferences}") final String nameCollectionUserPreferences,
+            @Value("${br.com.muttley.security.server.user-tokens-notification-document:muttley-users-tokens-notification}") final String nameCollectionUserTokensNotification,
             @Value("${br.com.muttley.security.server.work-team-document:muttley-work-teams}") final String nameCollectionWorkTeam) {
         this.nameCollectionOwner = nameCollectionOwner;
         this.nameCollectionUser = nameCollectionUser;
         this.nameCollectionAccessPlan = nameCollectionAccessPlan;
         this.nameCollectionUserPreferences = nameCollectionUserPreferences;
+        this.nameCollectionUserTokensNotification = nameCollectionUserTokensNotification;
         this.nameCollectionWorkTeam = nameCollectionWorkTeam;
     }
 
@@ -44,6 +47,10 @@ public class DocumentNameConfig {
 
     public String getNameCollectionUserPreferences() {
         return nameCollectionUserPreferences;
+    }
+
+    public String getNameCollectionUserTokensNotification() {
+        return this.nameCollectionUserTokensNotification;
     }
 
     public String getNameCollectionWorkTeam() {
