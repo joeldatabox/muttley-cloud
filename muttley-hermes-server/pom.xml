@@ -18,12 +18,17 @@
 
         <dependency>
             <groupId>br.com.muttley</groupId>
-            <artifactId>muttley-jackson</artifactId>
+            <artifactId>muttley-redis</artifactId>
         </dependency>
 
         <dependency>
             <groupId>br.com.muttley</groupId>
-            <artifactId>muttley-mongo</artifactId>
+            <artifactId>muttley-feign</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.muttley</groupId>
+            <artifactId>muttley-jackson</artifactId>
         </dependency>
 
         <dependency>
@@ -33,7 +38,12 @@
 
         <dependency>
             <groupId>br.com.muttley</groupId>
-            <artifactId>muttley-redis</artifactId>
+            <artifactId>muttley-mongo</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.muttley</groupId>
+            <artifactId>muttley-security</artifactId>
         </dependency>
 
         <dependency>
@@ -64,26 +74,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-jwt</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.mobile</groupId>
-            <artifactId>spring-mobile-device</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
         </dependency>
 
         <dependency>
