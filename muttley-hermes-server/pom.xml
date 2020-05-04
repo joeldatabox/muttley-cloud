@@ -18,6 +18,11 @@
 
         <dependency>
             <groupId>br.com.muttley</groupId>
+            <artifactId>muttley-notification</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.muttley</groupId>
             <artifactId>muttley-redis</artifactId>
         </dependency>
 

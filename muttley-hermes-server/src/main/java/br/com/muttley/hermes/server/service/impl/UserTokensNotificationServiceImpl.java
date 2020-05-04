@@ -2,6 +2,7 @@ package br.com.muttley.hermes.server.service.impl;
 
 import br.com.muttley.domain.service.impl.ServiceImpl;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
+import br.com.muttley.headers.components.MuttleyUserAgent;
 import br.com.muttley.hermes.server.repository.UserTokensNotificationRepository;
 import br.com.muttley.hermes.server.service.UserTokensNotificationService;
 import br.com.muttley.model.hermes.notification.TokenId;
@@ -22,6 +23,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class UserTokensNotificationServiceImpl extends ServiceImpl<UserTokensNotification> implements UserTokensNotificationService {
     private final UserTokensNotificationRepository repository;
     private final RedisService redisService;
+    @Autowired
+    private MuttleyUserAgent userAgent;
     //tempo de validade do token 1000 * 60 * 60 * 24 * 10 = dias
     private final long expiration = 864000000;
 
@@ -50,15 +53,32 @@ public class UserTokensNotificationServiceImpl extends ServiceImpl<UserTokensNot
 
     @Override
     public void addTokenNotification(final User user, final TokenId tokenId) {
+        tokenId.setMobile(this.userAgent.isMobile());
+        //se ainda não existir uma coleção para o usuário, devemos criar uma
         if (!this.repository.exists("user.$id", new ObjectId(user.getId()))) {
-            this.save(user, new UserTokensNotification().setUser(user));
-        } else {
+            //criando coleção do usuário com o primeiro token
+            this.save(user, new UserTokensNotification().setUser(user).add(tokenId));
+            //se o token é da mobilidade, devemos garantira que outros usuário não terá o mesmo token
+        } else if (tokenId.isMobile()) {
+            //garantindo que outros usuários não terão esse token
             this.removeTokenIdFromAnotherUsers(user, tokenId);
-
+            //salvando o token
+            this.saveTokenId(user, tokenId);
+            //se não for um token da mobilidade podemos salvar o token para diversos usuários
+        } else {
+            //salvando o token
+            this.saveTokenId(user, tokenId);
         }
         this.redisService.delete(this.generateTokenRedis(user));
+    }
 
-
+    private void saveTokenId(final User user, final TokenId tokenId) {
+        this.mongoTemplate.updateFirst(
+                new Query(where("user.$id").is(new ObjectId(user.getId()))),
+                new Update()
+                        .addToSet("tokens", tokenId),
+                UserTokensNotification.class
+        );
     }
 
     /**
@@ -70,7 +90,7 @@ public class UserTokensNotificationServiceImpl extends ServiceImpl<UserTokensNot
         this.mongoTemplate.updateFirst(
                 new Query(
                         where("user.$id").ne(new ObjectId(user.getId()))
-                                .and("tokens").elemMatch(where("token").is(tokenId.getToken()).and("origin").is(tokenId.getOrigin()))
+                                .and("tokens").elemMatch(where("token").is(tokenId.getToken()).and("origin").is(tokenId.getOrigin()).and("mobile").is(true))
                 ),
                 new Update()
                         .pull("tokens",

@@ -11,12 +11,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Set;
 
 @Document(collection = "#{documentNameConfig.getNameCollectionUserTokensNotification()}")
@@ -26,6 +28,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Accessors(chain = true)
+@TypeAlias("tokens-notification")
 public class UserTokensNotification implements br.com.muttley.model.Document {
     private String id;
     @NotNull(message = "Informe o usuário")
@@ -36,4 +39,13 @@ public class UserTokensNotification implements br.com.muttley.model.Document {
     private Set<TokenId> tokens;
     private MetadataDocument metadata;
     private Historic historic;
+
+    public UserTokensNotification() {
+        this.tokens = new HashSet<>();
+    }
+
+    public UserTokensNotification add(final TokenId tokenId) {
+        this.tokens.add(tokenId);
+        return this;
+    }
 }
