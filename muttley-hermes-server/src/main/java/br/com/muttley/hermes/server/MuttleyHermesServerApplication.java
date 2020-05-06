@@ -3,23 +3,24 @@ package br.com.muttley.hermes.server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.ComponentScan;
 
 /*@SpringBootApplication
 //Packages onde existem entidades
 @EntityScan(basePackages = {"br.com.muttley.model.notification"})
 //Packages onde existem componentes, serviços e configurações
-*//*@ComponentScan(basePackages = {
+@ComponentScan(basePackages = {
         //Injeções internas do projeto
         "br.com.muttley.domain.service",
         //Configuração de serviços
-        "br.com.muttley.security.server",
+        //"br.com.muttley.security.server",
         //Configurações de segurança para o gateway
         //"br.com.muttley.security.zuul.gateway.service",
         //Configurações de exceptions
         "br.com.muttley.exception.service",
         //Configurações de serialização
         "br.com.muttley.jackson.service"
-})*//*
+})
 //@EnableEurekaClient*/
 public class MuttleyHermesServerApplication {
 
