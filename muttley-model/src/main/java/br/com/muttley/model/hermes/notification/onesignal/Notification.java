@@ -1,14 +1,20 @@
-package br.com.muttley.notification.onesignal.model;
+package br.com.muttley.model.hermes.notification.onesignal;
 
-import br.com.muttley.notification.onesignal.model.jackson.CollectionContentSerialize;
+import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.model.hermes.notification.TokenId;
+import br.com.muttley.model.hermes.notification.UserTokensNotification;
+import br.com.muttley.model.hermes.notification.onesignal.jackson.CollectionContentSerialize;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,20 +27,32 @@ import static org.springframework.util.StringUtils.isEmpty;
 @Setter
 @Accessors(chain = true)
 @EqualsAndHashCode(of = "appId")
-public class Notification {
+public class Notification implements Cloneable {
+    @NotBlank
     @JsonProperty("app_id")
     private String appId;
+
+    @NotEmpty
+    @Valid
     @JsonProperty("include_player_ids")
     private Set<String> players;
+
     @JsonProperty("big_picture")
     private String picture;
 
+    @Valid
     private NotificationData data;
 
+    @Valid
     @JsonSerialize(using = CollectionContentSerialize.class)
     private Set<Content> contents;
+
+    @NotEmpty
+    @Valid
     @JsonSerialize(using = CollectionContentSerialize.class)
     private Set<Content> headings;
+
+    @Valid
     @JsonSerialize(using = CollectionContentSerialize.class)
     private Set<Content> subtitle;
 
@@ -89,5 +107,29 @@ public class Notification {
 
     public Notification addPlayers(final String... player) {
         return this.addPlayers(asList(player));
+    }
+
+
+    public Notification addPlayers(final UserTokensNotification userTokensNotification) {
+        if (userTokensNotification != null) {
+            return this.addPlayers(userTokensNotification.getTokens());
+        }
+        return this;
+    }
+
+    public Notification addPlayers(final Set<TokenId> tokens) {
+        if (tokens != null) {
+            return this.addPlayers(tokens.stream().map(TokenId::getToken).collect(Collectors.toSet()));
+        }
+        return this;
+    }
+
+    @Override
+    public Notification clone() {
+        try {
+            return (Notification) super.clone();
+        } catch (final CloneNotSupportedException ex) {
+            throw new MuttleyBadRequestException(ex);
+        }
     }
 }

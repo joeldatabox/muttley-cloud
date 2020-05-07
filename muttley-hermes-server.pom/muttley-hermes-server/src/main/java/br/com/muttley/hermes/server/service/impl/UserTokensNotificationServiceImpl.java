@@ -1,17 +1,19 @@
 package br.com.muttley.hermes.server.service.impl;
 
 import br.com.muttley.domain.service.impl.ServiceImpl;
-import br.com.muttley.exception.throwables.MuttleyNoContentException;
+import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.headers.components.MuttleyUserAgent;
 import br.com.muttley.hermes.server.repository.UserTokensNotificationRepository;
 import br.com.muttley.hermes.server.service.UserTokensNotificationService;
 import br.com.muttley.model.hermes.notification.TokenId;
 import br.com.muttley.model.hermes.notification.UserTokensNotification;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserView;
 import br.com.muttley.redis.service.RedisService;
 import com.mongodb.BasicDBObject;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -21,33 +23,49 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Service
 public class UserTokensNotificationServiceImpl extends ServiceImpl<UserTokensNotification> implements UserTokensNotificationService {
+    private static final String KEY_REDIS = "muttley-notification-cache.";
     private final UserTokensNotificationRepository repository;
     private final RedisService redisService;
     @Autowired
     private MuttleyUserAgent userAgent;
-    //tempo de validade do token 1000 * 60 * 60 * 24 * 10 = dias
-    private final long expiration = 864000000;
+    private final long cachetimeout;
 
     @Autowired
-    public UserTokensNotificationServiceImpl(final UserTokensNotificationRepository repository, final MongoTemplate mongoTemplate, final RedisService redisService) {
+    public UserTokensNotificationServiceImpl(
+            final UserTokensNotificationRepository repository,
+            final MongoTemplate mongoTemplate,
+            final RedisService redisService,
+            //tempo de validade do token 1000 * 60 * 60 * 24 * 10 = dias
+            @Value("${muttley.hermes.notification.cachetimeout:864000000}") final long cachetimeout) {
         super(repository, mongoTemplate, UserTokensNotification.class);
         this.repository = repository;
         this.redisService = redisService;
+        this.cachetimeout = cachetimeout;
     }
 
     @Override
-    public UserTokensNotification findByUser(final User user) {
+    public UserTokensNotification findByUser(final User user) throws MuttleyNotFoundException {
+        return this.findByUser(user.getId());
+    }
+
+    @Override
+    public UserTokensNotification findByUser(final UserView user) throws MuttleyNotFoundException {
+        return this.findByUser(user.getId());
+    }
+
+    @Override
+    public UserTokensNotification findByUser(final String userId) throws MuttleyNotFoundException {
         //verificando se já tem no cache
-        if (this.redisService.hasKey(this.generateTokenRedis(user))) {
-            return (UserTokensNotification) this.redisService.get(this.generateTokenRedis(user));
+        if (this.redisService.hasKey(this.generateTokenRedis(userId))) {
+            return (UserTokensNotification) this.redisService.get(this.generateTokenRedis(userId));
         }
-        final UserTokensNotification token = this.repository.findByUser(user);
+        final UserTokensNotification token = this.repository.findByUser(userId);
         if (token == null) {
-            throw new MuttleyNoContentException(UserTokensNotification.class, "user", "Nenhum registro encontrado");
+            throw new MuttleyNotFoundException(UserTokensNotification.class, "user", "Nenhum registro encontrado");
         }
         //se chegou até aqui é sinal que o token ainda não está no cache
         //adicionando o token no cache
-        this.redisService.set(this.generateTokenRedis(user), token, expiration);
+        this.redisService.set(this.generateTokenRedis(userId), token, cachetimeout);
         return token;
     }
 
@@ -69,7 +87,7 @@ public class UserTokensNotificationServiceImpl extends ServiceImpl<UserTokensNot
             //salvando o token
             this.saveTokenId(user, tokenId);
         }
-        this.redisService.delete(this.generateTokenRedis(user));
+        this.redisService.delete(this.generateTokenRedis(user.getId()));
     }
 
     private void saveTokenId(final User user, final TokenId tokenId) {
@@ -100,7 +118,7 @@ public class UserTokensNotificationServiceImpl extends ServiceImpl<UserTokensNot
         );
     }
 
-    private String generateTokenRedis(final User user) {
-        return user.getId() + ".tokensNotification";
+    private String generateTokenRedis(final String userId) {
+        return KEY_REDIS + userId;
     }
 }

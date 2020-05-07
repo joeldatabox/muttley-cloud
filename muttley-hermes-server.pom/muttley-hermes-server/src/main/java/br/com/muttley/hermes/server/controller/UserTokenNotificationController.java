@@ -17,7 +17,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 
 @RestController
-@RequestMapping(value = "/api/v1/tokens-notification", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/api/v1/tokens-notification", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
 public class UserTokenNotificationController implements RestResource {
     private final AuthService authService;
     private final UserTokensNotificationService service;
@@ -29,7 +29,7 @@ public class UserTokenNotificationController implements RestResource {
         this.service = service;
     }
 
-    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(method = POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void save(@RequestBody TokenId tokenId) {
         this.service.addTokenNotification(this.authService.getCurrentUser(), tokenId);

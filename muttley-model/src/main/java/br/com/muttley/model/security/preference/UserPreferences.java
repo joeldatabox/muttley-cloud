@@ -26,7 +26,9 @@ import static org.springframework.util.Assert.notNull;
  */
 @org.springframework.data.mongodb.core.mapping.Document(collection = "#{documentNameConfig.getNameCollectionUserPreferences()}")
 @CompoundIndexes({
-        @CompoundIndex(name = "user_index_unique", def = "{'user' : 1}", unique = true)
+        @CompoundIndex(name = "user_index_unique", def = "{'user' : 1}", unique = true),
+        @CompoundIndex(name = "preferences_key_index", def = "{'preferences.key': 1}"),
+        @CompoundIndex(name = "preferences_key_value_index", def = "{'preferences.key': 1, 'preferences.value':1}")
 })
 public class UserPreferences implements Document {
     public static final String WORK_TEAM_PREFERENCE = "WorkTeamPreference";

@@ -20,6 +20,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Document(collection = "#{documentNameConfig.getNameCollectionUserTokensNotification()}")
 @CompoundIndexes({
@@ -47,5 +48,9 @@ public class UserTokensNotification implements br.com.muttley.model.Document {
     public UserTokensNotification add(final TokenId tokenId) {
         this.tokens.add(tokenId);
         return this;
+    }
+
+    public Set<TokenId> getTokensMobile() {
+        return this.tokens.stream().filter(TokenId::isMobile).collect(Collectors.toSet());
     }
 }

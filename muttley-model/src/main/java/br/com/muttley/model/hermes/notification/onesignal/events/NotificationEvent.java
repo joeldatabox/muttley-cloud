@@ -1,6 +1,6 @@
-package br.com.muttley.notification.onesignal.model.events;
+package br.com.muttley.model.hermes.notification.onesignal.events;
 
-import br.com.muttley.notification.onesignal.model.Notification;
+import br.com.muttley.model.hermes.notification.onesignal.Notification;
 import org.springframework.context.ApplicationEvent;
 
 public class NotificationEvent extends ApplicationEvent {
