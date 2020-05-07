@@ -40,7 +40,7 @@
         <module>muttley-mongo</module>
         <module>muttley-headers</module>
         <module>muttley-notification</module>
-        <module>muttley-hermes-server</module>
+        <module>muttley-hermes-server.pom</module>
         <module>muttley-rest</module>
         <module>muttley-domain-service</module>
         <module>muttley-jackson</module>
@@ -80,6 +80,12 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-config-server</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-hermes-server.pom</artifactId>
                 <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
