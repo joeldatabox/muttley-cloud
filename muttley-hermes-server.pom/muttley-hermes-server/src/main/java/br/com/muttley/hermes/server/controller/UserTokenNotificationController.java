@@ -29,8 +29,7 @@ public class UserTokenNotificationController implements RestResource {
         this.service = service;
     }
 
-    @RequestMapping(method = POST)
-    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(method = POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     public void save(@RequestBody TokenId tokenId) {
         this.service.addTokenNotification(this.authService.getCurrentUser(), tokenId);
     }

@@ -16,9 +16,9 @@ import org.springframework.stereotype.Repository;
 public interface UserTokensNotificationRepository extends DocumentMongoRepository<UserTokensNotification> {
     UserTokensNotification findByUser(final User user);
 
-    @Query("{'user': {'$ref' : ?#{@documentNameConfig.getNameCollectionUser()}, '$id': ?#{[0].getId()}}")
+    @Query("{'user': {'$ref' : ?#{@documentNameConfig.getNameCollectionUser()}, '$id': ?#{[0].getId()}}}")
     UserTokensNotification findByUser(final UserView user);
 
-    @Query("{'user': {'$ref' : ?#{@documentNameConfig.getNameCollectionUser()}, '$id': ?1}}")
+    @Query("{'user': {'$ref' : ?#{@documentNameConfig.getNameCollectionUser()}, '$id': ?0}}")
     UserTokensNotification findByUser(final String userId);
 }

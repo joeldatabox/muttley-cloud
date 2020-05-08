@@ -1,6 +1,7 @@
 package br.com.muttley.security.feign;
 
 import br.com.muttley.feign.service.config.FeignTimeoutConfig;
+import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
@@ -35,4 +38,10 @@ public interface UserPreferenceServiceClient {
 
     @RequestMapping(value = "/{idUser}/preferences/contains", method = GET, consumes = TEXT_PLAIN_VALUE)
     public boolean containsPreferences(@PathVariable("idUser") String idUser, @RequestParam(name = "key", required = false) final String keyPreference);
+
+    @RequestMapping(value = "/users-from-preference", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public List<User> getUsersFromPreference(@RequestParam(name = "key", required = false) final String key, @RequestParam(name = "value", required = false) final String value);
+
+    @RequestMapping(value = "/user-from-preference", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public User getUserFromPreference(@RequestParam(name = "key", required = false) final String key, @RequestParam(name = "value", required = false) final String value);
 }

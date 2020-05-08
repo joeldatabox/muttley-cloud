@@ -4,10 +4,7 @@ package br.com.muttley.model.hermes.notification;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.jackson.UserDeserializer;
-import br.com.muttley.model.security.jackson.UserSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -33,8 +30,8 @@ import java.util.stream.Collectors;
 public class UserTokensNotification implements br.com.muttley.model.Document {
     private String id;
     @NotNull(message = "Informe o usuário")
-    @JsonSerialize(using = UserSerializer.class)
-    @JsonDeserialize(using = UserDeserializer.class)
+    /*@JsonSerialize(using = UserSerializer.class)
+    @JsonDeserialize(using = UserDeserializer.class)*/
     @DBRef
     private User user;
     private Set<TokenId> tokens;
@@ -50,6 +47,7 @@ public class UserTokensNotification implements br.com.muttley.model.Document {
         return this;
     }
 
+    @JsonIgnore
     public Set<TokenId> getTokensMobile() {
         return this.tokens.stream().filter(TokenId::isMobile).collect(Collectors.toSet());
     }

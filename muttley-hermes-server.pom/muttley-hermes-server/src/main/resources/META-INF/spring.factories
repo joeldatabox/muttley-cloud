@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-br.com.muttley.hermes.server.config.MuttleyHermesServerConfig
+  br.com.muttley.hermes.server.config.MuttleyHermesServerConfig

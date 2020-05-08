@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
 
@@ -18,4 +19,13 @@ public class UserSerializer extends JsonSerializer<User> {
     public void serialize(final User user, final JsonGenerator gen, final SerializerProvider serializers) throws IOException, JsonProcessingException {
         gen.writeString(user != null ? user.getUserName() : null);
     }
+
+
+    /*@Override
+    public void serializeWithType(final User value, final JsonGenerator gen, final SerializerProvider serializers, final TypeSerializer typeSer) throws IOException {
+        //super.serializeWithType(value, gen, serializers, typeSer);
+        typeSer.writeTypePrefixForScalar(this, gen, User.class);
+        serialize(value, gen, serializers);
+        typeSer.writeTypeSuffixForScalar(this, gen);
+    }*/
 }

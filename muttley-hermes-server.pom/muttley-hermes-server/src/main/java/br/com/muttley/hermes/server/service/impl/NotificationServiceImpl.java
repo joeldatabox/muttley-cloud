@@ -1,35 +1,34 @@
 package br.com.muttley.hermes.server.service.impl;
 
-import br.com.muttley.domain.service.Validator;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.hermes.server.service.NotificationService;
 import br.com.muttley.hermes.server.service.UserTokensNotificationService;
-import br.com.muttley.model.security.UserView;
 import br.com.muttley.model.hermes.notification.onesignal.Content;
 import br.com.muttley.model.hermes.notification.onesignal.Notification;
+import br.com.muttley.model.security.UserView;
 import br.com.muttley.notification.onesignal.service.OneSignalNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+
+import javax.validation.Validator;
 
 import static br.com.muttley.model.hermes.notification.onesignal.MuttleyLanguage.Any;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
-    private final Validator validator;
     private final OneSignalNotificationService oneSignalNotificationServiceClient;
     private final UserTokensNotificationService userTokensNotificationService;
 
 
     @Autowired
-    public NotificationServiceImpl(final Validator validator, final OneSignalNotificationService oneSignalNotificationServiceClient, final UserTokensNotificationService userTokensNotificationService) {
-        this.validator = validator;
+    public NotificationServiceImpl(final OneSignalNotificationService oneSignalNotificationServiceClient, final UserTokensNotificationService userTokensNotificationService) {
         this.oneSignalNotificationServiceClient = oneSignalNotificationServiceClient;
         this.userTokensNotificationService = userTokensNotificationService;
     }
 
     @Override
     public void sendNotification(final Notification notification) {
-        this.validator.validate(notification);
         this.oneSignalNotificationServiceClient.sendNotification(notification);
     }
 

@@ -73,4 +73,14 @@ public class UserPreferenceController {
     public ResponseEntity containsPreferences(@PathVariable("idUser") String idUser, @RequestParam(name = "key", required = false) final String keyPreference) {
         return ResponseEntity.ok("" + this.userService.constainsPreference(new User().setId(idUser), keyPreference));
     }
+
+    @RequestMapping(value = "/users-from-preference", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    public ResponseEntity getUsersFromPreference(@RequestParam(name = "key", required = false) final String key, @RequestParam(name = "value", required = false) final String value) {
+        return ResponseEntity.ok(this.userService.getUsersFromPreference(new Preference(key, value)));
+    }
+
+    @RequestMapping(value = "/user-from-preference", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    public ResponseEntity getUserFromPreference(@RequestParam(name = "key", required = false) final String key, @RequestParam(name = "value", required = false) final String value) {
+        return ResponseEntity.ok(this.userService.getUserFromPreference(new Preference(key, value)));
+    }
 }
