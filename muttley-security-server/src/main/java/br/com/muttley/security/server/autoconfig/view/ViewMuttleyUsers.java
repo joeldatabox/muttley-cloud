@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.autoconfig.view;
 
 import br.com.muttley.mongo.views.source.ViewSource;
+import org.bson.BsonBoolean;
 import org.bson.BsonDocument;
 import org.bson.BsonElement;
 import org.bson.BsonString;
@@ -44,7 +45,7 @@ public class ViewMuttleyUsers implements ViewSource {
          //removendo usuários do odin
          {$match:{odinUser : false}},
          //pegando apenas os dados necessários
-         {$project:{_id:1, _class:1, name:1, userName:1}},
+         {$project:{_id:1, _class:1, name:1, userName:1, email:1, nickUsers:1}},
          //pegando os possíveis owners linkados ao usuário
          {$lookup:{
          from: 'view_muttley_work_teams',
@@ -53,12 +54,12 @@ public class ViewMuttleyUsers implements ViewSource {
          as: 'owners'
          }},
          //exibindo apenas os dados necessários
-         {$project:{_id:1, _class:1, name:1, userName:1, owners:'$owners.owner'}},
+         {$project:{_id:1, _class:1, name:1, userName:1, email:1, nickUsers:1, owners:'$owners.owner'}},
          ])
          */
         return asList(
                 //removendo usuários do odin
-                new BsonDocument("$match", new BsonDocument("odinUser", _FALSE)),
+                new BsonDocument("$match", new BsonDocument("odinUser", new BsonBoolean(false))),
                 //pegando apenas os dados necessários
                 new BsonDocument("$project",
                         new BsonDocument(
@@ -66,7 +67,9 @@ public class ViewMuttleyUsers implements ViewSource {
                                         new BsonElement("_id", _TRUE),
                                         new BsonElement("_class", _TRUE),
                                         new BsonElement("name", _TRUE),
-                                        new BsonElement("userName", _TRUE)
+                                        new BsonElement("userName", _TRUE),
+                                        new BsonElement("email", _TRUE),
+                                        new BsonElement("nickUsers", _TRUE)
                                 )
                         )
                 ),
@@ -89,6 +92,8 @@ public class ViewMuttleyUsers implements ViewSource {
                                         new BsonElement("_class", _TRUE),
                                         new BsonElement("name", _TRUE),
                                         new BsonElement("userName", _TRUE),
+                                        new BsonElement("email", _TRUE),
+                                        new BsonElement("nickUsers", _TRUE),
                                         new BsonElement("owners", new BsonString("$owners.owner"))
                                 )
                         )
