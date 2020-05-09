@@ -4,22 +4,23 @@ import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.ResourceSupport;
-import org.springframework.hateoas.UriTemplate;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import static org.springframework.hateoas.UriTemplate.of;
 
 /**
  * Created by joel on 14/04/17.
  */
-public class UserResource extends ResourceSupport {
+public class UserResource extends RepresentationModel {
     @Getter
-    private Resource<User> user;
+    private EntityModel<User> user;
 
     public UserResource(final User user) {
-        this.user = new Resource<>(user);
+        this.user = new EntityModel(user);
         this.user.add(getSelfLink());
     }
 
@@ -33,11 +34,12 @@ public class UserResource extends ResourceSupport {
 
     @JsonIgnore
     private Link getSelfLink() {
-        final UriTemplate uri = new UriTemplate(
+        return new Link(of(
                 ServletUriComponentsBuilder
                         .fromCurrentRequest()
                         .buildAndExpand()
-                        .toUri().toASCIIString());
-        return new Link(uri, "self");
+                        .toUri()
+                        .toASCIIString()
+        ), "self");
     }
 }

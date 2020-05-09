@@ -48,9 +48,9 @@ public class QueryBuilder {
                 } else if (Operator.LIMIT.equals(operation)) {
                     query.limit(Integer.valueOf(value.toString()));
                 } else if (Operator.ORDER_BY_ASC.equals(operation)) {
-                    query.with(new Sort(Sort.Direction.ASC, (String[]) value));
+                    query.with(Sort.by(Sort.Direction.ASC, (String[]) value));
                 } else if (Operator.ORDER_BY_DESC.equals(operation)) {
-                    query.with(new Sort(Sort.Direction.DESC, (String[]) value));
+                    query.with(Sort.by(Sort.Direction.DESC, (String[]) value));
                 } else {
                     query.addCriteria(extractCriteria(operation, key, value));
                 }
