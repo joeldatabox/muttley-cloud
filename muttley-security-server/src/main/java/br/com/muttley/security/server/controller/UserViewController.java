@@ -11,6 +11,7 @@ import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.UserViewService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -78,6 +79,16 @@ public class UserViewController extends AbstractRestController<UserView> {
 
 
         return ResponseEntity.ok(new PageableResource(records, metadataPageable));
+    }
+
+    @RequestMapping(value = "/userName/{userName}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
+    public ResponseEntity findById(@PathVariable("userName") final String userName, final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
+                                   @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+
+        final UserView value = service.findByUserName(userName, allRequestParams.get("owner"));
+        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
+        return ResponseEntity.ok(value);
     }
 
     @RequestMapping(value = "/count", method = GET, produces = {TEXT_PLAIN_VALUE})

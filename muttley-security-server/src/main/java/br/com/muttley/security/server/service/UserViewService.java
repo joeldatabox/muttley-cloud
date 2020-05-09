@@ -12,6 +12,8 @@ import java.util.List;
  */
 public interface UserViewService extends Service<UserView> {
 
+    UserView findByUserName(final String userName, final String idOwner);
+
     List<UserView> list(final String criterio, final String idOwner);
 
     long count(final String criterio, final String idOwner);
