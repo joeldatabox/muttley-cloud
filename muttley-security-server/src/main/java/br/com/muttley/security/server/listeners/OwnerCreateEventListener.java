@@ -1,7 +1,6 @@
 package br.com.muttley.security.server.listeners;
 
 import br.com.muttley.model.events.OwnerCreateEvent;
-import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.preference.UserPreferences;

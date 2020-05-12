@@ -19,7 +19,7 @@ public interface SimpleTenancyMongoRepository<T> extends MongoRepository<T, Stri
     /**
      * Busca vários registros simples
      *
-     * @param ids   -> ids dos registros desejado
+     * @param ids -> ids dos registros desejado
      */
     Set<T> findMulti(final String ids[]);
 

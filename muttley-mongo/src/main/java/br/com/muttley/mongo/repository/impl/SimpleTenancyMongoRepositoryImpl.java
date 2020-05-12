@@ -5,7 +5,6 @@ import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullE
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.util.StreamUtil;
 import br.com.muttley.mongo.infra.AggregationUtils;
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
@@ -35,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static br.com.muttley.mongo.infra.metadata.EntityMetaData.of;
 import static java.util.stream.Stream.of;

@@ -50,7 +50,7 @@ public final class Aggregate {
         final List<AggregationOperation> aggregations = new ArrayList<>(5);
         //verificando se é necessário fazer gabiarra do lookup
         //if (isRequiredProject(queryParams)) {
-            aggregations.addAll(createProjectFrom(clazz, queryParams));
+        aggregations.addAll(createProjectFrom(clazz, queryParams));
         //}
         SkipOperation skipOperation = null;
         LimitOperation limitOperation = null;

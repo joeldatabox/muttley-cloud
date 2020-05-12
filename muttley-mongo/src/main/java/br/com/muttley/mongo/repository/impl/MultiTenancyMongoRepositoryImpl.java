@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static java.util.stream.Stream.of;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;

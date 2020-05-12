@@ -184,7 +184,7 @@ public interface Service<T extends Document> {
      * Busca varios registros pelo id
      *
      * @param user -> usuário da requisição corrente
-     * @param ids   -> array de id a ser procurado
+     * @param ids  -> array de id a ser procurado
      */
     @PreAuthorize(
             "this.isCheckRole()? " +

@@ -2,7 +2,6 @@ package br.com.muttley.security.gateway.controller;
 
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.WorkTeam;
-import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.infra.feign.WorkTeamServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 

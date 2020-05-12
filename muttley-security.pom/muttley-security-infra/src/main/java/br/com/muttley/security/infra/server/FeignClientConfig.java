@@ -31,7 +31,7 @@ public class FeignClientConfig {
     }
 
     @Bean
-    public PropagateHeadersInterceptor createPropagateHeadersInterceptor(@Autowired final ObjectProvider<MuttleyPropagateHeadersService> muttleyPropagateHeadersService){
+    public PropagateHeadersInterceptor createPropagateHeadersInterceptor(@Autowired final ObjectProvider<MuttleyPropagateHeadersService> muttleyPropagateHeadersService) {
         return new PropagateHeadersInterceptor(muttleyPropagateHeadersService.getIfAvailable());
     }
 }
