@@ -336,7 +336,7 @@ public class UserServiceImpl implements UserService {
     public boolean constainsPreference(final User user, final String keyPreference) {
         /**
          * db.getCollection("muttley-users-preferences").aggregate([
-         *     {$match:{_id:ObjectId("5e4c1bdb30c49e00012d924c")}},
+         *     {$match:{"user.$id":ObjectId("5e84ed76e684d90007e94718")}},
          *     {$project:{preferences:1}},
          *     {$unwind:"$preferences"},
          *     {$match:{"preferences.key":"UserColaborador"}},
@@ -350,7 +350,7 @@ public class UserServiceImpl implements UserService {
 
         final AggregationResults<BasicAggregateResultCount> result = this.template.aggregate(
                 newAggregation(
-                        match(where("_id").is(new ObjectId(user.getId()))),
+                        match(where("user.$id").is(new ObjectId(user.getId()))),
                         project("preferences"),
                         unwind("$preferences"),
                         match(where("preferences.key").is(keyPreference)),

@@ -3,6 +3,9 @@ package br.com.muttley.security.infra.service.impl;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.preference.Preference;
+import br.com.muttley.model.security.preference.UserPreferences;
+import br.com.muttley.security.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.infra.service.AuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -21,10 +24,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final String tokenHeader;
+    protected final String tokenHeader;
+    protected final UserPreferenceServiceClient preferenceService;
 
-    public AuthServiceImpl(@Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader) {
+    public AuthServiceImpl(@Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader, final UserPreferenceServiceClient preferenceService) {
         this.tokenHeader = tokenHeader;
+        this.preferenceService = preferenceService;
     }
 
     @Override
@@ -49,6 +54,23 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public User getCurrentUser() {
         return getCurrentJwtUser().getOriginUser();
+    }
+
+    @Override
+    public UserPreferences getUserPreferences() {
+        final User user = this.getCurrentUser();
+        if (user.getPreferences() == null || user.getPreferences().isEmpty()) {
+            final UserPreferences preferences = this.preferenceService.getPreferences(user.getId());
+            if (preferences != null) {
+                user.setPreferences(preferences);
+            }
+        }
+        return this.getCurrentUser().getPreferences();
+    }
+
+    @Override
+    public Preference getPreference(final String key) {
+        return this.getUserPreferences().get(key);
     }
 
     @Override

@@ -44,8 +44,8 @@ public class WebSecurityConfig {
 
     @Bean
     @Primary
-    public AuthService createAuthService(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader) {
-        return new AuthServiceImpl(tokenHeader);
+    public AuthService createAuthService(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, @Autowired final UserPreferenceServiceClient userPreferenceServiceClient) {
+        return new AuthServiceImpl(tokenHeader, userPreferenceServiceClient);
     }
 
     @Bean
