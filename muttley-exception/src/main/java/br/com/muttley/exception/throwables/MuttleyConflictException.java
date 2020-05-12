@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 public class MuttleyConflictException extends MuttleyException {
 
     public MuttleyConflictException(final Class clazz, final String field, final String message) {
-        super("Conflict", HttpStatus.CONFLICT, clazz, field, message);
+        super(message, HttpStatus.CONFLICT, clazz, field, message);
         /*this.message = "Conflict";
         this.status = HttpStatus.CONFLICT;
         this.objectName = clazz.getSimpleName().toLowerCase();
