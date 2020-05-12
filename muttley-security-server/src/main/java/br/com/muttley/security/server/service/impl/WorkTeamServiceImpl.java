@@ -78,6 +78,8 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         if (!(user.getCurrentOwner() == null && workTeam.getOwner() != null)) {
             workTeam.setOwner(user.getCurrentOwner());
         }
+        //adicionando as roles de dependencias
+        workTeam.addRoles(this.loadAvaliableRoles(user).getDependenciesRolesFrom(workTeam.getRoles()));
         super.beforeSave(user, workTeam);
     }
 

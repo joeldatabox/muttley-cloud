@@ -37,6 +37,7 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
         if (!StringUtils.isEmpty(value.getId())) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
         }
+        value.setId(null);
         //setando o dono do registro
         value.setOwner(user);
         //garantindo que o históriconão ficará nulo

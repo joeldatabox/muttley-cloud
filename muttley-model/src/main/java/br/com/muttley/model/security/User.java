@@ -370,12 +370,12 @@ public class User implements Serializable {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
         final User user = (User) o;
-        return Objects.equals(getId(), user.getId());
+        return Objects.equals(getId(), user.getId()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getUserName(), user.getUserName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), "dfg");
+        return Objects.hash(getId(), getEmail(), getUserName());
     }
 
     public String toJson() {

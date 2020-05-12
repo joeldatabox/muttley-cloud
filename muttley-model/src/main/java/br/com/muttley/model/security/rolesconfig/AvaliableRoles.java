@@ -11,6 +11,7 @@ import java.util.Set;
 import static br.com.muttley.model.security.rolesconfig.ViewRoleDefinition.newRoleDefinition;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptySet;
 
 
 /**
@@ -30,6 +31,26 @@ public class AvaliableRoles {
 
     protected AvaliableRoles(final ViewRoleDefinition... viewRoleDefinitions) {
         this(asList(viewRoleDefinitions));
+    }
+
+    public Set<Role> getDependenciesRolesFrom(final Set<Role> currentRoles) {
+        return currentRoles.stream().map(it -> getDependenciesRolesFrom(it))
+                .reduce((acc, roles) -> {
+                    acc.addAll(roles);
+                    return acc;
+                })
+                .orElse(emptySet());
+
+    }
+
+    public Set<Role> getDependenciesRolesFrom(final Role role) {
+        return this.viewRoleDefinitions.stream()
+                .filter(it -> it.contains(role))
+                .map(it -> it.getDependencies())
+                .reduce((acc, roles) -> {
+                    acc.addAll(roles);
+                    return acc;
+                }).orElse(emptySet());
     }
 
     public static ViewRoleDefinition newViewRoleDefinition(final String title, final String description, final RoleDefinition... roleDefinitions) {

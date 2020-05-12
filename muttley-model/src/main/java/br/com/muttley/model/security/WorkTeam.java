@@ -22,9 +22,12 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
+import static java.util.stream.Stream.of;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
@@ -90,13 +93,31 @@ public class WorkTeam implements Document {
         return this;
     }
 
-    public WorkTeam addRole(final Authority role) {
-        this.roles.add(role.getRole());
+    public WorkTeam addRole(final Authority authority) {
+        if (authority != null) {
+            this.roles.add(authority.getRole());
+        }
         return this;
     }
 
     public WorkTeam addRole(final Role role) {
-        this.roles.add(role);
+        if (role != null) {
+            this.roles.add(role);
+        }
+        return this;
+    }
+
+    public WorkTeam addRoles(final Role... roles) {
+        if (roles != null) {
+            of(roles).filter(java.util.Objects::nonNull).forEach(it -> this.roles.add(it));
+        }
+        return this;
+    }
+
+    public WorkTeam addRoles(final Collection<Role> roles) {
+        if (roles != null) {
+            roles.stream().filter(java.util.Objects::nonNull).forEach(it -> this.roles.add(it));
+        }
         return this;
     }
 
