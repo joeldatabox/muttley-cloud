@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.controller.auth;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
+import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
@@ -67,7 +68,7 @@ public class AuthenticationRestController {
             this.eventPublisher.publishEvent(new UserLoggedEvent(token, userDetails.getOriginUser()));
             //devolvendo token gerado
             return ResponseEntity.ok(token);
-        } catch (BadCredentialsException ex) {
+        } catch (BadCredentialsException | MuttleySecurityUnauthorizedException ex) {
             throw new MuttleySecurityUserNameOrPasswordInvalidException();
         }
     }
