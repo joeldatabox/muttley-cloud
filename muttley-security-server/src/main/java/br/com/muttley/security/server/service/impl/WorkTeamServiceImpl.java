@@ -8,6 +8,7 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
+import br.com.muttley.model.security.events.ValidateOwnerInWorkGroupEvent;
 import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
 import br.com.muttley.model.security.rolesconfig.event.AvaliableRolesEvent;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
@@ -82,6 +83,13 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
     @Override
     public void checkPrecondictionSave(final User user, final WorkTeam workTeam) {
+
+        //verificando validando o owner
+        //o evento irá verificar se foi informado o owner corretamente
+        //pegando o owner da requisição atual, ou o owner já vindo no json caso seja uma requisição
+        //do servidor odin
+        this.applicationEventPublisher.publishEvent(new ValidateOwnerInWorkGroupEvent(user, workTeam));
+
         //só podemo aceitar salvar um grupo pro owner caso ainda não exista um
         if (this.existWorkTeamForOwner(workTeam) && workTeam.containsRole(ROLE_OWNER)) {
             if (!this.isEmpty(user)) {

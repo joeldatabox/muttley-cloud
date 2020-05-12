@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -62,7 +63,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     @Override
     public T save(final User user, final T value) {
         //verificando se realmente está criando um novo registro
-        if (value.getId() != null) {
+        if (!StringUtils.isEmpty(value.getId())) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
         }
         //garantindo que o históriconão ficará nulo
