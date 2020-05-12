@@ -16,11 +16,13 @@ import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -47,11 +49,13 @@ public final class ErrorMessage {
     protected String message;
     protected String objectName;
     protected final Map<String, Object> details;
+    protected final Map<String, List<String>> headers;
     @JsonIgnore
     public static final String RESPONSE_HEADER = "error-message";
 
     public ErrorMessage() {
         this.details = new HashMap<>();
+        this.headers = new HashMap<>();
     }
 
     @JsonCreator
@@ -60,12 +64,14 @@ public final class ErrorMessage {
             @JsonProperty("status") final HttpStatus status,
             @JsonProperty("message") final String message,
             @JsonProperty("objectName") final String objectName,
-            @JsonProperty("details") final Map<String, Object> details) {
+            @JsonProperty("details") final Map<String, Object> details,
+            @JsonProperty("headers") final Map<String, List<String>> headers) {
         this.field = field;
         this.status = status;
         this.message = message;
         this.objectName = objectName;
         this.details = details;
+        this.headers = headers;
     }
 
     public String getField() {
@@ -151,6 +157,45 @@ public final class ErrorMessage {
         return details != null && !details.isEmpty();
     }
 
+    public Map<String, List<String>> getHeaders() {
+        return headers;
+    }
+
+    @JsonIgnore
+    public ErrorMessage addHeaders(final String key, final String value) {
+        if (this.headers.containsKey(key)) {
+            this.headers.get(key).add(value);
+        } else {
+            final List<String> values = new ArrayList<>(1);
+            values.add(value);
+            this.headers.put(key, values);
+        }
+        return this;
+    }
+
+    @JsonIgnore
+    public ErrorMessage addHeaders(final String key, final String... value) {
+        return this.addHeaders(key, asList(value));
+    }
+
+    @JsonIgnore
+    public ErrorMessage addHeaders(final String key, final List<String> value) {
+        if (this.headers.containsKey(key)) {
+            this.headers.get(key).addAll(value);
+        } else {
+            final List<String> values = new ArrayList<>(1);
+            values.addAll(value);
+            this.headers.put(key, values);
+        }
+        return this;
+    }
+
+    @JsonIgnore
+    public ErrorMessage addHeaders(final Map<String, List<String>> headers) {
+        this.headers.putAll(headers);
+        return this;
+    }
+
     @JsonIgnore
     public final String toJsonPretty() {
         try {
@@ -176,7 +221,7 @@ public final class ErrorMessage {
 
     @JsonIgnore
     public ResponseEntity toResponseEntity() {
-        return toResponseEntity(new HttpHeaders());
+        return toResponseEntity((HttpHeaders) null);
     }
 
     @JsonIgnore
@@ -186,12 +231,18 @@ public final class ErrorMessage {
 
     @JsonIgnore
     public ResponseEntity toResponseEntity(boolean serializeResponse, final HttpHeaders headers) {
-        headers.add(RESPONSE_HEADER, RESPONSE_HEADER_VALUE);
-        if (serializeResponse) {
-            headers.add(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE);
-            return new ResponseEntity(this, headers, this.status);
+        final HttpHeaders currentHeaders = new HttpHeaders();
+        currentHeaders.putAll(this.getHeaders());
+        if (headers != null) {
+            currentHeaders.putAll(headers);
         }
-        return ResponseEntity.status(this.status).headers(headers).build();
+
+        currentHeaders.add(RESPONSE_HEADER, RESPONSE_HEADER_VALUE);
+        if (serializeResponse) {
+            currentHeaders.add(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE);
+            return new ResponseEntity(this, currentHeaders, this.status);
+        }
+        return ResponseEntity.status(this.status).headers(currentHeaders).build();
     }
 
     @JsonIgnore
@@ -203,9 +254,9 @@ public final class ErrorMessage {
             //se chegou aqui quer dizer que podemo retornar um json,
             //vamos remover qualquer coisa que possa dar outra exception relacionada a media type
             request.removeAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
-            return this.toResponseEntity(true, new HttpHeaders());
+            return this.toResponseEntity(true, null);
         }
-        return this.toResponseEntity(false, new HttpHeaders());
+        return this.toResponseEntity(false, null);
     }
 
 }

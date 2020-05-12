@@ -180,14 +180,16 @@ public class ErrorMessageBuilder {
                 .setStatus(ex.getStatus())
                 .setMessage(ex.getMessage())
                 .setObjectName(ex.getObjectName())
-                .addDetails(ex.getDetails());
+                .addDetails(ex.getDetails())
+                .addHeaders(ex.getHeaders());
         printException(ex, message);
         return message;
     }
 
     public ErrorMessage buildMessage(final MuttleyRepositoryException ex) {
         final ErrorMessage message = new ErrorMessage()
-                .setStatus(ex.getStatus());
+                .setStatus(ex.getStatus())
+                .addHeaders(ex.getHeaders());
         printException(ex, message);
         return message;
     }
@@ -197,7 +199,8 @@ public class ErrorMessageBuilder {
                 .setStatus(ex.getStatus())
                 .setMessage(ex.getMessage())
                 .setObjectName(ex.getObjectName())
-                .addDetails(ex.getDetails());
+                .addDetails(ex.getDetails())
+                .addHeaders(ex.getHeaders());
         printException(ex, message);
         return message;
     }
