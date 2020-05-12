@@ -116,6 +116,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     public void beforeUpdate(final User user, final WorkTeam workTeam) {
         //garantindo que não será alterado informações cruciais
         workTeam.setOwner(user.getCurrentOwner());
+        workTeam.addRoles(this.loadAvaliableRoles(user).getDependenciesRolesFrom(workTeam.getRoles()));
         super.beforeUpdate(user, workTeam);
     }
 
