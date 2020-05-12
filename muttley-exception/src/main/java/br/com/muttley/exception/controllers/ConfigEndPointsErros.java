@@ -16,6 +16,8 @@ public class ConfigEndPointsErros implements WebServerFactoryCustomizer<Configur
 
     @Override
     public void customize(ConfigurableServletWebServerFactory factory) {
+        factory.addErrorPages(new ErrorPage(HttpStatus.UNAUTHORIZED, "/401"));
+        factory.addErrorPages(new ErrorPage(HttpStatus.FORBIDDEN, "/403"));
         factory.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/404"));
         factory.addErrorPages(new ErrorPage(HttpStatus.INTERNAL_SERVER_ERROR, "/500"));
     }
