@@ -73,6 +73,13 @@ public class AvaliableRoles {
         );
     }
 
+    public static ViewRoleDefinition newViewRoleDefinition(final String icon, final FontSet fontSet, final String title, final String description, final RoleDefinition... roleDefinitions) {
+        idsCounter++;
+        final IconMenu iconMenu = new IconMenu(icon, fontSet);
+        return new ViewRoleDefinition(idsCounter, iconMenu, title, description, roleDefinitions);
+    }
+
+
     public static ViewRoleDefinition newViewRoleDefinition(final String title, final String description) {
         idsCounter++;
         return new ViewRoleDefinition(idsCounter, null, title, description, (RoleDefinition) null);
