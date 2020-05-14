@@ -1,7 +1,7 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.MetaDataDocument;
+import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
 import br.com.muttley.model.security.jackson.AccessPlanDeserializer;
 import br.com.muttley.model.security.jackson.UserDeserializer;
@@ -52,5 +52,5 @@ public class Owner implements br.com.muttley.model.Document {
     @DBRef
     protected AccessPlan accessPlan;
     protected Historic historic;
-    protected MetaDataDocument metaData;
+    protected MetadataDocument metadata;
 }

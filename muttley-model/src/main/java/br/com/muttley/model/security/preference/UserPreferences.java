@@ -2,7 +2,7 @@ package br.com.muttley.model.security.preference;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.MetaDataDocument;
+import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -47,7 +47,7 @@ public class UserPreferences implements Document {
     @DBRef
     private User user;
     private Historic historic;
-    private MetaDataDocument metaData;
+    private MetadataDocument metadata;
     private Set<Preference> preferences;
 
     public UserPreferences() {
@@ -72,12 +72,12 @@ public class UserPreferences implements Document {
             @JsonProperty("user") User user,
             @JsonProperty("historic") Historic historic,
             @JsonProperty("preferences") Set<Preference> preferences,
-            final @JsonProperty("metaData") MetaDataDocument metaData) {
+            final @JsonProperty("metadata") MetadataDocument metadata) {
         this.id = id;
         this.user = user;
         this.historic = historic;
         this.preferences = preferences;
-        this.metaData = metaData;
+        this.metadata = metadata;
     }
 
     public boolean contains(final String key) {

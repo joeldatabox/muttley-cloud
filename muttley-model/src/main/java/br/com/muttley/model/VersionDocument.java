@@ -19,22 +19,27 @@ public class VersionDocument {
      * Nome do cliente que criou o documento
      */
     private String originNameClientCreate;
+
     /**
      * Versão do cliente que criou o documento
      */
     private String originVersionClientCreate;
+
     /**
      * Versão do servidor em que foi criado o documento
      */
     private String serverVersionCreate;
+
     /**
      * Nome do cliente que fez a atualização do documento
      */
-    private String clientOriginNameLastUpdate;
+    private String originNameClientLastUpdate;
+
     /**
      * Versão do cliente que fez a ultima atualização do documento
      */
     private String originVersionClientLastUpdate;
+
     /**
      * Versão do servidor em que foi atualizado o documento
      */
@@ -48,13 +53,13 @@ public class VersionDocument {
             @JsonProperty("originNameClientCreate") final String originNameClientCreate,
             @JsonProperty("originVersionClientCreate") final String originVersionClientCreate,
             @JsonProperty("serverVersionCreate") final String serverVersionCreate,
-            @JsonProperty("clientOriginNameLastUpdate") final String clientOriginNameLastUpdate,
+            @JsonProperty("originNameClientLastUpdate") final String originNameClientLastUpdate,
             @JsonProperty("originVersionClientLastUpdate") final String originVersionClientLastUpdate,
             @JsonProperty("serverVersionLastUpdate") final String serverVersionLastUpdate) {
         this.originNameClientCreate = originNameClientCreate;
         this.originVersionClientCreate = originVersionClientCreate;
         this.serverVersionCreate = serverVersionCreate;
-        this.clientOriginNameLastUpdate = clientOriginNameLastUpdate;
+        this.originNameClientLastUpdate = originNameClientLastUpdate;
         this.originVersionClientLastUpdate = originVersionClientLastUpdate;
         this.serverVersionLastUpdate = serverVersionLastUpdate;
     }

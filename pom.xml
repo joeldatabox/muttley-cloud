@@ -40,6 +40,7 @@
         <module>muttley-model</module>
         <module>muttley-redis</module>
         <module>muttley-mongo</module>
+        <module>muttley-headers</module>
         <module>muttley-rest</module>
         <module>muttley-domain-service</module>
         <module>muttley-jackson</module>
@@ -129,6 +130,12 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-mongo</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-headers</artifactId>
                 <version>${revision}</version>
             </dependency>
 
