@@ -2,6 +2,7 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetaDataDocument;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +34,7 @@ public class AccessPlan implements Document {
     @Id
     private String id;
     private Historic historic;
+    private MetaDataDocument metaData;
     @NotBlank(message = "Informe um nome válido")
     private String name;
     @Min(value = 1, message = "É necessário ter ao menos 1 usuário!")

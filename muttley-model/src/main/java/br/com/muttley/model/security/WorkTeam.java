@@ -2,6 +2,7 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetaDataDocument;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
 import br.com.muttley.model.security.jackson.OwnerDeserializer;
 import br.com.muttley.model.security.jackson.UserCollectionSerializer;
@@ -66,6 +67,7 @@ public class WorkTeam implements Document {
     @JsonDeserialize(using = UserSetDeserializer.class)
     protected Set<User> members;
     protected Historic historic;
+    protected MetaDataDocument metaData;
     protected Set<Role> roles;
 
     public WorkTeam() {

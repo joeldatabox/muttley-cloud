@@ -2,6 +2,7 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetaDataDocument;
 import br.com.muttley.model.jackson.converter.ListDocumentSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
@@ -31,6 +32,7 @@ public class UserView implements Document {
     @JsonSerialize(using = ListDocumentSerializer.class)
     private Set<Owner> owners;
     private Historic historic;
+    private MetaDataDocument metaData;
 
 }
 

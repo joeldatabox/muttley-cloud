@@ -20,6 +20,10 @@ public interface Document extends Serializable {
 
     Document setId(final String id);
 
+    MetaDataDocument getMetaData();
+
+    Document setMetaData(final MetaDataDocument metaData);
+
     Document setHistoric(final Historic historic);
 
     @JsonIgnore
