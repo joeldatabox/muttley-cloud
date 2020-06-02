@@ -25,7 +25,7 @@ import static java.util.Objects.isNull;
  * @project muttley-cloud
  */
 public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> implements ModelService<T> {
-    final CustomMongoRepository<T> repository;
+    protected final CustomMongoRepository<T> repository;
 
     public ModelServiceImpl(final CustomMongoRepository<T> repository, final MongoTemplate mongoTemplate, final Class<T> clazz) {
         super(repository, mongoTemplate, clazz);
