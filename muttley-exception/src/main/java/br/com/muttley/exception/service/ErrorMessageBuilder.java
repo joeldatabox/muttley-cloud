@@ -1,5 +1,6 @@
 package br.com.muttley.exception.service;
 
+import br.com.muttley.exception.service.event.MuttleyExceptionEvent;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryException;
@@ -9,9 +10,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -23,6 +27,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.util.Collection;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
@@ -42,6 +47,8 @@ public class ErrorMessageBuilder {
     private Boolean STACK_TRACE;
     @Value("${muttley.print.responseException:false}")
     private Boolean RESPONSE_EXCEPTION;
+    @Autowired
+    private ApplicationEventPublisher publisher;
 
     public ErrorMessage buildMessage(final MethodArgumentNotValidException ex) {
         final ErrorMessage message = new ErrorMessage()
@@ -53,6 +60,7 @@ public class ErrorMessageBuilder {
             String key = fieldError.getCodes()[0].replace(fieldError.getCodes()[fieldError.getCodes().length - 1] + ".", "");
             message.addDetails(key, fieldError.getDefaultMessage());
         }
+        this.publishEvents(message);
         printException(ex, message);
         return message;
     }
@@ -79,6 +87,7 @@ public class ErrorMessageBuilder {
                     keyDetail.startsWith(message.objectName) ? keyDetail : message.objectName + "." + keyDetail, violation.getMessage()
             );
         }
+        this.publishEvents(message);
         printException(ex, message);
         return message;
     }
@@ -88,6 +97,7 @@ public class ErrorMessageBuilder {
         ex.getBindingResult().getFieldErrors().forEach(e -> {
             message.addDetails(e.getField(), e.getDefaultMessage());
         });
+        this.publishEvents(message);
         printException(ex, message);
         return message;
     }
@@ -95,12 +105,14 @@ public class ErrorMessageBuilder {
     public ErrorMessage buildMessage(final TypeMismatchException ex) {
         final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
         printException(ex, message);
+        this.publishEvents(message);
         return message;
     }
 
     public ErrorMessage buildMessage(final MissingServletRequestPartException ex) {
         final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
         printException(ex, message);
+        this.publishEvents(message);
         return message;
     }
 
@@ -108,12 +120,14 @@ public class ErrorMessageBuilder {
         final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex))
                 .setMessage("Informe os parametros necessários")
                 .addDetails("nameParam", ex.getParameterName());
+        this.publishEvents(message);
         printException(ex, message);
         return message;
     }
 
     public ErrorMessage buildMessage(final MethodArgumentTypeMismatchException ex) {
         final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex));
+        this.publishEvents(message);
         printException(ex, message);
         return message;
     }
@@ -122,6 +136,7 @@ public class ErrorMessageBuilder {
         final ErrorMessage message = buildMessage(new MuttleyBadRequestException(ex))
                 .setStatus(METHOD_NOT_ALLOWED)
                 .setMessage(METHOD_NOT_ALLOWED.getReasonPhrase());
+        this.publishEvents(message);
         printException(ex, message);
         return message;
     }
@@ -132,6 +147,7 @@ public class ErrorMessageBuilder {
                 .setMessage(ex.getMessage().replace("'null' ", ""))
                 .addDetails("ContentType", ex.getContentType() == null ? "uninformed" : ex.getContentType().toString())
                 .addDetails("SupportedMediaTypes", APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE);
+        this.publishEvents(message);
         printException(ex, message);
         return message;
     }
@@ -171,6 +187,7 @@ public class ErrorMessageBuilder {
             message.setMessage("Insira o corpo na requisição!")
                     .addDetails("body", "body is empty");
         }
+        this.publishEvents(message);
         printException(ex, message);
         return message;
     }
@@ -182,6 +199,7 @@ public class ErrorMessageBuilder {
                 .setObjectName(ex.getObjectName())
                 .addDetails(ex.getDetails())
                 .addHeaders(ex.getHeaders());
+        this.publishEvents(message, ex.getEvents());
         printException(ex, message);
         return message;
     }
@@ -190,6 +208,7 @@ public class ErrorMessageBuilder {
         final ErrorMessage message = new ErrorMessage()
                 .setStatus(ex.getStatus())
                 .addHeaders(ex.getHeaders());
+        this.publishEvents(message, ex.getEvents());
         printException(ex, message);
         return message;
     }
@@ -201,8 +220,20 @@ public class ErrorMessageBuilder {
                 .setObjectName(ex.getObjectName())
                 .addDetails(ex.getDetails())
                 .addHeaders(ex.getHeaders());
+        this.publishEvents(message, ex.getEvents());
         printException(ex, message);
         return message;
+    }
+
+    private void publishEvents(final ErrorMessage message) {
+        this.publishEvents(message, null);
+    }
+
+    private void publishEvents(final ErrorMessage message, final Collection<MuttleyExceptionEvent> events) {
+        this.publisher.publishEvent(new MuttleyExceptionEvent(message));
+        if (!CollectionUtils.isEmpty(events)) {
+            events.forEach(it -> this.publisher.publishEvent(it.setSource(message)));
+        }
     }
 
     /**
