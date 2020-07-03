@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * @author Joel Rodrigues Moreira on 08/01/18.
@@ -56,7 +57,7 @@ public class RedisServiceImpl<T> implements RedisService<T> {
     @Override
     public RedisService set(final String key, final T value, final long time) {
         final String keyValue = createKey(key);
-        this.redisTemplate.opsForValue().set(createKey(key), value, time, TimeUnit.MILLISECONDS);
+        this.redisTemplate.opsForValue().set(createKey(key), value, time, MILLISECONDS);
         return this;
     }
 
