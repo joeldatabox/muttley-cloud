@@ -5,6 +5,7 @@ import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullE
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.mongo.infra.AggregationUtils;
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
@@ -158,6 +159,19 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     }
 
     @Override
+    public MetadataDocument loadMetadata(final T value) {
+        final AggregationResults result = operations.aggregate(
+                newAggregation(
+                        match(
+                                where("_id").is(value.getObjectId())
+                        ), project().and("$metadata.timeZones").as("timeZones")
+                                .and("$metadata.versionDocument").as("versionDocument")
+                ), COLLECTION, MetadataDocument.class);
+
+        return result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;
+    }
+
+    @Override
     public Historic loadHistoric(final T value) {
         final AggregationResults result = operations.aggregate(
                 newAggregation(
@@ -172,6 +186,19 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
                 ), COLLECTION, Historic.class);
 
         return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
+    }
+
+    @Override
+    public MetadataDocument loadMetadata(final String id) {
+        final AggregationResults result = operations.aggregate(
+                newAggregation(
+                        match(
+                                where("_id").is(newObjectId(id))
+                        ), project().and("$metaData.timeZones").as("timeZones")
+                                .and("$metaData.versionDocument").as("versionDocument")
+                ), COLLECTION, MetadataDocument.class);
+
+        return result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;
     }
 
     @Override

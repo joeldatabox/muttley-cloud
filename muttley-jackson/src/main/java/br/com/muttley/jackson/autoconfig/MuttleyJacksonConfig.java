@@ -25,6 +25,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.time.ZonedDateTime;
 
 
 /**
@@ -52,9 +53,15 @@ public class MuttleyJacksonConfig implements InitializingBean {
         return new Jackson2ObjectMapperBuilderCustomizer() {
             @Override
             public void customize(Jackson2ObjectMapperBuilder mapperBuilder) {
+
                 mapperBuilder.deserializerByType(BigDecimal.class, new BigDecimalDeserializer());
+
                 mapperBuilder.deserializerByType(ObjectId.class, new ObjectIdDeserializer());
                 mapperBuilder.serializerByType(ObjectId.class, new ObjectIdSerializer());
+
+                mapperBuilder.deserializerByType(ZonedDateTime.class, new ZonedDateTimeDeserializer(property.getDatePattern()));
+                mapperBuilder.serializerByType(ZonedDateTime.class, new ZonedDateTimeSerializer(property.getDatePattern()));
+
                 //se não existe um formatador de data padrão, devemos adicionar o nosso
                 if (dateFormat == null) {
                     mapperBuilder.dateFormat(createDateFormat());

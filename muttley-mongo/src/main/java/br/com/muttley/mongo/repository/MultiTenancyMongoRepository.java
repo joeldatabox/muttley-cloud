@@ -1,6 +1,7 @@
 package br.com.muttley.mongo.repository;
 
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.Owner;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -114,6 +115,14 @@ public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoReposi
     boolean exists(final Owner owner, final Object... filter);
 
     /**
+     * Carrega o metadata de um determinado registro
+     *
+     * @param owner -> dono do registro
+     * @param value -> registro a ser carregado
+     */
+    MetadataDocument loadMetadata(final Owner owner, final T value);
+
+    /**
      * Carrega o historico de um determinado registro
      *
      * @param owner -> dono do registro
@@ -128,4 +137,12 @@ public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoReposi
      * @param id    -> id do registro a ser carregado
      */
     Historic loadHistoric(final Owner owner, final String id);
+
+    /**
+     * Carrega o metadata de um determinado registro
+     *
+     * @param owner -> dono do registro
+     * @param id    -> id do registro a ser carregado
+     */
+    MetadataDocument loadMetadata(final Owner owner, final String id);
 }

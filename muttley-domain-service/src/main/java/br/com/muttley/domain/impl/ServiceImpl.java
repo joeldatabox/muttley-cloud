@@ -5,8 +5,13 @@ import br.com.muttley.domain.Validator;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.headers.components.MuttleyCurrentTimezone;
+import br.com.muttley.headers.components.MuttleyCurrentVersion;
+import br.com.muttley.headers.components.MuttleyUserAgentName;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetadataDocument;
+import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +39,13 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     protected final Class<T> clazz;
     @Value("${muttley.security.check-roles:false}")
     private boolean checkRoles;
+
+    @Autowired
+    protected MuttleyCurrentTimezone currentTimezone;
+    @Autowired
+    protected MuttleyCurrentVersion currentVersion;
+    @Autowired
+    protected MuttleyUserAgentName userAgentName;
 
     @Autowired
     protected Validator validator;
@@ -69,6 +81,8 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         value.setId(null);
         //garantindo que o históriconão ficará nulo
         value.setHistoric(this.createHistoric(user));
+        //garantindo que o metadata ta preenchido
+        this.createMetaData(user, value);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
@@ -108,6 +122,8 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         }
         //gerando histórico de alteração
         value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(value)));
+        //gerando metadata de alteração
+        generateMetaDataUpdate(user, value);
         //processa regra de negocio antes de qualquer validação
         beforeUpdate(user, value);
         //verificando precondições
@@ -258,10 +274,111 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
                 .setDtChange(now);
     }
 
+    protected void createMetaData(final User user, final T value) {
+        //se não tiver nenhum metadata criado, vamos criar um
+        if (!value.containsMetadata()) {
+            value.setMetadata(new MetadataDocument()
+                    .setTimeZones(this.currentTimezone.getCurrentTimezoneDocument())
+                    .setVersionDocument(
+                            new VersionDocument()
+                                    .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
+                                    .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue())
+                                    .setOriginNameClientCreate(this.userAgentName.getCurrentValue())
+                                    .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
+                                    .setServerVersionCreate(this.currentVersion.getCurrenteFromServer())
+                                    .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
+                    ));
+        } else {
+            //se não tem um timezone válido, vamos criar um
+            if (!value.getMetadata().containsTimeZones()) {
+                value.getMetadata().setTimeZones(this.currentTimezone.getCurrentTimezoneDocument());
+            } else {
+                //se chegou aqui é sinal que já possui infos de timezones e devemos apenas checar e atualizar caso necessário
+
+                //O timezone atual informado é valido?
+                if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
+                    //adicionado a mesma info no createTimezone já que estamos criando um novo registro
+                    value.getMetadata().getTimeZones().setCreateTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
+                }
+
+                //adicionando infos de timezone do servidor
+                final String currentServerTimezone = this.currentTimezone.getCurrenteTimeZoneFromServer();
+                value.getMetadata().getTimeZones().setServerCreteTimeZone(currentServerTimezone);
+                value.getMetadata().getTimeZones().setServerCurrentTimeZone(currentServerTimezone);
+            }
+
+            //criando version valido
+            value.getMetadata().setVersionDocument(
+                    new VersionDocument()
+                            .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
+                            .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue())
+                            .setOriginNameClientCreate(this.userAgentName.getCurrentValue())
+                            .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
+                            .setServerVersionCreate(this.currentVersion.getCurrenteFromServer())
+                            .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
+            );
+
+
+        }
+    }
+
     protected Historic generateHistoricUpdate(final User user, final Historic historic) {
         return historic
                 .setLastChangeBy(user)
                 .setDtChange(new Date());
+    }
+
+    protected void generateMetaDataUpdate(final User user, final T value) {
+        //recuperando o registro do banco
+        final MetadataDocument currentMetadata = this.repository.loadMetadata(value);
+
+        currentMetadata.getTimeZones().setServerCurrentTimeZone(this.currentTimezone.getCurrenteTimeZoneFromServer());
+
+
+        //se veio informações no registro, devemos aproveitar
+        if (value.containsMetadata()) {
+            if (value.getMetadata().containsTimeZones()) {
+                if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
+                    currentMetadata.getTimeZones().setCurrentTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
+                } else {
+                    currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue());
+                }
+            } else {
+                currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue());
+            }
+        } else {
+            currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue())
+                    .setServerCurrentTimeZone(this.currentTimezone.getCurrenteTimeZoneFromServer());
+        }
+        //setando versionamento
+        currentMetadata
+                .getVersionDocument()
+                .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
+                .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
+                .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
+
+        value.setMetadata(currentMetadata);
+
+        /*final MetadataDocument otherMetadata = value.getMetadata();
+
+
+        //se não tiver nenhum metadata criado, vamos criar um
+
+        MetadataDocument currentMetadata = repository.loadMetadata(value);
+
+        currentMetadata.getTimeZones()
+        if (currentMetadata == null) {
+            currentMetadata = new MetadataDocument();
+        }
+
+
+        currentMetadata.getTimeZones().setOriginLastUpdate(this.currentTimezone.getCurrentValue());
+        currentMetadata.getTimeZones().setServerLastUpdate(this.currentTimezone.getCurrenteTimeZoneFromServer());
+
+        currentMetadata.getVersionDocument().setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue());
+        currentMetadata.getVersionDocument().setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
+        currentMetadata.getVersionDocument().setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer());
+        return currentMetadata;*/
     }
 
     @Override

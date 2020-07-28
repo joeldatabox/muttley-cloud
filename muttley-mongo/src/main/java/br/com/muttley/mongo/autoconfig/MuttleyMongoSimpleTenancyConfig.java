@@ -140,6 +140,7 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
     private MongoClientOptions getMongoClientOption() {
         //registrando os codecs básicos
         final BigDecimalCodec bigDecimalCodec = new BigDecimalCodec();
+        final ZonedDateTimeTra
 
         addEncodingHook(bigDecimalCodec.getEncoderClass(), bigDecimalCodec.getTransformer());
         //lista para armazenar os registros de codecs
