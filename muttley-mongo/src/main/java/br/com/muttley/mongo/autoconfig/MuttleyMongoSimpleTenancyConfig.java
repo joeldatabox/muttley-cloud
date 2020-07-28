@@ -3,6 +3,7 @@ package br.com.muttley.mongo.autoconfig;
 import br.com.muttley.model.View;
 import br.com.muttley.mongo.codec.MuttleyMongoCodec;
 import br.com.muttley.mongo.codec.impl.BigDecimalCodec;
+import br.com.muttley.mongo.codec.impl.ZonedDateTimeCodec;
 import br.com.muttley.mongo.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.converters.Decimal128ToBigDecimalConverter;
 import br.com.muttley.mongo.properties.MuttleyMongoProperties;
@@ -140,13 +141,15 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
     private MongoClientOptions getMongoClientOption() {
         //registrando os codecs básicos
         final BigDecimalCodec bigDecimalCodec = new BigDecimalCodec();
-        final ZonedDateTimeTra
+        final ZonedDateTimeCodec zonedDateTimeCodec = new ZonedDateTimeCodec();
 
         addEncodingHook(bigDecimalCodec.getEncoderClass(), bigDecimalCodec.getTransformer());
+        addEncodingHook(zonedDateTimeCodec.getEncoderClass(), zonedDateTimeCodec.getTransformer());
         //lista para armazenar os registros de codecs
         final List<CodecRegistry> codecRegistries = new ArrayList();
         //adicionando o codec para bigdecimal
         codecRegistries.add(fromProviders(bigDecimalCodec.getCodecProvider()));
+        codecRegistries.add(fromProviders(zonedDateTimeCodec.getCodecProvider()));
 
 
         //pegando os codecs customizados que foram implementados no servidor
