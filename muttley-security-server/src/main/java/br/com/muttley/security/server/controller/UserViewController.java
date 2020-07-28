@@ -59,7 +59,7 @@ public class UserViewController extends AbstractRestController<UserView> {
         if (total == 0) {
             throw new MuttleyNoContentException(null, null, "registros não encontrados!");
         }
-
+        final long totalAll = service.count(null, allRequestParams.get("owner"));
         final List records = service.list(allRequestParams.get("q"), allRequestParams.get("owner"));
 
         final Long recordSize = Long.valueOf(records.size());
@@ -68,7 +68,9 @@ public class UserViewController extends AbstractRestController<UserView> {
                 ServletUriComponentsBuilder.fromCurrentRequest(),
                 LIMIT,
                 SKIP,
-                recordSize, total);
+                recordSize,
+                total,
+                totalAll);
 
         publishPaginatedResultsRetrievedEvent(
                 eventPublisher,
