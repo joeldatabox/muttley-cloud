@@ -125,8 +125,8 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
 
     @Bean
     @Scope(value = "prototype")
-    protected MuttleyMigrationListener configVersioningFactory(@Autowired final ApplicationEventPublisher publisher, @Autowired final MongoOperations operations) {
-        return new MuttleyMigrationListener(publisher, operations);
+    protected MuttleyMigrationListener configVersioningFactory(@Autowired final ApplicationEventPublisher publisher, @Autowired final MongoOperations operations, @Value("${spring.cloud.config.name}") final String applicationName) {
+        return new MuttleyMigrationListener(publisher, operations, applicationName);
     }
 
     @Bean
