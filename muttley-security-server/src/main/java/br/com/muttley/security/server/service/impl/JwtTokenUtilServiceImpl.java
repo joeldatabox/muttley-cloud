@@ -2,6 +2,7 @@ package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.security.server.property.MuttleySecurityProperty;
+import br.com.muttley.security.server.service.SecretService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,7 +23,7 @@ import java.util.Map;
  * @project muttley-cloud
  */
 @Service
-public class JwtTokenUtilService implements Serializable {
+public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.security.server.service.JwtTokenUtilService {
 
     static final String CLAIM_KEY_USERNAME = "sub";
     static final String CLAIM_KEY_AUDIENCE = "audience";
@@ -38,10 +39,11 @@ public class JwtTokenUtilService implements Serializable {
     private final SecretService secretService;
 
     @Autowired
-    public JwtTokenUtilService(final SecretService secretService) {
+    public JwtTokenUtilServiceImpl(final SecretService secretService) {
         this.secretService = secretService;
     }
 
+    @Override
     public final String getUsernameFromToken(final String token) {
         try {
             final Claims claims = getClaimsFromToken(token);
@@ -53,6 +55,7 @@ public class JwtTokenUtilService implements Serializable {
         return null;
     }
 
+    @Override
     public final Date getCreatedDateFromToken(final String token) {
         Date created;
         try {
@@ -64,6 +67,7 @@ public class JwtTokenUtilService implements Serializable {
         return created;
     }
 
+    @Override
     public final Date getExpirationDateFromToken(final String token) {
         Date expiration;
         try {
@@ -75,6 +79,7 @@ public class JwtTokenUtilService implements Serializable {
         return expiration;
     }
 
+    @Override
     public final String getAudienceFromToken(final String token) {
         String audience;
         try {
@@ -134,6 +139,7 @@ public class JwtTokenUtilService implements Serializable {
         return (AUDIENCE_TABLET.equals(audience) || AUDIENCE_MOBILE.equals(audience));
     }
 
+    @Override
     public final String generateToken(final UserDetails userDetails, Device device) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
@@ -150,12 +156,14 @@ public class JwtTokenUtilService implements Serializable {
                 .compact();
     }
 
+    @Override
     public final boolean canTokenBeRefreshed(final String token, final Date lastPasswordReset) {
         final Date created = getCreatedDateFromToken(token);
         return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
                 && (!isTokenExpired(token) || ignoreTokenExpiration(token));
     }
 
+    @Override
     public final String refreshToken(final String token) {
         String refreshedToken;
         try {
@@ -168,6 +176,7 @@ public class JwtTokenUtilService implements Serializable {
         return refreshedToken;
     }
 
+    @Override
     public final boolean validateToken(final String token, final UserDetails userDetails) {
         final JwtUser user = (JwtUser) userDetails;
         final String username = getUsernameFromToken(token);

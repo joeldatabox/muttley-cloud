@@ -4,8 +4,8 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedE
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
+import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.UserService;
-import br.com.muttley.security.server.service.impl.JwtTokenUtilService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,14 +13,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * Aplica o filtro de autenticação necessario
  */
 @RestController
-@RequestMapping(value = "/api/v1/users/authentication", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/api/v1/users/authentication", produces = APPLICATION_JSON_VALUE)
 public class AuthenticationTokenController {
     private final JwtTokenUtilService tokenUtil;
     private final UserService userService;

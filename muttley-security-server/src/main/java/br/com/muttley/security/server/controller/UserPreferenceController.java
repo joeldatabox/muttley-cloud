@@ -2,9 +2,9 @@ package br.com.muttley.security.server.controller;
 
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.preference.Preference;
+import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.UserPreferenceService;
 import br.com.muttley.security.server.service.UserService;
-import br.com.muttley.security.server.service.impl.JwtTokenUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
