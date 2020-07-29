@@ -12,6 +12,7 @@ import br.com.muttley.mongo.repository.impl.SimpleTenancyMongoRepositoryImpl;
 import br.com.muttley.mongo.service.MuttleyConvertersService;
 import br.com.muttley.mongo.service.MuttleyMongoCodecsService;
 import br.com.muttley.mongo.service.MuttleyViewSourceService;
+import br.com.muttley.mongo.service.listeners.MuttleyMigrationListener;
 import br.com.muttley.mongo.views.source.ViewSource;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -23,7 +24,9 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -121,8 +124,9 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
     }
 
     @Bean
-    protected MuttleyConfigVersioning configVersioningFactory(@Value("${muttley.mongodb.versioningCollection:_versioning}") final String collection, @Autowired final MongoOperations operations) {
-        return new MuttleyConfigVersioning(collection, operations);
+    @Scope(value = "prototype")
+    protected MuttleyMigrationListener configVersioningFactory(@Autowired final ApplicationEventPublisher publisher, @Autowired final MongoOperations operations) {
+        return new MuttleyMigrationListener(publisher, operations);
     }
 
     @Bean
