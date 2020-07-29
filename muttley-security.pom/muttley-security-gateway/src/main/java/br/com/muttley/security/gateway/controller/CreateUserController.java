@@ -32,6 +32,7 @@ public class CreateUserController {
     protected final ApplicationEventPublisher eventPublisher;
     protected UserServiceClient service;
     protected static final String NOME = "name";
+    protected static final String DECRIPTION = "description";
     protected static final String USER_NAME = "userName";
     protected static final String EMAIL = "email";
     protected static final String PASSWD = "password";
@@ -43,7 +44,7 @@ public class CreateUserController {
         this.service = service;
     }
 
-    @RequestMapping(value = CREATE_END_POINT, method = RequestMethod.POST)
+    @RequestMapping(value = "${muttley.security.jwt.controller.createEndPoint}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void save(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
 
@@ -72,6 +73,7 @@ public class CreateUserController {
 
         final UserPayLoad user = new UserPayLoad(
                 (String) payload.get(NOME),
+                (String) payload.get(DECRIPTION),
                 (String) payload.get(EMAIL),
                 (String) payload.get(USER_NAME),
                 payload.containsKey(NICK_NAMES) ? new HashSet((List) payload.get(NICK_NAMES)) : null,

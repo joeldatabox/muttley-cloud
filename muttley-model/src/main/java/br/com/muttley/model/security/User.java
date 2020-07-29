@@ -67,6 +67,7 @@ public class User implements Serializable {
     @NotBlank(message = "O campo nome não pode ser nulo!")
     @Size(min = 4, max = 200, message = "O campo nome deve ter de 4 a 200 caracteres!")
     private String name;
+    private String description;
     @Email(message = "Informe um email válido!")
     private String email;
     @NotBlank(message = "Informe um userName válido")
@@ -96,6 +97,7 @@ public class User implements Serializable {
             @JsonProperty("workTeams") final Set<WorkTeam> workTeams,
             @JsonProperty("currentWorkTeam") final WorkTeam currentWorkTeam,
             @JsonProperty("name") final String name,
+            @JsonProperty("description") final String description,
             @JsonProperty("userName") final String userName,
             @JsonProperty("email") final String email,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
@@ -108,6 +110,7 @@ public class User implements Serializable {
         this.workTeams = workTeams;
         this.currentWorkTeam = currentWorkTeam;
         this.name = name;
+        this.description = description;
         this.userName = userName;
         this.email = email;
         this.setNickUsers(nickUsers);
@@ -121,6 +124,7 @@ public class User implements Serializable {
     public User(final UserPayLoad payLoad) {
         this();
         this.setName(payLoad.getName());
+        this.setDescription(payLoad.getDescription());
         this.setUserName(payLoad.getUserName());
         this.setEmail(payLoad.getEmail());
         this.setNickUsers(payLoad.getNickUsers());
@@ -186,6 +190,15 @@ public class User implements Serializable {
 
     public User setName(final String name) {
         this.name = name;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public User setDescription(final String description) {
+        this.description = description;
         return this;
     }
 

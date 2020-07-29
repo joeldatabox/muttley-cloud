@@ -25,7 +25,7 @@ public interface UserService extends UserDetailsService {
 
     boolean removeByUserName(final String userName);
 
-    User update(final User user);
+    User update(final User user, final JwtToken token);
 
     User updatePasswd(final Passwd user);
 
