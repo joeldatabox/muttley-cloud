@@ -26,6 +26,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.core.query.Query;
@@ -119,6 +120,10 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
         return new MongoCustomConversions(converters);
     }
 
+    @Bean
+    protected MuttleyConfigVersioning configVersioningFactory(@Value("${muttley.mongodb.versioningCollection:_versioning}") final String collection, @Autowired final MongoOperations operations) {
+        return new MuttleyConfigVersioning(collection, operations);
+    }
 
     @Bean
     public MongoRepositoryFactory getMongoRepositoryFactory() {

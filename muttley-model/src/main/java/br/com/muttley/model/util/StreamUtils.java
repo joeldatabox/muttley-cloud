@@ -10,7 +10,7 @@ import static java.util.stream.StreamSupport.stream;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class StreamUtil {
+public class StreamUtils {
     public static <T> Stream<T> of(Iterator<T> sourceIterator) {
         return of(sourceIterator, false);
     }
