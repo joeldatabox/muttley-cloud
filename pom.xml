@@ -30,6 +30,7 @@
         <spring-mobile-device.version>2.0.0.M3</spring-mobile-device.version>
         <spring-security-jwt.version>1.1.0.RELEASE</spring-security-jwt.version>
         <jsonwebtoken.version>0.9.1</jsonwebtoken.version>
+        <jasperreports.version>6.13.0</jasperreports.version>
     </properties>
 
     <modules>
@@ -46,6 +47,7 @@
         <module>muttley-jackson</module>
         <module>muttley-feign</module>
         <module>muttley-zuul</module>
+        <module>muttley-report</module>
         <module>muttley-security.pom</module>
         <module>muttley-mobile-device</module>
     </modules>
@@ -88,6 +90,12 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-exception</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-report</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -200,6 +208,18 @@
             </dependency>
 
             <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-fonts</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.springframework.mobile</groupId>
                 <artifactId>spring-mobile-device</artifactId>
                 <version>${spring-mobile-device.version}</version>
@@ -234,6 +254,14 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
+        <repository>
+            <id>jaspersoft</id>
+            <url>http://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/</url>
         </repository>
     </repositories>
 
