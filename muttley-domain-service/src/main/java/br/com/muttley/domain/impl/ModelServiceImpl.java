@@ -8,6 +8,8 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.MultiTenancyModel;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.repository.MultiTenancyMongoRepository;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -26,8 +28,8 @@ import static java.util.Objects.isNull;
 public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends ServiceImpl<T> implements ModelService<T> {
     protected final MultiTenancyMongoRepository<T> repository;
 
-    public ModelServiceImpl(final MultiTenancyMongoRepository<T> repository, final Class<T> clazz) {
-        super(repository, clazz);
+    public ModelServiceImpl(final MultiTenancyMongoRepository<T> repository, MongoTemplate mongoTemplate, final Class<T> clazz) {
+        super(repository, mongoTemplate, clazz);
         this.repository = repository;
     }
 
@@ -210,6 +212,12 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");
         }
         return results;
+    }
+
+    @Override
+    protected AggregationResults<T> createAggregateForLoadProperties(final User user, final Map<String, Object> condictions, final String... properties) {
+        condictions.put("owner.$id", user.getCurrentOwner().getObjectId());
+        return super.createAggregateForLoadProperties(user, condictions, properties);
     }
 
     /**

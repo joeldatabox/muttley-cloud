@@ -9,6 +9,7 @@ import br.com.muttley.security.server.repository.OwnerRepository;
 import br.com.muttley.security.server.service.OwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import static java.util.Objects.isNull;
@@ -26,8 +27,8 @@ public class OwnerServiceImpl extends SecurityServiceImpl<Owner> implements Owne
     private static final String[] basicRoles = new String[]{"owner"};
 
     @Autowired
-    public OwnerServiceImpl(final OwnerRepository repository, final ApplicationEventPublisher eventPublisher) {
-        super(repository, Owner.class);
+    public OwnerServiceImpl(final OwnerRepository repository, final MongoTemplate mongoTemplate, final ApplicationEventPublisher eventPublisher) {
+        super(repository, mongoTemplate, Owner.class);
         this.repository = repository;
         this.eventPublisher = eventPublisher;
     }

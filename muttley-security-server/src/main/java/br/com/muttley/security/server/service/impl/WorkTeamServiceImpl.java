@@ -53,16 +53,14 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     private final WorkTeamRepository repository;
     private final UserRolesViewService userRolesView;
     private static final String[] basicRoles = new String[]{"work_team"};
-    private final MongoTemplate mongoTemplate;
     private final DocumentNameConfig documentNameConfig;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
     public WorkTeamServiceImpl(final WorkTeamRepository repository, final UserRolesViewService userRolesView, final MongoTemplate template, final DocumentNameConfig documentNameConfig, final ApplicationEventPublisher applicationEventPublisher) {
-        super(repository, WorkTeam.class);
+        super(repository, template, WorkTeam.class);
         this.repository = repository;
         this.userRolesView = userRolesView;
-        this.mongoTemplate = template;
         this.documentNameConfig = documentNameConfig;
         this.applicationEventPublisher = applicationEventPublisher;
     }

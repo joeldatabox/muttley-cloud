@@ -46,7 +46,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         this.eventPublisher = eventPublisher;
     }
 
-    @RequestMapping(method = RequestMethod.POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(method = RequestMethod.POST, consumes = {APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity save(
             @RequestBody final T value,

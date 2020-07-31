@@ -45,7 +45,6 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  */
 @Service
 public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> implements UserPreferenceService {
-    private final MongoTemplate template;
     private final UserPreferencesRepository repository;
     private final HeaderAuthorizationJWT headerAuthorizationJWT;
     private final RedisService redisService;
@@ -65,8 +64,7 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
             final ApplicationEventPublisher eventPublisher,
             final DocumentNameConfig documentNameConfig,
             final ObjectProvider<InmutablesPreferencesService> inmutablesPreferencesService) {
-        super(repository, UserPreferences.class);
-        this.template = template;
+        super(repository, template, UserPreferences.class);
         this.repository = repository;
         this.headerAuthorizationJWT = headerAuthorizationJWT;
         this.redisService = redisService;
@@ -178,7 +176,7 @@ public class UserPreferenceServiceImpl extends ServiceImpl<UserPreferences> impl
          *     {$project: {"userId":"$user._id"}}
          *     ])
          */
-        final AggregationResults<UniqueResult> results = this.template
+        final AggregationResults<UniqueResult> results = this.mongoTemplate
                 .aggregate(
                         newAggregation(
                                 //transformando o objeto em array
