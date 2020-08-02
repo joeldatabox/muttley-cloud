@@ -6,6 +6,7 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestExc
 import br.com.muttley.exception.throwables.security.MuttleySecurityConflictException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
+import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.Passwd;
@@ -45,6 +46,8 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -278,6 +281,39 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserPreferences loadPreference(final User user) {
         return this.userPreferenceService.getPreferences(user);
+    }
+
+    @Override
+    public boolean constainsPreference(final User user, final String keyPreference) {
+        /**
+         * db.getCollection("muttley-users-preferences").aggregate([
+         *     {$match:{_id:ObjectId("5e4c1bdb30c49e00012d924c")}},
+         *     {$project:{preferences:1}},
+         *     {$unwind:"$preferences"},
+         *     {$match:{"preferences.key":"UserColaborador"}},
+         *     {$count:"result"}
+         * ])
+         */
+
+        if (StringUtils.isEmpty(keyPreference)) {
+            return false;
+        }
+
+        final AggregationResults<BasicAggregateResultCount> result = this.template.aggregate(
+                newAggregation(
+                        match(where("_id").is(new ObjectId(user.getId()))),
+                        project("preferences"),
+                        unwind("$preferences"),
+                        match(where("preferences.key").is(keyPreference)),
+                        Aggregation.count().as("resul")
+                ),
+                UserPreferences.class,
+                BasicAggregateResultCount.class
+        );
+        if (result == null || result.getUniqueMappedResult() == null) {
+            return false;
+        }
+        return result.getUniqueMappedResult().getResult() > 0;
     }
 
     private User merge(final User user) {

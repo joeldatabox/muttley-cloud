@@ -17,6 +17,7 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -116,5 +117,9 @@ public class UserPreferences implements Document {
             this.preferences.remove(new Preference(key, ""));
         }
         return this;
+    }
+
+    public boolean isEmpty() {
+        return CollectionUtils.isEmpty(this.preferences);
     }
 }

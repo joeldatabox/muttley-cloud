@@ -10,8 +10,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collection;
 import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Joel Rodrigues Moreira on 15/07/19.
@@ -35,5 +39,33 @@ public class UserView implements Document {
     private Historic historic;
     private MetadataDocument metadata;
 
+    public UserView() {
+    }
+
+    public UserView(final User user) {
+        this.setId(user.getId())
+                .setName(user.getName())
+                .setDescription(user.getDescription())
+                .setUserName(user.getUserName())
+                .setEmail(user.getEmail())
+                .setNickUsers(user.getNickUsers())
+                .setOwners(user.getWorkTeams());
+    }
+
+    public UserView setOwners(final Set<Owner> owners) {
+        this.owners = owners;
+        return this;
+    }
+
+    public UserView setOwners(final Collection<WorkTeam> workTeams) {
+        if (!CollectionUtils.isEmpty(workTeams)) {
+            this.setOwners(
+                    workTeams.stream()
+                            .map(WorkTeam::getOwner)
+                            .collect(toSet())
+            );
+        }
+        return this;
+    }
 }
 
