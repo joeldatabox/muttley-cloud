@@ -119,6 +119,7 @@ public class UserPreferences implements Document {
         return this;
     }
 
+    @JsonIgnore
     public boolean isEmpty() {
         return CollectionUtils.isEmpty(this.preferences);
     }

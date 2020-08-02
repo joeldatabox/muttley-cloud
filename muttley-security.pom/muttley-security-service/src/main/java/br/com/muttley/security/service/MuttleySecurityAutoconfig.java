@@ -27,6 +27,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import static br.com.muttley.security.infra.properties.Properties.LOGIN_END_POINT;
 import static br.com.muttley.security.infra.properties.Properties.TOKEN_HEADER_JWT;
@@ -56,6 +57,7 @@ public class MuttleySecurityAutoconfig implements InitializingBean {
     }
 
     @Bean
+    @Primary
     public AuthService createAuthService(@Value(TOKEN_HEADER_JWT) final String tokenHeader, @Autowired UserServiceClient userServiceClient) {
         return new AuthServiceImpl(tokenHeader, userServiceClient);
     }
