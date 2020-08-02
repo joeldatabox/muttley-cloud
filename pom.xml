@@ -42,6 +42,7 @@
         <module>muttley-redis</module>
         <module>muttley-mongo</module>
         <module>muttley-headers</module>
+        <module>muttley-notification</module>
         <module>muttley-rest</module>
         <module>muttley-domain-service</module>
         <module>muttley-jackson</module>
