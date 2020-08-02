@@ -150,6 +150,12 @@
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-notification</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-rest</artifactId>
                 <version>${revision}</version>
             </dependency>
