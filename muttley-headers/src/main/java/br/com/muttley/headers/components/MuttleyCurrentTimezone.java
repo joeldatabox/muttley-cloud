@@ -47,6 +47,19 @@ public class MuttleyCurrentTimezone extends MuttleyHeader {
         return null;
     }
 
+    /**
+     * O metodo irá tentar pegar o timezone atual da requisição
+     * caso não exista por padrão irá retornar o do servidor
+     */
+    public String getCurrentTimezoneFromRequestOrServer() {
+        final String curretTimezone = this.getCurrentValue();
+        if (curretTimezone != null) {
+            return curretTimezone;
+        }
+        return this.getCurrenteTimeZoneFromServer();
+    }
+
+
     @Override
     public boolean containsValidValue() {
         return !isEmpty(this.currentValue);
