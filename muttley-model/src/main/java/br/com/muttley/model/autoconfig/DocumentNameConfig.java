@@ -34,6 +34,10 @@ public class DocumentNameConfig {
         return properties.getUserPreferenceDocument();
     }
 
+    public String getNameCollectionUsersTokensNotification() {
+        return properties.getUsersTokensNotification();
+    }
+
     public String getNameCollectionWorkTeam() {
         return properties.getWorkTeamDocument();
     }
