@@ -1,5 +1,7 @@
 package br.com.muttley.model.hermes.notification;
 
+import br.com.muttley.model.hermes.notification.jackson.TokenOriginDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.springframework.util.StringUtils;
 
 /**
@@ -7,6 +9,7 @@ import org.springframework.util.StringUtils;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
+@JsonDeserialize(using = TokenOriginDeserializer.class)
 public enum TokenOrigin {
     OneSignal;
 
@@ -14,7 +17,7 @@ public enum TokenOrigin {
         if (StringUtils.isEmpty(origin)) {
             return null;
         }
-        return "onesignal".equalsIgnoreCase(origin) ? OneSignal : null;
+        return OneSignal.name().equalsIgnoreCase(origin) ? OneSignal : null;
     }
 }
 
