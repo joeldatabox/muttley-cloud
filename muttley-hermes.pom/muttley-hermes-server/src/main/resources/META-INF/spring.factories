@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  br.com.muttley.hermes.server.autoconfig.MuttleyHermesAutoconfig
+  br.com.muttley.hermes.server.autoconfig.MuttleyHermesAutoconfig\
+  br.com.muttley.notification.onesignal.configuration.MuttleyOneSignalConfig
