@@ -1,19 +1,15 @@
-package br.com.muttley.security.server;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+package br.com.muttley.hermes.server;
 
 /**
  * @author Joel Rodrigues Moreira on 03/08/2020.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@SpringBootApplication
+/*@SpringBootApplication
 //Packages onde existem entidades
 @EntityScan(basePackages = {"br.com.muttley.model.notification"})
 //Packages onde existem componentes, serviços e configurações
-/*@ComponentScan(basePackages = {
+*//*@ComponentScan(basePackages = {
         //Injeções internas do projeto
         "br.com.muttley.domain.service",
         //Configuração de serviços
@@ -24,12 +20,12 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
         "br.com.muttley.exception.service",
         //Configurações de serialização
         "br.com.muttley.jackson.service"
-})*/
-//@EnableEurekaClient
+})*//*
+//@EnableEurekaClient*/
 public class MuttleyHermesServerApplication {
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         SpringApplication.run(MuttleyHermesServerApplication.class, args);
-    }
+    }*/
 
 }

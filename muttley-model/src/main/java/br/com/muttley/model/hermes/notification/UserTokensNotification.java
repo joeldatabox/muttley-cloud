@@ -1,4 +1,4 @@
-package br.com.muttley.model.notification;
+package br.com.muttley.model.hermes.notification;
 
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
@@ -32,12 +32,12 @@ import java.util.Set;
 @Accessors(chain = true)
 public class UserTokensNotification implements br.com.muttley.model.Document {
     private String id;
-    private MetadataDocument metadata;
     @NotNull(message = "Informe o usuário")
     @JsonSerialize(using = UserSerializer.class)
     @JsonDeserialize(using = UserDeserializer.class)
     @DBRef
     private User user;
     private Set<TokenId> tokens;
+    private MetadataDocument metadata;
     private Historic historic;
 }
