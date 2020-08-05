@@ -1,6 +1,5 @@
 package br.com.muttley.hermes.server.controller;
 
-import br.com.muttley.headers.components.MuttleyUserAgent;
 import br.com.muttley.hermes.server.service.UserTokensNotificationService;
 import br.com.muttley.model.hermes.notification.TokenId;
 import br.com.muttley.rest.RestResource;
@@ -10,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletResponse;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -23,12 +20,10 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
  * @project muttley-cloud
  */
 @RestController
-@RequestMapping(value = "/api/v1/tokens-notification/", produces = APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/tokens-notification", produces = APPLICATION_JSON_VALUE)
 public class UserTokenNotificationController implements RestResource {
     private final AuthService authService;
     private final UserTokensNotificationService service;
-    @Autowired
-    private MuttleyUserAgent userAgent;
 
 
     @Autowired
@@ -37,17 +32,10 @@ public class UserTokenNotificationController implements RestResource {
         this.service = service;
     }
 
-    @RequestMapping(
-            method = POST,
-            consumes = APPLICATION_JSON_VALUE,
-            produces = APPLICATION_JSON_VALUE
-    )
+    @RequestMapping(method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(CREATED)
-    public void save(@RequestBody TokenId tokenId, HttpServletResponse response) {
-        tokenId.setMobile(this.userAgent.isMobile());
+    public void save(@RequestBody TokenId tokenId) {
         this.service.addTokenNotification(this.authService.getCurrentUser(), tokenId);
-        /*T record = this.service.save(this.userService.getCurrentUser(), value);
-        this.publishCreateResourceEvent(this.eventPublisher, response, record);
-        return returnEntity != null && returnEntity.equals("true") ? ResponseEntity.status(HttpStatus.CREATED).body(record) : ResponseEntity.status(HttpStatus.CREATED).build();*/
     }
+
 }

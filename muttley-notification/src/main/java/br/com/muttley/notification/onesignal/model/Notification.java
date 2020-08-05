@@ -3,6 +3,10 @@ package br.com.muttley.notification.onesignal.model;
 import br.com.muttley.notification.onesignal.model.jackson.CollectionContentSerialize;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,14 +16,19 @@ import java.util.Set;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
+@Getter
+@Setter
+@Accessors(chain = true)
+@EqualsAndHashCode(of = "appId")
 public class Notification {
     @JsonProperty("app_id")
     private String appId;
     @JsonProperty("include_player_ids")
     private Set<String> players;
-    private Object data;
     @JsonProperty("big_picture")
     private String picture;
+
+    private NotificationData data;
 
     @JsonSerialize(using = CollectionContentSerialize.class)
     private Set<Content> contents;
