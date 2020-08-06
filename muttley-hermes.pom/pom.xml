@@ -16,6 +16,7 @@
 
     <modules>
         <module>muttley-hermes-server</module>
+        <module>muttley-hermes-api</module>
     </modules>
 
 </project>

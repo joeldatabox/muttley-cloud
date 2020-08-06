@@ -1,12 +1,10 @@
 package br.com.muttley.notification.onesignal.configuration;
 
-import br.com.muttley.feign.autoconfig.FeignConfig;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -19,17 +17,17 @@ import org.springframework.context.annotation.Configuration;
 @EnableFeignClients(
         basePackages = {"br.com.muttley.notification.onesignal.service"}
 )
-public class MuttleyOneSignalConfig implements InitializingBean {
+public class MuttleyOneSignalAutoconfig implements InitializingBean {
 
     private final MuttleyOneSignalProperty property;
 
     @Autowired
-    public MuttleyOneSignalConfig(MuttleyOneSignalProperty property) {
+    public MuttleyOneSignalAutoconfig(MuttleyOneSignalProperty property) {
         this.property = property;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        LoggerFactory.getLogger(FeignConfig.class).info("Configured OneSignal message");
+        LoggerFactory.getLogger(MuttleyOneSignalAutoconfig.class).info("Configured OneSignal message");
     }
 }

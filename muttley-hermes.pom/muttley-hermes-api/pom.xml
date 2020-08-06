@@ -3,36 +3,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>br.com.muttley</groupId>
-        <artifactId>muttley-cloud</artifactId>
+        <artifactId>muttley-hermes.pom</artifactId>
         <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
+    <artifactId>muttley-hermes-api</artifactId>
 
-    <artifactId>muttley-notification</artifactId>
-
-    <name>muttley-notification</name>
+    <name>muttley-hermes-api</name>
     <description>Demo project for Spring Boot</description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>br.com.muttley</groupId>
-            <artifactId>muttley-feign</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-model</artifactId>
@@ -42,7 +24,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.muttley</groupId>
+            <artifactId>muttley-feign</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.muttley</groupId>
+            <artifactId>muttley-security-infra</artifactId>
         </dependency>
 
         <dependency>
@@ -51,5 +42,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
