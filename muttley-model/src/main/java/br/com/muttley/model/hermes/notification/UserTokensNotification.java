@@ -39,8 +39,8 @@ import static java.util.stream.Collectors.toSet;
 public class UserTokensNotification implements br.com.muttley.model.Document {
     private String id;
     @NotNull(message = "Informe o usuário")
-    @JsonSerialize(using = UserSerializer.class)
-    @JsonDeserialize(using = UserDeserializer.class)
+    /*@JsonSerialize(using = UserSerializer.class)
+    @JsonDeserialize(using = UserDeserializer.class)*/
     @DBRef
     private User user;
     private Set<TokenId> tokens;

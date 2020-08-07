@@ -3,10 +3,12 @@ package br.com.muttley.security.server.service;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -50,6 +52,13 @@ public interface UserService extends UserDetailsService {
     User getCurrentUser();*/
 
     UserPreferences loadPreference(final User user);
+
+    /**
+     * Retorna um usuários baseado em uma preferencia
+     */
+    List<User> getUsersFromPreference(final Preference preference);
+
+    User getUserFromPreference(final Preference preference);
 
     boolean constainsPreference(final User user, final String keyPreference);
 }

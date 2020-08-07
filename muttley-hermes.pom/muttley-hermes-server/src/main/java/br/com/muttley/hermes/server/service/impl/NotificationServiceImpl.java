@@ -1,6 +1,5 @@
 package br.com.muttley.hermes.server.service.impl;
 
-import br.com.muttley.domain.Validator;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.hermes.server.service.NotificationService;
 import br.com.muttley.hermes.server.service.UserTokensNotificationService;
@@ -20,21 +19,18 @@ import static br.com.muttley.model.hermes.notification.onesignal.MuttleyLanguage
  */
 @Service
 public class NotificationServiceImpl implements NotificationService {
-    private final Validator validator;
     private final OneSignalNotificationService oneSignalNotificationServiceClient;
     private final UserTokensNotificationService userTokensNotificationService;
 
 
     @Autowired
-    public NotificationServiceImpl(final Validator validator, final OneSignalNotificationService oneSignalNotificationServiceClient, final UserTokensNotificationService userTokensNotificationService) {
-        this.validator = validator;
+    public NotificationServiceImpl(final OneSignalNotificationService oneSignalNotificationServiceClient, final UserTokensNotificationService userTokensNotificationService) {
         this.oneSignalNotificationServiceClient = oneSignalNotificationServiceClient;
         this.userTokensNotificationService = userTokensNotificationService;
     }
 
     @Override
     public void sendNotification(final Notification notification) {
-        this.validator.validate(notification);
         this.oneSignalNotificationServiceClient.sendNotification(notification);
     }
 

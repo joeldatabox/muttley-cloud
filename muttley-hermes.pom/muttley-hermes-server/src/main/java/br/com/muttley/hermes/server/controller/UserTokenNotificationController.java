@@ -7,10 +7,8 @@ import br.com.muttley.security.infra.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -32,8 +30,7 @@ public class UserTokenNotificationController implements RestResource {
         this.service = service;
     }
 
-    @RequestMapping(method = POST)
-    @ResponseStatus(CREATED)
+    @RequestMapping(method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public void save(@RequestBody TokenId tokenId) {
         this.service.addTokenNotification(this.authService.getCurrentUser(), tokenId);
     }

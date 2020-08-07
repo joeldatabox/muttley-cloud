@@ -80,6 +80,14 @@ public class Notification implements Cloneable {
         return this.addContents(asList(contents));
     }
 
+    public Notification addContent(final String content) {
+        return this.addContent(new Content(content));
+    }
+
+    public Notification addContent(final MuttleyLanguage language, final String content) {
+        return this.addContent(new Content(language, content));
+    }
+
     public Notification addHeadings(final Collection<Content> headings) {
         if (!CollectionUtils.isEmpty(headings)) {
             this.headings.addAll(headings.stream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
@@ -92,6 +100,14 @@ public class Notification implements Cloneable {
         return this;
     }
 
+    public Notification addHeading(final String content) {
+        return this.addHeadings(new Content(content));
+    }
+
+    public Notification addHeading(final MuttleyLanguage language, final String content) {
+        return this.addHeadings(new Content(language, content));
+    }
+
     public Notification addSubtitles(final Collection<Content> subtitles) {
         if (!CollectionUtils.isEmpty(subtitles)) {
             this.subtitle.addAll(subtitles.stream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
@@ -102,6 +118,14 @@ public class Notification implements Cloneable {
     public Notification addSubtitles(final Content... subtitles) {
         this.addSubtitles(asList(subtitles));
         return this;
+    }
+
+    public Notification addSubtitle(final String content) {
+        return this.addSubtitles(new Content(content));
+    }
+
+    public Notification addSubtitle(final MuttleyLanguage language, final String content) {
+        return this.addSubtitles(new Content(language, content));
     }
 
     public Notification addPlayers(final Collection<String> players) {

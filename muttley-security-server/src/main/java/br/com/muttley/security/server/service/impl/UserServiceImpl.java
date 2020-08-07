@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyException;
+import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityConflictException;
@@ -12,6 +13,7 @@ import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserCreatedEvent;
+import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.InmutablesPreferencesService;
@@ -44,6 +46,7 @@ import java.util.Set;
 import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM_PREFERENCE;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.stream.Collectors.toList;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
@@ -281,6 +284,55 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserPreferences loadPreference(final User user) {
         return this.userPreferenceService.getPreferences(user);
+    }
+
+    @Override
+    public List<User> getUsersFromPreference(final Preference preference) {
+        /**
+         * db.getCollection("muttley-users-preferences").aggregate([
+         *                 {$match:{preferences:{$elemMatch: {"key":"UserColaborador", value:"5e28bd0d6f985c00017e7bb6"}}}},
+         *                 {$project: {user:1}}
+         * ])
+         */
+        final AggregationResults<UserPreferences> results = this.template.aggregate(
+                newAggregation(
+                        match(where("preferences").elemMatch(where("key").is(preference.getKey()).and("value").is(preference.getValue()))),
+                        project("user")
+                ),
+                UserPreferences.class,
+                UserPreferences.class
+        );
+        if (results != null && !CollectionUtils.isEmpty(results.getMappedResults())) {
+            return results.getMappedResults()
+                    .stream()
+                    .map(UserPreferences::getUser)
+                    .collect(toList());
+        }
+        throw new MuttleyNoContentException(User.class, null, "Nenhum usuário encontrado");
+    }
+
+    @Override
+    public User getUserFromPreference(final Preference preference) {
+        /**
+         * db.getCollection("muttley-users-preferences").aggregate([
+         *                 {$match:{preferences:{$elemMatch: {"key":"UserColaborador", value:"5e28bd0d6f985c00017e7bb6"}}}},
+         *                 {$project: {user:1}},
+         *                 {$limit:1}
+         * ])
+         */
+        final AggregationResults<UserPreferences> results = this.template.aggregate(
+                newAggregation(
+                        match(where("preferences").elemMatch(where("key").is(preference.getKey()).and("value").is(preference.getValue()))),
+                        project("user"),
+                        limit(1)
+                ),
+                UserPreferences.class,
+                UserPreferences.class
+        );
+        if (results != null && results.getUniqueMappedResult() != null) {
+            return results.getUniqueMappedResult().getUser();
+        }
+        throw new MuttleyNotFoundException(User.class, null, "Nenhum usuário encontrado");
     }
 
     @Override
