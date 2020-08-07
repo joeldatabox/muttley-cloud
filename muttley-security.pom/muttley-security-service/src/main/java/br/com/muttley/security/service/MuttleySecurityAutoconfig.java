@@ -58,8 +58,8 @@ public class MuttleySecurityAutoconfig implements InitializingBean {
 
     @Bean
     @Primary
-    public AuthService createAuthService(@Value(TOKEN_HEADER_JWT) final String tokenHeader, @Autowired UserServiceClient userServiceClient) {
-        return new AuthServiceImpl(tokenHeader, userServiceClient);
+    public AuthService createAuthService(@Value(TOKEN_HEADER_JWT) final String tokenHeader, @Autowired UserServiceClient userServiceClient, @Autowired final UserPreferenceServiceClient userPreferenceServiceClient) {
+        return new AuthServiceImpl(tokenHeader, userServiceClient, userPreferenceServiceClient);
     }
 
     @Bean

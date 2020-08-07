@@ -27,8 +27,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/user-preferences", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
 public interface UserPreferenceServiceClient {
 
-    @RequestMapping(method = GET, consumes = APPLICATION_JSON_VALUE)
-    public UserPreferences getPreferences();
+    @RequestMapping(value = "/{idUser}", method = GET, consumes = APPLICATION_JSON_VALUE)
+    public UserPreferences getPreferences(@PathVariable("idUser") String idUser);
 
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_VALUE)
     public void setPreference(@RequestBody final Preference preference);

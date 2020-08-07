@@ -55,7 +55,7 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
 
             if (preferences == null) {
                 //se não existe cache, devemos buscar no servidor de segurança
-                preferences = preferenceServiceClient.getPreferences();
+                preferences = preferenceServiceClient.getPreferences(user.getId());
                 //salvando as preferencias carregadas no cache
                 this.cacheUserPreferences.set(user, preferences, authorizationJWT.getToken().getExpiration());
             }
