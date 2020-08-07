@@ -55,12 +55,38 @@ public class DateUtils {
         return localDateIni.isEqual(localDateEnd) || localDateIni.isAfter(localDateEnd);
     }
 
+    public static boolean isToday(final Date date) {
+        return isEquals(toFirstHour(date), toFirstHour(new Date()));
+    }
+
+    public static boolean isToday(final LocalDateTime dateTime) {
+        return toFirstHour(dateTime).equals(toFirstHour(LocalDateTime.now()));
+    }
+
+    public static boolean isToday(final ZonedDateTime dateTime) {
+        final ZonedDateTime today;
+        if (dateTime.getZone() == null) {
+            today = ZonedDateTime.now();
+        } else {
+            today = ZonedDateTime.now(dateTime.getZone());
+        }
+        return tofirstHour(today).isEqual(tofirstHour(dateTime));
+    }
+
     public static Date toFirstHour(final Date date) {
         return toDate(toFirstHour(toLocalDateTime(date)));
     }
 
     public static LocalDateTime toFirstHour(final LocalDateTime date) {
         return date
+                .withHour(0)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
+    }
+
+    public static ZonedDateTime tofirstHour(final ZonedDateTime dateTime) {
+        return dateTime
                 .withHour(0)
                 .withMinute(0)
                 .withSecond(0)
