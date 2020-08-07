@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static br.com.muttley.security.gateway.properties.MuttleySecurityProperties.CREATE_END_POINT;
-
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>

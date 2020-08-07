@@ -67,8 +67,8 @@ public class JRMuttleyMongoDataSource implements JRDataSource {
         if (this.currentResult == null) {
             //se é null quer dizer que estamos na primeira pagina
             result = this.fetchQuery();
-            if(this.currentPageSize == 0 ){
-                throw new MuttleyNoContentException(this.COLLECTION,null, "Nenhum registro encontrado para o relatório!");
+            if (this.currentPageSize == 0) {
+                throw new MuttleyNoContentException(this.COLLECTION, null, "Nenhum registro encontrado para o relatório!");
             }
         } else {
             result = this.currentResult.hasNext() ? true : this.fetchQuery();
