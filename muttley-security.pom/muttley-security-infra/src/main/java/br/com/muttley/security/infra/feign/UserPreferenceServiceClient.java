@@ -40,7 +40,7 @@ public interface UserPreferenceServiceClient {
     public void removePreference(@PathVariable("key") final String key);
 
     @RequestMapping(value = "/{idUser}/preferences/contains", method = GET, consumes = TEXT_PLAIN_VALUE)
-    public boolean containsPreferences(@PathVariable("idUser") String idUser, @RequestParam(name = "key", required = false) final String keyPreference);
+    public Boolean containsPreferences(@PathVariable("idUser") String idUser, @RequestParam(name = "key", required = false) final String keyPreference);
 
     @RequestMapping(value = "/users-from-preference", method = GET, consumes = APPLICATION_JSON_VALUE)
     public List<User> getUsersFromPreference(@RequestParam(name = "key", required = false) final String key, @RequestParam(name = "value", required = false) final String value);

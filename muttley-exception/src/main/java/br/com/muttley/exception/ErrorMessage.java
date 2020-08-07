@@ -16,11 +16,14 @@ import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -47,6 +50,7 @@ public final class ErrorMessage {
     protected String message;
     protected String objectName;
     protected final Map<String, Object> details;
+    protected final Map<String, List<String>> headers;
     @JsonIgnore
     protected ObjectMapper customMapper;
     @JsonIgnore
@@ -54,6 +58,7 @@ public final class ErrorMessage {
 
     public ErrorMessage() {
         this.details = new HashMap<>();
+        this.headers = new HashMap<>();
     }
 
     @JsonCreator
@@ -62,12 +67,14 @@ public final class ErrorMessage {
             @JsonProperty("status") final HttpStatus status,
             @JsonProperty("message") final String message,
             @JsonProperty("objectName") final String objectName,
-            @JsonProperty("details") final Map<String, Object> details) {
+            @JsonProperty("details") final Map<String, Object> details,
+            @JsonProperty("headers") final Map<String, List<String>> headers) {
         this.field = field;
         this.status = status;
         this.message = message;
         this.objectName = objectName;
         this.details = details;
+        this.headers = headers;
     }
 
     public String getField() {
@@ -167,6 +174,45 @@ public final class ErrorMessage {
     @JsonIgnore
     public boolean containsDetails() {
         return details != null && !details.isEmpty();
+    }
+
+    public Map<String, List<String>> getHeaders() {
+        return headers;
+    }
+
+    @JsonIgnore
+    public ErrorMessage addHeaders(final String key, final String value) {
+        if (this.headers.containsKey(key)) {
+            this.headers.get(key).add(value);
+        } else {
+            final List<String> values = new ArrayList<>(1);
+            values.add(value);
+            this.headers.put(key, values);
+        }
+        return this;
+    }
+
+    @JsonIgnore
+    public ErrorMessage addHeaders(final String key, final String... value) {
+        return this.addHeaders(key, asList(value));
+    }
+
+    @JsonIgnore
+    public ErrorMessage addHeaders(final String key, final List<String> value) {
+        if (this.headers.containsKey(key)) {
+            this.headers.get(key).addAll(value);
+        } else {
+            final List<String> values = new ArrayList<>(1);
+            values.addAll(value);
+            this.headers.put(key, values);
+        }
+        return this;
+    }
+
+    @JsonIgnore
+    public ErrorMessage addHeaders(final Map<String, List<String>> headers) {
+        this.headers.putAll(headers);
+        return this;
     }
 
     @JsonIgnore
