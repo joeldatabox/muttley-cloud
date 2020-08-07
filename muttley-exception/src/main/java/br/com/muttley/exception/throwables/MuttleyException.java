@@ -1,12 +1,14 @@
 package br.com.muttley.exception.throwables;
 
 import br.com.muttley.exception.ErrorMessage;
+import br.com.muttley.exception.service.event.MuttleyExceptionEvent;
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 
@@ -23,6 +25,7 @@ public class MuttleyException extends RuntimeException {
     protected Map<String, Object> details = new HashMap<>();
     protected Map<String, List<String>> headers = new HashMap<>();
     protected String field;
+    protected List<MuttleyExceptionEvent> events = new ArrayList<>();
 
     public MuttleyException() {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -196,6 +199,25 @@ public class MuttleyException extends RuntimeException {
         this.headers.putAll(headers);
         return this;
     }
+
+    public MuttleyException addEvent(final MuttleyExceptionEvent... events) {
+        if (events != null) {
+            this.getEvents().addAll(
+                    asList(events)
+                            .stream()
+                            .filter(e -> e != null)
+                            .collect(
+                                    Collectors.toSet()
+                            )
+            );
+        }
+        return this;
+    }
+
+    public List<MuttleyExceptionEvent> getEvents() {
+        return this.events;
+    }
+
 
     public boolean containsDetais() {
         return !this.details.isEmpty();
