@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Set;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -31,22 +33,25 @@ public interface UserServiceClient {
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public User save(@RequestBody UserPayLoad value, @RequestParam(required = false, value = "returnEntity", defaultValue = "") String returnEntity);
 
-    @RequestMapping(value = "/{email}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public User update(@PathVariable("email") final String email, @RequestHeader(Properties.TOKEN_HEADER) final String token, @RequestBody final User user);
+    @RequestMapping(value = "/{userName}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public User update(@PathVariable("userName") final String email, @RequestHeader(Properties.TOKEN_HEADER) final String token, @RequestBody final User user);
 
     @RequestMapping(value = "/passwd", method = PUT)
     public void updatePasswd(@RequestBody final Passwd passwd);
 
     @RequestMapping(method = DELETE)
-    void deleteByEmail(@RequestParam("email") String email);
-
-    @Deprecated
-    @RequestMapping(value = "/ad$/{id}", method = GET)
-    User findById(@PathVariable("id") String id);
+    void deleteByUserName(@RequestParam("userName") String userName);
 
     @RequestMapping(method = GET)
-    User findByEmail(@RequestParam("email") String email);
+    User findByUserName(@RequestParam("userName") String userName);
 
     @RequestMapping(value = "/user-from-token", method = GET)
     public User getUserFromToken(@RequestBody final JwtToken token);
+
+    @RequestMapping(value = "/email-or-username-or-nickUsers", method = GET)
+    public User findUserByEmailOrUserNameOrNickUsers(@RequestParam(value = "email", required = false) final String email, @RequestParam(value = "userName", required = false) final String userName, @RequestParam(value = "nickUsers", required = false) final Set<String> nickUsers);
+
+    @RequestMapping(value = "/exist-email-or-username-or-nickUsers", method = GET)
+    public boolean existUserByEmailOrUserNameOrNickUsers(@RequestParam(value = "email", required = false) final String email, @RequestParam(value = "userName", required = false) final String userName, @RequestParam(value = "nickUsers", required = false) final Set<String> nickUsers);
 }
+

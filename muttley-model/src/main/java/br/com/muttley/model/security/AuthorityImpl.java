@@ -1,5 +1,7 @@
 package br.com.muttley.model.security;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,21 +15,31 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-@EqualsAndHashCode(of = {"name"})
+@EqualsAndHashCode(of = {"role"})
 public class AuthorityImpl implements Authority {
-    private String name;
+    private Role role;
     private String description;
 
     public AuthorityImpl() {
     }
 
-    public AuthorityImpl(final String name) {
+    public AuthorityImpl(final Role role) {
         this();
-        this.name = name;
+        this.role = role;
     }
 
-    public AuthorityImpl(final String name, final String description) {
-        this(name);
+    public AuthorityImpl(final String role) {
+        this(Role.valueOf(role));
+    }
+
+    @JsonCreator
+    public AuthorityImpl(@JsonProperty("role") final Role role, @JsonProperty("description") final String description) {
+        this(role);
+        this.description = description;
+    }
+
+    public AuthorityImpl(final String role, final String description) {
+        this(role);
         this.description = description;
     }
 }

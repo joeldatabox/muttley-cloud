@@ -16,7 +16,7 @@ public class MuttleyNotFoundException extends MuttleyException {
     }
 
     public MuttleyNotFoundException(final Class clazz, final String field, final String message) {
-        super("AbstractResource Not Found", HttpStatus.NOT_FOUND, clazz, field, message);
+        super(message, HttpStatus.NOT_FOUND, clazz, field, message);
     }
 
     public MuttleyNotFoundException(final ErrorMessage errorMessage) {

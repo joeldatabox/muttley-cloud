@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+br.com.muttley.feign.autoconfig.FeignConfig,\
+br.com.muttley.feign.autoconfig.FeignTimeoutConfig

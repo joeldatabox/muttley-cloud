@@ -24,7 +24,7 @@ public class MuttleySecurityUnauthorizedException extends MuttleyException {
 
     public MuttleySecurityUnauthorizedException(final ErrorMessage errorMessage) {
         super(errorMessage);
-        if(errorMessage.getMessage() == null){
+        if (errorMessage.getMessage() == null) {
             this.message = "Usuário e/ou senha incorreto(s)";
         }
     }

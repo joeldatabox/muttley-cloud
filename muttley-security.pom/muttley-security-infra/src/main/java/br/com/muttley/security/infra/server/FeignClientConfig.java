@@ -1,6 +1,10 @@
 package br.com.muttley.security.infra.server;
 
 
+import br.com.muttley.feign.service.MuttleyPropagateHeadersService;
+import br.com.muttley.feign.service.interceptors.PropagateHeadersInterceptor;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,5 +28,10 @@ public class FeignClientConfig {
             @Value(TOKEN_HEADER_JWT) final String tokenHeaderJwt,
             @Value(TOKEN_HEADER) final String tokenHeader) {
         return new BasicAuthorizationJWTRequestInterceptor(userNameServer, userPasswordServer, tokenHeaderJwt, tokenHeader);
+    }
+
+    @Bean
+    public PropagateHeadersInterceptor createPropagateHeadersInterceptor(@Autowired final ObjectProvider<MuttleyPropagateHeadersService> muttleyPropagateHeadersService) {
+        return new PropagateHeadersInterceptor(muttleyPropagateHeadersService.getIfAvailable());
     }
 }

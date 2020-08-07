@@ -1,7 +1,7 @@
 package br.com.muttley.security.infra.feign;
 
 import br.com.muttley.model.Historic;
-import br.com.muttley.security.infra.resource.PageableResource;
+import br.com.muttley.rest.hateoas.resource.PageableResource;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
@@ -68,6 +69,10 @@ public interface RestControllerClient<T extends Serializable> {
     @RequestMapping(value = "/{id}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     T findById(@PathVariable("id") String id);
 
+    @RequestMapping(value = "/ids", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    Set<T> findByIds(@RequestParam(required = false, value = "ids") String[] ids);
+
+
     /**
      * Return first record found in database
      */
@@ -86,13 +91,13 @@ public interface RestControllerClient<T extends Serializable> {
      * @return A pageable list of records
      */
     @RequestMapping(method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    PageableResource list(@RequestParam Map<String, String> allRequestParams);
+    PageableResource<T> list(@RequestParam Map<String, String> allRequestParams);
 
     /**
      * @return A pageable list of records
      */
     @RequestMapping(method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    PageableResource list();
+    PageableResource<T> list();
 
     /**
      * Count total record
@@ -101,7 +106,7 @@ public interface RestControllerClient<T extends Serializable> {
      * @return total record
      */
     @RequestMapping(value = "/count", method = GET, consumes = TEXT_PLAIN_VALUE)
-    Long count(@RequestParam Map<String, Object> allRequestParams);
+    Long count(@RequestParam Map<String, String> allRequestParams);
 
     /**
      * Count total record

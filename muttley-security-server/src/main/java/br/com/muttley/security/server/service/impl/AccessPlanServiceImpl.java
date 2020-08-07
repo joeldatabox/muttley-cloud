@@ -7,7 +7,10 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.security.server.repository.AccessPlanRepository;
 import br.com.muttley.security.server.service.AccessPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
+
+import static br.com.muttley.model.security.Role.ROLE_ACCESS_PLAN_CREATE;
 
 /**
  * @author Joel Rodrigues Moreira on 26/02/18.
@@ -17,10 +20,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccessPlanServiceImpl extends SecurityServiceImpl<AccessPlan> implements AccessPlanService {
     final AccessPlanRepository repository;
+    private static final String[] basicRoles = new String[]{ROLE_ACCESS_PLAN_CREATE.getSimpleName()};
 
     @Autowired
-    public AccessPlanServiceImpl(final AccessPlanRepository repository) {
-        super(repository, AccessPlan.class);
+    public AccessPlanServiceImpl(final AccessPlanRepository repository, final MongoTemplate mongoTemplate) {
+        super(repository, mongoTemplate, AccessPlan.class);
         this.repository = repository;
     }
 
@@ -31,6 +35,11 @@ public class AccessPlanServiceImpl extends SecurityServiceImpl<AccessPlan> imple
             throw new MuttleyNotFoundException(AccessPlan.class, "descricao", "Registro não encontrado");
         }
         return AccessPlan;
+    }
+
+    @Override
+    public String[] getBasicRoles() {
+        return basicRoles;
     }
 
     @Override

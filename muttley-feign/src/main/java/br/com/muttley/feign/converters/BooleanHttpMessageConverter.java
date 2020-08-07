@@ -21,7 +21,7 @@ public class BooleanHttpMessageConverter extends MuttleyHttpMessageConverter<Boo
 
     @Override
     protected boolean supports(Class<?> clazz) {
-        return Boolean.class.isAssignableFrom(clazz);
+        return boolean.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz);
     }
 
     @Override

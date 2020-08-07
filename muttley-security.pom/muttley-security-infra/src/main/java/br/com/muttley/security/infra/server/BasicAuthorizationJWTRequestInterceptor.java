@@ -4,6 +4,7 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import feign.Util;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -57,14 +58,19 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
      * Deve retornar o token do usuário corrente na requisição
      */
     private String getAuthorizationJWT() {
-        final HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        //Talvez a requisão já advem de outro subserviço, ou seja já contem no header o "Authorization-jwt"
-        final String jwtToken = request.getHeader(this.tokenHeaderJwt);
-        if (!isEmpty(jwtToken)) {
-            return jwtToken;
+        final RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            final HttpServletRequest request = ((ServletRequestAttributes) attributes).getRequest();
+            //Talvez a requisão já advem de outro subserviço, ou seja já contem no header o "Authorization-jwt"
+            final String jwtToken = request.getHeader(this.tokenHeaderJwt);
+            if (!isEmpty(jwtToken)) {
+                return jwtToken;
+            }
+            //se chegou até aqui quer dizer que ninguem ainda não fez esse tratamento
+            //devemos pegar o token no "Authorization"
+            return request.getHeader(this.tokenHeader);
         }
-        //se chegou até aqui quer dizer que ninguem ainda não fez esse tratamento
-        //devemos pegar o token no "Authorization"
-        return request.getHeader(this.tokenHeader);
+        return null;
     }
 }
+

@@ -1,6 +1,8 @@
 package br.com.muttley.model.security.events;
 
+import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
+import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -11,15 +13,19 @@ import org.springframework.context.ApplicationEvent;
  * Evento lançado toda vez que um usuário se loga no sistema.
  */
 public class UserLoggedEvent extends ApplicationEvent {
+    @Getter
     private final User user;
+    @Getter
+    private final JwtToken token;
 
     /**
      * Create a new ApplicationEvent.
      *
      * @param source the object on which the event initially occurred (never {@code null})
      */
-    public UserLoggedEvent(final User source) {
+    public UserLoggedEvent(final JwtToken token, final User source) {
         super(source);
+        this.token = token;
         this.user = source;
     }
 

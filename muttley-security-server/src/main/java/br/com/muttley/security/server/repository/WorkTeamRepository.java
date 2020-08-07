@@ -21,4 +21,10 @@ public interface WorkTeamRepository extends SimpleTenancyMongoRepository<WorkTea
 
     @Query("{'owner': {'$ref' : ?#{@documentNameConfig.getNameCollectionOwner()}, '$id' : ?#{[0].getId()}}, 'userMaster': {'$ref' : ?#{@documentNameConfig.getNameCollectionUser()}, '$id' : ?#{[1].getId()}}}")
     List<WorkTeam> findByUserMaster(final Owner owner, final User user);
+
+    @Query("{'owner': {'$ref' : ?#{@documentNameConfig.getNameCollectionOwner()}, '$id' : ?#{[0].getId()}}}")
+    List<WorkTeam> findAll(final Owner owner);
+
+    @Query(value = "{'owner': {'$ref' : ?#{@documentNameConfig.getNameCollectionOwner()}, '$id' : ?#{[0].getId()}}}", count = true)
+    Long count(final Owner owner);
 }

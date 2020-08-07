@@ -91,14 +91,14 @@ public abstract class AbstractProxyRestController<T extends Document> implements
 
     @Override
     @RequestMapping(method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestBody final Map<String, String> allRequestParams) {
+    public ResponseEntity<PageableResource<T>> list(final HttpServletResponse response, @RequestBody final Map<String, String> allRequestParams) {
         final PageableResource pageableResource = client.list(allRequestParams);
         return ResponseEntity.ok(toPageableResource(eventPublisher, response, pageableResource));
     }
 
     @Override
     @RequestMapping(value = "/count", method = GET, produces = TEXT_PLAIN_VALUE)
-    public ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams) {
+    public ResponseEntity count(@RequestParam final Map<String, String> allRequestParams) {
         return ResponseEntity.ok(client.count(allRequestParams));
     }
 }

@@ -3,10 +3,13 @@ package br.com.muttley.security.server.service;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira on 12/01/18.
@@ -22,13 +25,17 @@ public interface UserService extends UserDetailsService {
 
     boolean remove(final User user);
 
-    boolean removeByEmail(final String email);
+    boolean removeByUserName(final String userName);
 
-    User update(final User user);
+    User update(final User user, final JwtToken token);
 
     User updatePasswd(final Passwd user);
 
-    User findByEmail(final String email);
+    User findByUserName(final String userName);
+
+    User findUserByEmailOrUserNameOrNickUsers(final String email, final String userName, final Set<String> nickUsers);
+
+    boolean existUserByEmailOrUserNameOrNickUsers(final String email, final String userName, final Set<String> nickUsers);
 
     User findById(final String id);
 
@@ -45,4 +52,13 @@ public interface UserService extends UserDetailsService {
     User getCurrentUser();*/
 
     UserPreferences loadPreference(final User user);
+
+    /**
+     * Retorna um usuários baseado em uma preferencia
+     */
+    List<User> getUsersFromPreference(final Preference preference);
+
+    User getUserFromPreference(final Preference preference);
+
+    boolean constainsPreference(final User user, final String keyPreference);
 }

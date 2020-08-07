@@ -8,10 +8,16 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.MultiTenancyModel;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.repository.MultiTenancyMongoRepository;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.Objects.isNull;
 
@@ -22,25 +28,35 @@ import static java.util.Objects.isNull;
 public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends ServiceImpl<T> implements ModelService<T> {
     protected final MultiTenancyMongoRepository<T> repository;
 
-    public ModelServiceImpl(final MultiTenancyMongoRepository<T> repository, final Class<T> clazz) {
-        super(repository, clazz);
+    public ModelServiceImpl(final MultiTenancyMongoRepository<T> repository, MongoTemplate mongoTemplate, final Class<T> clazz) {
+        super(repository, mongoTemplate, clazz);
         this.repository = repository;
     }
 
     @Override
     public T save(final User user, final T value) {
         //verificando se realmente está criando um novo registro
-        if (value.getId() != null) {
+        if (!StringUtils.isEmpty(value.getId())) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
         }
+        value.setId(null);
+        //setando o dono do registro
         value.setOwner(user);
         //garantindo que o históriconão ficará nulo
         value.setHistoric(this.createHistoric(user));
-        //validando dados
-        this.validator.validate(value);
+        //garantindo que o metadata ta preenchido
+        this.createMetaData(user, value);
+        //processa regra de negocio antes de qualquer validação
+        this.beforeSave(user, value);
         //verificando precondições
         this.checkPrecondictionSave(user, value);
-        return repository.save(user.getCurrentOwner(), value);
+        //validando dados do objeto
+        this.validator.validate(value);
+        final T salvedValue = repository.save(user.getCurrentOwner(), value);
+        //realizando regras de enegocio depois do objeto ter sido salvo
+        this.afterSave(user, salvedValue);
+        //valor salvo
+        return salvedValue;
     }
 
     @Override
@@ -55,17 +71,23 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível alterar um registro sem informar um id válido");
         }
         //verificando se o registro realmente existe
-        if (!this.repository.exists(value.getId())) {
+        if (!this.repository.exists(value)) {
             throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         value.setOwner(user);
         //gerando histórico de alteração
         value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(user.getCurrentOwner(), value)));
-        //validando dados
-        this.validator.validate(value);
+        //gerando metadata de alteração
+        this.generateMetaDataUpdate(user, value);
+        //processa regra de negocio antes de qualquer validação
+        this.beforeUpdate(user, value);
         //verificando precondições
         checkPrecondictionUpdate(user, value);
-        return repository.save(user.getCurrentOwner(), value);
+        //validando dados
+        this.validator.validate(value);
+        final T salvedValue = repository.save(user.getCurrentOwner(), value);
+        afterUpdate(user, salvedValue);
+        return salvedValue;
     }
 
     @Override
@@ -84,6 +106,23 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return result;
+    }
+
+    @Override
+    public Set<T> findByIds(final User user, final String[] ids) {
+        if (ObjectUtils.isEmpty(ids)) {
+            throw new MuttleyBadRequestException(clazz, "id", "informe pelo menos um id válido");
+        }
+        if (ids.length > 50) {
+            throw new MuttleyBadRequestException(clazz, "ids", "Quantidade máxima excedida")
+                    .addDetails("min", 1)
+                    .addDetails("max", 50);
+        }
+        final Set<T> records = this.repository.findMulti(user.getCurrentOwner(), ids);
+        if (records == null) {
+            return Collections.emptySet();
+        }
+        return records;
     }
 
     @Override
@@ -115,22 +154,24 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
 
     @Override
     public void deleteById(final User user, final String id) {
+        this.beforeDelete(user, id);
         checkPrecondictionDelete(user, id);
         if (!repository.exists(user.getCurrentOwner(), id)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         this.repository.delete(user.getCurrentOwner(), id);
-        beforeDelete(user, id);
+        this.afterDelete(user, id);
     }
 
     @Override
     public void delete(final User user, final T value) {
+        this.beforeDelete(user, value);
         checkPrecondictionDelete(user, value.getId());
         if (!repository.exists(user.getCurrentOwner(), value)) {
             throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
         }
         this.repository.delete(user.getCurrentOwner(), value);
-        beforeDelete(user, value);
+        this.afterDelete(user, value);
     }
 
     @Override
@@ -146,20 +187,37 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
     @Override
     public void beforeDelete(final User user, final String id) {
 
+
     }
 
     @Override
-    public Long count(final User user, final Map<String, Object> allRequestParams) {
+    public Long count(final User user, final Map<String, String> allRequestParams) {
         return this.repository.count(user.getCurrentOwner(), allRequestParams);
     }
 
     @Override
-    public List<T> findAll(final User user, final Map<String, Object> allRequestParams) {
+    public boolean exists(User user, T value) {
+        return repository.exists(user.getCurrentOwner(), value);
+    }
+
+    @Override
+    public boolean exists(User user, String id) {
+        return repository.exists(user.getCurrentOwner(), id);
+    }
+
+    @Override
+    public List<T> findAll(final User user, final Map<String, String> allRequestParams) {
         final List<T> results = this.repository.findAll(user.getCurrentOwner(), allRequestParams);
         if (CollectionUtils.isEmpty(results)) {
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");
         }
         return results;
+    }
+
+    @Override
+    protected AggregationResults<T> createAggregateForLoadProperties(final User user, final Map<String, Object> condictions, final String... properties) {
+        condictions.put("owner.$id", user.getCurrentOwner().getObjectId());
+        return super.createAggregateForLoadProperties(user, condictions, properties);
     }
 
     /**
@@ -172,4 +230,5 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
             throw new MuttleyBadRequestException(clazz, "user", "não é possível fazer a alteração do usuário dono do registro");
         }
     }
+
 }

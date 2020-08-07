@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+
 /**
  * @author Joel Rodrigues Moreira on 18/08/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
         "br.com.muttley.security.server.autoconfig.security",
         "br.com.muttley.security.server.controller",
         "br.com.muttley.security.server.listeners",
+        "br.com.muttley.security.server.postinit",
         "br.com.muttley.security.server.service",
         "br.com.muttley.mobiledevice"
 })

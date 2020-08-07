@@ -13,6 +13,7 @@ import java.util.List;
  */
 public interface ViewSource {
     static final BsonValue _TRUE = new BsonBoolean(true);
+    static final BsonValue _FALSE = new BsonBoolean(false);
 
     /**
      * Deve retornar a versão da view

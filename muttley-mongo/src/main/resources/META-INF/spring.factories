@@ -1,3 +1,1 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-br.com.muttley.mongo.autoconfig.MuttleyMongoSimpleTenancyConfig,\
-br.com.muttley.mongo.autoconfig.MuttleyMongoMultiTenancyConfig

@@ -1,11 +1,15 @@
 package br.com.muttley.model;
 
+import br.com.muttley.exception.throwables.MuttleyException;
+import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 
+import static org.apache.commons.beanutils.PropertyUtils.getProperty;
 import static org.springframework.util.StringUtils.isEmpty;
 
 /**
@@ -19,12 +23,20 @@ public interface Document extends Serializable {
 
     Document setId(final String id);
 
+    MetadataDocument getMetadata();
+
+    Document setMetadata(final MetadataDocument metaData);
+
     Document setHistoric(final Historic historic);
 
     @JsonIgnore
     default ObjectId getObjectId() {
         if (!isEmpty(getId())) {
-            return new ObjectId(getId());
+            try {
+                return new ObjectId(getId());
+            } catch (IllegalArgumentException ex) {
+                throw new MuttleyInvalidObjectIdException(this.getClass(), "id", "ObjectId inválido");
+            }
         }
         return null;
     }
@@ -40,6 +52,11 @@ public interface Document extends Serializable {
     @JsonIgnore
     Historic getHistoric();
 
+    @JsonIgnore
+    default boolean containsMetadata() {
+        return this.getMetadata() != null;
+    }
+
     default String toJson() {
         try {
             return new ObjectMapper()
@@ -48,6 +65,17 @@ public interface Document extends Serializable {
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
+        }
+    }
+
+    static Object getPropertyFrom(final Object instance, final String nameProperty) {
+        try {
+            if (instance == null) {
+                return null;
+            }
+            return getProperty(instance, nameProperty);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new MuttleyException(e);
         }
     }
 }

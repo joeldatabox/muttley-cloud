@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.6.RELEASE</version>
+        <version>2.2.7.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -22,10 +22,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <spring-cloud.version>Finchley.SR1</spring-cloud.version>
-        <commons-beanutils.version>1.9.3</commons-beanutils.version>
-        <org.projectlombok.version>1.18.2</org.projectlombok.version>
-        <revision>2.0.6</revision>
+        <spring-cloud.version>Hoxton.SR4</spring-cloud.version>
+        <feign-okhttp.version>11.0</feign-okhttp.version>
+        <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <commons-lang3.version>3.10</commons-lang3.version>
+        <revision>3.0.0</revision>
+        <spring-mobile-device.version>2.0.0.M3</spring-mobile-device.version>
+        <spring-security-jwt.version>1.1.0.RELEASE</spring-security-jwt.version>
+        <jsonwebtoken.version>0.9.1</jsonwebtoken.version>
+        <jasperreports.version>6.13.0</jasperreports.version>
     </properties>
 
     <modules>
@@ -36,11 +41,15 @@
         <module>muttley-model</module>
         <module>muttley-redis</module>
         <module>muttley-mongo</module>
+        <module>muttley-headers</module>
+        <module>muttley-notification</module>
+        <module>muttley-hermes.pom</module>
         <module>muttley-rest</module>
         <module>muttley-domain-service</module>
         <module>muttley-jackson</module>
         <module>muttley-feign</module>
         <module>muttley-zuul</module>
+        <module>muttley-report</module>
         <module>muttley-security.pom</module>
         <module>muttley-mobile-device</module>
     </modules>
@@ -88,6 +97,12 @@
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-report</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-model</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -125,6 +140,18 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-mongo</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-headers</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-notification</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -171,15 +198,45 @@
             </dependency>
 
             <dependency>
+                <groupId>io.github.openfeign</groupId>
+                <artifactId>feign-okhttp</artifactId>
+                <version>${feign-okhttp.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jsonwebtoken.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-fonts</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.springframework.mobile</groupId>
                 <artifactId>spring-mobile-device</artifactId>
-                <version>2.0.0.M3</version>
+                <version>${spring-mobile-device.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-jwt</artifactId>
-                <version>1.0.9.RELEASE</version>
+                <version>${spring-security-jwt.version}</version>
             </dependency>
 
             <dependency>
@@ -205,6 +262,14 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
+        <repository>
+            <id>jaspersoft</id>
+            <url>http://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/</url>
         </repository>
     </repositories>
 

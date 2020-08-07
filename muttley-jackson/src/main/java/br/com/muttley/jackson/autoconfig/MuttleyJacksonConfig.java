@@ -5,8 +5,11 @@ import br.com.muttley.jackson.service.MuttleyJacksonDeserializeService;
 import br.com.muttley.jackson.service.MuttleyJacksonSerializeService;
 import br.com.muttley.jackson.service.infra.MuttleyJacksonDeserialize;
 import br.com.muttley.jackson.service.infra.MuttleyJacksonSerialize;
+import br.com.muttley.jackson.service.infra.deserializer.BigDecimalDeserializer;
 import br.com.muttley.jackson.service.infra.deserializer.ObjectIdDeserializer;
+import br.com.muttley.jackson.service.infra.deserializer.ZonedDateTimeDeserializer;
 import br.com.muttley.jackson.service.infra.serializer.ObjectIdSerializer;
+import br.com.muttley.jackson.service.infra.serializer.ZonedDateTimeSerializer;
 import br.com.muttley.model.jackson.DefaultDateFormatConfig;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -22,7 +25,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.time.ZonedDateTime;
 
 
 /**
@@ -38,6 +43,9 @@ public class MuttleyJacksonConfig implements InitializingBean {
     private String dateFormat;
     @Value("${spring.jackson.default-property-inclusion:#{null}}")
     private String propertyInclusionfinal;
+    @Value("${br.com.muttley.jackson.date-pattern:yyyy-MM-dd'T'HH:mm:ss.SSSZ}")
+    private String datePattern;
+
     @Autowired
     private MuttleyJacksonProperty property;
     @Autowired
@@ -50,11 +58,18 @@ public class MuttleyJacksonConfig implements InitializingBean {
         return new Jackson2ObjectMapperBuilderCustomizer() {
             @Override
             public void customize(Jackson2ObjectMapperBuilder mapperBuilder) {
+
+                mapperBuilder.deserializerByType(BigDecimal.class, new BigDecimalDeserializer());
+
                 mapperBuilder.deserializerByType(ObjectId.class, new ObjectIdDeserializer());
                 mapperBuilder.serializerByType(ObjectId.class, new ObjectIdSerializer());
+
+                mapperBuilder.deserializerByType(ZonedDateTime.class, new ZonedDateTimeDeserializer(datePattern));
+                mapperBuilder.serializerByType(ZonedDateTime.class, new ZonedDateTimeSerializer(datePattern));
+
                 //se não existe um formatador de data padrão, devemos adicionar o nosso
                 if (dateFormat == null) {
-                    mapperBuilder.dateFormat(createDateFormat());
+                    mapperBuilder.dateFormat(new DefaultDateFormatConfig(datePattern));
                 }
                 //por padrão removeremos campos nulos
                 if (propertyInclusionfinal == null) {

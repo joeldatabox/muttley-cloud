@@ -3,7 +3,7 @@ package br.com.muttley.model.security.preference;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import static org.springframework.util.StringUtils.isEmpty;
@@ -14,6 +14,7 @@ import static org.springframework.util.StringUtils.isEmpty;
  * @project muttley-cloud
  */
 @Getter
+@EqualsAndHashCode(of = "key")
 public class Preference {
     protected final String key;
     protected final Object value;
@@ -22,19 +23,6 @@ public class Preference {
     public Preference(@JsonProperty("key") final String key, @JsonProperty("value") final Object value) {
         this.key = key;
         this.value = value;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Preference)) return false;
-        final Preference that = (Preference) o;
-        return Objects.equal(key, that.key);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(key, 2, 3);
     }
 
     /**

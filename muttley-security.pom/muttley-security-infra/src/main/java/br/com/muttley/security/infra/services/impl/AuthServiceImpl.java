@@ -3,8 +3,12 @@ package br.com.muttley.security.infra.services.impl;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.preference.Preference;
+import br.com.muttley.model.security.preference.UserPreferences;
+import br.com.muttley.security.infra.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.infra.feign.UserServiceClient;
 import br.com.muttley.security.infra.services.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,16 +25,19 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final String tokenHeader;
-    private UserServiceClient userServiceClient;
+    protected final String tokenHeader;
+    protected UserServiceClient userServiceClient;
+    protected final UserPreferenceServiceClient preferenceService;
 
     /**
      * Se tivermos em um contexto de microserviço, o tokenHeader deve ser Authorization-jwt, caso contrario
      * deve ser apenas Authorization
      */
-    public AuthServiceImpl(String tokenHeader, UserServiceClient userServiceClient) {
+    @Autowired
+    public AuthServiceImpl(String tokenHeader, UserServiceClient userServiceClient, final UserPreferenceServiceClient preferenceService) {
         this.tokenHeader = tokenHeader;
         this.userServiceClient = userServiceClient;
+        this.preferenceService = preferenceService;
     }
 
     @Override
@@ -60,6 +67,23 @@ public class AuthServiceImpl implements AuthService {
         return getCurrentJwtUser().getOriginUser();
     }
 
+    @Override
+    public UserPreferences getUserPreferences() {
+        final User user = this.getCurrentUser();
+        if (user.getPreferences() == null || user.getPreferences().isEmpty()) {
+            final UserPreferences preferences = this.preferenceService.getPreferences(user.getId());
+            if (preferences != null) {
+                user.setPreferences(preferences);
+            }
+        }
+        return this.getCurrentUser().getPreferences();
+    }
+
+    @Override
+    public Preference getPreference(final String key) {
+        return this.getUserPreferences().get(key);
+    }
+
     /**
      * Retorna um usuário atravez do nome de usuário
      *
@@ -67,6 +91,6 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        return new JwtUser(this.userServiceClient.findByEmail(username));
+        return new JwtUser(this.userServiceClient.findByUserName(username));
     }
 }

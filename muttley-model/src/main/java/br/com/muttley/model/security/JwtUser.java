@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.jsonwebtoken.lang.Collections.isEmpty;
+
 /**
  * @author Joel Rodrigues Moreira on 08/01/18.
  * @project demo
@@ -23,19 +25,19 @@ public class JwtUser implements UserDetails {
     private final String name;
 
     private final String password;
-    private final String email;
+    private final String username;
     private final Collection<? extends GrantedAuthority> authorities;
     private final boolean enabled;
     private final Date lastPasswordResetDate;
     /*@Value("${springboot..security.jwt.issuer}")
-    private String issuer;*/
+    private String issuer ;*/
     private final User originUser;
 
     public JwtUser(final User user) {
         this.id = user.getId();
         this.name = user.getName();
         this.password = user.getPasswd();
-        this.email = user.getEmail();
+        this.username = user.getUserName();
         this.authorities = mapToGrantedAuthorities(user.getAuthorities());
         this.enabled = user.isEnable();
         this.lastPasswordResetDate = user.getLastPasswordResetDate();
@@ -46,7 +48,7 @@ public class JwtUser implements UserDetails {
         this.id = userBuilder.id;
         this.name = userBuilder.name;
         this.password = userBuilder.password;
-        this.email = userBuilder.email;
+        this.username = userBuilder.userName;
         this.authorities = userBuilder.authorities;
         this.enabled = userBuilder.enabled;
         this.lastPasswordResetDate = userBuilder.lastPasswordResetDate;
@@ -66,7 +68,7 @@ public class JwtUser implements UserDetails {
         this.id = id;
         this.name = name;
         this.password = password;
-        this.email = userName;
+        this.username = userName;
         this.authorities = authorities;
         this.enabled = enabled;
         this.lastPasswordResetDate = lastPasswordResetDate;
@@ -85,7 +87,7 @@ public class JwtUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @JsonIgnore
@@ -106,10 +108,6 @@ public class JwtUser implements UserDetails {
         return true;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
     @JsonIgnore
     @Override
     public String getPassword() {
@@ -118,6 +116,9 @@ public class JwtUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (isEmpty(this.authorities)) {
+            return mapToGrantedAuthorities(this.originUser.getAuthorities());
+        }
         return authorities;
     }
 
@@ -133,7 +134,7 @@ public class JwtUser implements UserDetails {
 
     private static final List<GrantedAuthority> mapToGrantedAuthorities(final Collection<Authority> authorities) {
         return authorities.stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                .map(authority -> new SimpleGrantedAuthority(authority.getRole().toString()))
                 .collect(Collectors.toList());
     }
 
@@ -146,7 +147,7 @@ public class JwtUser implements UserDetails {
         private String name;
 
         private String password;
-        private String email;
+        private String userName;
         private Collection<? extends GrantedAuthority> authorities;
         private boolean enabled;
         private Date lastPasswordResetDate;
@@ -169,8 +170,8 @@ public class JwtUser implements UserDetails {
             return this;
         }
 
-        public UserBuilder setEmail(final String email) {
-            this.email = email;
+        public UserBuilder setUserName(final String userName) {
+            this.userName = userName;
             return this;
         }
 

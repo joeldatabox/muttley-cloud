@@ -2,13 +2,14 @@ package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.model.events.OwnerCreateEvent;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.events.OwnerCreateEvent;
 import br.com.muttley.security.server.repository.OwnerRepository;
 import br.com.muttley.security.server.service.OwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import static java.util.Objects.isNull;
@@ -23,12 +24,18 @@ import static java.util.Objects.isNull;
 public class OwnerServiceImpl extends SecurityServiceImpl<Owner> implements OwnerService {
     private final OwnerRepository repository;
     private final ApplicationEventPublisher eventPublisher;
+    private static final String[] basicRoles = new String[]{"owner"};
 
     @Autowired
-    public OwnerServiceImpl(final OwnerRepository repository, final ApplicationEventPublisher eventPublisher) {
-        super(repository, Owner.class);
+    public OwnerServiceImpl(final OwnerRepository repository, final MongoTemplate mongoTemplate, final ApplicationEventPublisher eventPublisher) {
+        super(repository, mongoTemplate, Owner.class);
         this.repository = repository;
         this.eventPublisher = eventPublisher;
+    }
+
+    @Override
+    public String[] getBasicRoles() {
+        return basicRoles;
     }
 
     @Override

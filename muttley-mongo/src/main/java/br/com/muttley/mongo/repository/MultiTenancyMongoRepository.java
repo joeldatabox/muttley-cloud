@@ -1,11 +1,13 @@
 package br.com.muttley.mongo.repository;
 
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.Owner;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @NoRepositoryBean
 public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoRepository<T> {
@@ -32,6 +34,14 @@ public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoReposi
      * @param id    -> id do objeto desejado
      */
     T findOne(final Owner owner, final String id);
+
+    /**
+     * Busca vários registros simples
+     *
+     * @param owner -> dono do registro
+     * @param ids   -> ids dos registros desejado
+     */
+    Set<T> findMulti(final Owner owner, final String ids[]);
 
     /**
      * Busca o primeiro registro qualquer de uma colection
@@ -62,7 +72,7 @@ public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoReposi
      * @param owner       -> dono do registro
      * @param queryParams -> parametros para criterios
      */
-    List<T> findAll(final Owner owner, final Map<String, Object> queryParams);
+    List<T> findAll(final Owner owner, final Map<String, String> queryParams);
 
     /**
      * Conta registros de uma determinada collection
@@ -70,7 +80,7 @@ public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoReposi
      * @param owner       -> dono do registro
      * @param queryParams -> parametros para criterios
      */
-    long count(final Owner owner, final Map<String, Object> queryParams);
+    long count(final Owner owner, final Map<String, String> queryParams);
 
     /**
      * Verifica se existe um determinado registro no banco de dados
@@ -105,6 +115,14 @@ public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoReposi
     boolean exists(final Owner owner, final Object... filter);
 
     /**
+     * Carrega o metadata de um determinado registro
+     *
+     * @param owner -> dono do registro
+     * @param value -> registro a ser carregado
+     */
+    MetadataDocument loadMetadata(final Owner owner, final T value);
+
+    /**
      * Carrega o historico de um determinado registro
      *
      * @param owner -> dono do registro
@@ -119,4 +137,12 @@ public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoReposi
      * @param id    -> id do registro a ser carregado
      */
     Historic loadHistoric(final Owner owner, final String id);
+
+    /**
+     * Carrega o metadata de um determinado registro
+     *
+     * @param owner -> dono do registro
+     * @param id    -> id do registro a ser carregado
+     */
+    MetadataDocument loadMetadata(final Owner owner, final String id);
 }

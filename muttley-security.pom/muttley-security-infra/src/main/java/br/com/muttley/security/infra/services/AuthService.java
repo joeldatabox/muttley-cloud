@@ -3,6 +3,8 @@ package br.com.muttley.security.infra.services;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.preference.Preference;
+import br.com.muttley.model.security.preference.UserPreferences;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -19,4 +21,8 @@ public interface AuthService extends UserDetailsService {
     JwtToken getCurrentToken();
 
     User getCurrentUser();
+
+    UserPreferences getUserPreferences();
+
+    Preference getPreference(final String key);
 }

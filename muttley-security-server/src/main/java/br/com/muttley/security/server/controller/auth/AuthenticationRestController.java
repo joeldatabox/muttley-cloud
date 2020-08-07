@@ -1,11 +1,12 @@
 package br.com.muttley.security.server.controller.auth;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
+import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.events.UserLoggedEvent;
-import br.com.muttley.security.server.service.impl.JwtTokenUtilService;
+import br.com.muttley.security.server.service.JwtTokenUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
@@ -64,10 +65,10 @@ public class AuthenticationRestController {
             //gerando o token de autorização
             JwtToken token = new JwtToken(jwtTokenUtil.generateToken(userDetails, device));
             //lançando evento de usuário logado
-            this.eventPublisher.publishEvent(new UserLoggedEvent(userDetails.getOriginUser()));
+            this.eventPublisher.publishEvent(new UserLoggedEvent(token, userDetails.getOriginUser()));
             //devolvendo token gerado
             return ResponseEntity.ok(token);
-        } catch (BadCredentialsException ex) {
+        } catch (BadCredentialsException | MuttleySecurityUnauthorizedException ex) {
             throw new MuttleySecurityUserNameOrPasswordInvalidException();
         }
     }

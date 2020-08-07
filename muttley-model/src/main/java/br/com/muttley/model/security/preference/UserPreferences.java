@@ -2,9 +2,11 @@ package br.com.muttley.model.security.preference;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,6 +17,7 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,9 +30,11 @@ import static org.springframework.util.Assert.notNull;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@org.springframework.data.mongodb.core.mapping.Document(collection = "#{documentNameConfig.getNameCollectionUserPreferences()}")
+@org.springframework.data.mongodb.core.mapping.Document(collection = "#{@documentNameConfig.getNameCollectionUserPreferences()}")
 @CompoundIndexes({
-        @CompoundIndex(name = "user_index_unique", def = "{'user' : 1}", unique = true)
+        @CompoundIndex(name = "user_index_unique", def = "{'user' : 1}", unique = true),
+        @CompoundIndex(name = "preferences_key_index", def = "{'preferences.key': 1}"),
+        @CompoundIndex(name = "preferences_key_value_index", def = "{'preferences.key': 1, 'preferences.value':1}")
 })
 @TypeAlias("muttley-users-preferences")
 @Accessors(chain = true)
@@ -40,17 +45,19 @@ public class UserPreferences implements Document {
     public static final String WORK_TEAM_PREFERENCE = "WorkTeamPreference";
     @Id
     private String id;
+    @JsonManagedReference
     @JsonIgnore
     @DBRef
     private User user;
     private Historic historic;
+    private MetadataDocument metadata;
     private Set<Preference> preferences;
 
     public UserPreferences() {
         this.preferences = new HashSet<>();
     }
 
-    public UserPreferences(Preference... preferences) {
+    public UserPreferences(final Preference... preferences) {
         notNull(preferences, "preferences is null");
         this.preferences = new HashSet<>();
         Stream.of(preferences)
@@ -67,11 +74,13 @@ public class UserPreferences implements Document {
             @JsonProperty("id") String id,
             @JsonProperty("user") User user,
             @JsonProperty("historic") Historic historic,
-            @JsonProperty("preferences") Set<Preference> preferences) {
+            @JsonProperty("preferences") Set<Preference> preferences,
+            final @JsonProperty("metadata") MetadataDocument metadata) {
         this.id = id;
         this.user = user;
         this.historic = historic;
         this.preferences = preferences;
+        this.metadata = metadata;
     }
 
     public boolean contains(final String key) {
@@ -84,20 +93,23 @@ public class UserPreferences implements Document {
         return this.preferences.stream()
                 .filter(p -> p.key.equals(key))
                 .findAny()
-                .get();
+                .orElse(null);
     }
 
     public UserPreferences set(final Preference preference) {
+        this.remove(preference.getKey());
         this.preferences.add(preference);
         return this;
     }
 
     public UserPreferences set(final String key, final Object value) {
+        this.remove(key);
         this.preferences.add(new Preference(key, value));
         return this;
     }
 
     public UserPreferences set(final String key, final Document value) {
+        this.remove(key);
         this.preferences.add(new Preference(key, value.getId()));
         return this;
     }
@@ -107,5 +119,10 @@ public class UserPreferences implements Document {
             this.preferences.remove(new Preference(key, ""));
         }
         return this;
+    }
+
+    @JsonIgnore
+    public boolean isEmpty() {
+        return CollectionUtils.isEmpty(this.preferences);
     }
 }

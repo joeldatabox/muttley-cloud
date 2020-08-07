@@ -6,6 +6,7 @@ import br.com.muttley.model.security.preference.UserPreferences;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
@@ -14,6 +15,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -31,13 +33,18 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static java.util.stream.Collectors.toSet;
+import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * Created by joel on 16/01/17.
  */
-@Document(collection = "#{documentNameConfig.getNameCollectionUser()}")
+@Document(collection = "#{@documentNameConfig.getNameCollectionUser()}")
 @CompoundIndexes({
-        @CompoundIndex(name = "email_index_unique", def = "{'email' : 1}", unique = true)
+        @CompoundIndex(name = "userName_index_unique", def = "{'userName' : 1}", unique = true),
+        @CompoundIndex(name = "email_index", def = "{'email' : 1}"),
+        @CompoundIndex(name = "nickUsers_index", def = "{'nickUsers' : 1}")
 })
 @TypeAlias("muttley-users")
 public class User implements Serializable {
@@ -47,6 +54,9 @@ public class User implements Serializable {
     @Transient
     @JsonIgnore
     private static final String EMAIL_PATTERN = "\\b(^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@([A-Za-z0-9-])+(\\.[A-Za-z0-9-]+)*((\\.[A-Za-z0-9]{2,})|(\\.[A-Za-z0-9]{2,}\\.[A-Za-z0-9]{2,}))$)\\b";
+    @Transient
+    @JsonIgnore
+    private static final String NICK_PATTERN = "[^a-zA-Z0-9]";
 
     @Id
     private String id;
@@ -57,9 +67,12 @@ public class User implements Serializable {
     @NotBlank(message = "O campo nome não pode ser nulo!")
     @Size(min = 4, max = 200, message = "O campo nome deve ter de 4 a 200 caracteres!")
     private String name;
-    @NotBlank(message = "Informe um email válido!")
+    private String description;
     @Email(message = "Informe um email válido!")
     private String email;
+    @NotBlank(message = "Informe um userName válido")
+    private String userName;
+    private Set<String> nickUsers = new HashSet<>();
     @NotBlank(message = "Informe uma senha valida!")
     private String passwd;
     private Date lastPasswordResetDate;
@@ -68,6 +81,8 @@ public class User implements Serializable {
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo workteam corrente
     @Transient
     private UserPreferences preferences;
+    //Define se o usuário é do odin ou de algum outro owner
+    private boolean odinUser = false;
 
     public User() {
         this.authorities = new LinkedHashSet();
@@ -82,7 +97,10 @@ public class User implements Serializable {
             @JsonProperty("workTeams") final Set<WorkTeam> workTeams,
             @JsonProperty("currentWorkTeam") final WorkTeam currentWorkTeam,
             @JsonProperty("name") final String name,
+            @JsonProperty("description") final String description,
+            @JsonProperty("userName") final String userName,
             @JsonProperty("email") final String email,
+            @JsonProperty("nickUsers") final Set<String> nickUsers,
             @JsonProperty("passwd") final String passwd,
             @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
             @JsonProperty("enable") final Boolean enable,
@@ -92,7 +110,10 @@ public class User implements Serializable {
         this.workTeams = workTeams;
         this.currentWorkTeam = currentWorkTeam;
         this.name = name;
+        this.description = description;
+        this.userName = userName;
         this.email = email;
+        this.setNickUsers(nickUsers);
         this.passwd = passwd;
         this.lastPasswordResetDate = lastPasswordResetDate;
         this.enable = enable;
@@ -103,7 +124,10 @@ public class User implements Serializable {
     public User(final UserPayLoad payLoad) {
         this();
         this.setName(payLoad.getName());
+        this.setDescription(payLoad.getDescription());
+        this.setUserName(payLoad.getUserName());
         this.setEmail(payLoad.getEmail());
+        this.setNickUsers(payLoad.getNickUsers());
         this.setPasswd(payLoad.getPasswd());
     }
 
@@ -114,6 +138,11 @@ public class User implements Serializable {
     public User setId(final String id) {
         this.id = id;
         return this;
+    }
+
+    @JsonIgnore
+    public ObjectId getObjectId() {
+        return !isEmpty(this.getId()) ? new ObjectId(this.getId()) : null;
     }
 
     public Set<WorkTeam> getWorkTeams() {
@@ -151,6 +180,7 @@ public class User implements Serializable {
 
     public User setCurrentWorkTeam(final WorkTeam currentWorkTeam) {
         this.currentWorkTeam = currentWorkTeam;
+        this.setAuthorities(currentWorkTeam.getRoles());
         return this;
     }
 
@@ -163,12 +193,53 @@ public class User implements Serializable {
         return this;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public User setDescription(final String description) {
+        this.description = description;
+        return this;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public User setUserName(final String userName) {
+        this.userName = userName;
+        return this;
+    }
+
     public String getEmail() {
         return email;
     }
 
     public User setEmail(final String email) {
-        this.email = email;
+        this.email = email != null ? email.toLowerCase() : email;
+        return this;
+    }
+
+    public Set<String> getNickUsers() {
+        return nickUsers;
+    }
+
+    public User setNickUsers(final Set<String> nickUsers) {
+        if (nickUsers != null) {
+            this.nickUsers = nickUsers.stream().map(String::toLowerCase).collect(toSet());
+        }
+        return this;
+    }
+
+    public User addNickUsers(final String nick) {
+        if (nick != null) {
+            this.nickUsers.add(nick.toLowerCase());
+        }
+        return this;
+    }
+
+    public User addNickUsers(final String... nick) {
+        this.nickUsers.addAll(Stream.of(nick).filter(it -> it != null).map(String::toLowerCase).collect(toSet()));
         return this;
     }
 
@@ -225,9 +296,15 @@ public class User implements Serializable {
         return authorities;
     }
 
+    @JsonProperty
     public User setAuthorities(final Set<Authority> authorities) {
         authorities.forEach(a -> checkAuthority(a));
         this.authorities = authorities;
+        return this;
+    }
+
+    public User setAuthorities(final Collection<Role> roles) {
+        this.authorities = roles.stream().map(it -> new AuthorityImpl(it)).collect(toSet());
         return this;
     }
 
@@ -288,8 +365,23 @@ public class User implements Serializable {
         return this;
     }
 
+    @JsonIgnore
     public boolean containsPreference(final String keyPreference) {
         return this.preferences.contains(keyPreference);
+    }
+
+    @JsonIgnore
+    public boolean preferencesIsEmpty() {
+        return this.preferences != null ? this.preferences.isEmpty() : true;
+    }
+
+    public boolean isOdinUser() {
+        return odinUser;
+    }
+
+    public User setOdinUser(final boolean odinUser) {
+        this.odinUser = odinUser;
+        return this;
     }
 
     @Override
@@ -297,12 +389,12 @@ public class User implements Serializable {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
         final User user = (User) o;
-        return Objects.equals(getId(), user.getId());
+        return Objects.equals(getId(), user.getId()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getUserName(), user.getUserName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), "dfg");
+        return Objects.hash(getId(), getEmail(), getUserName());
     }
 
     public String toJson() {
@@ -310,12 +402,42 @@ public class User implements Serializable {
     }
 
     @JsonIgnore
-    public boolean isValidEmail() {
+    private boolean isValidEmail() {
         if ((email == null) || (email.trim().isEmpty()))
             return false;
-        final Pattern pattern = Pattern.compile(EMAIL_PATTERN, Pattern.CASE_INSENSITIVE);
+        final Pattern pattern = Pattern.compile(EMAIL_PATTERN, CASE_INSENSITIVE);
         final Matcher matcher = pattern.matcher(email);
         return matcher.matches();
+    }
+
+    private boolean isValidUserName() {
+        return !isEmpty(this.userName);
+    }
+
+    /**
+     * realiza validações basicar para o email, userName e nickNames
+     */
+    public void validateBasicInfoForLogin() {
+        if (!isEmpty(this.email)) {
+            if (!this.isValidEmail()) {
+                throw new MuttleySecurityBadRequestException(User.class, "email", "Informe um email válido!");
+            }
+        }
+        final Pattern patternNick = Pattern.compile(NICK_PATTERN, CASE_INSENSITIVE);
+        if (!CollectionUtils.isEmpty(this.nickUsers)) {
+
+            for (final String nick : this.nickUsers) {
+                final Matcher matcher = patternNick.matcher(nick);
+                if (isEmpty(nick) || !matcher.matches()) {
+                    new MuttleySecurityBadRequestException(User.class, "nickUsers", "Informe nickUser válidos")
+                            .addDetails("informed", this.nickUsers);
+                }
+            }
+        }
+        if (!isEmpty(this.userName) && !patternNick.matcher(this.userName).matches()) {
+            new MuttleySecurityBadRequestException(User.class, "nickUsers", "Informe nickUser válidos")
+                    .addDetails("informed", this.nickUsers);
+        }
     }
 
     /**

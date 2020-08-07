@@ -22,7 +22,7 @@ public class MuttleyBadRequestException extends MuttleyException {
     }
 
     public MuttleyBadRequestException(final Class clazz, final String field, final String message) {
-        super("Bad Request", BAD_REQUEST, clazz, field, message);
+        super(message, BAD_REQUEST, clazz, field, message);
     }
 
     public MuttleyBadRequestException(final ErrorMessage errorMessage) {

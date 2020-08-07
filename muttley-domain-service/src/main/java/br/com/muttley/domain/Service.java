@@ -3,9 +3,11 @@ package br.com.muttley.domain;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira on 23/02/18.
@@ -13,6 +15,11 @@ import java.util.Map;
  * @project muttley-cloud
  */
 public interface Service<T extends Document> {
+
+    boolean isCheckRole();
+
+    String[] getBasicRoles();
+
     /**
      * Este método é sempre chamado antes de persistir algum registro no banco de dados,
      * e também antes de se chamar o metodo {@link #beforeSave(User, Document)}.
@@ -45,6 +52,28 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser salvo
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('create', this.getBasicRoles())" +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('create', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
     T save(final User user, final T value);
 
     /**
@@ -53,7 +82,6 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser salvo
      */
-
     void afterSave(final User user, final T value);
 
     /**
@@ -87,6 +115,28 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser atualizado
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('update', this.getBasicRoles())" +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('update', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
     T update(final User user, final T value);
 
     /**
@@ -104,13 +154,92 @@ public interface Service<T extends Document> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id procurado
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   ) " +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()), " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('simple_use', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
     T findById(final User user, final String id);
+
+    /**
+     * Busca varios registros pelo id
+     *
+     * @param user -> usuário da requisição corrente
+     * @param ids  -> array de id a ser procurado
+     */
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString() " +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   ) " +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
+    Set<T> findByIds(User user, String[] ids);
 
     /**
      * Pega o primeiro registro que encontrar
      *
      * @param user -> usuário da requisição corrente
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()), " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('simple_use', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
     T findFirst(final User user);
 
     /**
@@ -120,6 +249,28 @@ public interface Service<T extends Document> {
      * @param id   -> id do registro a ser buscado
      * @return Historic
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
     Historic loadHistoric(final User user, final String id);
 
     /**
@@ -129,6 +280,28 @@ public interface Service<T extends Document> {
      * @param value -> instancia do registro a ser buscado
      * @return Historic
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
     Historic loadHistoric(final User user, final T value);
 
     /**
@@ -157,6 +330,28 @@ public interface Service<T extends Document> {
      * @param user -> usuário da requisição corrente
      * @param id   -> id procurado
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('delete', this.getBasicRoles())" +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('delete', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
     void deleteById(final User user, final String id);
 
 
@@ -188,6 +383,28 @@ public interface Service<T extends Document> {
      * @param user  -> usuário da requisição corrente
      * @param value -> registro a ser deletado
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('delete', this.getBasicRoles())" +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('delete', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
     void delete(final User user, final T value);
 
     /**
@@ -206,7 +423,95 @@ public interface Service<T extends Document> {
      * @param user             -> usuário da requisição corrente
      * @param allRequestParams -> Todos os parametros passado na query da requisição
      */
-    Long count(final User user, final Map<String, Object> allRequestParams);
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())," +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()), " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('simple_use', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
+    Long count(final User user, final Map<String, String> allRequestParams);
+
+    /**
+     * Verifica se existe um determinado registro no banco de dados
+     *
+     * @param user  -> usuário da requisição corrente
+     * @param value -> objeto desejado
+     */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())," +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()), " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('simple_use', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
+    boolean exists(final User user, final T value);
+
+    /**
+     * Verifica se existe um determinado registro no banco de dados
+     *
+     * @param user -> usuário da requisição corrente
+     * @param id   -> id do objeto desejado
+     */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())," +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()), " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('simple_use', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
+    boolean exists(final User user, final String id);
 
     /**
      * Realiza o processo de listagem com base nos critérios
@@ -215,10 +520,140 @@ public interface Service<T extends Document> {
      * @param user             -> usuário da requisição corrente
      * @param allRequestParams -> Todos os parametros passado na query da requisição
      */
-    List<T> findAll(final User user, final Map<String, Object> allRequestParams);
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
+    List<T> findAll(final User user, final Map<String, String> allRequestParams);
 
     /**
      * Verifica se existe algum registro no DB
      */
+    @PreAuthorize(
+            "        this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
     boolean isEmpty(final User user);
+
+    /**
+     * Recupera valor de uma propriedade especifica de um registro no banco de dados, levando em consideração o id
+     */
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
+    Object getPropertyValueFromId(final User user, final String id, final String property);
+
+    /**
+     * Recupera valor de propriedades especificas de registro no banco de dados, levando em consideração a condição de filtro
+     */
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
+    Object getPropertyValueFrom(final User user, final Map<String, Object> condictions, final String property);
+
+    /**
+     * Recupera valor de propriedades especificas de um registro no banco de dados, levando em consideração a condição de filtro
+     */
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles()), " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('simple_use', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true"
+    )
+    Object[] getPropertiesValueFrom(final User user, final Map<String, Object> condictions, final String... properties);
 }

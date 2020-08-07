@@ -1,11 +1,13 @@
 package br.com.muttley.mongo.repository;
 
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetadataDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @NoRepositoryBean
 public interface SimpleTenancyMongoRepository<T> extends MongoRepository<T, String> {
@@ -14,6 +16,13 @@ public interface SimpleTenancyMongoRepository<T> extends MongoRepository<T, Stri
      * Verifica se a collection está vazia
      */
     boolean isEmpty();
+
+    /**
+     * Busca vários registros simples
+     *
+     * @param ids -> ids dos registros desejado
+     */
+    Set<T> findMulti(final String ids[]);
 
     /**
      * Busca o primeiro registro qualquer de uma colection
@@ -25,14 +34,14 @@ public interface SimpleTenancyMongoRepository<T> extends MongoRepository<T, Stri
      *
      * @param queryParams -> parametros para criterios
      */
-    List<T> findAll(final Map<String, Object> queryParams);
+    List<T> findAll(final Map<String, String> queryParams);
 
     /**
      * Conta registros de uma determinada collection
      *
      * @param queryParams -> parametros para criterios
      */
-    long count(final Map<String, Object> queryParams);
+    long count(final Map<String, String> queryParams);
 
     /**
      * Verifica se existe um determinado registro no banco de dados
@@ -56,11 +65,25 @@ public interface SimpleTenancyMongoRepository<T> extends MongoRepository<T, Stri
     boolean exists(final Object... filter);
 
     /**
+     * Carrega o metadata de um determinado registro
+     *
+     * @param value -> registro a ser carregado
+     */
+    MetadataDocument loadMetadata(final T value);
+
+    /**
      * Carrega o historico de um determinado registro
      *
      * @param value -> registro a ser carregado
      */
     Historic loadHistoric(final T value);
+
+    /**
+     * Carrega o metadata de um determinado registro
+     *
+     * @param id -> id do registro a ser carregado
+     */
+    MetadataDocument loadMetadata(final String id);
 
     /**
      * Carrega o historico de um determinado registro

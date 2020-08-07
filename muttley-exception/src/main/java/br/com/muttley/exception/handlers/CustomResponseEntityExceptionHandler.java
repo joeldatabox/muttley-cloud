@@ -5,6 +5,7 @@ import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryException;
+import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
 import org.springframework.beans.TypeMismatchException;
@@ -30,6 +31,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
@@ -117,39 +119,36 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     }
 
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity handleException(final Exception ex) {
+    public ResponseEntity handleException(final HttpServletRequest request, final Exception ex) {
         if (ex instanceof MuttleyException) {
-            return handleMuttleyException((MuttleyException) ex);
+            return handleMuttleyException(request, (MuttleyException) ex);
         }
         return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
     }
 
     @ExceptionHandler(value = RuntimeException.class)
-    public ResponseEntity exceptionRuntime(final RuntimeException ex) {
+    public ResponseEntity exceptionRuntime(final HttpServletRequest request, final RuntimeException ex) {
         if (ex instanceof MuttleyException) {
-            return handleMuttleyException((MuttleyException) ex);
+            return handleMuttleyException(request, (MuttleyException) ex);
         }
-        final Throwable cause = ex.getCause();
-        if (cause != null) {
-            if (cause instanceof MuttleyException || cause instanceof MuttleyConflictException) {
-                return handleMuttleyException((MuttleyException) ex.getCause());
-            }
+        if (ex.getCause() instanceof MuttleyConflictException) {
+            return handleMuttleyException(request, (MuttleyException) ex.getCause());
         }
         return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
     }
 
     @ExceptionHandler(value = Throwable.class)
-    public ResponseEntity exceptionThrowable(final Throwable ex) {
+    public ResponseEntity exceptionThrowable(final HttpServletRequest request, final Throwable ex) {
         if (ex instanceof MuttleyException) {
-            return handleMuttleyException((MuttleyException) ex);
+            return handleMuttleyException(request, (MuttleyException) ex);
         }
         return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
     }
 
 
     @ExceptionHandler(MuttleyException.class)
-    public ResponseEntity handleMuttleyException(final MuttleyException ex) {
-        return messageBuilder.buildMessage(ex).toResponseEntity();
+    public ResponseEntity handleMuttleyException(HttpServletRequest request, final MuttleyException ex) {
+        return messageBuilder.buildMessage(ex).toResponseEntity(request);
     }
 
     @ExceptionHandler(MuttleyRepositoryException.class)
@@ -168,12 +167,18 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     public ResponseEntity handleAccessDeniedException(final AccessDeniedException ex) {
         final MuttleySecurityUnauthorizedException exx = new MuttleySecurityUnauthorizedException().setStatus(FORBIDDEN);
         exx.addSuppressed(ex);
+        exx.setMessage("Você não tem permissão para acessar esse recurso");
         return handleMuttleySecurityUnauthorizedException(exx);
     }
 
     @ExceptionHandler(value = MuttleySecurityUserNameOrPasswordInvalidException.class)
     public ResponseEntity handleMuttleySecurityUserNameOrPasswordInvalidException(final MuttleySecurityUserNameOrPasswordInvalidException ex) {
         return messageBuilder.buildMessage(ex).toResponseEntity();
+    }
+
+    @ExceptionHandler(value = MuttleySecurityCredentialException.class)
+    public ResponseEntity handleMuttleySecurityCredentialException(final MuttleySecurityCredentialException ex) {
+        return this.handleMuttleySecurityUnauthorizedException(ex);
     }
 
     @ExceptionHandler(value = MuttleySecurityUnauthorizedException.class)

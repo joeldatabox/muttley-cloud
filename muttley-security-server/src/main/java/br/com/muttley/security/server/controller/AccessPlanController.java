@@ -2,7 +2,7 @@ package br.com.muttley.security.server.controller;
 
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.AccessPlan;
-import br.com.muttley.model.security.enumeration.Authorities;
+import br.com.muttley.model.security.Authority;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.AccessPlanService;
 import br.com.muttley.security.server.service.UserService;
@@ -111,8 +111,8 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
-                                                 @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
+    public ResponseEntity<PageableResource<AccessPlan>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
+                                                             @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(
                 toPageableResource(eventPublisher, response, this.service, null, allRequestParams)
         );
@@ -120,7 +120,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
 
     @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public final ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams,
+    public final ResponseEntity count(@RequestParam final Map<String, String> allRequestParams,
                                       @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(String.valueOf(service.count(null, allRequestParams)));
     }
@@ -169,7 +169,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         }*/
     }
 
-    protected final void checkCredentials(final Authorities... roles) {
+    protected final void checkCredentials(final Authority... roles) {
         /*if (!user.inAnyRole(roles)) {
             throw new MuttleySecurityCredentialException("Você não tem permissão para acessar este recurso ")
                     .addDetails("isNecessary", roles);

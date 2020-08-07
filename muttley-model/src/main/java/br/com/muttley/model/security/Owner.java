@@ -1,6 +1,7 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
 import br.com.muttley.model.security.jackson.AccessPlanDeserializer;
 import br.com.muttley.model.security.jackson.UserDeserializer;
@@ -26,7 +27,7 @@ import javax.validation.constraints.NotNull;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@Document(collection = "#{documentNameConfig.getNameCollectionOwner()}")
+@Document(collection = "#{@documentNameConfig.getNameCollectionOwner()}")
 @CompoundIndexes({
         @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })
@@ -51,4 +52,5 @@ public class Owner implements br.com.muttley.model.Document {
     @DBRef
     protected AccessPlan accessPlan;
     protected Historic historic;
+    protected MetadataDocument metadata;
 }

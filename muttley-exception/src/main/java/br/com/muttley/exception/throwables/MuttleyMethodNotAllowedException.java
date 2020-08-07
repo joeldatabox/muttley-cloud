@@ -17,7 +17,7 @@ public class MuttleyMethodNotAllowedException extends MuttleyException {
     }
 
     public MuttleyMethodNotAllowedException(final Class clazz, final String field, final String message) {
-        super("Method not allowed", HttpStatus.METHOD_NOT_ALLOWED, clazz, field, message);
+        super(message, HttpStatus.METHOD_NOT_ALLOWED, clazz, field, message);
     }
 
     public MuttleyMethodNotAllowedException(final ErrorMessage errorMessage) {

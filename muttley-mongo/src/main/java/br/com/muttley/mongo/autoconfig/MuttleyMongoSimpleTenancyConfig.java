@@ -1,35 +1,47 @@
 package br.com.muttley.mongo.autoconfig;
 
+import br.com.muttley.model.View;
+import br.com.muttley.mongo.codec.MuttleyMongoCodec;
+import br.com.muttley.mongo.codec.impl.BigDecimalCodec;
+import br.com.muttley.mongo.codec.impl.ZonedDateTimeCodec;
 import br.com.muttley.mongo.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.converters.Decimal128ToBigDecimalConverter;
 import br.com.muttley.mongo.properties.MuttleyMongoProperties;
 import br.com.muttley.mongo.repository.impl.MultiTenancyMongoRepositoryImpl;
 import br.com.muttley.mongo.repository.impl.SimpleTenancyMongoRepositoryImpl;
 import br.com.muttley.mongo.service.MuttleyConvertersService;
+import br.com.muttley.mongo.service.MuttleyMongoCodecsService;
+import br.com.muttley.mongo.service.MuttleyViewSourceService;
+import br.com.muttley.mongo.views.source.ViewSource;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.mongodb.MongoClient.getDefaultCodecRegistry;
 import static com.mongodb.MongoCredential.createCredential;
 import static java.util.Collections.singletonList;
+import static org.bson.BSON.addEncodingHook;
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * Classe de configuração de conexão do mongodb<br/>
@@ -43,16 +55,21 @@ import static java.util.Collections.singletonList;
  * @author Joel Rodrigues Moreira on 10/01/18.
  * @project muttley-cloud
  */
-@Configuration
 @EnableConfigurationProperties(MuttleyMongoProperties.class)
-@ConditionalOnProperty(name = "muttley.mongo.strategy", havingValue = "simpletenancy", matchIfMissing = true)
+//@ConditionalOnProperty(name = "muttley.mongo.strategy", havingValue = "simpletenancy", matchIfMissing = true)
 @EnableMongoRepositories(repositoryBaseClass = SimpleTenancyMongoRepositoryImpl.class)
 public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration implements InitializingBean {
     @Autowired
     protected MuttleyMongoProperties properties;
 
     @Autowired
-    private ObjectProvider<MuttleyConvertersService> convertersSErviceProvider;
+    private ObjectProvider<MuttleyConvertersService> convertersServiceProvider;
+
+    @Autowired
+    private ObjectProvider<MuttleyMongoCodecsService> mongoCodecsServiceProvider;
+
+    @Autowired
+    private ObjectProvider<MuttleyViewSourceService> viewSourceServiceProvider;
 
 
     @Value("${spring.data.mongodb.database}")
@@ -71,9 +88,7 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
         return new MongoClient(
                 singletonList(new ServerAddress(this.hostDataBase, portDataBase)),
                 createCredential(this.userName, this.dataBaseName, this.password.toCharArray()),
-                MongoClientOptions
-                        .builder()
-                        .build()
+                getMongoClientOption()
         );
     }
 
@@ -90,7 +105,7 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
         converters.add(new Decimal128ToBigDecimalConverter());
 
         //pegando instancia do serviço de conversores caso exista
-        final MuttleyConvertersService convertersService = convertersSErviceProvider.getIfAvailable();
+        final MuttleyConvertersService convertersService = convertersServiceProvider.getIfAvailable();
         if (convertersService != null) {
             //pegando o conversores customizados
             final Converter[] customConversions = convertersService.getCustomConverters();
@@ -104,7 +119,6 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
         return new MongoCustomConversions(converters);
     }
 
-
     @Bean
     public MongoRepositoryFactory getMongoRepositoryFactory() {
         try {
@@ -116,7 +130,96 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        final MuttleyViewSourceService service = this.viewSourceServiceProvider.getIfAvailable();
+        if (service != null) {
+            this.createViews(service.getCustomViewSource());
+        }
         LoggerFactory.getLogger(MuttleyMongoSimpleTenancyConfig.class).info(getMessageLog());
+    }
+
+    private MongoClientOptions getMongoClientOption() {
+        //registrando os codecs básicos
+        final BigDecimalCodec bigDecimalCodec = new BigDecimalCodec();
+        final ZonedDateTimeCodec zonedDateTimeCodec = new ZonedDateTimeCodec();
+
+        addEncodingHook(bigDecimalCodec.getEncoderClass(), bigDecimalCodec.getTransformer());
+        addEncodingHook(zonedDateTimeCodec.getEncoderClass(), zonedDateTimeCodec.getTransformer());
+        //lista para armazenar os registros de codecs
+        final List<CodecRegistry> codecRegistries = new ArrayList();
+        //adicionando o codec para bigdecimal
+        codecRegistries.add(fromProviders(bigDecimalCodec.getCodecProvider()));
+        codecRegistries.add(fromProviders(zonedDateTimeCodec.getCodecProvider()));
+
+
+        //pegando os codecs customizados que foram implementados no servidor
+        final MuttleyMongoCodecsService service = this.mongoCodecsServiceProvider.getIfAvailable();
+        if (service != null) {
+            final MuttleyMongoCodec[] customCondecs = service.getCustomCodecs();
+            if (customCondecs != null) {
+                for (final MuttleyMongoCodec codec : customCondecs) {
+                    //adicionando no bson
+                    addEncodingHook(codec.getEncoderClass(), codec.getTransformer());
+
+                    //adicionando na lista
+                    codecRegistries.add(fromProviders(codec.getCodecProvider()));
+                }
+            }
+        }
+
+        //adicionando codecs basicos
+        codecRegistries.add(getDefaultCodecRegistry());
+
+        return MongoClientOptions
+                .builder()
+                .codecRegistry(
+                        fromRegistries(codecRegistries)
+                ).build();
+    }
+
+    private void createViews(final ViewSource[] sources) throws Exception {
+        if (sources != null && sources.length > 0) {
+
+            final MongoClient client = this.mongoClient();
+            final MongoTemplate template = new MongoTemplate(client, this.dataBaseName);
+
+
+            for (final ViewSource source : sources) {
+                final Query query = new Query();
+                query.addCriteria(where("name").is(source.getViewName()));
+                //verificando se a view existe
+                final View view = template.findOne(new Query(where("name").is(source.getViewName())), View.class);
+
+
+                if (view == null) {
+                    //a view não existe, logo devemos criar a mesma
+                    client
+                            .getDatabase(this.dataBaseName)
+                            .createView(source.getViewName(), source.getViewOn(), source.getPipeline());
+                    //salvando informações da view criada
+                    template.save(new View(source.getViewName(), source.getVersion(), source.getDescription()));
+                } else {
+                    //se a view já existe devemos verificar a versão da mesma
+                    //se a versão for diferente devemos dropar essa view
+                    if (!view.getVersion().equals(source.getVersion())) {
+                        client
+                                .getDatabase(this.dataBaseName)
+                                .getCollection(source.getViewName())
+                                .drop();
+
+                        //adicionando novamente a view
+                        client
+                                .getDatabase(this.dataBaseName)
+                                .createView(source.getViewName(), source.getViewOn(), source.getPipeline());
+
+                        //atualizando info da view
+                        //this.template.save(view.updateInfo(source));
+                        template.save(view.setDescription(source.getDescription())
+                                .setVersion(source.getVersion()));
+                    }
+                }
+            }
+            client.close();
+        }
     }
 
     protected String getMessageLog() {
@@ -135,6 +238,6 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
             }
         }
         builder.append("\"");
-        return builder.toString();
+        return this.toString() + " - " + builder.toString();
     }
 }

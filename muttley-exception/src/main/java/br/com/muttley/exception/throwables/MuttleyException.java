@@ -1,11 +1,16 @@
 package br.com.muttley.exception.throwables;
 
 import br.com.muttley.exception.ErrorMessage;
+import br.com.muttley.exception.service.event.MuttleyExceptionEvent;
 import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.Arrays.asList;
 
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
@@ -18,7 +23,9 @@ public class MuttleyException extends RuntimeException {
     protected String message;
     protected String objectName;
     protected Map<String, Object> details = new HashMap<>();
+    protected Map<String, List<String>> headers = new HashMap<>();
     protected String field;
+    protected List<MuttleyExceptionEvent> events = new ArrayList<>();
 
     public MuttleyException() {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -152,6 +159,65 @@ public class MuttleyException extends RuntimeException {
         this.details.putAll(details);
         return this;
     }
+
+    public Map<String, List<String>> getHeaders() {
+        return headers;
+    }
+
+    public MuttleyException setHeaders(final Map<String, List<String>> headers) {
+        this.headers = headers;
+        return this;
+    }
+
+    public MuttleyException addHeaders(final String key, final String value) {
+        if (this.headers.containsKey(key)) {
+            this.headers.get(key).add(value);
+        } else {
+            final List<String> values = new ArrayList<>(1);
+            values.add(value);
+            this.headers.put(key, values);
+        }
+        return this;
+    }
+
+    public MuttleyException addHeaders(final String key, final String... value) {
+        return this.addHeaders(key, asList(value));
+    }
+
+    public MuttleyException addHeaders(final String key, final List<String> value) {
+        if (this.headers.containsKey(key)) {
+            this.headers.get(key).addAll(value);
+        } else {
+            final List<String> values = new ArrayList<>(1);
+            values.addAll(value);
+            this.headers.put(key, values);
+        }
+        return this;
+    }
+
+    public MuttleyException addHeaders(final Map<String, List<String>> headers) {
+        this.headers.putAll(headers);
+        return this;
+    }
+
+    public MuttleyException addEvent(final MuttleyExceptionEvent... events) {
+        if (events != null) {
+            this.getEvents().addAll(
+                    asList(events)
+                            .stream()
+                            .filter(e -> e != null)
+                            .collect(
+                                    Collectors.toSet()
+                            )
+            );
+        }
+        return this;
+    }
+
+    public List<MuttleyExceptionEvent> getEvents() {
+        return this.events;
+    }
+
 
     public boolean containsDetais() {
         return !this.details.isEmpty();
