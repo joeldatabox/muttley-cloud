@@ -1,6 +1,8 @@
 package br.com.muttley.redis.service;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira on 08/01/18.
@@ -13,12 +15,23 @@ public interface RedisService<T> {
     String getBasicKey();
 
     /**
+     * @return java.util.Set<String>  -> coleção de chaves salvas no banco
+     */
+    Set<String> getKey();
+
+    /**
+     * @param expression -> expressão basica a ser buscada
+     * @return java.util.Set<String>  -> coleção de chaves salvas no banco
+     */
+    Set<String> getKeys(final String expression);
+
+    /**
      * Salva um objeto qualquer com uma chave especifica
      *
      * @param key   -> chave desejada
      * @param value -> valor a ser salvo
      */
-    RedisService set(String key, T value);
+    RedisService set(final String key, final T value);
 
     /**
      * Salva um objeto qualquer de maneira temporaria
@@ -27,28 +40,35 @@ public interface RedisService<T> {
      * @param value -> valor a ser salvo
      * @param time  -> tempo em milisegundos para se expirar o registro
      */
-    RedisService set(String key, T value, long time);
+    RedisService set(final String key, final T value, final long time);
 
     /**
      * Recupera o tempo de vida de um objeto salvo temporariamente
      *
      * @param key -> chave do objeto desejado
      */
-    Long getExpire(String key);
+    Long getExpire(final String key);
 
     /**
      * Recupera um determinado valor qualquer do banco
      *
      * @param key -> chave desejada
      */
-    T get(String key);
+    T get(final String key);
 
     /**
      * Remove um objeto
      *
      * @param key -> key do objeto a ser removido
      */
-    RedisService delete(String key);
+    RedisService delete(final String key);
+
+    /**
+     * Remove um objeto
+     *
+     * @param expression -> expressão basica das chaves a serem removidas
+     */
+    RedisService deleteByExpression(final String expression);
 
     /**
      * lista todos os itens cujo a chave tenha o prefixo {@link #getBasicKey()}
@@ -56,6 +76,13 @@ public interface RedisService<T> {
      * @return {@link Collection<Object>}
      */
     Collection<T> list();
+
+    /**
+     * Recupera valores do banco de acordo com a expressão regular
+     *
+     * @param expression -> chave desejada
+     */
+    List getByExpression(final String expression);
 
     /**
      * Limpa todos os itens
@@ -66,5 +93,10 @@ public interface RedisService<T> {
      * Verifica se existe uma determinada chave no banco
      */
     boolean hasKey(final String key);
+
+    /**
+     * Verifica se existe uma determinada chave no banco via expressão regular
+     */
+    boolean hasKeyByExpression(final String expression);
 
 }

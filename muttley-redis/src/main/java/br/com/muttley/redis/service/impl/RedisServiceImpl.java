@@ -11,15 +11,16 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
-import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
-import static com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
@@ -46,6 +47,16 @@ public class RedisServiceImpl<T> implements RedisService<T> {
     @Override
     public String getBasicKey() {
         return this.basicKey;
+    }
+
+    @Override
+    public Set<String> getKey() {
+        return this.redisTemplate.keys(this.getBasicKey() + "*");
+    }
+
+    @Override
+    public Set<String> getKeys(final String expression) {
+        return this.redisTemplate.keys(this.getBasicKey() + "*" + expression);
     }
 
     @Override
@@ -80,8 +91,19 @@ public class RedisServiceImpl<T> implements RedisService<T> {
     }
 
     @Override
-    public Collection<T> list() {
-        return (Collection<T>) this.redisTemplate.opsForValue().multiGet(this.redisTemplate.keys(getBasicKey()));
+    public RedisService deleteByExpression(final String expression) {
+        this.redisTemplate.delete(this.getKeys(expression));
+        return this;
+    }
+
+    @Override
+    public Collection list() {
+        return this.redisTemplate.opsForValue().multiGet(this.redisTemplate.keys(getBasicKey() + "*"));
+    }
+
+    @Override
+    public List<Object> getByExpression(final String expression) {
+        return this.redisTemplate.opsForValue().multiGet(this.redisTemplate.keys(getBasicKey() + "*" + expression));
     }
 
     @Override
@@ -93,6 +115,11 @@ public class RedisServiceImpl<T> implements RedisService<T> {
     @Override
     public boolean hasKey(final String key) {
         return this.redisTemplate.hasKey(createKey(key));
+    }
+
+    @Override
+    public boolean hasKeyByExpression(final String expression) {
+        return !CollectionUtils.isEmpty(this.redisTemplate.keys(this.getBasicKey() + "*" + expression));
     }
 
     private String createKey(final String key) {
