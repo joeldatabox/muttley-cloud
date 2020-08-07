@@ -19,6 +19,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Joel Rodrigues Moreira on 03/08/2020.
@@ -51,5 +54,9 @@ public class UserTokensNotification implements br.com.muttley.model.Document {
     public UserTokensNotification add(final TokenId tokenId) {
         this.tokens.add(tokenId);
         return this;
+    }
+
+    public Set<TokenId> getTokensMobile() {
+        return this.tokens.stream().filter(TokenId::isMobile).collect(toSet());
     }
 }

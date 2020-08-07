@@ -1,6 +1,5 @@
-package br.com.muttley.hermes.server.autoconfig;
+package br.com.muttley.hermes.server.config;
 
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ComponentScan(basePackages = {
-        "br.com.muttley.hermes.server.autoconfig.mongo",
+        "br.com.muttley.hermes.server.config.mongo",
         "br.com.muttley.hermes.server.controller",
         "br.com.muttley.hermes.server.service"
 })

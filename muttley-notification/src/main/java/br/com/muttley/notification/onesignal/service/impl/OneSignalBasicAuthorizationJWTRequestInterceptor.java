@@ -1,4 +1,4 @@
-package br.com.muttley.notification.onesignal.service;
+package br.com.muttley.notification.onesignal.service.impl;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
@@ -13,7 +13,7 @@ public class OneSignalBasicAuthorizationJWTRequestInterceptor implements Request
     private final String tokenHeader;
     private final String tokenValue;
 
-    public OneSignalBasicAuthorizationJWTRequestInterceptor(@Value("${muttley.onesignal.tokenHeader:Authorization}") final String tokenHeader, @Value("${muttley.onesignal.tokenValue}") final String tokenValue) {
+    public OneSignalBasicAuthorizationJWTRequestInterceptor(@Value("${muttley.notification.onesignal.tokenHeader}") final String tokenHeader, @Value("${muttley.notification.onesignal.tokenValue}") final String tokenValue) {
         this.tokenHeader = tokenHeader;
         this.tokenValue = tokenValue;
     }

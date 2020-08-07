@@ -1,4 +1,4 @@
-package br.com.muttley.hermes.server.autoconfig.mongo;
+package br.com.muttley.hermes.server.config.mongo;
 
 import br.com.muttley.mongo.repository.impl.SimpleTenancyMongoRepositoryImpl;
 import org.springframework.boot.autoconfigure.domain.EntityScan;

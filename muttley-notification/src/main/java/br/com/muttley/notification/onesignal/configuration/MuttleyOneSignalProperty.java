@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = MuttleyOneSignalProperty.PREFIX)
 public class MuttleyOneSignalProperty {
-    protected static final String PREFIX = "muttley.onesignal";
+    protected static final String PREFIX = "muttley.notification.onesignal";
     private String tokenHeader = "Authorization";
     private String tokenValue;
     private String domain = "https://onesignal.com";

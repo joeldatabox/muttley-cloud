@@ -1,4 +1,4 @@
-package br.com.muttley.notification.onesignal.model;
+package br.com.muttley.model.hermes.notification.onesignal;
 
 import lombok.Getter;
 import org.springframework.util.StringUtils;

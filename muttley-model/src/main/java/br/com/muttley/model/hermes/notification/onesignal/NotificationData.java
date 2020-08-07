@@ -1,8 +1,10 @@
-package br.com.muttley.notification.onesignal.model;
+package br.com.muttley.model.hermes.notification.onesignal;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  * @author Joel Rodrigues Moreira on 04/08/2020.
@@ -14,6 +16,7 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 public class NotificationData {
+    @NotBlank
     private String type;
     private Object payload;
 }
