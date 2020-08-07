@@ -235,9 +235,11 @@ public class ErrorMessageBuilder {
     }
 
     private void publishEvents(final ErrorMessage message, final Collection<MuttleyExceptionEvent> events) {
-        this.publisher.publishEvent(new MuttleyExceptionEvent(message));
-        if (!CollectionUtils.isEmpty(events)) {
-            events.forEach(it -> this.publisher.publishEvent(it.setSource(message)));
+        if (this.publisher != null) {
+            this.publisher.publishEvent(new MuttleyExceptionEvent(message));
+            if (!CollectionUtils.isEmpty(events)) {
+                events.forEach(it -> this.publisher.publishEvent(it.setSource(message)));
+            }
         }
     }
 

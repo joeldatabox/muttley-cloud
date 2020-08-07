@@ -1,5 +1,6 @@
 package br.com.muttley.redis.service.impl;
 
+import br.com.muttley.redis.model.MuttleyRedisWrapper;
 import br.com.muttley.redis.service.RedisService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
@@ -12,6 +13,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
 import javax.annotation.PostConstruct;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
@@ -103,7 +105,7 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
     @Override
     public byte[] serialize(final Object value) throws SerializationException {
         try {
-            return getObjectMapper().writeValueAsBytes(value);
+            return getObjectMapper().writeValueAsBytes(new MuttleyRedisWrapper<>(value));
         } catch (final JsonProcessingException e) {
             throw new SerializationException(e.getMessage(), e);
         }
@@ -115,7 +117,7 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
             return null;
         }
         try {
-            return getObjectMapper().readValue(bytes, Object.class);
+            return getObjectMapper().readValue(bytes, MuttleyRedisWrapper.class).getContent();
         } catch (final Exception e) {
             throw new SerializationException(e.getMessage(), e);
         }
@@ -123,11 +125,16 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
 
     private static ObjectMapper getObjectMapper() {
         return new ObjectMapper()
-                .enableDefaultTyping(NON_FINAL, PROPERTY)
+                .enableDefaultTyping()
                 .registerModule(
                         new SimpleModule("ObjectId",
                                 new Version(1, 0, 0, null, null, null)
                         ).addSerializer(ObjectId.class, new ObjectIdSerializer())
+                ).registerModule(
+                        new SimpleModule("ZonedDateTime",
+                                new Version(1, 0, 0, null, null, null)
+                        ).addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer())
+                                .addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer())
                 )
                 .setVisibility(FIELD, ANY);
     }
