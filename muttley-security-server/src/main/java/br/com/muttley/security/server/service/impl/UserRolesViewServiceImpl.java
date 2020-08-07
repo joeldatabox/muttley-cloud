@@ -3,7 +3,6 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.events.ConfigFirstWorkTeamEvent;
 import br.com.muttley.security.server.service.UserRolesViewService;
 import org.bson.types.ObjectId;
