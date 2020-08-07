@@ -115,6 +115,9 @@ public class TimeZoneDocument {
     /***/
 
     public static String getTimezoneFromId(String zoneId) {
+        if ("z".equalsIgnoreCase(zoneId)) {
+            return "+00:00";
+        }
         //verificando se zona informada é válida
         if (isValidTimeZone(zoneId)) {
             //checando se esta formatada com dois pontos
