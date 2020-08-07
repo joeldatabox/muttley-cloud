@@ -6,7 +6,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
-import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
@@ -80,6 +79,13 @@ public class DateUtils {
                 .withNano(999999999);
     }
 
+    public static ZonedDateTime toLastHour(final ZonedDateTime dateTime) {
+        return dateTime.withHour(23)
+                .withMinute(59)
+                .withSecond(59)
+                .withNano(999999999);
+    }
+
     public static Date toFirstDayOfMonth(final Date date) {
         return toDate(toFirstDayOfMonth(toLocalDateTime(date)));
     }
@@ -103,10 +109,10 @@ public class DateUtils {
     }
 
     public static Date toDate(final ZonedDateTime date) {
-        return toDate(date, UTC);
+        return toDate(date, date.getOffset());
     }
 
     public static Date toDate(final ZonedDateTime date, ZoneOffset zoneOffset) {
-        return new Date(date.toLocalDateTime().toInstant(zoneOffset).toEpochMilli());
+        return Date.from(date.toLocalDateTime().toInstant(zoneOffset));
     }
 }
