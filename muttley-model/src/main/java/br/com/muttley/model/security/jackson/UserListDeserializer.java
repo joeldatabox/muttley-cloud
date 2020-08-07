@@ -52,9 +52,10 @@ public class UserListDeserializer extends JsonDeserializer<Collection<User>> {
                     this.eventPublisher.publishEvent(event);
                     //retornando valor recuperado
                     users.add(event.isResolved() ? event.getUserResolved() : new User().setUserName(event.getUserName()));
+                } else {
+                    //deserializando o usuário com apenas o userName mesmo
+                    users.add(node.isNull() ? null : new User().setUserName(node.asText()));
                 }
-                //deserializando o usuário com apenas o userName mesmo
-                users.add(node.isNull() ? null : new User().setUserName(node.asText()));
             }
         }
     }
