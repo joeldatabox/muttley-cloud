@@ -10,8 +10,6 @@ import org.springframework.hateoas.RepresentationModel;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import static org.springframework.hateoas.UriTemplate.of;
-
 /**
  * Created by joel on 14/04/17.
  */
@@ -20,7 +18,7 @@ public class UserResource extends RepresentationModel {
     private EntityModel<User> user;
 
     public UserResource(final User user) {
-        this.user = new EntityModel(user);
+        this.user = EntityModel.of(user);
         this.user.add(getSelfLink());
     }
 
@@ -34,12 +32,11 @@ public class UserResource extends RepresentationModel {
 
     @JsonIgnore
     private Link getSelfLink() {
-        return new Link(of(
-                ServletUriComponentsBuilder
+        return Link.of(ServletUriComponentsBuilder
                         .fromCurrentRequest()
                         .buildAndExpand()
                         .toUri()
                         .toASCIIString()
-        ), "self");
+                , "self");
     }
 }

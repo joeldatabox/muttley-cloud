@@ -2,6 +2,8 @@ package br.com.muttley.mongo.service;
 
 import org.springframework.core.convert.converter.Converter;
 
+import java.util.Collection;
+
 /**
  * Interface de serviço para facílitar a customização de converters do MongoDB
  *
@@ -10,5 +12,5 @@ import org.springframework.core.convert.converter.Converter;
  * @project muttley-cloud
  */
 public interface MuttleyConvertersService {
-    public Converter[] getCustomConverters();
+    public Collection<? extends Converter> getCustomConverters();
 }

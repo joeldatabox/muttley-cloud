@@ -1,7 +1,6 @@
 package br.com.muttley.mongo.autoconfig;
 
 import br.com.muttley.model.View;
-import br.com.muttley.mongo.codec.MuttleyMongoCodec;
 import br.com.muttley.mongo.codec.impl.BigDecimalCodec;
 import br.com.muttley.mongo.codec.impl.ZonedDateTimeCodec;
 import br.com.muttley.mongo.converters.BigDecimalToDecimal128Converter;
@@ -13,32 +12,42 @@ import br.com.muttley.mongo.service.MuttleyConvertersService;
 import br.com.muttley.mongo.service.MuttleyMongoCodecsService;
 import br.com.muttley.mongo.service.MuttleyViewSourceService;
 import br.com.muttley.mongo.views.source.ViewSource;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.ServerAddress;
+import com.mongodb.ConnectionString;
+import com.mongodb.DBObjectCodecProvider;
+import com.mongodb.DBRefCodecProvider;
+import com.mongodb.DocumentToDBRefTransformer;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.gridfs.codecs.GridFSFileCodecProvider;
+import com.mongodb.client.model.geojson.codecs.GeoJsonCodecProvider;
+import org.bson.codecs.BsonCodecProvider;
+import org.bson.codecs.BsonValueCodecProvider;
+import org.bson.codecs.DocumentCodecProvider;
+import org.bson.codecs.IterableCodecProvider;
+import org.bson.codecs.MapCodecProvider;
+import org.bson.codecs.ValueCodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.jsr310.Jsr310CodecProvider;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions.MongoConverterConfigurationAdapter;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
-import static com.mongodb.MongoClient.getDefaultCodecRegistry;
+import static com.mongodb.MongoClientSettings.builder;
+import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static com.mongodb.MongoCredential.createCredential;
-import static java.util.Collections.singletonList;
-import static org.bson.BSON.addEncodingHook;
+import static com.mongodb.client.MongoClients.create;
+import static java.util.Arrays.asList;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -58,7 +67,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @EnableConfigurationProperties(MuttleyMongoProperties.class)
 //@ConditionalOnProperty(name = "muttley.mongo.strategy", havingValue = "simpletenancy", matchIfMissing = true)
 @EnableMongoRepositories(repositoryBaseClass = SimpleTenancyMongoRepositoryImpl.class)
-public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration implements InitializingBean {
+public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoClientConfiguration implements InitializingBean {
     @Autowired
     protected MuttleyMongoProperties properties;
 
@@ -85,10 +94,29 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
 
     @Override
     public MongoClient mongoClient() {
-        return new MongoClient(
-                singletonList(new ServerAddress(this.hostDataBase, portDataBase)),
-                createCredential(this.userName, this.dataBaseName, this.password.toCharArray()),
-                getMongoClientOption()
+
+        CodecRegistry DEFAULT_CODEC_REGISTRY =
+                fromProviders(asList(new ValueCodecProvider(),
+                        new BsonValueCodecProvider(),
+                        new DBRefCodecProvider(),
+                        new DBObjectCodecProvider(),
+                        new DocumentCodecProvider(new DocumentToDBRefTransformer()),
+                        new IterableCodecProvider(new DocumentToDBRefTransformer()),
+                        new MapCodecProvider(new DocumentToDBRefTransformer()),
+                        new GeoJsonCodecProvider(),
+                        new GridFSFileCodecProvider(),
+                        new Jsr310CodecProvider(),
+                        new BsonCodecProvider()));
+
+
+        return create(
+                builder().applyConnectionString(
+                        new ConnectionString("mongodb://" + this.hostDataBase + ":" + portDataBase)
+                ).credential(
+                        createCredential(this.userName, this.dataBaseName, this.password.toCharArray())
+                ).codecRegistry(
+                        getDefaultCodecRegistry()
+                ).build()
         );
     }
 
@@ -98,35 +126,32 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
     }
 
     @Override
-    public final org.springframework.data.convert.CustomConversions customConversions() {
-        //pegando os conversores padrão
-        final List converters = new ArrayList(2);
-        converters.add(new BigDecimalToDecimal128Converter());
-        converters.add(new Decimal128ToBigDecimalConverter());
+    protected void configureConverters(MongoConverterConfigurationAdapter adapter) {
+        adapter.registerConverter(new BigDecimalToDecimal128Converter());
+        adapter.registerConverter(new Decimal128ToBigDecimalConverter());
 
         //pegando instancia do serviço de conversores caso exista
         final MuttleyConvertersService convertersService = convertersServiceProvider.getIfAvailable();
         if (convertersService != null) {
             //pegando o conversores customizados
-            final Converter[] customConversions = convertersService.getCustomConverters();
+            final Collection<? extends Converter> converters = convertersService.getCustomConverters();
             //dicionando conversores personalizados
-            if (customConversions != null && customConversions.length > 0) {
-                for (Converter con : customConversions) {
-                    converters.add(con);
-                }
+            if (!CollectionUtils.isEmpty(converters)) {
+                adapter.registerConverters(converters);
             }
         }
-        return new MongoCustomConversions(converters);
+
     }
 
-    @Bean
+
+    /*@Bean
     public MongoRepositoryFactory getMongoRepositoryFactory() {
         try {
             return new MongoRepositoryFactory(this.mongoTemplate());
         } catch (Exception e) {
             throw new RuntimeException("error creating mongo repository factory", e);
         }
-    }
+    }*/
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -135,6 +160,19 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoConfiguration 
             this.createViews(service.getCustomViewSource());
         }
         LoggerFactory.getLogger(MuttleyMongoSimpleTenancyConfig.class).info(getMessageLog());
+    }
+
+    private CodecRegistry getCodecs() {
+        return fromRegistries(
+                asList(getDefaultCodecRegistry(),
+                        fromProviders(
+                                asList(
+                                        new BigDecimalCodec().getCodecProvider(),
+                                        new ZonedDateTimeCodec().getCodecProvider()
+                                )
+                        )
+                )
+        );
     }
 
     private MongoClientOptions getMongoClientOption() {
