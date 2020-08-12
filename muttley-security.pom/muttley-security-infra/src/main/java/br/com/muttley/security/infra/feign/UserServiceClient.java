@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Set;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -30,10 +30,10 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 @FeignClient(value = "${muttley.security-server.name-server}", path = "/api/v1/users", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
 public interface UserServiceClient {
 
-    @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(method = POST, consumes = APPLICATION_JSON_VALUE)
     public User save(@RequestBody UserPayLoad value, @RequestParam(required = false, value = "returnEntity", defaultValue = "") String returnEntity);
 
-    @RequestMapping(value = "/{userName}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{userName}", method = PUT, consumes = APPLICATION_JSON_VALUE)
     public User update(@PathVariable("userName") final String email, @RequestHeader(Properties.TOKEN_HEADER) final String token, @RequestBody final User user);
 
     @RequestMapping(value = "/passwd", method = PUT)

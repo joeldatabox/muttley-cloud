@@ -40,7 +40,7 @@ public class UnauthorizedHandler implements AuthenticationEntryPoint, Serializab
                          final HttpServletResponse response,
                          final AuthenticationException authException) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setHeader("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE);
+        response.setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         response.setHeader(RESPONSE_HEADER, RESPONSE_HEADER_VALUE);
         response.getWriter()
                 .print(new MuttleySecurityUnauthorizedException("Unauthorized!")

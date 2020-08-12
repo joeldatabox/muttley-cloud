@@ -25,6 +25,7 @@ import java.util.Map;
 
 import static br.com.muttley.security.server.property.MuttleySecurityProperty.TOKEN_HEADER_JWT;
 import static java.util.Objects.isNull;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * @author Joel Rodrigues Moreira on 23/02/18.
@@ -32,7 +33,7 @@ import static java.util.Objects.isNull;
  * @project muttley-cloud
  */
 @RestController
-@RequestMapping(value = "/api/v1/access-plan", produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/api/v1/access-plan", produces = APPLICATION_JSON_VALUE)
 public class AccessPlanController extends AbstractRestController<AccessPlan> {
 
     @Autowired
@@ -40,7 +41,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         super(service, userService, eventPublisher);
     }
 
-    @RequestMapping(method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(method = RequestMethod.POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity save(
             @RequestBody final AccessPlan value,
@@ -58,7 +59,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final AccessPlan model,
                                  @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
@@ -66,7 +67,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         return ResponseEntity.ok(service.update(null, model));
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity deleteById(@PathVariable("id") final String id,
                                      @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
@@ -75,7 +76,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response,
                                    @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
@@ -87,7 +88,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         return ResponseEntity.ok(value);
     }
 
-    @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/first", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity first(final HttpServletResponse response,
                                 @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
@@ -99,7 +100,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         return ResponseEntity.ok(value);
     }
 
-    @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response,
                                        @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
