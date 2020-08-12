@@ -2,6 +2,8 @@ package br.com.muttley.mongo.service;
 
 import br.com.muttley.mongo.codec.MuttleyMongoCodec;
 
+import java.util.List;
+
 /**
  * Interface de serviço para facílitar a customização de codecs do MongoDB
  *
@@ -10,5 +12,5 @@ import br.com.muttley.mongo.codec.MuttleyMongoCodec;
  * @project muttley-cloud
  */
 public interface MuttleyMongoCodecsService {
-    MuttleyMongoCodec[] getCustomCodecs();
+    List<MuttleyMongoCodec> getCustomCodecs();
 }

@@ -1,6 +1,7 @@
 package br.com.muttley.mongo.autoconfig;
 
 import br.com.muttley.model.View;
+import br.com.muttley.mongo.codec.MuttleyMongoCodec;
 import br.com.muttley.mongo.codec.impl.BigDecimalCodec;
 import br.com.muttley.mongo.codec.impl.ZonedDateTimeCodec;
 import br.com.muttley.mongo.converters.BigDecimalToDecimal128Converter;
@@ -13,20 +14,9 @@ import br.com.muttley.mongo.service.MuttleyMongoCodecsService;
 import br.com.muttley.mongo.service.MuttleyViewSourceService;
 import br.com.muttley.mongo.views.source.ViewSource;
 import com.mongodb.ConnectionString;
-import com.mongodb.DBObjectCodecProvider;
-import com.mongodb.DBRefCodecProvider;
-import com.mongodb.DocumentToDBRefTransformer;
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.gridfs.codecs.GridFSFileCodecProvider;
-import com.mongodb.client.model.geojson.codecs.GeoJsonCodecProvider;
-import org.bson.codecs.BsonCodecProvider;
-import org.bson.codecs.BsonValueCodecProvider;
-import org.bson.codecs.DocumentCodecProvider;
-import org.bson.codecs.IterableCodecProvider;
-import org.bson.codecs.MapCodecProvider;
-import org.bson.codecs.ValueCodecProvider;
+import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.jsr310.Jsr310CodecProvider;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
@@ -42,12 +32,15 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
+import java.util.List;
 
 import static com.mongodb.MongoClientSettings.builder;
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static com.mongodb.MongoCredential.createCredential;
 import static com.mongodb.client.MongoClients.create;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -94,28 +87,13 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoClientConfigur
 
     @Override
     public MongoClient mongoClient() {
-
-        CodecRegistry DEFAULT_CODEC_REGISTRY =
-                fromProviders(asList(new ValueCodecProvider(),
-                        new BsonValueCodecProvider(),
-                        new DBRefCodecProvider(),
-                        new DBObjectCodecProvider(),
-                        new DocumentCodecProvider(new DocumentToDBRefTransformer()),
-                        new IterableCodecProvider(new DocumentToDBRefTransformer()),
-                        new MapCodecProvider(new DocumentToDBRefTransformer()),
-                        new GeoJsonCodecProvider(),
-                        new GridFSFileCodecProvider(),
-                        new Jsr310CodecProvider(),
-                        new BsonCodecProvider()));
-
-
         return create(
                 builder().applyConnectionString(
                         new ConnectionString("mongodb://" + this.hostDataBase + ":" + portDataBase)
                 ).credential(
                         createCredential(this.userName, this.dataBaseName, this.password.toCharArray())
                 ).codecRegistry(
-                        getDefaultCodecRegistry()
+                        this.getCodecs()
                 ).build()
         );
     }
@@ -143,16 +121,6 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoClientConfigur
 
     }
 
-
-    /*@Bean
-    public MongoRepositoryFactory getMongoRepositoryFactory() {
-        try {
-            return new MongoRepositoryFactory(this.mongoTemplate());
-        } catch (Exception e) {
-            throw new RuntimeException("error creating mongo repository factory", e);
-        }
-    }*/
-
     @Override
     public void afterPropertiesSet() throws Exception {
         final MuttleyViewSourceService service = this.viewSourceServiceProvider.getIfAvailable();
@@ -163,6 +131,15 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoClientConfigur
     }
 
     private CodecRegistry getCodecs() {
+        //pegando os codecs customizados que foram implementados no servidor
+        final MuttleyMongoCodecsService service = this.mongoCodecsServiceProvider.getIfAvailable();
+        final List<CodecProvider> customProviders;
+        if (service != null) {
+            customProviders = service.getCustomCodecs().stream().map(MuttleyMongoCodec::getCodecProvider).collect(toList());
+        } else {
+            customProviders = emptyList();
+        }
+
         return fromRegistries(
                 asList(getDefaultCodecRegistry(),
                         fromProviders(
@@ -170,48 +147,10 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoClientConfigur
                                         new BigDecimalCodec().getCodecProvider(),
                                         new ZonedDateTimeCodec().getCodecProvider()
                                 )
-                        )
+                        ),
+                        fromProviders(customProviders)
                 )
         );
-    }
-
-    private MongoClientOptions getMongoClientOption() {
-        //registrando os codecs básicos
-        final BigDecimalCodec bigDecimalCodec = new BigDecimalCodec();
-        final ZonedDateTimeCodec zonedDateTimeCodec = new ZonedDateTimeCodec();
-
-        addEncodingHook(bigDecimalCodec.getEncoderClass(), bigDecimalCodec.getTransformer());
-        addEncodingHook(zonedDateTimeCodec.getEncoderClass(), zonedDateTimeCodec.getTransformer());
-        //lista para armazenar os registros de codecs
-        final List<CodecRegistry> codecRegistries = new ArrayList();
-        //adicionando o codec para bigdecimal
-        codecRegistries.add(fromProviders(bigDecimalCodec.getCodecProvider()));
-        codecRegistries.add(fromProviders(zonedDateTimeCodec.getCodecProvider()));
-
-
-        //pegando os codecs customizados que foram implementados no servidor
-        final MuttleyMongoCodecsService service = this.mongoCodecsServiceProvider.getIfAvailable();
-        if (service != null) {
-            final MuttleyMongoCodec[] customCondecs = service.getCustomCodecs();
-            if (customCondecs != null) {
-                for (final MuttleyMongoCodec codec : customCondecs) {
-                    //adicionando no bson
-                    addEncodingHook(codec.getEncoderClass(), codec.getTransformer());
-
-                    //adicionando na lista
-                    codecRegistries.add(fromProviders(codec.getCodecProvider()));
-                }
-            }
-        }
-
-        //adicionando codecs basicos
-        codecRegistries.add(getDefaultCodecRegistry());
-
-        return MongoClientOptions
-                .builder()
-                .codecRegistry(
-                        fromRegistries(codecRegistries)
-                ).build();
     }
 
     private void createViews(final ViewSource[] sources) throws Exception {

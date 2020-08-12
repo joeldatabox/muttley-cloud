@@ -45,7 +45,7 @@ public class PageableMessageConverter extends MuttleyHttpMessageConverter<Pageab
                 .registerModule(
                         new SimpleModule("ObjectId",
                                 new Version(1, 0, 0, null, null, null)
-                        ).addSerializer(ObjectId.class, new ObjectIdSerializer())
+                        ).addSerializer(org.bson.types.ObjectId.class, new ObjectIdSerializer())
                 )
                 .setVisibility(FIELD, ANY);
     }
