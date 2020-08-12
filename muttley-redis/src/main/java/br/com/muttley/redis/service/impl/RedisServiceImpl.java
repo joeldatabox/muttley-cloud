@@ -2,8 +2,10 @@ package br.com.muttley.redis.service.impl;
 
 import br.com.muttley.redis.model.MuttleyRedisWrapper;
 import br.com.muttley.redis.service.RedisService;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.bson.types.ObjectId;
@@ -147,6 +149,7 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
     private static ObjectMapper getObjectMapper() {
         return new ObjectMapper()
                 .enableDefaultTyping()
+                .enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY)
                 .registerModule(
                         new SimpleModule("ObjectId",
                                 new Version(1, 0, 0, null, null, null)
@@ -157,6 +160,7 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
                         ).addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer())
                                 .addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer())
                 )
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setVisibility(FIELD, ANY);
     }
 }
