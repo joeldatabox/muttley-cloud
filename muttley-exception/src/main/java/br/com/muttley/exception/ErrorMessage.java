@@ -26,7 +26,6 @@ import static java.util.Arrays.asList;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.servlet.HandlerMapping.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE;
@@ -261,7 +260,7 @@ public final class ErrorMessage {
     public ResponseEntity toResponseEntity(final HttpServletRequest request) {
         //verificando se tem algum Media type que possa retornar json
         if (((LinkedHashSet<MediaType>) request.getAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE)).stream()
-                .filter(it -> APPLICATION_JSON.equals(it) || APPLICATION_JSON_UTF8.equals(it) || ALL_VALUE.equals(it))
+                .filter(it -> APPLICATION_JSON.equals(it) || ALL_VALUE.equals(it))
                 .count() > 0) {
             //se chegou aqui quer dizer que podemo retornar um json,
             //vamos remover qualquer coisa que possa dar outra exception relacionada a media type

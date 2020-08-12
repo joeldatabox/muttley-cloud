@@ -26,7 +26,6 @@ import java.util.Set;
 
 import static br.com.muttley.security.server.property.MuttleySecurityProperty.TOKEN_HEADER_JWT;
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -66,7 +65,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final T model, @RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
@@ -75,7 +74,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         return ResponseEntity.ok(service.update(user, model));
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     public ResponseEntity deleteById(@PathVariable("id") final String id, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
@@ -83,7 +82,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/{id}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
@@ -92,7 +91,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         return ResponseEntity.ok(value);
     }
 
-    @RequestMapping(value = "/ids", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/ids", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     public ResponseEntity findByIds(@RequestParam(required = false, value = "ids") String[] ids, HttpServletResponse response, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         final Set<T> value = service.findByIds(this.userService.getUserFromToken(new JwtToken(tokenHeader)), ids);
@@ -102,7 +101,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         return ResponseEntity.ok(value);
     }
 
-    @RequestMapping(value = "/first", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/first", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     public ResponseEntity first(final HttpServletResponse response, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
@@ -111,7 +110,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         return ResponseEntity.ok(value);
     }
 
-    @RequestMapping(value = "/{id}/historic", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}/historic", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));

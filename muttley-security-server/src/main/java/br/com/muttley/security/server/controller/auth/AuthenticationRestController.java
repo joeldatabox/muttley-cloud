@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -34,7 +33,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
  * @project spring-cloud
  */
 @RestController
-@RequestMapping(value = "/api/v1/users/authentication", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/api/v1/users/authentication", produces = APPLICATION_JSON_VALUE)
 public class AuthenticationRestController {
 
     protected static final String USERNAME = "username";
