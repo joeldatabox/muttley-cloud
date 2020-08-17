@@ -15,10 +15,21 @@
     <description>Demo project for Spring Boot</description>
 
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-headers</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.muttley</groupId>
+            <artifactId>muttley-security</artifactId>
             <scope>provided</scope>
         </dependency>
 
