@@ -125,7 +125,7 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     @Override
     @RequestMapping(value = "/count", method = GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity count(final Map<String, Object> allRequestParams) {
+    public ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams) {
         return ResponseEntity.ok(String.valueOf(service.count(this.userService.getCurrentUser(), allRequestParams)));
     }
 }
