@@ -370,27 +370,6 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
                 .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
 
         value.setMetadata(currentMetadata);
-
-        /*final MetadataDocument otherMetadata = value.getMetadata();
-
-
-        //se não tiver nenhum metadata criado, vamos criar um
-
-        MetadataDocument currentMetadata = repository.loadMetadata(value);
-
-        currentMetadata.getTimeZones()
-        if (currentMetadata == null) {
-            currentMetadata = new MetadataDocument();
-        }
-
-
-        currentMetadata.getTimeZones().setOriginLastUpdate(this.currentTimezone.getCurrentValue());
-        currentMetadata.getTimeZones().setServerLastUpdate(this.currentTimezone.getCurrenteTimeZoneFromServer());
-
-        currentMetadata.getVersionDocument().setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue());
-        currentMetadata.getVersionDocument().setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
-        currentMetadata.getVersionDocument().setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer());
-        return currentMetadata;*/
     }
 
     @Override
