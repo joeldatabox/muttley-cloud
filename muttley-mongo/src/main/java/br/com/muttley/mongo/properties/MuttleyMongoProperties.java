@@ -12,6 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class MuttleyMongoProperties {
     protected static final String PREFIX = "muttley.mongo";
     private MuttleyMongoStrategy strategy = MuttleyMongoStrategy.SimpleTenancy;
+    private boolean documentVersioning = true;
 
     public MuttleyMongoStrategy getStrategy() {
         return strategy;
@@ -19,6 +20,15 @@ public class MuttleyMongoProperties {
 
     public MuttleyMongoProperties setStrategy(MuttleyMongoStrategy strategy) {
         this.strategy = strategy;
+        return this;
+    }
+
+    public boolean isDocumentVersioning() {
+        return documentVersioning;
+    }
+
+    public MuttleyMongoProperties setDocumentVersioning(boolean documentVersioning) {
+        this.documentVersioning = documentVersioning;
         return this;
     }
 }

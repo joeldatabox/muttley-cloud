@@ -6,6 +6,7 @@ import br.com.muttley.mongo.codec.impl.BigDecimalCodec;
 import br.com.muttley.mongo.codec.impl.ZonedDateTimeCodec;
 import br.com.muttley.mongo.converters.BigDecimalToDecimal128Converter;
 import br.com.muttley.mongo.converters.Decimal128ToBigDecimalConverter;
+import br.com.muttley.mongo.listeners.VersionSaveMongoEventListener;
 import br.com.muttley.mongo.properties.MuttleyMongoProperties;
 import br.com.muttley.mongo.repository.impl.MultiTenancyMongoRepositoryImpl;
 import br.com.muttley.mongo.repository.impl.SimpleTenancyMongoRepositoryImpl;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -96,6 +98,11 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoClientConfigur
                         this.getCodecs()
                 ).build()
         );
+    }
+
+    @Bean()
+    public VersionSaveMongoEventListener userCascadingMongoEventListener() {
+        return new VersionSaveMongoEventListener(this.properties);
     }
 
     @Override
