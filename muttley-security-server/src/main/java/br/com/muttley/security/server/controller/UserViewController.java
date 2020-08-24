@@ -25,7 +25,6 @@ import java.util.Map;
 
 import static br.com.muttley.security.server.property.MuttleySecurityProperty.TOKEN_HEADER_JWT;
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -36,7 +35,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
  * @project muttley-cloud
  */
 @RestController
-@RequestMapping(value = "/api/v1/users-view", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/api/v1/users-view", produces = APPLICATION_JSON_VALUE)
 public class UserViewController extends AbstractRestController<UserView> {
     final UserViewService service;
 
@@ -83,7 +82,7 @@ public class UserViewController extends AbstractRestController<UserView> {
         return ResponseEntity.ok(new PageableResource(records, metadataPageable));
     }
 
-    @RequestMapping(value = "/userName/{userName}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/userName/{userName}", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     public ResponseEntity findById(@PathVariable("userName") final String userName, final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
                                    @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {

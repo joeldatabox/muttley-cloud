@@ -13,7 +13,6 @@ import java.util.Map;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
@@ -27,31 +26,31 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  * @project muttley-cloud
  */
 public interface RestController<T> {
-    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(CREATED)
     ResponseEntity save(@RequestBody T value, HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") String returnEntity);
 
-    @RequestMapping(value = "/{id}", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = PUT, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     ResponseEntity update(@PathVariable("id") String id, @RequestBody T model);
 
-    @RequestMapping(value = "/{id}", method = DELETE, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = DELETE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     ResponseEntity deleteById(@PathVariable("id") String id);
 
-    @RequestMapping(value = "/{id}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     ResponseEntity findById(@PathVariable("id") String id, HttpServletResponse response);
 
-    @RequestMapping(value = "/ids", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/ids", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     ResponseEntity findByIds(@RequestParam(required = false, value = "ids") String[] ids, HttpServletResponse response);
 
-    @RequestMapping(value = "/first", method = GET, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/first", method = GET, consumes = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     ResponseEntity first(HttpServletResponse response);
 
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     ResponseEntity loadHistoric(@PathVariable("id") String id, HttpServletResponse response);
 

@@ -20,6 +20,7 @@ import javax.validation.Valid;
 
 import static br.com.muttley.security.gateway.properties.MuttleySecurityProperties.MANAGER_USER_END_POINT;
 import static br.com.muttley.security.gateway.properties.MuttleySecurityProperties.TOKEN_HEADER;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
@@ -36,7 +37,7 @@ public class UserManagerController {
         this.service = service;
     }
 
-    @RequestMapping(value = MANAGER_USER_END_POINT, method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = MANAGER_USER_END_POINT, method = RequestMethod.PUT, consumes = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity update(@RequestBody User user, final @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") String tokenHeader) {
         return ResponseEntity.ok(service.update(user.getUserName(), tokenHeader, user));
@@ -48,7 +49,7 @@ public class UserManagerController {
         return new UserResource(this.service.getUserFromToken(new JwtToken(tokenHeader)));
     }
 
-    @RequestMapping(value = MANAGER_USER_END_POINT + "/password", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = MANAGER_USER_END_POINT + "/password", method = RequestMethod.PUT, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity updatePasswd(@RequestBody @Valid Passwd passwd, final @RequestHeader(TOKEN_HEADER) String tokenHeader) {
         passwd.setToken(new JwtToken(tokenHeader));

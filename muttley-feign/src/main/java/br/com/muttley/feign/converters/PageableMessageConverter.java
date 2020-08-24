@@ -5,7 +5,6 @@ import br.com.muttley.rest.hateoas.resource.PageableResource;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.bson.types.ObjectId;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -40,12 +39,13 @@ public class PageableMessageConverter extends MuttleyHttpMessageConverter<Pageab
     }
 
     private static ObjectMapper getObjectMapper() {
-        return new ObjectMapper()
-                .enableDefaultTyping(NON_FINAL, PROPERTY)
+        final ObjectMapper mapper = new ObjectMapper();
+        return mapper
+                .activateDefaultTyping(mapper.getPolymorphicTypeValidator(), NON_FINAL, PROPERTY)
                 .registerModule(
                         new SimpleModule("ObjectId",
                                 new Version(1, 0, 0, null, null, null)
-                        ).addSerializer(ObjectId.class, new ObjectIdSerializer())
+                        ).addSerializer(org.bson.types.ObjectId.class, new ObjectIdSerializer())
                 )
                 .setVisibility(FIELD, ANY);
     }

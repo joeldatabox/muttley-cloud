@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -37,7 +37,7 @@ public abstract class AbstractProxyRestController<T extends Document> implements
     }
 
     @Override
-    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE})
+    @RequestMapping(method = POST, consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity save(@RequestBody final T value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
         final T record = client.merger(value);
 
@@ -51,7 +51,7 @@ public abstract class AbstractProxyRestController<T extends Document> implements
     }
 
     @Override
-    @RequestMapping(value = "/{id}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{id}", method = PUT, consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final T model) {
         return ResponseEntity.ok(client.update(id, model));
     }
@@ -64,7 +64,7 @@ public abstract class AbstractProxyRestController<T extends Document> implements
     }
 
     @Override
-    @RequestMapping(value = "/{id}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{id}", method = GET, consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response) {
         final T value = client.findById(id);
 
@@ -74,7 +74,7 @@ public abstract class AbstractProxyRestController<T extends Document> implements
     }
 
     @Override
-    @RequestMapping(value = "/first", method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/first", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity first(final HttpServletResponse response) {
         final T value = client.first();
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
@@ -82,7 +82,7 @@ public abstract class AbstractProxyRestController<T extends Document> implements
     }
 
     @Override
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
         final Historic historic = client.loadHistoric(id);
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
@@ -90,7 +90,7 @@ public abstract class AbstractProxyRestController<T extends Document> implements
     }
 
     @Override
-    @RequestMapping(method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<PageableResource<T>> list(final HttpServletResponse response, @RequestBody final Map<String, String> allRequestParams) {
         final PageableResource pageableResource = client.list(allRequestParams);
         return ResponseEntity.ok(toPageableResource(eventPublisher, response, pageableResource));

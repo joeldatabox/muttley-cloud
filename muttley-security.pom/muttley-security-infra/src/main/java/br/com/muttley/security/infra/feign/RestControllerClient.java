@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -30,7 +30,7 @@ public interface RestControllerClient<T extends Serializable> {
      *
      * @param value -> object to salve
      */
-    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE})
+    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_VALUE})
     void save(@RequestBody T value);
 
     /**
@@ -39,7 +39,7 @@ public interface RestControllerClient<T extends Serializable> {
      * @param value -> object to salve
      * @return object salved
      */
-    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE}, params = {"returnEntity=true"})
+    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_VALUE}, params = {"returnEntity=true"})
     T merger(@RequestBody T value);
 
     /**
@@ -49,7 +49,7 @@ public interface RestControllerClient<T extends Serializable> {
      * @param model -> object to update
      * @return model -> record updated
      */
-    @RequestMapping(value = "/{id}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{id}", method = PUT, consumes = APPLICATION_JSON_VALUE)
     T update(@PathVariable("id") String id, @RequestBody T model);
 
     /**
@@ -66,37 +66,37 @@ public interface RestControllerClient<T extends Serializable> {
      * @param id -> id of record
      * @return record found
      */
-    @RequestMapping(value = "/{id}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{id}", method = GET, consumes = APPLICATION_JSON_VALUE)
     T findById(@PathVariable("id") String id);
 
-    @RequestMapping(value = "/ids", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/ids", method = GET, consumes = APPLICATION_JSON_VALUE)
     Set<T> findByIds(@RequestParam(required = false, value = "ids") String[] ids);
 
 
     /**
      * Return first record found in database
      */
-    @RequestMapping(value = "/first", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/first", method = GET, consumes = APPLICATION_JSON_VALUE)
     T first();
 
     /**
      * @param id -> id of record
      * @return change history
      */
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_VALUE)
     Historic loadHistoric(@PathVariable("id") String id);
 
     /**
      * @param allRequestParams -> all parameters in request
      * @return A pageable list of records
      */
-    @RequestMapping(method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(method = GET, consumes = APPLICATION_JSON_VALUE)
     PageableResource<T> list(@RequestParam Map<String, String> allRequestParams);
 
     /**
      * @return A pageable list of records
      */
-    @RequestMapping(method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(method = GET, consumes = APPLICATION_JSON_VALUE)
     PageableResource<T> list();
 
     /**
