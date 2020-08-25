@@ -1,17 +1,19 @@
 package br.com.muttley.muttleydiscoveryserver;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /*@RunWith(SpringRunner.class)
 @SpringBootTest*/
@@ -43,12 +45,25 @@ public class MuttleyDiscoveryServerApplicationTests {
         System.out.println(ZonedDateTime.ofInstant(Date.from(ZonedDateTime.now().toInstant()).toInstant(), ZoneId.systemDefault()));
         System.out.println(Date.from(ZonedDateTime.ofInstant(Date.from(ZonedDateTime.now().toInstant()).toInstant(), ZoneId.systemDefault()).toInstant()));
         System.out.println(ZonedDateTime.ofInstant(Date.from(ZonedDateTime.now().toInstant()).toInstant(), ZoneId.systemDefault()).getZone());
-        System.out.println(ZonedDateTime.ofInstant(Date.from(ZonedDateTime.now().toInstant()).toInstant(), ZoneId.systemDefault()).getOffset()        );
+        System.out.println(ZonedDateTime.ofInstant(Date.from(ZonedDateTime.now().toInstant()).toInstant(), ZoneId.systemDefault()).getOffset());
         //System.out.println("date from local " + localDateTime.toInstant(localDateTime.get()));
         //System.out.println("other           " + OffsetDateTime.from(Date.from(offsetDateTime.toInstant()).toInstant()));
         //System.out.println("other           " + OffsetDateTime.from(Date.from(offsetDateTime.toInstant()).toInstant()).atZoneSimilarLocal(ZoneOffset.of("America/Sao_Paulo")));
 
+        final String[] te = "teste".split("\\.");
+        Stream.of(te).forEach(System.out::println);
+        System.out.println("teste".split("\\.").length);
+//verificando se é já tem lookup a ser gerado
+        Pattern pattern = Pattern.compile("\\.");
+        Matcher matcher = pattern.matcher("elep.han.t.$id");
+        int count = 0;
+        //matcher.
+        while (matcher.find()) {
+            count++;
+        }
 
+        System.out.println("count" + count);
+        System.out.println(StringUtils.countMatches("elephant", "e"));
     }
 
 }

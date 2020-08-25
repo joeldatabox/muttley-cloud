@@ -16,8 +16,8 @@ import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -139,7 +139,7 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
                 newAggregation(
                         AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.CLASS),
 
-                                new HashMap<>(addOwnerQueryParam(owner, ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())))
+                                addOwnerQueryParam(owner, queryParams)
                         )
                 ),
                 COLLECTION, CLASS)
@@ -152,7 +152,7 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
         final AggregationResults result = operations.aggregate(
                 newAggregation(
                         AggregationUtils.createAggregationsCount(this.entityMetaData, getBasicPipelines(this.CLASS),
-                                new HashMap<>(addOwnerQueryParam(owner, ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())))
+                                addOwnerQueryParam(owner, queryParams)
                         )),
                 COLLECTION, ResultCount.class);
         return result.getUniqueMappedResult() != null ? ((ResultCount) result.getUniqueMappedResult()).getCount() : 0;
@@ -260,7 +260,7 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     }
 
     private final Map<String, String> addOwnerQueryParam(final Owner owner, final Map<String, String> queryParams) {
-        final Map<String, String> query = new HashMap<>(1);
+        final Map<String, String> query = new LinkedHashMap<>(1);
         query.put("owner.$id.$is", owner.getObjectId().toString());
         if (queryParams != null) {
             query.putAll(queryParams);

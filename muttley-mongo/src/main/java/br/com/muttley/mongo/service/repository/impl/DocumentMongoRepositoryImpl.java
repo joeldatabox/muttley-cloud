@@ -28,6 +28,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -100,7 +101,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                 .aggregate(
                         newAggregation(
                                 AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.CLASS),
-                                        ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())
+                                        queryParams != null ? queryParams : new LinkedHashMap<>()
                                 )
                         ),
                         COLLECTION, CLASS

@@ -18,8 +18,11 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static br.com.muttley.mongo.service.infra.Operator.CONTAINS;
@@ -61,13 +64,17 @@ public class AggregationUtils {
 
     private static List<AggregationOperation> createAggregationsDefault(final EntityMetaData entityMetaData, final List<AggregationOperation> pipelines, final boolean isCount, final Map<String, String> queryParams) {
         final Map<String, Map<Operator, Object>> triMap = processCriterions(queryParams);
-        final List<AggregationOperation> aggregations = new ArrayList<>(5);
+        final List<AggregationOperation> aggregations = isEmpty(pipelines) ? new LinkedList() : new LinkedList(pipelines);
 
 
         SkipOperation skipOperation = null;
         LimitOperation limitOperation = null;
         SortOperation sortOperationAsc = null;
         SortOperation sortOperationDesc = null;
+
+        //armazena a keys que fez lookup
+        //isso é necessário para evitarmos de refazer lookup
+        final Set<String> keysLookUp = new LinkedHashSet<>();
 
         for (final String key : triMap.keySet()) {
             final Map<Operator, Object> map = triMap.get(key);
@@ -92,7 +99,30 @@ public class AggregationUtils {
                             sortOperationDesc = sort(Sort.Direction.DESC, (String[]) value);
                         break;
                     default: {
-                        final List<Pipelines> pipes = extractCriteria(entityMetaData, isEmpty(pipelines), operation, key, value);
+
+                        boolean lookup = false;
+                        final List<Pipelines> pipes;
+                        //sofaremos a verificação para lookup so a key não referenciar um id
+                        if (!(StringUtils.countOccurrencesOf(key, ".") == 1 && key.endsWith(".$id"))) {
+                            //verificando se é já tem lookup a ser gerado
+                            final String[] other = EntityMetaData.generateCascadKeys(key);
+                            //se tiver mais do que 1 item é cinal que estamos trabalhando com níveis
+                            if (other.length > 1) {
+                                //verificando se do primeiro até o penultimo nível se faz necessário fazer lookup
+                                for (int i = 0; i <= other.length - 2; i++) {
+                                    if (entityMetaData.getFieldByName(other[i]).isDBRef()) {
+                                        if (!keysLookUp.contains(other[i])) {
+                                            keysLookUp.add(other[i]);
+                                            lookup = true;
+                                        }
+                                    }
+                                }
+                            }
+                            pipes = extractCriteria(entityMetaData, isEmpty(pipelines) ? lookup : false, operation, key, value);
+                        } else {
+                            pipes = extractCriteria(entityMetaData, isEmpty(pipelines), operation, key, value);
+                        }
+
                         if (pipes != null) {
                             pipes.forEach(it -> {
                                 if (!Collections.isEmpty(it.getPipelines())) {
@@ -348,7 +378,7 @@ public class AggregationUtils {
                 if (Collections.isEmpty(aggregations)) {
                     return new Pipelines(criteria);
                 } else {
-                    return new Pipelines(aggregations, criteria);
+                    return new Pipelines(false, aggregations, criteria);
                 }
             }
             return new Pipelines(criteria);
@@ -366,16 +396,18 @@ public class AggregationUtils {
 
     @Getter
     private static class Pipelines {
+        private final boolean containsProject;
         private final List<AggregationOperation> pipelines;
         private final Criteria criteria;
 
-        public Pipelines(final List<AggregationOperation> pipelines, final Criteria criteria) {
+        public Pipelines(final boolean containsProject, final List<AggregationOperation> pipelines, final Criteria criteria) {
+            this.containsProject = containsProject;
             this.pipelines = pipelines;
             this.criteria = criteria;
         }
 
         public Pipelines(Criteria criteria) {
-            this(null, criteria);
+            this(false, null, criteria);
         }
     }
 }

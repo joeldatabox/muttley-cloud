@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +53,7 @@ public class EntityMetaData {
     private static final String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     private static final String DATE_REGEX = "(\\d{4}|\\d{5}|\\d{6}|\\d{7})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|[3][01])";
     private static final String DATE_TIME_REGEX = "(\\d{4}|\\d{5}|\\d{6}|\\d{7})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|[3][01])T(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23):(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59):(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59)([.])\\d{3}([+-])\\d{4}";
-    private static final Map<String, EntityMetaData> cache = new HashMap<>();
+    private static final Map<String, EntityMetaData> cache = new LinkedHashMap<>();
     private String nameField;
     private Class classType;
     private boolean id;
@@ -282,7 +282,7 @@ public class EntityMetaData {
                     unwind("$" + field.getNameField())
             );
         } else {
-            //gerando um array de keys
+            /*//gerando um array de keys
             final String[] basicKeys = key.split("\\.");
             //gerando as keys necessárias para se buscar cada campo
             //cada key deve ser precedida ple key anterior
@@ -294,10 +294,27 @@ public class EntityMetaData {
             for (int i = 1; i < basicKeys.length; i++) {
                 //pegando o indice anterior e concatenando com o atual
                 keys[i] = keys[i - 1] + "." + basicKeys[i];
-            }
+            }*/
 
-            return createOperation(keys, this);
+            return createOperation(generateCascadKeys(key), this);
         }
+    }
+
+    public static String[] generateCascadKeys(final String key) {
+        //gerando um array de keys
+        final String[] basicKeys = key.split("\\.");
+        //gerando as keys necessárias para se buscar cada campo
+        //cada key deve ser precedida ple key anterior
+        final String[] keys = new String[basicKeys.length];
+        //inserindo a primeira key
+        keys[0] = basicKeys[0];
+        //gerando as demais keys
+        //como o primeiro item já foi inserido, podemos pular o mesmo
+        for (int i = 1; i < basicKeys.length; i++) {
+            //pegando o indice anterior e concatenando com o atual
+            keys[i] = keys[i - 1] + "." + basicKeys[i];
+        }
+        return keys;
     }
 
     private List<AggregationOperation> createOperation(final String[] keyEntityMetaData, final EntityMetaData entityMetaData) {
