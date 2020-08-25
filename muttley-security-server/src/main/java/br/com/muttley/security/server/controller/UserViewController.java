@@ -50,7 +50,7 @@ public class UserViewController extends AbstractRestController<UserView> {
     public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
                                                  @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         //validando os parametros passados
-        final Map<String, Object> params = validPageable(allRequestParams);
+        final Map<String, String> params = validPageable(allRequestParams);
         final Long SKIP = Long.valueOf(allRequestParams.get(Operators.SKIP.toString()).toString());
         final Long LIMIT = Long.valueOf(allRequestParams.get(Operators.LIMIT.toString()).toString());
 
@@ -103,9 +103,9 @@ public class UserViewController extends AbstractRestController<UserView> {
 
     @RequestMapping(value = "/count", method = GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+    public ResponseEntity count(@RequestParam final Map<String, String> allRequestParams, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleRead(user);
-        return ResponseEntity.ok(String.valueOf(service.count(allRequestParams.get("q").toString(), allRequestParams.get("owner").toString())));
+        return ResponseEntity.ok(String.valueOf(service.count(allRequestParams.get("q"), allRequestParams.get("owner"))));
     }
 }

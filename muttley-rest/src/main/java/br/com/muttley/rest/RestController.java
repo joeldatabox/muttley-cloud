@@ -59,5 +59,5 @@ public interface RestController<T> {
 
     @RequestMapping(value = "/count", method = GET, consumes = TEXT_PLAIN_VALUE)
     @ResponseStatus(OK)
-    ResponseEntity<Long> count(Map<String, Object> allRequestParams);
+    ResponseEntity<Long> count(Map<String, String> allRequestParams);
 }

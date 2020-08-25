@@ -7,12 +7,15 @@ import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.mongo.service.annotations.CompoundIndexes;
+import br.com.muttley.mongo.service.infra.AggregationUtils;
+import br.com.muttley.mongo.service.infra.metadata.EntityMetaData;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -31,8 +34,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static br.com.muttley.mongo.service.infra.Aggregate.createAggregations;
-import static br.com.muttley.mongo.service.infra.Aggregate.createAggregationsCount;
 import static java.util.stream.Stream.of;
 import static org.bson.types.ObjectId.isValid;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
@@ -44,6 +45,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     protected final MongoOperations operations;
     protected final Class<T> CLASS;
     protected final String COLLECTION;
+    protected final EntityMetaData entityMetaData;
     protected final Log log = LogFactory.getLog(this.getClass());
 
     public DocumentMongoRepositoryImpl(final MongoEntityInformation<T, String> metadata, final MongoOperations mongoOperations) {
@@ -51,6 +53,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
         this.operations = mongoOperations;
         this.CLASS = metadata.getJavaType();
         this.COLLECTION = metadata.getCollectionName();
+        this.entityMetaData = EntityMetaData.of(metadata.getJavaType());
         this.createIndexes(metadata);
     }
 
@@ -92,11 +95,11 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     }
 
     @Override
-    public List<T> findAll(final Map<String, Object> queryParams) {
+    public List<T> findAll(final Map<String, String> queryParams) {
         return operations
                 .aggregate(
                         newAggregation(
-                                createAggregations(CLASS,
+                                AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.CLASS),
                                         ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())
                                 )
                         ),
@@ -106,12 +109,12 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     }
 
     @Override
-    public long count(final Map<String, Object> queryParams) {
+    public long count(final Map<String, String> queryParams) {
         final AggregationResults result = operations.aggregate(
                 newAggregation(
-                        createAggregationsCount(
-                                CLASS,
-                                ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>()))
+                        AggregationUtils.createAggregationsCount(this.entityMetaData, getBasicPipelines(this.CLASS),
+                                ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())
+                        )
                 ), COLLECTION, ResultCount.class);
 
         return result.getUniqueMappedResult() != null ? ((ResultCount) result.getUniqueMappedResult()).count : 0;
@@ -205,6 +208,13 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                 ), COLLECTION, MetadataDocument.class);
 
         return result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;
+    }
+
+    /**
+     * Retorna uma lista de pipelines para agregação
+     */
+    List<AggregationOperation> getBasicPipelines(final Class<T> clazz) {
+        return null;
     }
 
     protected final void validateId(final String id) {

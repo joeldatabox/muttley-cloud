@@ -143,19 +143,14 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         super.checkPrecondictionDelete(user, id);
     }
 
-    @Override
+    /*@Override
     public Long count(final User user, final Map<String, Object> allRequestParams) {
         return this.repository.count(user.getCurrentOwner());
-    }
+    }*/
 
     @Override
-    public List<WorkTeam> findAll(final User user, final Map<String, Object> allRequestParams) {
-        List<WorkTeam> results = this.repository.findAll(user.getCurrentOwner());
-        if (CollectionUtils.isEmpty(results)) {
-            throw new MuttleyNoContentException(this.clazz, "", "Não foi encontrado nenhum registro");
-        } else {
-            return results;
-        }
+    public List<WorkTeam> findAll(final User user, final Map<String, String> allRequestParams) {
+        return this.findByUser(user);
     }
 
     @Override

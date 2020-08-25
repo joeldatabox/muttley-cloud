@@ -52,7 +52,7 @@ public interface RestControllerClient<T extends Serializable> {
     PageableResource list();
 
     @RequestMapping(value = "/count", method = GET, consumes = TEXT_PLAIN_VALUE)
-    Long count(@RequestParam Map<String, Object> allRequestParams);
+    Long count(@RequestParam Map<String, String> allRequestParams);
 
     @RequestMapping(value = "/count", method = GET, consumes = TEXT_PLAIN_VALUE)
     Long count();

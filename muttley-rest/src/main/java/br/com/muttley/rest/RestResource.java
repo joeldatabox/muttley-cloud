@@ -17,7 +17,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -91,7 +91,7 @@ public interface RestResource<T extends Document> {
      */
     default PageableResource toPageableResource(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final Service service, final User user, final Map<String, String> params) {
         //validando os parametros passados
-        final Map<String, Object> allRequestParams = validPageable(params);
+        final Map<String, String> allRequestParams = validPageable(params);
         final Long SKIP = Long.valueOf(allRequestParams.get(Operators.SKIP.toString()).toString());
         final Long LIMIT = Long.valueOf(allRequestParams.get(Operators.LIMIT.toString()).toString());
 
@@ -199,7 +199,7 @@ public interface RestResource<T extends Document> {
      *
      * @param allRequestParams -> parametros da requisição
      */
-    default Map<String, Object> createQueryParamForCount(final Map<String, Object> allRequestParams) {
+    default Map<String, String> createQueryParamForCount(final Map<String, String> allRequestParams) {
         return allRequestParams
                 .entrySet()
                 .stream()
@@ -214,13 +214,13 @@ public interface RestResource<T extends Document> {
      *
      * @param allRequestParams -> parametro da requisição
      */
-    default Map<String, Object> validPageable(final Map<String, String> allRequestParams) {
+    default Map<String, String> validPageable(final Map<String, String> allRequestParams) {
         final MuttleyPageableRequestException ex = new MuttleyPageableRequestException();
-
-        if (allRequestParams.containsKey(Operators.LIMIT.toString())) {
+        Map<String, String> map = allRequestParams == null ? new LinkedHashMap<>() : new LinkedHashMap<>(allRequestParams);
+        if (map.containsKey(Operators.LIMIT.toString())) {
             Integer limit = null;
             try {
-                limit = Integer.valueOf(allRequestParams.get(Operators.LIMIT.toString()));
+                limit = Integer.valueOf(map.get(Operators.LIMIT.toString()));
                 if (limit > 100) {
                     ex.addDetails(Operators.LIMIT.toString(), "o limite informado foi (" + limit + ") mas o maxímo é(100)");
                 }
@@ -228,13 +228,13 @@ public interface RestResource<T extends Document> {
                 ex.addDetails(Operators.LIMIT.toString(), "deve conter um numero com o tamanho maximo de 100");
             }
         } else {
-            allRequestParams.put(Operators.LIMIT.toString(), "100");
+            map.put(Operators.LIMIT.toString(), "100");
         }
 
-        if (allRequestParams.containsKey(Operators.SKIP.toString())) {
+        if (map.containsKey(Operators.SKIP.toString())) {
             Integer page = null;
             try {
-                page = Integer.valueOf(allRequestParams.get(Operators.SKIP.toString()));
+                page = Integer.valueOf(map.get(Operators.SKIP.toString()));
                 if (page < 0) {
                     ex.addDetails(Operators.SKIP.toString(), "a pagina informada foi (" + page + ") mas a deve ter o tamanho minimo de (0)");
                 }
@@ -242,12 +242,12 @@ public interface RestResource<T extends Document> {
                 ex.addDetails(Operators.SKIP.toString(), "deve conter um numero com o tamanho minimo de 0");
             }
         } else {
-            allRequestParams.put(Operators.SKIP.toString(), "0");
+            map.put(Operators.SKIP.toString(), "0");
         }
 
         if (ex.containsDetais()) {
             throw ex;
         }
-        return new HashMap<>(allRequestParams);
+        return map;
     }
 }

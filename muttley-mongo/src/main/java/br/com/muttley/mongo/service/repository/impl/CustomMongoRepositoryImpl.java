@@ -7,6 +7,7 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.mongo.service.infra.AggregationUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -22,8 +23,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static br.com.muttley.mongo.service.infra.Aggregate.createAggregations;
-import static br.com.muttley.mongo.service.infra.Aggregate.createAggregationsCount;
 import static java.util.stream.Stream.of;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -134,13 +133,12 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     }
 
     @Override
-
-    public final List<T> findAll(final Owner owner, final Map<String, Object> queryParams) {
+    public final List<T> findAll(final Owner owner, final Map<String, String> queryParams) {
         validateOwner(owner);
         return operations.aggregate(
                 newAggregation(
-                        createAggregations(
-                                CLASS,
+                        AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.CLASS),
+
                                 new HashMap<>(addOwnerQueryParam(owner, ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())))
                         )
                 ),
@@ -149,12 +147,11 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     }
 
     @Override
-    public final long count(final Owner owner, final Map<String, Object> queryParams) {
+    public final long count(final Owner owner, final Map<String, String> queryParams) {
         validateOwner(owner);
         final AggregationResults result = operations.aggregate(
                 newAggregation(
-                        createAggregationsCount(
-                                CLASS,
+                        AggregationUtils.createAggregationsCount(this.entityMetaData, getBasicPipelines(this.CLASS),
                                 new HashMap<>(addOwnerQueryParam(owner, ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())))
                         )),
                 COLLECTION, ResultCount.class);
@@ -262,9 +259,9 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
         }
     }
 
-    private final Map<String, Object> addOwnerQueryParam(final Owner owner, final Map<String, Object> queryParams) {
-        final Map<String, Object> query = new HashMap<>(1);
-        query.put("owner.$id.$is", owner.getObjectId());
+    private final Map<String, String> addOwnerQueryParam(final Owner owner, final Map<String, String> queryParams) {
+        final Map<String, String> query = new HashMap<>(1);
+        query.put("owner.$id.$is", owner.getObjectId().toString());
         if (queryParams != null) {
             query.putAll(queryParams);
         }

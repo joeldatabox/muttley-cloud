@@ -21,7 +21,6 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.Date;
@@ -253,12 +252,12 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     }
 
     @Override
-    public Long count(final User user, final Map<String, Object> allRequestParams) {
+    public Long count(final User user, final Map<String, String> allRequestParams) {
         return this.repository.count(allRequestParams);
     }
 
     @Override
-    public List<T> findAll(final User user, final Map<String, Object> allRequestParams) {
+    public List<T> findAll(final User user, final Map<String, String> allRequestParams) {
         final List<T> results = this.repository.findAll(allRequestParams);
         if (CollectionUtils.isEmpty(results)) {
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");
@@ -386,7 +385,6 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     public boolean isEmpty(final User user) {
         return this.count(user, null) == 0l;
     }
-
 
 
     @Override

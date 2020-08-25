@@ -98,7 +98,7 @@ public abstract class AbstractProxyRestController<T extends Document> implements
 
     @Override
     @RequestMapping(value = "/count", method = GET, produces = TEXT_PLAIN_VALUE)
-    public ResponseEntity count(@RequestParam final Map<String, Object> allRequestParams) {
+    public ResponseEntity count(@RequestParam final Map<String, String> allRequestParams) {
         return ResponseEntity.ok(client.count(allRequestParams));
     }
 }

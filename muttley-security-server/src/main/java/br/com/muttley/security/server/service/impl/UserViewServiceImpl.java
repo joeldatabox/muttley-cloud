@@ -88,7 +88,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
     }
 
     @Override
-    public Long count(final User user, final Map<String, Object> allRequestParams) {
+    public Long count(final User user, final Map<String, String> allRequestParams) {
         throw new NotImplementedException();
     }
 
@@ -98,7 +98,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
     }
 
     @Override
-    public List<UserView> findAll(final User user, final Map<String, Object> allRequestParams) {
+    public List<UserView> findAll(final User user, final Map<String, String> allRequestParams) {
         throw new NotImplementedException();
     }
 

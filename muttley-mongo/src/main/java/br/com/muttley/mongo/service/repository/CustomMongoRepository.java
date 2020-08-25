@@ -62,7 +62,7 @@ public interface CustomMongoRepository<T> extends DocumentMongoRepository<T> {
      * @param owner       -> dono do registro
      * @param queryParams -> parametros para criterios
      */
-    List<T> findAll(final Owner owner, final Map<String, Object> queryParams);
+    List<T> findAll(final Owner owner, final Map<String, String> queryParams);
 
     /**
      * Conta registros de uma determinada collection
@@ -70,7 +70,7 @@ public interface CustomMongoRepository<T> extends DocumentMongoRepository<T> {
      * @param owner       -> dono do registro
      * @param queryParams -> parametros para criterios
      */
-    long count(final Owner owner, final Map<String, Object> queryParams);
+    long count(final Owner owner, final Map<String, String> queryParams);
 
     /**
      * Verifica se existe um determinado registro no banco de dados
