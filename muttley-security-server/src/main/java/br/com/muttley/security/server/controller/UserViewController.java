@@ -5,7 +5,7 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserView;
-import br.com.muttley.mongo.service.infra.Operators;
+import br.com.muttley.mongo.service.infra.Operator;
 import br.com.muttley.rest.hateoas.resource.MetadataPageable;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.UserService;
@@ -51,8 +51,8 @@ public class UserViewController extends AbstractRestController<UserView> {
                                                  @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         //validando os parametros passados
         final Map<String, String> params = validPageable(allRequestParams);
-        final Long SKIP = Long.valueOf(allRequestParams.get(Operators.SKIP.toString()).toString());
-        final Long LIMIT = Long.valueOf(allRequestParams.get(Operators.LIMIT.toString()).toString());
+        final Long SKIP = Long.valueOf(allRequestParams.get(Operator.SKIP.toString()).toString());
+        final Long LIMIT = Long.valueOf(allRequestParams.get(Operator.LIMIT.toString()).toString());
 
         final long total = service.count(allRequestParams.get("q"), allRequestParams.get("owner"));
 

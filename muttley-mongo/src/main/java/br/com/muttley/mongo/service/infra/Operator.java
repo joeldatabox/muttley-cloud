@@ -1,6 +1,6 @@
 package br.com.muttley.mongo.service.infra;
 
-public enum Operators {
+public enum Operator {
     GTE(".$gte"),
     LTE(".$lte"),
     GT(".$gt"),
@@ -36,7 +36,7 @@ public enum Operators {
 
     private final String widcard;
 
-    private Operators(String widcard) {
+    private Operator(String widcard) {
         this.widcard = widcard;
     }
 
@@ -49,7 +49,7 @@ public enum Operators {
         return false;
     }
 
-    public static Operators of(String value) {
+    public static Operator of(String value) {
         if (value.contains(".$id")) {
             value = value.replace(".$id", "");
         }

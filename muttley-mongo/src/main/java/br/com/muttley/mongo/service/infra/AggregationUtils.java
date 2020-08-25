@@ -22,18 +22,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static br.com.muttley.mongo.service.infra.Operators.CONTAINS;
-import static br.com.muttley.mongo.service.infra.Operators.GTE;
-import static br.com.muttley.mongo.service.infra.Operators.IN;
-import static br.com.muttley.mongo.service.infra.Operators.IS;
-import static br.com.muttley.mongo.service.infra.Operators.LIMIT;
-import static br.com.muttley.mongo.service.infra.Operators.LT;
-import static br.com.muttley.mongo.service.infra.Operators.OR;
-import static br.com.muttley.mongo.service.infra.Operators.ORDER_BY_ASC;
-import static br.com.muttley.mongo.service.infra.Operators.ORDER_BY_DESC;
-import static br.com.muttley.mongo.service.infra.Operators.SKIP;
-import static br.com.muttley.mongo.service.infra.Operators.of;
-import static br.com.muttley.mongo.service.infra.Operators.values;
+import static br.com.muttley.mongo.service.infra.Operator.CONTAINS;
+import static br.com.muttley.mongo.service.infra.Operator.GTE;
+import static br.com.muttley.mongo.service.infra.Operator.IN;
+import static br.com.muttley.mongo.service.infra.Operator.IS;
+import static br.com.muttley.mongo.service.infra.Operator.LIMIT;
+import static br.com.muttley.mongo.service.infra.Operator.LT;
+import static br.com.muttley.mongo.service.infra.Operator.OR;
+import static br.com.muttley.mongo.service.infra.Operator.ORDER_BY_ASC;
+import static br.com.muttley.mongo.service.infra.Operator.ORDER_BY_DESC;
+import static br.com.muttley.mongo.service.infra.Operator.SKIP;
+import static br.com.muttley.mongo.service.infra.Operator.of;
+import static br.com.muttley.mongo.service.infra.Operator.values;
 import static java.util.Arrays.asList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.count;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
@@ -60,7 +60,7 @@ public class AggregationUtils {
     }
 
     private static List<AggregationOperation> createAggregationsDefault(final EntityMetaData entityMetaData, final List<AggregationOperation> pipelines, final boolean isCount, final Map<String, String> queryParams) {
-        final Map<String, Map<Operators, Object>> triMap = processCriterions(queryParams);
+        final Map<String, Map<Operator, Object>> triMap = processCriterions(queryParams);
         final List<AggregationOperation> aggregations = new ArrayList<>(5);
 
 
@@ -70,8 +70,8 @@ public class AggregationUtils {
         SortOperation sortOperationDesc = null;
 
         for (final String key : triMap.keySet()) {
-            final Map<Operators, Object> map = triMap.get(key);
-            for (final Operators operation : map.keySet()) {
+            final Map<Operator, Object> map = triMap.get(key);
+            for (final Operator operation : map.keySet()) {
                 final Object value = map.get(operation);
 
                 switch (operation) {
@@ -92,9 +92,6 @@ public class AggregationUtils {
                             sortOperationDesc = sort(Sort.Direction.DESC, (String[]) value);
                         break;
                     default: {
-                        if (!isEmpty(pipelines)) {
-                            aggregations.addAll(pipelines);
-                        }
                         final List<Pipelines> pipes = extractCriteria(entityMetaData, isEmpty(pipelines), operation, key, value);
                         if (pipes != null) {
                             pipes.forEach(it -> {
@@ -124,12 +121,12 @@ public class AggregationUtils {
     /**
      * Organiza as operações necessárias para cada parametro passado
      */
-    private static final Map<String, Map<Operators, Object>> processCriterions(final Map<String, String> queryParams) {
-        final Map<String, Map<Operators, Object>> triMap = new LinkedHashMap<>();
+    private static final Map<String, Map<Operator, Object>> processCriterions(final Map<String, String> queryParams) {
+        final Map<String, Map<Operator, Object>> triMap = new LinkedHashMap<>();
 
         //percorrendo todos os itens
         queryParams.forEach((final String key, final String value) -> {
-            Operators operator = of(key);
+            Operator operator = of(key);
             final String keyTrimap = replaceAllOperators(key);
             if (operator == null) {
                 operator = IS;
@@ -182,7 +179,7 @@ public class AggregationUtils {
      */
     private static final String replaceAllOperators(final String value) {
         //lista de widcards
-        final String[] operators = Stream.of(values()).map(Operators::toString).toArray(String[]::new);
+        final String[] operators = Stream.of(values()).map(Operator::toString).toArray(String[]::new);
         String result = value;
         //removendo tudo
         for (final String widcard : operators) {
@@ -191,11 +188,11 @@ public class AggregationUtils {
         return result;
     }
 
-    private static final void addParamInTriMap(Map<String, Map<Operators, Object>> triMap, final String key, final Operators operator, final Object value) {
+    private static final void addParamInTriMap(Map<String, Map<Operator, Object>> triMap, final String key, final Operator operator, final Object value) {
         if (triMap.containsKey(key)) {
             triMap.get(key).put(operator, value);
         } else {
-            final HashMap<Operators, Object> mp = new HashMap<>();
+            final HashMap<Operator, Object> mp = new HashMap<>();
             mp.put(operator, value);
             triMap.put(key, mp);
         }
@@ -225,7 +222,7 @@ public class AggregationUtils {
         return null;
     }
 
-    private static final List<Pipelines> extractCriteria(final EntityMetaData entityMetaData, final boolean generatePipelines, final Operators operator, final String key, final Object value) {
+    private static final List<Pipelines> extractCriteria(final EntityMetaData entityMetaData, final boolean generatePipelines, final Operator operator, final String key, final Object value) {
         switch (operator) {
             case IS:
                 return asList(new CustomCriteria(entityMetaData, key, extractIS(entityMetaData, key, value)).build(generatePipelines));

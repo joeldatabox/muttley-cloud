@@ -47,7 +47,7 @@ public final class Aggregate {
     }
 
     private static final List<AggregationOperation> createAggregationsDefault(final boolean isCount, final Class clazz, final Map<String, Object> queryParams) {
-        final Map<String, Map<Operators, Object>> trimap = checkCriterios(queryParams);
+        final Map<String, Map<Operator, Object>> trimap = checkCriterios(queryParams);
         final List<AggregationOperation> aggregations = new ArrayList<>(5);
         //verificando se é necessário fazer gabiarra do lookup
         if (isRequiredProject(queryParams)) {
@@ -58,8 +58,8 @@ public final class Aggregate {
         SortOperation sortOperationAsc = null;
         SortOperation sortOperationDesc = null;
         for (final String key : trimap.keySet()) {
-            final Map<Operators, Object> map = trimap.get(key);
-            for (final Operators operation : map.keySet()) {
+            final Map<Operator, Object> map = trimap.get(key);
+            for (final Operator operation : map.keySet()) {
                 final Object value = map.get(operation);
                 switch (operation) {
                     case SKIP:
@@ -148,7 +148,7 @@ public final class Aggregate {
     /**
      * Cria criteria com base nos parametros
      */
-    private static final Criteria extractCriteria(final Operators operator, final String key, final Object value) {
+    private static final Criteria extractCriteria(final Operator operator, final String key, final Object value) {
         switch (operator) {
             case CONTAINS:
                 return new Criteria(key).regex(value.toString(), "si");
@@ -174,10 +174,10 @@ public final class Aggregate {
                     //evitando que algum animal passe uma string vazia
                     if (expr.length > 1) {
                         //extraindo os criterios do or
-                        criterionsOr[i] = extractCriteria(Operators.of(expr[0]), createKey(expr[0]), expr[1]);
+                        criterionsOr[i] = extractCriteria(Operator.of(expr[0]), createKey(expr[0]), expr[1]);
                     } else {
                         //string ta vazia mano
-                        criterionsOr[i] = extractCriteria(Operators.of(expr[0]), createKey(expr[0]), "");
+                        criterionsOr[i] = extractCriteria(Operator.of(expr[0]), createKey(expr[0]), "");
                     }
                 }
                 return new Criteria().orOperator(criterionsOr);
@@ -190,50 +190,50 @@ public final class Aggregate {
     /**
      * Organiza as operação necessarias em um trimap
      */
-    private static final Map<String, Map<Operators, Object>> checkCriterios(final Map<String, Object> queryParams) {
-        final Map<String, Map<Operators, Object>> trimap = new HashMap<>();
+    private static final Map<String, Map<Operator, Object>> checkCriterios(final Map<String, Object> queryParams) {
+        final Map<String, Map<Operator, Object>> trimap = new HashMap<>();
 
         //organizando os parametros
         queryParams.forEach((key, value) -> {
             final String keyTrimap = createKey(key);
-            Operators operator = Operators.of(key);
+            Operator operator = Operator.of(key);
             if (operator == null) {
-                operator = Operators.IS;
+                operator = Operator.IS;
                 LogFactory.getLog(Aggregate.class).error("Atenção, operador de agregação não encontrado. Será adicionado o .$is");
             }
             switch (operator) {
                 case CONTAINS:
-                    addParam(trimap, keyTrimap, Operators.CONTAINS, value);
+                    addParam(trimap, keyTrimap, Operator.CONTAINS, value);
                     break;
                 case GTE:
-                    addParam(trimap, keyTrimap, Operators.GTE, value);
+                    addParam(trimap, keyTrimap, Operator.GTE, value);
                     break;
                 case LTE:
-                    addParam(trimap, keyTrimap, Operators.LTE, value);
+                    addParam(trimap, keyTrimap, Operator.LTE, value);
                     break;
                 case LT:
-                    addParam(trimap, keyTrimap, Operators.LT, value);
+                    addParam(trimap, keyTrimap, Operator.LT, value);
                     break;
                 case IN:
-                    addParam(trimap, keyTrimap, Operators.IN, split(String.valueOf(value)));
+                    addParam(trimap, keyTrimap, Operator.IN, split(String.valueOf(value)));
                     break;
                 case IS:
-                    addParam(trimap, keyTrimap, Operators.IS, value);
+                    addParam(trimap, keyTrimap, Operator.IS, value);
                     break;
                 case OR:
-                    addParam(trimap, keyTrimap, Operators.OR, value);
+                    addParam(trimap, keyTrimap, Operator.OR, value);
                     break;
                 case SKIP:
-                    addParam(trimap, keyTrimap, Operators.SKIP, value);
+                    addParam(trimap, keyTrimap, Operator.SKIP, value);
                     break;
                 case LIMIT:
-                    addParam(trimap, keyTrimap, Operators.LIMIT, value);
+                    addParam(trimap, keyTrimap, Operator.LIMIT, value);
                     break;
                 case ORDER_BY_ASC:
-                    addParam(trimap, keyTrimap, Operators.ORDER_BY_ASC, split(String.valueOf(value)));
+                    addParam(trimap, keyTrimap, Operator.ORDER_BY_ASC, split(String.valueOf(value)));
                     break;
                 case ORDER_BY_DESC:
-                    addParam(trimap, keyTrimap, Operators.ORDER_BY_DESC, split(String.valueOf(value)));
+                    addParam(trimap, keyTrimap, Operator.ORDER_BY_DESC, split(String.valueOf(value)));
                     break;
                 default:
                     throw new MuttleyBadRequestException(null, null, "A requisição contem criterios inválidos");
@@ -246,17 +246,17 @@ public final class Aggregate {
      * Cria uma chave para o trimap que organiza a agregação a ser executada
      */
     private static final String createKey(String key) {
-        for (final Operators o : Operators.values()) {
+        for (final Operator o : Operator.values()) {
             key = key.replace(o.toString(), "");
         }
         return key;
     }
 
-    private static final void addParam(final Map<String, Map<Operators, Object>> trimap, final String key, final Operators operator, final Object value) {
+    private static final void addParam(final Map<String, Map<Operator, Object>> trimap, final String key, final Operator operator, final Object value) {
         if (trimap.containsKey(key)) {
             trimap.get(key).put(operator, value);
         } else {
-            final HashMap<Operators, Object> mp = new HashMap<>();
+            final HashMap<Operator, Object> mp = new HashMap<>();
             mp.put(operator, value);
             trimap.put(key, mp);
         }
