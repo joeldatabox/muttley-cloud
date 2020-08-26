@@ -57,8 +57,12 @@ public class AggregationUtils {
     }
 
     public static final List<AggregationOperation> createAggregationsCount(final EntityMetaData entityMetaData, final List<AggregationOperation> pipelines, final Map<String, String> queryParams) {
+        return createAggregationsCount(entityMetaData, pipelines, queryParams, "count");
+    }
+
+    public static final List<AggregationOperation> createAggregationsCount(final EntityMetaData entityMetaData, final List<AggregationOperation> pipelines, final Map<String, String> queryParams, final String nameFieldResult) {
         final List<AggregationOperation> list = createAggregationsDefault(entityMetaData, pipelines, true, queryParams);
-        list.add(count().as("count"));
+        list.add(count().as(nameFieldResult));
         return list;
     }
 
