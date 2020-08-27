@@ -31,7 +31,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions.MongoConverterConfigurationAdapter;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -41,11 +40,11 @@ import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static com.mongodb.MongoCredential.createCredential;
 import static com.mongodb.client.MongoClients.create;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * Classe de configuração de conexão do mongodb<br/>
@@ -121,7 +120,7 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoClientConfigur
             //pegando o conversores customizados
             final Collection<? extends Converter> converters = convertersService.getCustomConverters();
             //dicionando conversores personalizados
-            if (!CollectionUtils.isEmpty(converters)) {
+            if (!isEmpty(converters)) {
                 adapter.registerConverters(converters);
             }
         }
@@ -140,24 +139,30 @@ public class MuttleyMongoSimpleTenancyConfig extends AbstractMongoClientConfigur
     private CodecRegistry getCodecs() {
         //pegando os codecs customizados que foram implementados no servidor
         final MuttleyMongoCodecsService service = this.mongoCodecsServiceProvider.getIfAvailable();
-        final List<CodecProvider> customProviders;
-        if (service != null) {
-            customProviders = service.getCustomCodecs().stream().map(MuttleyMongoCodec::getCodecProvider).collect(toList());
-        } else {
-            customProviders = emptyList();
-        }
+        final List<CodecProvider> customProviders = service != null ? service.getCustomCodecs().stream().map(MuttleyMongoCodec::getCodecProvider).collect(toList()) : null;
 
-        return fromRegistries(
-                asList(getDefaultCodecRegistry(),
-                        fromProviders(
-                                asList(
-                                        new BigDecimalCodec().getCodecProvider(),
-                                        new ZonedDateTimeCodec().getCodecProvider()
+        return !isEmpty(customProviders) ?
+                fromRegistries(
+                        asList(getDefaultCodecRegistry(),
+                                fromProviders(
+                                        asList(
+                                                new BigDecimalCodec().getCodecProvider(),
+                                                new ZonedDateTimeCodec().getCodecProvider()
+                                        )
+                                ),
+                                fromProviders(customProviders)
+                        )
+                ) :
+                fromRegistries(
+                        asList(getDefaultCodecRegistry(),
+                                fromProviders(
+                                        asList(
+                                                new BigDecimalCodec().getCodecProvider(),
+                                                new ZonedDateTimeCodec().getCodecProvider()
+                                        )
                                 )
-                        ),
-                        fromProviders(customProviders)
-                )
-        );
+                        )
+                );
     }
 
     private void createViews(final ViewSource[] sources) throws Exception {

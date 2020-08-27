@@ -1,11 +1,13 @@
 package br.com.muttley.feign.autoconfig;
 
 import br.com.muttley.feign.property.MuttleyFeignProperty;
-import feign.Request;
+import feign.Request.Options;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * @author Joel Rodrigues Moreira on 20/06/18.
@@ -19,7 +21,7 @@ public class FeignTimeoutConfig {
     private MuttleyFeignProperty property;
 
     @Bean
-    public Request.Options options() {
-        return new Request.Options(property.getConnectTimeOutMillis(), property.getReadTimeOutMillis());
+    public Options options() {
+        return new Options(property.getConnectTimeOutMillis(), MILLISECONDS, property.getReadTimeOutMillis(), MILLISECONDS, true);
     }
 }

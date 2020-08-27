@@ -23,6 +23,11 @@
 
         <dependency>
             <groupId>br.com.muttley</groupId>
+            <artifactId>muttley-headers</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.muttley</groupId>
             <artifactId>muttley-jackson</artifactId>
             <scope>provided</scope>
         </dependency>

@@ -26,12 +26,10 @@ import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.PropertySource;
 import org.springframework.http.converter.HttpMessageConverter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -54,7 +52,7 @@ public class FeignConfig extends FeignClientsConfiguration implements Initializi
 
     @Bean
     public Feign.Builder feignBuilder(final Retryer retryer, final @Autowired ConfigurableEnvironment env) {
-        final PropertySource<?> propertySource = env.getPropertySources().get(PROPERTY_SOURCE);
+        //final PropertySource<?> propertySource = env.getPropertySources().get(PROPERTY_SOURCE);
         final Feign.Builder builder = super.feignBuilder(retryer).client(new OkHttpClient());
 
         //injetando o serviço de headers a ser propagados
@@ -66,15 +64,15 @@ public class FeignConfig extends FeignClientsConfiguration implements Initializi
             builder.requestInterceptor(new PropagateHeadersInterceptor(service));
         }
 
-        if (propertySource != null) {
+        /*if (propertySource != null) {
             final Map<String, Object> map = (Map<String, Object>) propertySource.getSource();
-            map.put("feign.okhttp.enabled", "true");
+            map.put("feign.okhttp.enabled", "true");*/
 
-            if (property.getLoggin().getLevel() != null && !Logger.Level.NONE.equals(property.getLoggin().getLevel())) {
-                return builder.logger(new Slf4jLogger())
-                        .logLevel(property.getLoggin().getLevel());
-            }
+        if (property.getLoggin().getLevel() != null && !Logger.Level.NONE.equals(property.getLoggin().getLevel())) {
+            return builder.logger(new Slf4jLogger())
+                    .logLevel(property.getLoggin().getLevel());
         }
+        //}
         return builder;
     }
 

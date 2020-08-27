@@ -1,3 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-br.com.muttley.feign.autoconfig.FeignConfig,\
-br.com.muttley.feign.autoconfig.FeignTimeoutConfig
+  br.com.muttley.feign.autoconfig.FeignConfig,\
+  br.com.muttley.feign.autoconfig.FeignTimeoutConfig
+org.springframework.context.ApplicationListener=br.com.muttley.feign.autoconfig.listeners.FeignPropertiesListener

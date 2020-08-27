@@ -7,10 +7,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class MuttleyFeignProperty {
     protected static final String PREFIX = "muttley.config.feign";
     private Loggin loggin = new Loggin();
-    private int connectTimeOutMillis = 60000;
-    private int readTimeOutMillis = 60000;
+    private long connectTimeOutMillis = 60000l;
+    private long readTimeOutMillis = 60000l;
 
-    public int getConnectTimeOutMillis() {
+    public long getConnectTimeOutMillis() {
         return connectTimeOutMillis;
     }
 
@@ -19,7 +19,7 @@ public class MuttleyFeignProperty {
         return this;
     }
 
-    public int getReadTimeOutMillis() {
+    public long getReadTimeOutMillis() {
         return readTimeOutMillis;
     }
 
