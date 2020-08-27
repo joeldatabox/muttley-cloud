@@ -1,7 +1,7 @@
 package br.com.muttley.security.gateway;
 
 import br.com.muttley.feign.autoconfig.FeignConfig;
-import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
+import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;

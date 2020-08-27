@@ -1,7 +1,7 @@
 package br.com.muttley.security.gateway.config;
 
 import br.com.muttley.model.security.JwtUser;
-import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
+import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.feign.UserServiceClient;
@@ -41,8 +41,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements I
 
     @Autowired
     private MuttleySecurityProperties property;
+
     @Autowired
     private ObjectProvider<EndpointsPermitAll> customizeEndpoints;
+
     protected final UnauthorizedHandler unauthorizedHandler;
     protected final AuthenticationTokenFilterGateway authenticationTokenFilterGateway;
     protected final UserServiceClient userServiceClient;
@@ -91,9 +93,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements I
         }
         //permitindo acesso aos endpoint de login
         http.authorizeRequests().antMatchers(
-                property.getSecurity().getJwt().getController().getLoginEndPoint(),
-                property.getSecurity().getJwt().getController().getRefreshEndPoint(),
-                property.getSecurity().getJwt().getController().getCreateEndPoint()
+                property.getSecurityServer().getSecurity().getJwt().getController().getLoginEndPoint(),
+                property.getSecurityServer().getSecurity().getJwt().getController().getRefreshEndPoint(),
+                property.getSecurityServer().getSecurity().getJwt().getController().getCreateEndPoint()
         ).permitAll()
                 //barrando qualquer outra requisição não autenticada
                 .anyRequest().authenticated();

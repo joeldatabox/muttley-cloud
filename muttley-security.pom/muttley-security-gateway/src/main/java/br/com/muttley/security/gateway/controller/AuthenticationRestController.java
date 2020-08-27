@@ -6,7 +6,7 @@ import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.UserPayLoadLogin;
 import br.com.muttley.model.security.events.UserLoggedEvent;
-import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
+import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
 import br.com.muttley.security.infra.feign.auth.AuthenticationRestServiceClient;
 import br.com.muttley.security.infra.services.CacheUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-import static br.com.muttley.security.gateway.properties.MuttleySecurityProperties.LOGIN_END_POINT;
-import static br.com.muttley.security.gateway.properties.MuttleySecurityProperties.REFRESH_END_POINT;
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.LOGIN_END_POINT;
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.REFRESH_END_POINT;
 import static org.springframework.util.StringUtils.isEmpty;
 
 /**
@@ -100,7 +100,7 @@ public class AuthenticationRestController {
 
     @RequestMapping(value = REFRESH_END_POINT, method = RequestMethod.GET)
     public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
-        final JwtToken currentToken = new JwtToken(request.getHeader(property.getSecurity().getJwt().getController().getTokenHeader()));
+        final JwtToken currentToken = new JwtToken(request.getHeader(property.getSecurityServer().getSecurity().getJwt().getController().getTokenHeader()));
         final JwtToken newToken = this.authenticationRestService.refreshAndGetAuthenticationToken(currentToken);
         cacheAuthService.refreshToken(currentToken, newToken);
         return ResponseEntity.ok(newToken);

@@ -1,6 +1,7 @@
 package br.com.muttley.security.infra.component;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -15,6 +16,7 @@ import java.io.Serializable;
 
 import static br.com.muttley.exception.ErrorMessage.RESPONSE_HEADER;
 import static br.com.muttley.exception.ErrorMessage.RESPONSE_HEADER_VALUE;
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.LOGIN_END_POINT;
 
 /**
  * @author Joel Rodrigues Moreira on 30/08/18.
@@ -27,11 +29,10 @@ import static br.com.muttley.exception.ErrorMessage.RESPONSE_HEADER_VALUE;
  */
 @Component
 public class UnauthorizedHandler implements AuthenticationEntryPoint, Serializable {
-
-
     private final String loginEndpoin;
 
-    public UnauthorizedHandler(@Value("${muttley.security.jwt.controller.login-end-point}") String loginEndpoin) {
+    @Autowired
+    public UnauthorizedHandler(@Value(LOGIN_END_POINT) String loginEndpoin) {
         this.loginEndpoin = loginEndpoin;
     }
 

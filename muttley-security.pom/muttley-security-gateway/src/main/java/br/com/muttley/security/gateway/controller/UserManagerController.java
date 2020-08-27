@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-import static br.com.muttley.security.gateway.properties.MuttleySecurityProperties.MANAGER_USER_END_POINT;
-import static br.com.muttley.security.gateway.properties.MuttleySecurityProperties.TOKEN_HEADER;
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.MANAGER_USER_END_POINT;
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.TOKEN_HEADER;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**

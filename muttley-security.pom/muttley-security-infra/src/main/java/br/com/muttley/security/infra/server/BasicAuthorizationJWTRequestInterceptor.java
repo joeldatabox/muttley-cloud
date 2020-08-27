@@ -11,8 +11,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.Charset;
 
-import static br.com.muttley.security.infra.properties.Properties.TOKEN_HEADER;
-import static br.com.muttley.security.infra.properties.Properties.TOKEN_HEADER_JWT;
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.TOKEN_HEADER;
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.TOKEN_HEADER_JWT;
 import static org.springframework.util.Base64Utils.encode;
 import static org.springframework.util.StringUtils.isEmpty;
 

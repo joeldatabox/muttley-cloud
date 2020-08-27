@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static br.com.muttley.security.infra.properties.Properties.TOKEN_HEADER_JWT;
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.TOKEN_HEADER_JWT;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**

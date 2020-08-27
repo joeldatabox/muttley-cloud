@@ -11,7 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import static br.com.muttley.security.infra.properties.Properties.TOKE_EXPIRATION;
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.TOKE_EXPIRATION;
+
 
 /**
  * @author Joel Rodrigues Moreira on 09/01/18.

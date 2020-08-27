@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-br.com.muttley.security.service.MuttleySecurityAutoconfig
+  br.com.muttley.security.service.MuttleySecurityAutoconfig

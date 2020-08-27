@@ -19,6 +19,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.CREATE_END_POINT;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+
 /**
  * @author Joel Rodrigues Moreira on 14/01/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -42,7 +45,7 @@ public class CreateUserController {
         this.service = service;
     }
 
-    @RequestMapping(value = "${muttley.security.jwt.controller.createEndPoint}", method = RequestMethod.POST)
+    @RequestMapping(value = CREATE_END_POINT, method = POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void save(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
 

@@ -1,6 +1,6 @@
 package br.com.muttley.security.gateway.config;
 
-import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
+import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -22,8 +22,12 @@ import static org.springframework.util.StringUtils.isEmpty;
 @EnableFeignClients(basePackages = "br.com.muttley.security.infra.feign")
 public class MuttleyFeignSecurityAutoconfig implements InitializingBean {
 
+    private final MuttleySecurityProperties property;
+
     @Autowired
-    private MuttleySecurityProperties property;
+    public MuttleyFeignSecurityAutoconfig(MuttleySecurityProperties property) {
+        this.property = property;
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {

@@ -8,6 +8,7 @@ import br.com.muttley.security.infra.component.UserAfterCacheLoadListener;
 import br.com.muttley.security.infra.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.infra.feign.UserServiceClient;
 import br.com.muttley.security.infra.feign.WorkTeamServiceClient;
+import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
 import br.com.muttley.security.infra.services.AuthService;
 import br.com.muttley.security.infra.services.CacheUserAuthenticationService;
 import br.com.muttley.security.infra.services.CacheUserPreferences;
@@ -21,45 +22,50 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import static br.com.muttley.security.infra.properties.Properties.LOGIN_END_POINT;
-import static br.com.muttley.security.infra.properties.Properties.TOKEN_HEADER_JWT;
-import static br.com.muttley.security.infra.properties.Properties.TOKE_EXPIRATION;
 
 @Configuration
 @AutoConfigureAfter(FeignConfig.class)
+@EnableConfigurationProperties(MuttleySecurityProperties.class)
 @ComponentScan(basePackages = {
         "br.com.muttley.security.service.config"
 })
 public class MuttleySecurityAutoconfig implements InitializingBean {
 
+    private final MuttleySecurityProperties properties;
+
+    @Autowired
+    public MuttleySecurityAutoconfig(MuttleySecurityProperties properties) {
+        this.properties = properties;
+    }
+
 
     @Bean
-    public UnauthorizedHandler createUnauthorizedHandler(@Value(LOGIN_END_POINT) final String loginEndpoint) {
-        return new UnauthorizedHandler(loginEndpoint);
+    public UnauthorizedHandler createUnauthorizedHandler() {
+        return new UnauthorizedHandler(this.properties.getSecurityServer().getSecurity().getJwt().getController().getLoginEndPoint());
     }
 
     @Bean
-    public AuthenticationTokenFilterClient createAuthenticationTokenFilterClient(final @Value(TOKEN_HEADER_JWT) String tokenHeader, @Autowired final CacheUserAuthenticationService cacheAuth) {
-        return new AuthenticationTokenFilterClient(tokenHeader, cacheAuth);
+    public AuthenticationTokenFilterClient createAuthenticationTokenFilterClient(@Autowired final CacheUserAuthenticationService cacheAuth) {
+        return new AuthenticationTokenFilterClient(this.properties.getSecurityServer().getSecurity().getJwt().getController().getTokenHeaderJwt(), cacheAuth);
     }
 
     @Bean
-    public CacheUserAuthenticationService createCacheUserAuthenticationService(@Autowired final RedisService redisService, @Autowired final ApplicationEventPublisher eventPublisher, @Value(TOKE_EXPIRATION) final int tokenExpiration) {
-        return new CacheUserAuthenticationServiceImpl(redisService, eventPublisher, tokenExpiration);
+    public CacheUserAuthenticationService createCacheUserAuthenticationService(@Autowired final RedisService redisService, @Autowired final ApplicationEventPublisher eventPublisher) {
+        return new CacheUserAuthenticationServiceImpl(redisService, eventPublisher, this.properties.getSecurityServer().getSecurity().getJwt().getToken().getExpiration());
     }
 
     @Bean
     @Primary
-    public AuthService createAuthService(@Value(TOKEN_HEADER_JWT) final String tokenHeader, @Autowired UserServiceClient userServiceClient, @Autowired final UserPreferenceServiceClient userPreferenceServiceClient) {
-        return new AuthServiceImpl(tokenHeader, userServiceClient, userPreferenceServiceClient);
+    public AuthService createAuthService(@Autowired UserServiceClient userServiceClient, @Autowired final UserPreferenceServiceClient userPreferenceServiceClient) {
+        return new AuthServiceImpl(this.properties.getSecurityServer().getSecurity().getJwt().getController().getTokenHeaderJwt(), userServiceClient, userPreferenceServiceClient);
     }
 
     @Bean

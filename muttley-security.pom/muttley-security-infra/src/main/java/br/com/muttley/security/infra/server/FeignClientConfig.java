@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static br.com.muttley.security.infra.properties.Properties.TOKEN_HEADER;
-import static br.com.muttley.security.infra.properties.Properties.TOKEN_HEADER_JWT;
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.TOKEN_HEADER;
+import static br.com.muttley.security.infra.properties.MuttleySecurityProperties.TOKEN_HEADER_JWT;
 
 /**
  * @author Joel Rodrigues Moreira on 18/04/18.
@@ -23,8 +23,8 @@ public class FeignClientConfig {
 
     @Bean
     public BasicAuthorizationJWTRequestInterceptor createBasicAuthRequestInterceptor(
-            @Value("${muttley.security-server.user.name}") final String userNameServer,
-            @Value("${muttley.security-server.user.password}") final String userPasswordServer,
+            @Value("${muttley.security-server.security.user.name}") final String userNameServer,
+            @Value("${muttley.security-server.security.user.password}") final String userPasswordServer,
             @Value(TOKEN_HEADER_JWT) final String tokenHeaderJwt,
             @Value(TOKEN_HEADER) final String tokenHeader) {
         return new BasicAuthorizationJWTRequestInterceptor(userNameServer, userPasswordServer, tokenHeaderJwt, tokenHeader);

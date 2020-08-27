@@ -2,7 +2,7 @@ package br.com.muttley.security.gateway.beans;
 
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.gateway.config.MuttleyFeignSecurityAutoconfig;
-import br.com.muttley.security.gateway.properties.MuttleySecurityProperties;
+import br.com.muttley.security.infra.properties.MuttleySecurityProperties;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.feign.auth.AuthenticationTokenServiceClient;
@@ -27,7 +27,7 @@ public class BeansConfiguration {
     @Bean
     @Autowired
     public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final ApplicationEventPublisher eventPublisher, final MuttleySecurityProperties properties) {
-        return new CacheUserAuthenticationServiceImpl(redisService, eventPublisher, properties.getSecurity().getJwt().getToken().getExpiration());
+        return new CacheUserAuthenticationServiceImpl(redisService, eventPublisher, properties.getSecurityServer().getSecurity().getJwt().getToken().getExpiration());
     }
 
     @Bean
@@ -41,7 +41,7 @@ public class BeansConfiguration {
     @Bean
     @Autowired
     public UnauthorizedHandler createUnauthorizedHandler(final MuttleySecurityProperties properties) {
-        return new UnauthorizedHandler(properties.getSecurity().getJwt().getController().getLoginEndPoint());
+        return new UnauthorizedHandler(properties.getSecurityServer().getSecurity().getJwt().getController().getLoginEndPoint());
     }
 
 }
