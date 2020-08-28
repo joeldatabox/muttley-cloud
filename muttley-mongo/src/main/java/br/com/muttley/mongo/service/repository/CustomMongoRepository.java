@@ -4,6 +4,7 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.Owner;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,14 @@ public interface CustomMongoRepository<T> extends DocumentMongoRepository<T> {
      * @param value -> objeto a ser salvo
      */
     T save(final Owner owner, final T value);
+
+    /**
+     * Sava um colleção de registro registro
+     *
+     * @param owner -> dono do registro
+     * @param values -> collection de objetos a serem salvos
+     */
+    Collection<T> save(final Owner owner, final Collection<T> values);
 
     /**
      * Busca um simples registro

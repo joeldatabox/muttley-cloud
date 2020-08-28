@@ -4,6 +4,7 @@ import br.com.muttley.domain.service.ModelService;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.User;
@@ -13,12 +14,15 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author Joel Rodrigues Moreira on 30/01/18.
@@ -35,9 +39,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     @Override
     public T save(final User user, final T value) {
         //verificando se realmente está criando um novo registro
-        if (value.getId() != null) {
-            throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
-        }
+        checkIdForSave(value);
         //setando o dono do registro
         value.setOwner(user);
         //garantindo que o históriconão ficará nulo
@@ -60,6 +62,27 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     @Override
     public void checkPrecondictionSave(final User user, final T value) {
 
+    }
+
+    @Override
+    public Collection<T> save(final User user, final Collection<T> values) {
+        //verificando se realmente está criando um novo registro
+        checkIdForSave(values);
+        //garantindo que o metadata ta preenchido
+        this.createMetaData(user, values);
+        //garantindo que o históriconão ficará nulo
+        values.parallelStream().forEach(it -> it.setHistoric(this.createHistoric(user)));
+        //processa regra de negocio antes de qualquer validação
+        this.beforeSave(user, values);
+        //verificando precondições
+        this.checkPrecondictionSave(user, values);
+        //validando dados do objeto
+        this.validator.validateCollection(values);
+        final Collection<T> otherValues = repository.save(user.getCurrentOwner(), values);
+        //realizando regras de enegocio depois do objeto ter sido salvo
+        this.afterSave(user, otherValues);
+        //valor salvo
+        return otherValues;
     }
 
     @Override
@@ -91,6 +114,39 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     @Override
     public void checkPrecondictionUpdate(final User user, final T value) {
 
+    }
+
+    @Override
+    public void update(final User user, final Collection<T> values) {
+        //verificando se realmente está alterando um registro
+        this.checkIdForUpdate(values);
+        //verificando se o registro realmente existe
+
+        final Map<Boolean, List<T>> agroupedValues = values.stream()
+                .collect(groupingBy(it -> this.repository.exists(it.getId())));
+
+        final List<T> valuesForSave = agroupedValues.get(Boolean.TRUE);
+
+        if (!CollectionUtils.isEmpty(valuesForSave)) {
+            //gerando metadata de alteração
+            valuesForSave.forEach(it -> generateMetaDataUpdate(user, it));
+            //gerando histórico de alteração
+            valuesForSave.forEach(it -> it.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(it))));
+            //processa regra de negocio antes de qualquer validação
+            beforeUpdate(user, valuesForSave);
+            //verificando precondições
+            checkPrecondictionUpdate(user, valuesForSave);
+            //validando dados
+            this.validator.validateCollection(valuesForSave);
+            final Collection<T> otherValue = repository.save(user.getCurrentOwner(), valuesForSave);
+            //realizando regras de enegocio depois do objeto ter sido alterado
+            afterUpdate(user, otherValue);
+        }
+        final List<T> valuesNotSaved = agroupedValues.get(Boolean.FALSE);
+        if (!CollectionUtils.isEmpty(valuesNotSaved)) {
+            throw new MuttleyNotFoundException(clazz, "id", "Registros não encontrados")
+                    .addDetails("ids", valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));
+        }
     }
 
     @Override

@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,6 +41,16 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
         validateOwner(owner);
         value.setOwner(owner);
         return super.save(value);
+    }
+
+    @Override
+    public Collection<T> save(final Owner owner, final Collection<T> values) {
+        if (!CollectionUtils.isEmpty(values)) {
+            validateOwner(owner);
+            values.parallelStream().forEach(it -> it.setOwner(owner));
+            return super.save(values);
+        }
+        return values;
     }
 
     @Override

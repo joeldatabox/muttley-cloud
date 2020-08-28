@@ -33,6 +33,8 @@ import java.util.stream.Stream;
 
 import static br.com.muttley.model.Document.getPropertyFrom;
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -126,13 +128,13 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         //garantindo que o metadata ta preenchido
         this.createMetaData(user, values);
         //garantindo que o históriconão ficará nulo
-        values.forEach(it -> it.setHistoric(this.createHistoric(user)));
+        values.parallelStream().forEach(it -> it.setHistoric(this.createHistoric(user)));
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, values);
         //verificando precondições
         this.checkPrecondictionSave(user, values);
         //validando dados do objeto
-        this.validator.validate(values);
+        this.validator.validateCollection(values);
         final Collection<T> otherValues = repository.save(values);
         //realizando regras de enegocio depois do objeto ter sido salvo
         this.afterSave(user, otherValues);
@@ -163,9 +165,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     @Override
     public T update(final User user, final T value) {
         //verificando se realmente está alterando um registro
-        if (value.getId() == null) {
-            throw new MuttleyBadRequestException(clazz, "id", "Não é possível alterar um registro sem informar um id válido");
-        }
+        this.checkIdForUpdate(value);
         //verificando se o registro realmente existe
         if (!this.repository.exists(value.getId())) {
             throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
@@ -189,6 +189,54 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     @Override
     public void afterUpdate(final User user, final T value) {
 
+    }
+
+    @Override
+    public void checkPrecondictionUpdate(final User user, final Collection<T> values) {
+        values.forEach(it -> this.checkPrecondictionUpdate(user, it));
+    }
+
+    @Override
+    public void beforeUpdate(final User user, final Collection<T> values) {
+        values.forEach(it -> this.beforeUpdate(user, it));
+    }
+
+    @Override
+    public void update(final User user, final Collection<T> values) {
+        //verificando se realmente está alterando um registro
+        this.checkIdForUpdate(values);
+        //verificando se o registro realmente existe
+
+        final Map<Boolean, List<T>> agroupedValues = values.stream()
+                .collect(groupingBy(it -> this.repository.exists(it.getId())));
+
+        final List<T> valuesForSave = agroupedValues.get(Boolean.TRUE);
+
+        if (!CollectionUtils.isEmpty(valuesForSave)) {
+            //gerando metadata de alteração
+            valuesForSave.forEach(it -> generateMetaDataUpdate(user, it));
+            //gerando histórico de alteração
+            valuesForSave.forEach(it -> it.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(it))));
+            //processa regra de negocio antes de qualquer validação
+            beforeUpdate(user, valuesForSave);
+            //verificando precondições
+            checkPrecondictionUpdate(user, valuesForSave);
+            //validando dados
+            this.validator.validateCollection(valuesForSave);
+            final Collection<T> otherValue = repository.save(valuesForSave);
+            //realizando regras de enegocio depois do objeto ter sido alterado
+            afterUpdate(user, otherValue);
+        }
+        final List<T> valuesNotSaved = agroupedValues.get(Boolean.FALSE);
+        if (!CollectionUtils.isEmpty(valuesNotSaved)) {
+            throw new MuttleyNotFoundException(clazz, "id", "Registros não encontrados")
+                    .addDetails("ids", valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));
+        }
+    }
+
+    @Override
+    public void afterUpdate(final User user, final Collection<T> values) {
+        values.forEach(it -> this.afterUpdate(user, it));
     }
 
     @Override
@@ -477,13 +525,23 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
                 );
     }
 
-    private void checkIdForSave(final Collection<T> values) {
-        values.forEach(it -> this.checkIdForSave(it));
+    protected void checkIdForSave(final Collection<T> values) {
+        values.parallelStream().forEach(it -> this.checkIdForSave(it));
     }
 
-    private void checkIdForSave(final T value) {
+    protected void checkIdForSave(final T value) {
         if (value.getId() != null) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
+        }
+    }
+
+    protected void checkIdForUpdate(final Collection<T> values) {
+        values.parallelStream().forEach(it -> this.checkIdForUpdate(it));
+    }
+
+    protected void checkIdForUpdate(final T value) {
+        if (value.getId() == null) {
+            throw new MuttleyBadRequestException(clazz, "id", "Não é possível alterar um registro sem informar um id válido");
         }
     }
 }
