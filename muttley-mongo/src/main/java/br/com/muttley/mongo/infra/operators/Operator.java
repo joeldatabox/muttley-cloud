@@ -1,62 +1,62 @@
-package br.com.muttley.mongo.infra;
+package br.com.muttley.mongo.infra.operators;
 
-public enum Operator {
-    GTE(".$gte"),
-    LTE(".$lte"),
-    GT(".$gt"),
-    LT(".$lt"),
-    IN(".$in") {
-        @Override
-        public boolean isRequiredArray() {
-            return true;
-        }
-    },
-    CONTAINS(".$contains"),
-    IS(".$is"),
-    SKIP("$skip"),
-    LIMIT("$limit"),
-    OR(".$or") {
-        @Override
-        public boolean isRequiredArray() {
-            return true;
-        }
-    },
-    ORDER_BY_ASC("$orderByAsc") {
-        @Override
-        public boolean isRequiredArray() {
-            return true;
-        }
-    },
-    ORDER_BY_DESC("$orderByDesc") {
-        @Override
-        public boolean isRequiredArray() {
-            return true;
-        }
-    };
+import br.com.muttley.mongo.infra.metadata.EntityMetaData;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaCONTAINS;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaGT;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaGTE;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaIN;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaIS;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaLIMIT;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaLT;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaLTE;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaOR;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaORDER_BY_ASC;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaORDER_BY_DESC;
+import br.com.muttley.mongo.infra.operators.impl.OperatorCriteriaSKIP;
 
-    private final String widcard;
+/**
+ * @author Joel Rodrigues Moreira on 01/09/2020.
+ * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
+ * @project muttley-cloud
+ */
+public interface Operator<T> {
+    public static final Operator GTE = new OperatorCriteriaGTE();
+    public static final Operator LTE = new OperatorCriteriaLTE();
+    public static final Operator GT = new OperatorCriteriaGT();
+    public static final Operator LT = new OperatorCriteriaLT();
+    public static final Operator IN = new OperatorCriteriaIN();
+    public static final Operator CONTAINS = new OperatorCriteriaCONTAINS();
+    public static final Operator IS = new OperatorCriteriaIS();
+    public static final Operator SKIP = new OperatorCriteriaSKIP();
+    public static final Operator LIMIT = new OperatorCriteriaLIMIT();
+    public static final Operator OR = new OperatorCriteriaOR();
+    public static final Operator ORDER_BY_ASC = new OperatorCriteriaORDER_BY_ASC();
+    public static final Operator ORDER_BY_DESC = new OperatorCriteriaORDER_BY_DESC();
 
-    private Operator(String widcard) {
-        this.widcard = widcard;
+    String getWildcard();
+
+    T extract(final EntityMetaData entityMetaData, final String key, final Object value);
+
+    boolean isCriteriaOperation();
+
+    boolean isAggregationOperation();
+
+    public static Operator[] values() {
+        return new Operator[]{
+                GTE,
+                LTE,
+                GT,
+                LT,
+                IN,
+                CONTAINS,
+                IS,
+                SKIP,
+                LIMIT,
+                OR,
+                ORDER_BY_ASC,
+                ORDER_BY_DESC
+        };
     }
-
-    @Override
-    public String toString() {
-        return this.widcard;
-    }
-
-    public boolean isRequiredArray() {
-        return false;
-    }
-
-    public String getRegularExpression() {
-        if (this.widcard.contains(".$")) {
-            return "(" + this.widcard.substring(0, 1) + "\\\\" + this.widcard.substring(1, this.widcard.length()) + ")";
-        }
-        return "(" + this.widcard + ")";
-    }
-
-
 
     public static Operator of(String value) {
         if (value.contains(".$id")) {
@@ -109,7 +109,7 @@ public enum Operator {
         }
     }
 
-    public static boolean containsOperator(final String value) {
+    default boolean containsOperator(final String value) {
         return value.contains(".$gte") ||
                 value.contains("$gte") ||
                 value.contains(".$lte") ||
@@ -130,10 +130,9 @@ public enum Operator {
                 value.contains("$or") ||
                 value.contains("$orderByAsc") ||
                 value.contains("$orderByDesc");
-
     }
 
-    public static boolean isOperator(final String value) {
+    default boolean isOperator(final String value) {
         return value.equalsIgnoreCase(".$gte") ||
                 value.equalsIgnoreCase("$gte") ||
                 value.equalsIgnoreCase(".$lte") ||

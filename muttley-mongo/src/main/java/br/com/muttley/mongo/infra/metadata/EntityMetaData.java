@@ -2,6 +2,7 @@ package br.com.muttley.mongo.infra.metadata;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.model.security.Owner;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,28 +53,38 @@ public class EntityMetaData {
     private static final String DATE_REGEX = "(\\d{4}|\\d{5}|\\d{6}|\\d{7})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|[3][01])";
     private static final String DATE_TIME_REGEX = "(\\d{4}|\\d{5}|\\d{6}|\\d{7})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|[3][01])T(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23):(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59):(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59)([.])\\d{3}([+-])\\d{4}";
     private static final Map<String, EntityMetaData> cache = new HashMap<>();
+    @Setter(AccessLevel.PRIVATE)
     private String nameField;
+    @Setter(AccessLevel.PRIVATE)
     private Class classType;
+    @Setter(AccessLevel.PRIVATE)
     private boolean id;
+    @Setter(AccessLevel.PRIVATE)
     private EntityMetaDataType type;
+    @Setter(AccessLevel.PRIVATE)
     private Set<EntityMetaData> fields;
+    @Setter(AccessLevel.PRIVATE)
     private String collection;
     ;
 
-    public EntityMetaData() {
+    private EntityMetaData() {
     }
 
-    public EntityMetaData addFields(Collection<EntityMetaData> values) {
+    private EntityMetaData addFields(Collection<EntityMetaData> values) {
         if (this.fields == null) {
-            this.fields = new HashSet<>();
+            this.fields = new LinkedHashSet<>();
         }
         this.fields.addAll(values);
         return this;
     }
 
-    public EntityMetaData addField(final EntityMetaData entityMetaData) {
+    public Set<EntityMetaData> getFields() {
+        return Collections.unmodifiableSet(fields);
+    }
+
+    private EntityMetaData addField(final EntityMetaData entityMetaData) {
         if (this.fields == null) {
-            this.fields = new HashSet();
+            this.fields = new LinkedHashSet<>();
         }
         this.fields.add(entityMetaData);
         return this;
@@ -87,7 +98,7 @@ public class EntityMetaData {
         return of(type.getName(), type);
     }
 
-    public static EntityMetaData of(final String name, final Class type) {
+    private static EntityMetaData of(final String name, final Class type) {
         if (isBasicObject(type)) {
             return new EntityMetaData().setNameField(name);
         } else {
@@ -125,7 +136,7 @@ public class EntityMetaData {
             //pegando o primeiro nome
             final String currentPath = nameField.substring(0, nameField.indexOf("."));
 
-            final EntityMetaData currentEntityMetaData = entityMetaData.getFields().stream().filter(it -> it.nameField.equals(currentPath))
+            final EntityMetaData currentEntityMetaData = entityMetaData.fields.stream().filter(it -> it.nameField.equals(currentPath))
                     .findFirst()
                     .orElse(null);
             if (currentEntityMetaData != null) {
@@ -133,11 +144,11 @@ public class EntityMetaData {
             }
             return null;
         } else {
-            if (entityMetaData.getFields() == null) {
+            if (entityMetaData.fields == null) {
                 return null;
             }
             return entityMetaData
-                    .getFields()
+                    .fields
                     .stream()
                     .filter(it -> {
                         final String referencedName = "$" + it.nameField;
@@ -158,7 +169,7 @@ public class EntityMetaData {
             //pegando o primeiro nome
             final String currentPath = nameField.substring(0, nameField.indexOf("."));
 
-            final EntityMetaData currentEntityMetaData = entityMetaData.getFields().stream().filter(it -> it.nameField.equals(currentPath))
+            final EntityMetaData currentEntityMetaData = entityMetaData.fields.stream().filter(it -> it.nameField.equals(currentPath))
                     .findFirst()
                     .orElse(null);
             if (currentEntityMetaData != null) {
@@ -166,7 +177,7 @@ public class EntityMetaData {
             }
             return null;
         } else {
-            return Collections.unmodifiableSet(entityMetaData.getFields());
+            return Collections.unmodifiableSet(entityMetaData.fields);
         }
     }
 
