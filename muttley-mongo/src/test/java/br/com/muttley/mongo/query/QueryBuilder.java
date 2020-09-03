@@ -105,45 +105,6 @@ public class QueryBuilder {
     }
 
     /**
-     * Metodo que adiciona critério de maneira recursiva
-     */
-    private QueryBuilder addCriterio2(final QueryBuilder builder, final String key) {
-        if (builder.contains(key)) {
-            //adiciona os demais criterios aqui
-        } else if (key.contains(".")) {
-            final String currentName = key.substring(0, key.indexOf("."));
-            final QueryBuilder current = new QueryBuilder();
-            current.setName(key.substring(0, key.indexOf(".")));
-            current.addCriterio2(current, key.substring(key.indexOf(".") + 1));
-            builder.add(current);
-            /*//verificando se já existe esse campo
-            if (builder.contains(keys[0])) {
-                //pegando o campo existente para evitar duplicações desnecessárias
-                current = builder.getByKey(keys[0]);
-            } else {
-                //se chegou até aqui é sinal que não existe esse campo ainda
-
-            }
-            final QueryBuilder qb = new QueryBuilder();
-            //adicionado ao principal
-            queryBuilder.add(qb);
-            qb.setParamKey(keyTrimap);
-            qb.setName(keys[0]);
-            qb.setMetaData(entityMetaData.getFieldByName(keys[0]));
-
-            //variavel de controle para a ultima posição
-            QueryBuilder last = qb;
-            //gerando as demais keys
-            //como o primeiro item já foi inserido, podemos pular o mesmo*/
-        } else {
-            final QueryBuilder current = new QueryBuilder();
-            current.setName(key);
-            builder.add(current);
-        }
-        return builder;
-    }
-
-    /**
      * Verifica se uma determinada chave já voi inserida como campos internos
      */
     public boolean contains(final String key) {
