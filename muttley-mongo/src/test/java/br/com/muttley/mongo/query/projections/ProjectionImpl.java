@@ -61,6 +61,14 @@ public class ProjectionImpl implements Projection {
 
     @Override
     public List<AggregationOperation> getPipeline() {
+        if (!this.subpropertiesIsEmpty()) {
+            //if(this.)
+            this.subproperties.stream()
+                    .map(it -> it.getPipeline())
+                    .forEach(it -> {
+                        System.out.println("item processado " + it);
+                    });
+        }
         return null;
     }
 
@@ -137,7 +145,9 @@ public class ProjectionImpl implements Projection {
         if (property.contains(".")) {
             //pegando o primeiro nome
             final String currentProperty = property.substring(0, property.indexOf("."));
-
+            if (projection.subpropertiesIsEmpty()) {
+                return false;
+            }
             final ProjectionImpl currentProjection =
                     projection.subproperties
                             .parallelStream()

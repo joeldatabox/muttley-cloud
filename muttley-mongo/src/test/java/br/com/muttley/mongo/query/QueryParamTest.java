@@ -3,6 +3,7 @@ package br.com.muttley.mongo.query;
 import br.com.muttley.mongo.infra.Operator;
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.query.model.Pessoa;
+import br.com.muttley.mongo.query.projections.Projection;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
@@ -68,8 +69,11 @@ public class QueryParamTest {
         System.out.println(Stream.of(Operator.values()).map(Operator::getRegularExpression).collect(Collectors.joining("|")));
         System.out.println(QueryBuilder.replaceAllOperators("tetes.$orderByAsc"));
 
-
-        System.out.println(QueryBuilder.from(EntityMetaData.of(Pessoa.class), getQueryParams("www.asdf.com?propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558")));
+        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), getQueryParams("www.asdf.com?propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558"));
+        Projection.ProjectionBuilder p = new Projection.ProjectionBuilder();
+        projection.getPipeline();
+        //projection.getPipeline()
+        System.out.println();
 
         //System.out.println(new Query(Criteria.where("sdf").is("tt")).toString());
     }

@@ -1,11 +1,9 @@
 package br.com.muttley.mongo.infra.operators.impl;
 
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.query.Criteria;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
 
 /**
@@ -23,6 +21,6 @@ public class OperatorCriteriaORDER_BY_ASC extends AbstractOperatorAggregationOpe
 
     @Override
     public AggregationOperation extract(EntityMetaData entityMetaData, String key, Object value) {
-        return sort(Sort.Direction.ASC, (String[]) value);
+        return sort(ASC, (String[]) value);
     }
 }
