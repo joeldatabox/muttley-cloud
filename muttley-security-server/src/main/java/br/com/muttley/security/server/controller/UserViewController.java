@@ -3,6 +3,7 @@ package br.com.muttley.security.server.controller;
 
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.mongo.service.infra.Operator;
@@ -51,8 +52,8 @@ public class UserViewController extends AbstractRestController<UserView> {
                                                  @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         //validando os parametros passados
         final Map<String, String> params = validPageable(allRequestParams);
-        final Long SKIP = Long.valueOf(allRequestParams.get(Operator.SKIP.toString()).toString());
-        final Long LIMIT = Long.valueOf(allRequestParams.get(Operator.LIMIT.toString()).toString());
+        final Long SKIP = allRequestParams.containsKey(Operator.SKIP.toString()) ? Long.valueOf(allRequestParams.get(Operator.SKIP.toString()).toString()) : 0l;
+        final Long LIMIT = allRequestParams.containsKey(Operator.LIMIT.toString()) ? Long.valueOf(allRequestParams.get(Operator.LIMIT.toString()).toString()) : 100l;
 
         final long total = service.count(allRequestParams.get("q"), allRequestParams.get("owner"));
 
@@ -60,8 +61,10 @@ public class UserViewController extends AbstractRestController<UserView> {
         if (total == 0) {
             throw new MuttleyNoContentException(null, null, "registros não encontrados!");
         }
-        final long totalAll = service.count(null, allRequestParams.get("owner"));
-        final List records = service.list(allRequestParams.get("q"), allRequestParams.get("owner"));
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        final Owner owner = user.getCurrentOwner();
+        final long totalAll = service.count(null, owner != null ? owner.getId() : null);
+        final List records = service.list(allRequestParams.get("q"), owner != null ? owner.getId() : null);
 
         final Long recordSize = Long.valueOf(records.size());
 
@@ -91,12 +94,16 @@ public class UserViewController extends AbstractRestController<UserView> {
         return ResponseEntity.ok().build();*/
     }
 
-    @RequestMapping(value = "/userName/{userName}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/userName", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity findById(@PathVariable("userName") final String userName, final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
+    public ResponseEntity findById(@RequestParam(value = "userName", required = false, defaultValue = "null") final String userName, final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
                                    @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
 
-        final UserView value = service.findByUserName(userName, allRequestParams.get("owner"));
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        final Owner owner = user.getCurrentOwner();
+
+        final UserView value = service.findByUserName(userName, owner != null ? owner.getId() : null);
+
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
     }
@@ -105,7 +112,8 @@ public class UserViewController extends AbstractRestController<UserView> {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity count(@RequestParam final Map<String, String> allRequestParams, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        final Owner owner = user.getCurrentOwner();
         checkRoleRead(user);
-        return ResponseEntity.ok(String.valueOf(service.count(allRequestParams.get("q"), allRequestParams.get("owner"))));
+        return ResponseEntity.ok(String.valueOf(service.count(allRequestParams.get("q"), owner != null ? owner.getId() : null)));
     }
 }
