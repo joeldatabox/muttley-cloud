@@ -4,17 +4,22 @@ import br.com.muttley.mongo.infra.Operator;
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.query.model.Pessoa;
 import br.com.muttley.mongo.query.projections.Projection;
+import org.bson.types.ObjectId;
 import org.junit.Test;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.DEFAULT_CONTEXT;
 
 /**
  * @author Joel Rodrigues Moreira on 29/08/2020.
@@ -69,11 +74,16 @@ public class QueryParamTest {
         System.out.println(Stream.of(Operator.values()).map(Operator::getRegularExpression).collect(Collectors.joining("|")));
         System.out.println(QueryBuilder.replaceAllOperators("tetes.$orderByAsc"));
 
-        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), getQueryParams("www.asdf.com?propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558"));
-        Projection.ProjectionBuilder p = new Projection.ProjectionBuilder();
-        projection.getPipeline();
+        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558"));
         //projection.getPipeline()
-        System.out.println();
+        final List<AggregationOperation> operations = projection.getPipeline();
+        operations.forEach(it -> {
+            it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
+                System.out.println(iit.toJson());
+            });
+        });
+        System.out.println(operations);
+        //operations.forEach(it -> BasicDBObject);
 
         //System.out.println(new Query(Criteria.where("sdf").is("tt")).toString());
     }

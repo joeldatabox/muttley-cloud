@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@Document("pessoa")
+@Document(collection = "pessoa")
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")

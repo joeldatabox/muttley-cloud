@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.reflect.FieldUtils.getAllFields;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
@@ -187,7 +188,7 @@ public class EntityMetaData {
 
     public Object converteValue(Object object) {
         if (object == null || this.classType == object.getClass()) {
-            if (isId()) {
+            if (isId() && ObjectId.isValid(object.toString())) {
                 return new ObjectId(object.toString());
             }
             return object;
@@ -271,14 +272,28 @@ public class EntityMetaData {
         }
     }
 
+    public List<AggregationOperation> createProject() {
+        return this.createProjectFor(null);
+    }
+
     public List<AggregationOperation> createProjectFor(final String key) {
+        //se a key for null logo devemos fazer lookup para o campo atual
+        if (key == null) {
+            //criando as operações necessárias
+            return asList(
+                    project(this.getNameField()).and(context -> new org.bson.Document("$objectToArray", "$" + this.getNameField())).as(this.getNameField()),
+                    project(this.getNameField()).and(context -> new org.bson.Document("$arrayElemAt", asList("$" + this.getNameField() + ".v", 1))).as(this.getNameField()),
+                    lookup(this.getCollection(), this.getNameField(), "_id", this.getNameField()),
+                    unwind("$" + this.getNameField())
+            );
+        }
         //verificando se tem niveis de navegação no objeto
-        if (!key.contains(".")) {
+        else if (!key.contains(".")) {
             //recuperando o campo espécifico
             EntityMetaData field = getFieldByName(key, this);
             //se não for DBRef podemos retornar null
             if (!field.isDBRef()) {
-                return null;
+                return emptyList();
             }
 
             //criando as operações necessárias

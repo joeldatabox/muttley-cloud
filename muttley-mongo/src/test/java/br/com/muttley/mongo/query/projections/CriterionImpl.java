@@ -1,8 +1,9 @@
 package br.com.muttley.mongo.query.projections;
 
 import br.com.muttley.mongo.infra.operators.Operator;
-import br.com.muttley.mongo.query.projections.Criterion;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * @author Joel Rodrigues Moreira on 02/09/2020.
@@ -11,6 +12,12 @@ import lombok.Getter;
  */
 @Getter
 public class CriterionImpl implements Criterion {
+    @Setter
+    @Accessors(chain = true)
+    private int order;
+    @Setter
+    @Accessors(chain = true)
+    private int level;
     private final Operator operator;
     private final Object value;
 
