@@ -31,7 +31,7 @@ public interface Projection {
 
                 projection.addProjection(projection, entityMetaData, keyTrimap, new CriterionImpl(operator, entrySet.getValue()));
             });
-            return projection;
+             return projection;
         }
 
         /**

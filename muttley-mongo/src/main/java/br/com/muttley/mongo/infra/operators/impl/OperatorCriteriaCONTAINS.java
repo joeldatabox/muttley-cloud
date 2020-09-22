@@ -18,10 +18,15 @@ public class OperatorCriteriaCONTAINS extends AbstractOperatorCriteria<Criteria>
 
     @Override
     public Criteria extract(EntityMetaData entityMetaData, String key, Object value) {
+        return this.extract(entityMetaData, key, key, value);
+    }
+
+    @Override
+    public Criteria extract(EntityMetaData entityMetaData, String compositePropertyWithFather, String key, Object value) {
         final EntityMetaData m = entityMetaData.getFieldByName(key);
         if (m != null) {
-            return new Criteria(key).regex(m.converteValue(value).toString(), "si");
+            return new Criteria(compositePropertyWithFather).regex(m.converteValue(value).toString(), "si");
         }
-        return new Criteria(key).regex(value.toString(), "si");
+        return new Criteria(compositePropertyWithFather).regex(value.toString(), "si");
     }
 }

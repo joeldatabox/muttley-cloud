@@ -43,4 +43,9 @@ public class OperatorCriteriaOR extends AbstractOperatorCriteria<Criteria> {
         //return pipelines;*/
         throw new NotImplementedException();
     }
+
+    @Override
+    public Criteria extract(EntityMetaData entityMetaData, String compositePropertyWithFather, String key, Object value) {
+        throw new NotImplementedException();
+    }
 }

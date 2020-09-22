@@ -37,6 +37,8 @@ public interface Operator<T> {
 
     T extract(final EntityMetaData entityMetaData, final String key, final Object value);
 
+    T extract(final EntityMetaData entityMetaData, final String compositePropertyWithFather, String key, final Object value);
+
     boolean isCriteriaOperation();
 
     boolean isAggregationOperation();

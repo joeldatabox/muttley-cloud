@@ -20,6 +20,11 @@ public class OperatorCriteriaSKIP extends AbstractOperatorAggregationOperation {
 
     @Override
     public AggregationOperation extract(EntityMetaData entityMetaData, String key, Object value) {
+        return this.extract(entityMetaData, key, key, value);
+    }
+
+    @Override
+    public AggregationOperation extract(EntityMetaData entityMetaData, String compositePropertyWithFather, String key, Object value) {
         return skip(Long.valueOf(value.toString()));
     }
 }

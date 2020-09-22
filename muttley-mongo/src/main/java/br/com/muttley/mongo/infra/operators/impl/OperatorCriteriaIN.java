@@ -22,6 +22,15 @@ public class OperatorCriteriaIN extends AbstractOperatorCriteria<Criteria> {
         if (m != null) {
             return new Criteria(key).in(m.converteValue(value));
         }
-        return new Criteria(key).in(value);
+        return this.extract(entityMetaData, key, key, value);
+    }
+
+    @Override
+    public Criteria extract(EntityMetaData entityMetaData, String compositePropertyWithFather, String key, Object value) {
+        final EntityMetaData m = entityMetaData.getFieldByName(key);
+        if (m != null) {
+            return new Criteria(compositePropertyWithFather).in(m.converteValue(value));
+        }
+        return new Criteria(compositePropertyWithFather).in(value);
     }
 }
