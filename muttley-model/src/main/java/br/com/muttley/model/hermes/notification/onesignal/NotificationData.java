@@ -12,4 +12,5 @@ public class NotificationData {
     @NotBlank
     private String type;
     private Object payload;
+    private NotificationEventType notificationEventType;
 }
