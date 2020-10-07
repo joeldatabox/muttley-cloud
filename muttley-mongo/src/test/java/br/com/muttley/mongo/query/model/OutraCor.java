@@ -12,15 +12,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@Document(collection = "cor")
+@Document(collection = "outra-cor")
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
-public class Cor {
+public class OutraCor {
     @Id
     private String id;
     private String nome;
     private String descricao;
-    @DBRef
-    private Cor teste;
+    /*@DBRef
+    private OutraCor outraCor;*/
 }

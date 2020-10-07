@@ -22,6 +22,7 @@ public class ProjectionImpl implements Projection {
     private int orderControl = 0;
     private int levelControl = 0;
     private EntityMetaData entityMetaData;
+    private EntityMetaData parentEntityMetadata;
     private String property;
     private String compositePropertyWithFather = "";//nome da propriedade pai em cascata
     private List<ProjectionImpl> subproperties;
@@ -31,12 +32,31 @@ public class ProjectionImpl implements Projection {
     protected ProjectionImpl() {
     }
 
-    @Override
-    public Projection addProjection(final Projection projection, final EntityMetaData entityMetaData, final String property, final Criterion criterion) {
-        return this.addProjection((ProjectionImpl) projection, entityMetaData, property, criterion);
+    private void setParent(final EntityMetaData entityMetaData) {
+        if (!this.subpropertiesIsEmpty()) {
+            this.subproperties
+                    .parallelStream()
+                    //.filter(it -> it.parentEntityMetadata == null)
+                    .forEach(it -> {
+                        it.parentEntityMetadata = entityMetaData;
+                        it.setParent(entityMetaData);
+                    });
+        }
     }
 
-    private Projection addProjection(final ProjectionImpl projection, final EntityMetaData entityMetaData, final String property, final Criterion criterion) {
+    @Override
+    public Projection addProjection(final Projection projection, final EntityMetaData entityMetaData, final String property, final Criterion criterion) {
+        final ProjectionImpl result = this.addProjection((ProjectionImpl) projection, entityMetaData, property, criterion);
+        /*if (!result.subpropertiesIsEmpty()) {
+            result.subproperties
+                    .parallelStream()
+                    .filter(it -> it.parentEntityMetadata == null).forEach(it -> it.parentEntityMetadata = entityMetaData);
+        }*/
+        result.setParent(entityMetaData);
+        return result;
+    }
+
+    private ProjectionImpl addProjection(final ProjectionImpl projection, final EntityMetaData entityMetaData, final String property, final Criterion criterion) {
         if (projection.containsProperty(property)) {
             //adiciona os demais criterios aqui
             projection.addCriterion((CriterionImpl) criterion);
@@ -92,25 +112,27 @@ public class ProjectionImpl implements Projection {
             //isso evitará que se repita condições já realizadas
             boolean skipFirstId = false;
 
-            //contais subproperties e a primeira subproperty é um id?
-            //se sim vamos adicionar isso no where sem fazer lookup
-            if (!this.subpropertiesIsEmpty() && this.subproperties.get(0).isId()) {
-                final ProjectionImpl subProperty = this.subproperties.get(0);
-                list.addAll(subProperty.criterions.stream().map(it -> this.extractOperation(subProperty.entityMetaData, subProperty.compositePropertyWithFather, subProperty.property, it)).collect(toList()));
-                //sinalizando para pularmos o primeiro campo
-                skipFirstId = true;
-            }
+            //contains subproperties
+            if (!this.subpropertiesIsEmpty()) {
+                //a primeira subproperty é um id?
+                if (this.subproperties.get(0).isId()) {
+                    //vamos adicionar isso no where sem fazer lookup
+                    final ProjectionImpl subProperty = this.subproperties.get(0);
+                    list.addAll(subProperty.criterions.stream().map(it -> this.extractOperation(subProperty.entityMetaData, subProperty.compositePropertyWithFather, subProperty.property, it)).collect(toList()));
+                    //sinalizando para pularmos o primeiro campo
+                    skipFirstId = true;
+                }
+                //verificando se precisa fazer project
+                if (this.subproperties.size() > 1 || !this.subproperties.get(0).isId()) {
+                    list.addAll(this.parentEntityMetadata.createProjectFor(this.compositePropertyWithFather));
+                    this.generatedLookup = true;//marcando que essa propriedade já foi fieta lookup
+                }
 
-            if (!this.subpropertiesIsEmpty() && this.subproperties.size() > 1 && !this.subproperties.get(1).isId()) {
-                list.addAll(this.entityMetaData.createProject());
-                this.generatedLookup = true;//marcando que essa propriedade já foi fieta lookup
-            }
-            //final List<AggregationOperation> list = new LinkedList<>(this.entityMetaData.createProject());
-
-            if (skipFirstId) {
-                list.addAll(this.extractPipeline(this.subproperties.subList(1, this.subproperties.size()).stream()));
-            } else {
-                list.addAll(this.extractPipeline(this.subproperties.stream()));
+                if (skipFirstId) {
+                    list.addAll(this.extractPipeline(this.subproperties.subList(1, this.subproperties.size()).stream()));
+                } else {
+                    list.addAll(this.extractPipeline(this.subproperties.stream()));
+                }
             }
             return list;
         } else {
@@ -146,6 +168,7 @@ public class ProjectionImpl implements Projection {
             if (this.subproperties == null) {
                 this.subproperties = new LinkedList<>();
             }
+            projection.parentEntityMetadata = this.entityMetaData;
             this.subproperties.add(projection);
         }
         return this;

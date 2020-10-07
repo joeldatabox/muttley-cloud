@@ -74,7 +74,7 @@ public class QueryParamTest {
         System.out.println(Stream.of(Operator.values()).map(Operator::getRegularExpression).collect(Collectors.joining("|")));
         System.out.println(QueryBuilder.replaceAllOperators("tetes.$orderByAsc"));
 
-        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558"));
+        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558"));
         //projection.getPipeline()
         final List<AggregationOperation> operations = projection.getPipeline();
         operations.forEach(it -> {

@@ -30,8 +30,11 @@ public interface Projection {
                 final String keyTrimap = ProjectionBuilder.replaceAllOperators(entrySet.getKey());
 
                 projection.addProjection(projection, entityMetaData, keyTrimap, new CriterionImpl(operator, entrySet.getValue()));
+                /*if (!projection.subpropertiesIsEmpty()) {
+                    projection.subproperties.forEach(it -> it.parentEntityMetadata = entityMetaData);
+                }*/
             });
-             return projection;
+            return projection;
         }
 
         /**
