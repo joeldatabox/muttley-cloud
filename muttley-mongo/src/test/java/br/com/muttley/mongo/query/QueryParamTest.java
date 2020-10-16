@@ -1,11 +1,14 @@
 package br.com.muttley.mongo.query;
 
+import br.com.muttley.mongo.infra.AggregationUtils;
 import br.com.muttley.mongo.infra.Operator;
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.query.model.Pessoa;
 import br.com.muttley.mongo.query.projections.Projection;
 import org.bson.types.ObjectId;
 import org.junit.Test;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 
 import java.io.UnsupportedEncodingException;
