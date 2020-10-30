@@ -1,14 +1,12 @@
 package br.com.muttley.mongo.query;
 
-import br.com.muttley.mongo.infra.AggregationUtils;
-import br.com.muttley.mongo.infra.Operator;
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
+import br.com.muttley.mongo.infra.operators.Operator;
 import br.com.muttley.mongo.query.model.Pessoa;
+import br.com.muttley.mongo.query.modelother.NotaFiscal;
 import br.com.muttley.mongo.query.projections.Projection;
 import org.bson.types.ObjectId;
 import org.junit.Test;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 
 import java.io.UnsupportedEncodingException;
@@ -19,8 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.DEFAULT_CONTEXT;
 
@@ -73,11 +69,11 @@ public class QueryParamTest {
                     System.out.println("key " + entr.getKey());
                     entr.getValue().stream().forEach(it -> System.out.println("value = " + it));
                 });*/
-        Stream.of(Operator.values()).map(Operator::getRegularExpression).forEach(System.out::println);
-        System.out.println(Stream.of(Operator.values()).map(Operator::getRegularExpression).collect(Collectors.joining("|")));
-        System.out.println(QueryBuilder.replaceAllOperators("tetes.$orderByAsc"));
+        //Stream.of(Operator.values()).map(Operator::getRegularExpression).forEach(System.out::println);
+        /*System.out.println(Stream.of(Operator.values()).map(Operator::getRegularExpression).collect(Collectors.joining("|")));
+        System.out.println(QueryBuilder.replaceAllOperators("tetes.$orderByAsc"));*/
 
-        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558"));
+        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558"));
         //projection.getPipeline()
         final List<AggregationOperation> operations = projection.getPipeline();
         operations.forEach(it -> {

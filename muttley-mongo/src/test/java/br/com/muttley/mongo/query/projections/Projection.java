@@ -2,6 +2,7 @@ package br.com.muttley.mongo.query.projections;
 
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.infra.operators.Operator;
+import br.com.muttley.mongo.query.url.paramvalue.NewQueryParam;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 
 import java.util.List;
@@ -22,9 +23,9 @@ public interface Projection {
         private ProjectionBuilder() {
         }
 
-        public static Projection from(EntityMetaData entityMetaData, Map<String, List<String>> queriesParam) {
+        public static Projection from(EntityMetaData entityMetaData, List<NewQueryParam> queriesParam) {
             final ProjectionImpl projection = new ProjectionImpl();
-            queriesParam.entrySet().forEach(entrySet -> {
+            queriesParam.stream().forEach(entrySet -> {
                 //extraindo o nome do campo
                 Operator operator = Operator.of(entrySet.getKey());
                 final String keyTrimap = ProjectionBuilder.replaceAllOperators(entrySet.getKey());
