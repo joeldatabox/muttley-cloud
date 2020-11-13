@@ -1,6 +1,7 @@
 package br.com.muttley.report;
 
 import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JasperReport;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,9 +13,13 @@ import java.util.Map;
  * @project muttley-cloud
  */
 public interface MuttleyReport {
+    String getFileForSubReport();
+
     String getFileReport();
 
     InputStream getSourceReport();
+
+    JasperReport loadReport();
 
     Map<String, Object> getParams();
 

@@ -5,7 +5,7 @@ package br.com.muttley.report;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface MuttleyReportBuilder {
+public interface MuttleyReportBuilder<T extends MuttleyReportBuilder> {
 
     MuttleyReportBuilder addParam(final String key, final Object value);
 

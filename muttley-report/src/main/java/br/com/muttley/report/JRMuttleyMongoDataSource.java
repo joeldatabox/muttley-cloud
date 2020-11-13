@@ -36,6 +36,7 @@ public class JRMuttleyMongoDataSource implements JRDataSource {
     protected Document currentValue;
     protected long currentSkip = 0l;
     protected final Long currentLimit;
+    protected boolean throwsExceptionsIsEmpty = true;
 
     public JRMuttleyMongoDataSource(final MongoTemplate mongoTemplate, final List<AggregationOperation> operations, Class<?> collection) {
         this(mongoTemplate, operations, 100l, collection);
@@ -67,8 +68,8 @@ public class JRMuttleyMongoDataSource implements JRDataSource {
         if (this.currentResult == null) {
             //se é null quer dizer que estamos na primeira pagina
             result = this.fetchQuery();
-            if(this.currentPageSize == 0 ){
-                throw new MuttleyNoContentException(this.COLLECTION,null, "Nenhum registro encontrado para o relatório!");
+            if (this.currentPageSize == 0 && this.throwsExceptionsIsEmpty) {
+                throw new MuttleyNoContentException(this.COLLECTION, null, "Nenhum registro encontrado para o relatório!");
             }
         } else {
             result = this.currentResult.hasNext() ? true : this.fetchQuery();
@@ -106,6 +107,11 @@ public class JRMuttleyMongoDataSource implements JRDataSource {
         }
         //retornando o valor de maneira simples
         return this.currentValue.get(jrField.getName());
+    }
+
+    public JRMuttleyMongoDataSource throwsExceptionsIsEmpty(final boolean throwsExceptionsIsEmpty) {
+        this.throwsExceptionsIsEmpty = throwsExceptionsIsEmpty;
+        return this;
     }
 
     protected boolean fetchQuery() {
