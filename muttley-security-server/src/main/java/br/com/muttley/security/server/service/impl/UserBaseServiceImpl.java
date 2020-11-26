@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
-import static br.com.muttley.model.security.Role.ROLE_ACCESS_PLAN_CREATE;
+import static br.com.muttley.model.security.Role.ROLE_USER_BASE_CREATE;
 
 /**
  * @author Joel Rodrigues Moreira on 26/11/2020.
@@ -16,7 +16,7 @@ import static br.com.muttley.model.security.Role.ROLE_ACCESS_PLAN_CREATE;
  */
 @Service
 public class UserBaseServiceImpl extends SecurityServiceImpl<UserBase> implements UserBaseService {
-    private static final String[] basicRoles = new String[]{ROLE_ACCESS_PLAN_CREATE.getSimpleName()};
+    private static final String[] basicRoles = new String[]{ROLE_USER_BASE_CREATE.getSimpleName()};
 
     @Autowired
     public UserBaseServiceImpl(final UserBaseRepository repository, final MongoTemplate template) {
