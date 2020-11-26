@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static br.com.muttley.model.security.Role.ROLE_OWNER;
 import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_CREATE;
@@ -38,6 +37,7 @@ import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_UPDATE;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newAvaliableRoles;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newViewRoleDefinition;
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toSet;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -106,7 +106,10 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
         //validando usuário
         workTeam.setMembers(
-                workTeam.getMembers().stream().filter(it -> it.getId() != null && !"".equals(it.getUserName())).collect(Collectors.toSet())
+                workTeam.getMembers()
+                        .parallelStream()
+                        .filter(it -> it.getId() != null && !"".equals(it.getUserName()))
+                        .collect(toSet())
         );
     }
 
@@ -131,7 +134,10 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         }
         //validando usuário
         workTeam.setMembers(
-                workTeam.getMembers().stream().filter(it -> it.getId() != null && !"".equals(it.getUserName())).collect(Collectors.toSet())
+                workTeam.getMembers()
+                        .parallelStream()
+                        .filter(it -> it.getId() != null && !"".equals(it.getUserName()))
+                        .collect(toSet())
         );
     }
 

@@ -65,7 +65,7 @@ public class Notification implements Cloneable {
 
     public Notification addContents(final Collection<Content> contents) {
         if (!CollectionUtils.isEmpty(contents)) {
-            this.contents.addAll(contents.stream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
+            this.contents.addAll(contents.parallelStream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
         }
         return this;
     }
@@ -84,7 +84,7 @@ public class Notification implements Cloneable {
 
     public Notification addHeadings(final Collection<Content> headings) {
         if (!CollectionUtils.isEmpty(headings)) {
-            this.headings.addAll(headings.stream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
+            this.headings.addAll(headings.parallelStream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
         }
         return this;
     }
@@ -104,7 +104,7 @@ public class Notification implements Cloneable {
 
     public Notification addSubtitles(final Collection<Content> subtitles) {
         if (!CollectionUtils.isEmpty(subtitles)) {
-            this.subtitle.addAll(subtitles.stream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
+            this.subtitle.addAll(subtitles.parallelStream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
         }
         return this;
     }
@@ -124,7 +124,7 @@ public class Notification implements Cloneable {
 
     public Notification addPlayers(final Collection<String> players) {
         if (!CollectionUtils.isEmpty(players)) {
-            this.players.addAll(players.stream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
+            this.players.addAll(players.parallelStream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
         }
         return this;
     }
@@ -143,7 +143,7 @@ public class Notification implements Cloneable {
 
     public Notification addPlayers(final Set<TokenId> tokens) {
         if (tokens != null) {
-            return this.addPlayers(tokens.stream().map(TokenId::getToken).collect(Collectors.toSet()));
+            return this.addPlayers(tokens.parallelStream().map(TokenId::getToken).collect(Collectors.toSet()));
         }
         return this;
     }

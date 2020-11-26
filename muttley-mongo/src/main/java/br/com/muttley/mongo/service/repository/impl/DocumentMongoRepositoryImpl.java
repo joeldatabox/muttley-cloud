@@ -250,7 +250,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
         if (compoundIndexes != null) {
             final List<String> indexies = this.operations.getCollection(metadata.getCollectionName())
                     .getIndexInfo()
-                    .stream()
+                    .parallelStream()
                     .map(index -> index.get("name"))
                     .map(Object::toString)
                     .collect(Collectors.toList());

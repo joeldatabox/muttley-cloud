@@ -133,7 +133,7 @@ public class UserPreferences implements Document {
     }
 
     public Preference get(final String key) {
-        return this.preferences.stream()
+        return this.preferences.parallelStream()
                 .filter(p -> p.key.equals(key))
                 .findAny()
                 .orElse(null);

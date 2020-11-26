@@ -19,7 +19,7 @@ public class AuthoritiesUtils {
 
     public static Authority getAuthority(final Role role) {
         return getAllAuthorities()
-                .stream()
+                .parallelStream()
                 .filter(it -> it.getRole().equals(role))
                 .findAny()
                 .orElse(null);

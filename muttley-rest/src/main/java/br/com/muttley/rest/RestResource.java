@@ -202,7 +202,7 @@ public interface RestResource<T extends Document> {
     default Map<String, String> createQueryParamForCount(final Map<String, String> allRequestParams) {
         return allRequestParams
                 .entrySet()
-                .stream()
+                .parallelStream()
                 .filter(key ->
                         !key.getKey().equals(Operator.LIMIT.toString()) && !key.getKey().equals(Operator.SKIP.toString())
                 )

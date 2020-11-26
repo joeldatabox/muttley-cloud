@@ -234,7 +234,7 @@ public class UserServiceImpl implements UserService {
             nicks.add(userName);
         }
         if (!CollectionUtils.isEmpty(nickUsers)) {
-            nickUsers.stream().filter(it -> !StringUtils.isEmpty(it)).forEach(it -> nicks.add(it));
+            nickUsers.parallelStream().filter(it -> !StringUtils.isEmpty(it)).forEach(it -> nicks.add(it));
         }
         return nicks;
     }
@@ -301,7 +301,7 @@ public class UserServiceImpl implements UserService {
         );
         if (results != null && !CollectionUtils.isEmpty(results.getMappedResults())) {
             return results.getMappedResults()
-                    .stream()
+                    .parallelStream()
                     .map(UserPreferences::getUser)
                     .collect(toList());
         }

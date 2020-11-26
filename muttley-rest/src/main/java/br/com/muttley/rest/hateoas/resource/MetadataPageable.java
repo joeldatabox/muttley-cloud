@@ -108,7 +108,7 @@ public class MetadataPageable {
 
     @JsonIgnore
     public LinkResource getNextPage() {
-        return this.links.stream()
+        return this.links.parallelStream()
                 .filter(l -> LinkUtil.REL_NEXT.equals(l.getRel()))
                 .findFirst()
                 .get();
@@ -135,7 +135,7 @@ public class MetadataPageable {
 
     @JsonIgnore
     public LinkResource getPreviusPage() {
-        return this.links.stream()
+        return this.links.parallelStream()
                 .filter(l -> LinkUtil.REL_PREV.equals(l.getRel()))
                 .findFirst()
                 .get();
@@ -162,7 +162,7 @@ public class MetadataPageable {
 
     @JsonIgnore
     public LinkResource getFirstPage() {
-        return this.links.stream()
+        return this.links.parallelStream()
                 .filter(l -> LinkUtil.REL_FIRST.equals(l.getRel()))
                 .findFirst()
                 .get();
@@ -205,7 +205,7 @@ public class MetadataPageable {
 
     @JsonIgnore
     public LinkResource getLastPage() {
-        return this.links.stream()
+        return this.links.parallelStream()
                 .filter(l -> LinkUtil.REL_LAST.equals(l.getRel()))
                 .findFirst()
                 .get();

@@ -217,7 +217,7 @@ public class User implements Serializable {
 
     public User setNickUsers(final Set<String> nickUsers) {
         if (nickUsers != null) {
-            this.nickUsers = nickUsers.stream().map(String::toLowerCase).collect(toSet());
+            this.nickUsers = nickUsers.parallelStream().map(String::toLowerCase).collect(toSet());
         }
         return this;
     }
@@ -295,7 +295,7 @@ public class User implements Serializable {
     }
 
     public User setAuthorities(final Collection<Role> roles) {
-        this.authorities = roles.stream().map(it -> new AuthorityImpl(it)).collect(toSet());
+        this.authorities = roles.parallelStream().map(it -> new AuthorityImpl(it)).collect(toSet());
         return this;
     }
 

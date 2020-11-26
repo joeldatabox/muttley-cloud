@@ -61,6 +61,17 @@ public class Role {
     public static final Role ROLE_OWNER_SIMPLE_USE = new Role("ROLE_OWNER_SIMPLE_USE");
 
     @JsonIgnore
+    public static final Role ROLE_USER_BASE_CREATE = new Role("ROLE_USER_BASE_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_USER_BASE_READ = new Role("ROLE_USER_BASE_READ");
+    @JsonIgnore
+    public static final Role ROLE_USER_BASE_UPDATE = new Role("ROLE_USER_BASE_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_USER_BASE_DELETE = new Role("ROLE_USER_BASE_DELETE");
+    @JsonIgnore
+    public static final Role ROLE_USER_BASE_SIMPLE_USE = new Role("ROLE_USER_BASE_SIMPLE_USE");
+
+    @JsonIgnore
     public static final Role ROLE_USER_VIEW_CREATE = new Role("ROLE_USER_VIEW_CREATE");
     @JsonIgnore
     public static final Role ROLE_USER_VIEW_READ = new Role("ROLE_USER_VIEW_READ");
@@ -154,7 +165,7 @@ public class Role {
     @JsonIgnore
     public static final Role valueOf(final String value) {
         return values
-                .stream()
+                .parallelStream()
                 .filter(it -> it.getRoleName().equalsIgnoreCase(value))
                 .findAny()
                 .orElse(null);
@@ -170,7 +181,7 @@ public class Role {
     @JsonIgnore
     public static final Role[] valueOf(final String... values) {
         final Object[] roles = Role.values
-                .stream()
+                .parallelStream()
                 .filter(it -> {
                     for (final String v : values) {
                         if (it.getRoleName().equalsIgnoreCase(v)) {
@@ -225,6 +236,7 @@ public class Role {
     public static final String[] toPatternRole(final String endNameRole, final String... roles) {
         if (roles == null) return null;
         return Stream.of(roles)
+                .parallel()
                 .map(r -> Role.toPatternRole(endNameRole, r))
                 .toArray(String[]::new);
     }

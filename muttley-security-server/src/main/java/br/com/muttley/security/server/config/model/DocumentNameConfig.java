@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class DocumentNameConfig {
     private final String nameCollectionOwner;
     private final String nameCollectionUser;
+    private final String nameCollectionUserBase;
     private final String nameCollectionAccessPlan;
     private final String nameCollectionUserPreferences;
     private final String nameCollectionUserTokensNotification;
@@ -21,12 +22,14 @@ public class DocumentNameConfig {
     public DocumentNameConfig(
             @Value("${br.com.muttley.security.server.owner-document:muttley-owners}") final String nameCollectionOwner,
             @Value("${br.com.muttley.security.server.user-document:muttley-users}") final String nameCollectionUser,
+            @Value("${br.com.muttley.security.server.user-document:muttley-users-base}") final String nameCollectionUserBase,
             @Value("${br.com.muttley.security.server.access-plan-document:muttley-access-plans}") final String nameCollectionAccessPlan,
             @Value("${br.com.muttley.security.server.user-preference-document:muttley-users-preferences}") final String nameCollectionUserPreferences,
             @Value("${br.com.muttley.security.server.user-tokens-notification-document:muttley-users-tokens-notification}") final String nameCollectionUserTokensNotification,
             @Value("${br.com.muttley.security.server.work-team-document:muttley-work-teams}") final String nameCollectionWorkTeam) {
         this.nameCollectionOwner = nameCollectionOwner;
         this.nameCollectionUser = nameCollectionUser;
+        this.nameCollectionUserBase = nameCollectionUserBase;
         this.nameCollectionAccessPlan = nameCollectionAccessPlan;
         this.nameCollectionUserPreferences = nameCollectionUserPreferences;
         this.nameCollectionUserTokensNotification = nameCollectionUserTokensNotification;
@@ -39,6 +42,10 @@ public class DocumentNameConfig {
 
     public String getNameCollectionUser() {
         return nameCollectionUser;
+    }
+
+    public String getNameCollectionUserBase() {
+        return nameCollectionUserBase;
     }
 
     public String getNameCollectionAccessPlan() {

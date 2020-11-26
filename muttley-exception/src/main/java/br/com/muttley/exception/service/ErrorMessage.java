@@ -248,7 +248,7 @@ public final class ErrorMessage {
     @JsonIgnore
     public ResponseEntity toResponseEntity(final HttpServletRequest request) {
         //verificando se tem algum Media type que possa retornar json
-        if (((LinkedHashSet<MediaType>) request.getAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE)).stream()
+        if (((LinkedHashSet<MediaType>) request.getAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE)).parallelStream()
                 .filter(it -> APPLICATION_JSON.equals(it) || APPLICATION_JSON_UTF8.equals(it) || ALL_VALUE.equals(it))
                 .count() > 0) {
             //se chegou aqui quer dizer que podemo retornar um json,
