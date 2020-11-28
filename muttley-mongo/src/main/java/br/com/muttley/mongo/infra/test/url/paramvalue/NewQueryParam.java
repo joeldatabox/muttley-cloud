@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.query.url.paramvalue;
+package br.com.muttley.mongo.infra.test.url.paramvalue;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import lombok.EqualsAndHashCode;
@@ -24,9 +24,9 @@ public class NewQueryParam {
     }
 
     public NewQueryParam(String value) {
-        if (value.endsWith("|")) {
+        if (value.endsWith("]")) {
             this.key = value.substring(0, value.indexOf("="));
-            this.value = value.substring(this.key.length() + 1, value.length());
+            this.value = value.substring(this.key.length() + 2, value.length() - 1);
         } else {
             final String[] valueSplit = value.split("=");
             this.key = valueSplit[0];
@@ -35,7 +35,7 @@ public class NewQueryParam {
     }
 
     public boolean isArrayValue() {
-        return value.startsWith("|") && value.endsWith("|");
+        return value.startsWith("[") && value.endsWith("]");
     }
 
     public List<NewQueryParam> valueToArray() {
@@ -54,7 +54,7 @@ public class NewQueryParam {
         final String[] allCriterions = otherValue.split(";;");
         final List<NewQueryParam> pipelines = new LinkedList<>();
         for (int i = 0; i < allCriterions.length; i++) {
-            final String expr[] = allCriterions[i].split("=");
+            final String expr[] = allCriterions[i].split(":");
             //evitando que algum animal passe uma string vazia
             if (expr.length > 1) {
                 //extraindo os criterios do or

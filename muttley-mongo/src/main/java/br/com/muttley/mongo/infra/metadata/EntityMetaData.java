@@ -36,7 +36,6 @@ import static br.com.muttley.mongo.views.source.ViewSource._TRUE;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.reflect.FieldUtils.getAllFields;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 
 /**
@@ -177,6 +176,8 @@ public class EntityMetaData implements Cloneable {
         if (entityMetaData != null) {
             return entityMetaData;
         } else if (this.getNameField().equals(nameField)) {
+            return this;
+        } else if ("".equals(nameField)) {
             return this;
         }
         return null;

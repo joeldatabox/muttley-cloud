@@ -1,8 +1,8 @@
-package br.com.muttley.mongo.query.url.paramvalue;
+package br.com.muttley.mongo.infra.test.url.paramvalue;
 
 import java.util.stream.Stream;
 
-import static br.com.muttley.mongo.query.url.paramvalue.QueryParamType.MULT_SIMPLE;
+import static br.com.muttley.mongo.infra.test.url.paramvalue.QueryParamType.MULT_SIMPLE;
 import static java.util.stream.Collectors.joining;
 
 /**

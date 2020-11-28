@@ -2,9 +2,10 @@ package br.com.muttley.mongo.query;
 
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.infra.operators.Operator;
+import br.com.muttley.mongo.infra.test.projections.Projection;
 import br.com.muttley.mongo.query.model.Pessoa;
 import br.com.muttley.mongo.query.modelother.NotaFiscal;
-import br.com.muttley.mongo.query.projections.Projection;
+
 import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
@@ -73,7 +74,7 @@ public class QueryParamTest {
         /*System.out.println(Stream.of(Operator.values()).map(Operator::getRegularExpression).collect(Collectors.joining("|")));
         System.out.println(QueryBuilder.replaceAllOperators("tetes.$orderByAsc"));*/
 
-        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558"));
+        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
         //projection.getPipeline()
         final List<AggregationOperation> operations = projection.getPipeline();
         operations.forEach(it -> {

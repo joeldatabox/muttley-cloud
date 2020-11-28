@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.query.projections;
+package br.com.muttley.mongo.infra.test.projections;
 
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;

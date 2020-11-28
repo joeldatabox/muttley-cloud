@@ -1,6 +1,6 @@
 package br.com.muttley.mongo.query;
 
-import br.com.muttley.mongo.query.url.paramvalue.NewQueryParam;
+import br.com.muttley.mongo.infra.test.url.paramvalue.NewQueryParam;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -15,13 +15,13 @@ public class URLParaTest {
 
     @Test
     public void testParams() {
-        final String urlParams = "www.teste.com?nome=kasdfasd&idade=50&$or=|val=asdfa;;b=70|&$or=|val=asdfa;;b=70|";
+        final String urlParams = "www.teste.com?nome=kasdfasd&idade=50&$or=[val:asdfa;;b:70]&$or=[val:asdfa;;b:70]";
 
         final List<NewQueryParam> params = getQueryParams(urlParams);
 
         for (final NewQueryParam queryParam : params) {
             System.out.println(queryParam.getKey() + " => " + queryParam.getValue());
-            if(queryParam.isArrayValue()){
+            if (queryParam.isArrayValue()) {
                 queryParam.valueToArray().forEach(it -> {
                     System.out.println(it.getKey() + " => " + it.getValue());
                 });
@@ -40,6 +40,10 @@ public class URLParaTest {
                 params.add(new NewQueryParam(param));
             }
         }
+        for (int i = 0; i < urlParts[1].length(); i++) {
+
+        }
+
 
         return params;
         /*} catch (UnsupportedEncodingException ex) {

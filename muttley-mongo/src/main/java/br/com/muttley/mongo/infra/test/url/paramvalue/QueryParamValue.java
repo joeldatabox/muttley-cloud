@@ -1,4 +1,5 @@
-package br.com.muttley.mongo.query.url.paramvalue;
+package br.com.muttley.mongo.infra.test.url.paramvalue;
+
 
 /**
  * @author Joel Rodrigues Moreira on 24/10/2020.

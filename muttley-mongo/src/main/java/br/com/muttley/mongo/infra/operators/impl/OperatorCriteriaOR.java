@@ -1,8 +1,12 @@
 package br.com.muttley.mongo.infra.operators.impl;
 
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
+import br.com.muttley.mongo.infra.test.projections.Projection;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.query.Criteria;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import java.util.Date;
 
 /**
  * @author Joel Rodrigues Moreira on 01/09/2020.
@@ -44,8 +48,11 @@ public class OperatorCriteriaOR extends AbstractOperatorCriteria<Criteria> {
         throw new NotImplementedException();
     }
 
+    //Essa porra deve retornar uma lista de projeção
     @Override
     public Criteria extract(EntityMetaData entityMetaData, String compositePropertyWithFather, String key, Object value) {
+        final Projection p = Projection.ProjectionBuilder.from(entityMetaData, null);
+        p.get
         throw new NotImplementedException();
     }
 }

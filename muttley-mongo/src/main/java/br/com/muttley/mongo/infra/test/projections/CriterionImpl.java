@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.query.projections;
+package br.com.muttley.mongo.infra.test.projections;
 
 import br.com.muttley.mongo.infra.operators.Operator;
 import lombok.Getter;

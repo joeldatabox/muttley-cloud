@@ -1,6 +1,7 @@
-package br.com.muttley.mongo.query.url.paramvalue;
+package br.com.muttley.mongo.infra.test.url.paramvalue;
 
-import static br.com.muttley.mongo.query.url.paramvalue.QueryParamType.SIMPLE;
+
+import static br.com.muttley.mongo.infra.test.url.paramvalue.QueryParamType.SIMPLE;
 
 /**
  * @author Joel Rodrigues Moreira on 24/10/2020.

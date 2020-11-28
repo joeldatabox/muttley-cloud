@@ -1,12 +1,11 @@
-package br.com.muttley.mongo.query.projections;
+package br.com.muttley.mongo.infra.test.projections;
 
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.infra.operators.Operator;
-import br.com.muttley.mongo.query.url.paramvalue.NewQueryParam;
+import br.com.muttley.mongo.infra.test.url.paramvalue.NewQueryParam;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 /**
