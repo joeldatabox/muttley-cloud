@@ -1,17 +1,10 @@
 package br.com.muttley.mongo.query;
-
-import br.com.muttley.mongo.query.modelother.NotaFiscal;
-import br.com.muttley.mongo.query.projections.Projection;
-import org.bson.types.ObjectId;
+import br.com.muttley.mongo.infra.test.projections.Projection;
 import org.junit.Test;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 
-import java.util.Date;
 import java.util.List;
 
-import static br.com.muttley.mongo.infra.metadata.EntityMetaData.of;
-import static br.com.muttley.mongo.query.QueryParamTest.getQueryParams;
-import static br.com.muttley.mongo.query.projections.Projection.ProjectionBuilder.from;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.DEFAULT_CONTEXT;
 
 /**

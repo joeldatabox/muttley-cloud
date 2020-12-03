@@ -8,17 +8,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
- * @author Joel Rodrigues Moreira on 02/09/2020.
+ * @author Joel Rodrigues Moreira on 02/12/2020.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@Deprecated
-public class ProjectionImpl implements Projection {
+public class Projection2Impl implements Projection2 {
     private int level = 0;
     private int orderControl = 0;
     private int levelControl = 0;
@@ -26,18 +25,17 @@ public class ProjectionImpl implements Projection {
     private EntityMetaData parentEntityMetadata;
     private String property;
     private String compositePropertyWithFather = "";//nome da propriedade pai em cascata
-    private List<ProjectionImpl> subproperties;
-    private List<CriterionImpl> criterions;
+    private List<Projection2Impl> subproperties;
+    private List<Criterion2Impl> criterions;
     private boolean generatedLookup = false;//indica se a propriedade atual já fez lookup ou não
 
-    protected ProjectionImpl() {
+    protected Projection2Impl() {
     }
 
     private void setParent(final EntityMetaData entityMetaData) {
         if (!this.subpropertiesIsEmpty()) {
             this.subproperties
                     .parallelStream()
-                    //.filter(it -> it.parentEntityMetadata == null)
                     .forEach(it -> {
                         it.parentEntityMetadata = entityMetaData;
                         it.setParent(entityMetaData);
@@ -46,25 +44,20 @@ public class ProjectionImpl implements Projection {
     }
 
     @Override
-    public Projection addProjection(final Projection projection, final EntityMetaData entityMetaData, final String property, final Criterion criterion) {
-        final ProjectionImpl result = this.addProjection((ProjectionImpl) projection, entityMetaData, property, criterion);
-        /*if (!result.subpropertiesIsEmpty()) {
-            result.subproperties
-                    .parallelStream()
-                    .filter(it -> it.parentEntityMetadata == null).forEach(it -> it.parentEntityMetadata = entityMetaData);
-        }*/
+    public Projection2 addProjection(Projection2 projection, EntityMetaData entityMetaData, String property, Criterion2 criterion) {
+        final Projection2Impl result = this.addProjection((Projection2Impl) projection, entityMetaData, property, criterion);
         result.setParent(entityMetaData);
         return result;
     }
 
-    private ProjectionImpl addProjection(final ProjectionImpl projection, final EntityMetaData entityMetaData, final String property, final Criterion criterion) {
+    private Projection2Impl addProjection(final Projection2Impl projection, final EntityMetaData entityMetaData, final String property, final Criterion2 criterion) {
         if (projection.containsProperty(property)) {
             //adiciona os demais criterios aqui
-            projection.addCriterion((CriterionImpl) criterion);
+            projection.addCriterion((Criterion2Impl) criterion);
         } else if (property.contains(".")) {
             //pegando o nome atual da chave
             final String currentProperty = property.substring(0, property.indexOf("."));
-            final ProjectionImpl current;
+            final Projection2Impl current;
             //já existe esse chave no nível atual?
             if (projection.containsProperty(currentProperty)) {
                 //recuperando a chave no nível atual
@@ -78,17 +71,92 @@ public class ProjectionImpl implements Projection {
             }
             current.addProjection(current, current.entityMetaData, property.substring(property.indexOf(".") + 1), criterion);
         } else {
-            final ProjectionImpl current = this.createNewSubProjection(property);
+            final Projection2Impl current = this.createNewSubProjection(property);
             current.property = property;
             current.entityMetaData = entityMetaData.getFieldByName(property);
             projection.addProjection(current);
-            current.addCriterion((CriterionImpl) criterion);
+            current.addCriterion((Criterion2Impl) criterion);
         }
         return projection;
     }
 
     @Override
-    public List<AggregationOperation> getPipeline() {
+    public List<AggregationOperation> getAggregations() {
+        //se o campo atual não tem subcampos, logo devemos apenas aplicar o critério
+        if (this.subpropertiesIsEmpty()) {
+            return this.criterions.stream()
+                    .map(it -> this.extractAggregations(it))
+                    .reduce((acc, others) -> {
+                        acc.addAll(others);
+                        return acc;
+                    }).orElse(new LinkedList<>());
+
+
+            //talvez, tenhamos uma subpropriedade e ela seja um id apenas
+            //tendo isso como base basta apenas aplicar um critério simples sem
+            //processo de lookup
+        }
+        //verificando se a propriedade atual precisa de um lookup
+        else if (this.isDBRef() && !this.generatedLookup) {
+            final List<AggregationOperation> list = new LinkedList<>();
+            //indica se o primeiro campo no where era o id. Se sim pularemos ele durante a interação
+            //isso evitará que se repita condições já realizadas
+            boolean skipFirstId = false;
+
+            //contains subproperties
+            if (!this.subpropertiesIsEmpty()) {
+                //a primeira subproperty é um id?
+                if (this.subproperties.get(0).isId()) {
+                    //vamos adicionar isso no where sem fazer lookup
+                    final Projection2Impl subProperty = this.subproperties.get(0);
+                    list.addAll(
+                            subProperty.criterions
+                                    .stream()
+                                    .map(it -> this.extractAggregations(subProperty.entityMetaData, subProperty.compositePropertyWithFather, subProperty.property, it))
+                                    .reduce((acc, others) -> {
+                                        acc.addAll(others);
+                                        return acc;
+                                    }).orElse(new LinkedList<>())
+                    );
+                    //sinalizando para pularmos o primeiro campo
+                    skipFirstId = true;
+                }
+                //verificando se precisa fazer project
+                if (this.subproperties.size() > 1 || !this.subproperties.get(0).isId()) {
+                    list.addAll(this.parentEntityMetadata.createProjectFor(this.compositePropertyWithFather));
+                    this.generatedLookup = true;//marcando que essa propriedade já foi fieta lookup
+                }
+
+                if (skipFirstId) {
+                    list.addAll(this.extractPipelineForAggregations(this.subproperties.subList(1, this.subproperties.size()).stream()));
+                } else {
+                    list.addAll(this.extractPipelineForAggregations(this.subproperties.stream()));
+                }
+            }
+            return list;
+        } else {
+            return this.subproperties
+                    .stream()
+                    .map(it -> it.getAggregations())
+                    .reduce((acc, others) -> {
+                        acc.addAll(others);
+                        return acc;
+                    }).orElse(new LinkedList<>());
+        }
+    }
+
+    private List<AggregationOperation> extractPipelineForAggregations(final Stream<Projection2Impl> stream) {
+        return stream
+                .map(it -> it.getAggregations())
+                .reduce((acc, others) -> {
+                    acc.addAll(others);
+                    return acc;
+                }).orElse(null);
+    }
+
+    @Override
+    public List<Criteria> getCriteria() {
+
         //se o campo atual não tem subcampos, logo devemos apenas aplicar o critério
         if (this.subpropertiesIsEmpty()) {
             return this.criterions.stream()
@@ -145,16 +213,7 @@ public class ProjectionImpl implements Projection {
         //return null;
     }
 
-    private List<AggregationOperation> extractPipeline(final Stream<ProjectionImpl> stream) {
-        return stream
-                .map(it -> it.getPipeline())
-                .reduce((acc, others) -> {
-                    acc.addAll(others);
-                    return acc;
-                }).orElse(null);
-    }
-
-    private ProjectionImpl addCriterion(final CriterionImpl criterion) {
+    private Projection2Impl addCriterion(final Criterion2Impl criterion) {
         if (criterion != null) {
             if (this.criterions == null) {
                 this.criterions = new LinkedList<>();
@@ -164,7 +223,7 @@ public class ProjectionImpl implements Projection {
         return this;
     }
 
-    private ProjectionImpl addProjection(final ProjectionImpl projection) {
+    private Projection2Impl addProjection(final Projection2Impl projection) {
         if (projection != null) {
             if (this.subproperties == null) {
                 this.subproperties = new LinkedList<>();
@@ -175,11 +234,11 @@ public class ProjectionImpl implements Projection {
         return this;
     }
 
-    private AggregationOperation extractOperation(final Criterion criterion) {
-        return this.extractOperation(this.entityMetaData, this.compositePropertyWithFather, this.property, criterion);
+    private List<AggregationOperation> extractAggregations(final Criterion2 criterion) {
+        return this.extractAggregations(this.entityMetaData, this.compositePropertyWithFather, this.property, criterion);
     }
 
-    private AggregationOperation extractOperation(final EntityMetaData entityMetaData, final String compositePropertyWithFather, final String property, final Criterion criterion) {
+    private List<AggregationOperation> extractAggregations(final EntityMetaData entityMetaData, final String compositePropertyWithFather, final String property, final Criterion2 criterion) {
         final String customNameProperty;
         final String customNameCompositePropertyWithFather;
         if (entityMetaData.isId() && property.equals("id")) {
@@ -194,25 +253,25 @@ public class ProjectionImpl implements Projection {
             customNameCompositePropertyWithFather = compositePropertyWithFather;
         }
 
-        return criterion.getOperator().isCriteriaOperation() ?
-                match((Criteria) criterion.getOperator().extract(entityMetaData, customNameCompositePropertyWithFather, customNameProperty, criterion.getValue())) :
-                (AggregationOperation) criterion.getOperator().extract(entityMetaData, customNameCompositePropertyWithFather, customNameProperty, criterion.getValue());
+        return criterion
+                .getOperator()
+                .extractAggregations(entityMetaData, customNameCompositePropertyWithFather, customNameProperty, criterion.getValue());
     }
 
     /**
      * Retorna um campo com base na chave passada como parametro
      */
-    public ProjectionImpl getByProperty(final String key) {
+    protected Projection2Impl getByProperty(final String key) {
         return this.getByProperty(key, this);
     }
 
-    private ProjectionImpl getByProperty(final String property, final ProjectionImpl projection) {
+    private Projection2Impl getByProperty(final String property, final Projection2Impl projection) {
         //se o nome tiver . é necessário fazezr recursividade1
         if (property.contains(".")) {
             //pegando o primeiro nome
             final String currentProperty = property.substring(0, property.indexOf("."));
 
-            final ProjectionImpl currentProjection;
+            final Projection2Impl currentProjection;
             if (projection.subpropertiesIsEmpty()) {
                 currentProjection = null;
             } else {
@@ -243,11 +302,11 @@ public class ProjectionImpl implements Projection {
     /**
      * Verifica se uma determinada propriedade já foi inserida como campos internos
      */
-    public boolean containsProperty(final String key) {
+    protected boolean containsProperty(final String key) {
         return this.containsProperty(key, this);
     }
 
-    private boolean containsProperty(final String property, final ProjectionImpl projection) {
+    private boolean containsProperty(final String property, final Projection2Impl projection) {
         //se o nome tiver . é necessário fazezr recursividade
         if (property.contains(".")) {
             //pegando o primeiro nome
@@ -255,7 +314,7 @@ public class ProjectionImpl implements Projection {
             if (projection.subpropertiesIsEmpty()) {
                 return false;
             }
-            final ProjectionImpl currentProjection =
+            final Projection2Impl currentProjection =
                     projection.subproperties
                             .parallelStream()
                             .filter(it -> it.property.equals(currentProperty))
@@ -279,13 +338,10 @@ public class ProjectionImpl implements Projection {
         }
     }
 
-    public boolean subpropertiesIsEmpty() {
+    protected boolean subpropertiesIsEmpty() {
         return isEmpty(this.subproperties);
     }
 
-    public boolean criterionsIsEmpty() {
-        return isEmpty(this.criterions);
-    }
 
     protected boolean isDBRef() {
         return this.entityMetaData != null && this.entityMetaData.isDBRef();
@@ -296,10 +352,10 @@ public class ProjectionImpl implements Projection {
     }
 
     /**
-     * Cria uma nova instala de {@link ProjectionImpl} mantendo o controle de level
+     * Cria uma nova incia de {@link Projection2Impl} mantendo o controle de level
      */
-    private ProjectionImpl createNewSubProjection(final String property) {
-        final ProjectionImpl current = new ProjectionImpl();
+    private Projection2Impl createNewSubProjection(final String property) {
+        final Projection2Impl current = new Projection2Impl();
         current.levelControl = this.generateLevel();
         current.level = this.generateLevel();
         if (!this.compositePropertyWithFather.equals("")) {
@@ -318,6 +374,4 @@ public class ProjectionImpl implements Projection {
     private int generateLevel() {
         return this.levelControl + 1;
     }
-
-
 }

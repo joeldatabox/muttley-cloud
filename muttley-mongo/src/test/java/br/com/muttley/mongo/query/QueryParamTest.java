@@ -3,6 +3,7 @@ package br.com.muttley.mongo.query;
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.infra.operators.Operator;
 import br.com.muttley.mongo.infra.test.projections.Projection;
+import br.com.muttley.mongo.infra.test.projections.Projection2;
 import br.com.muttley.mongo.query.model.Pessoa;
 import br.com.muttley.mongo.query.modelother.NotaFiscal;
 
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -74,9 +76,40 @@ public class QueryParamTest {
         /*System.out.println(Stream.of(Operator.values()).map(Operator::getRegularExpression).collect(Collectors.joining("|")));
         System.out.println(QueryBuilder.replaceAllOperators("tetes.$orderByAsc"));*/
 
-        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
+        //final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
+        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558"));
         //projection.getPipeline()
         final List<AggregationOperation> operations = projection.getPipeline();
+        operations.forEach(it -> {
+            it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
+                System.out.println(iit.toJson());
+            });
+        });
+        System.out.println(operations);
+        //operations.forEach(it -> BasicDBObject);
+
+        //System.out.println(new Query(Criteria.where("sdf").is("tt")).toString());
+    }
+
+    @Test
+    public void test2() throws MalformedURLException {
+     /*   final URL url = new URL("http://www.test.com?nome.$contains=5&nome.$contains=asdf");
+        //System.out.println(splitQuery(url));
+        System.out.println(getQueryParams(url.toString()));
+        getQueryParams(url.toString()).entrySet()
+                .stream()
+                .forEach(entr -> {
+                    System.out.println("key " + entr.getKey());
+                    entr.getValue().stream().forEach(it -> System.out.println("value = " + it));
+                });*/
+        //Stream.of(Operator.values()).map(Operator::getRegularExpression).forEach(System.out::println);
+        /*System.out.println(Stream.of(Operator.values()).map(Operator::getRegularExpression).collect(Collectors.joining("|")));
+        System.out.println(QueryBuilder.replaceAllOperators("tetes.$orderByAsc"));*/
+
+        //final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
+        final Projection2 projection = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558"));
+        //projection.getPipeline()
+        final List<AggregationOperation> operations = projection.getAggregations();
         operations.forEach(it -> {
             it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
                 System.out.println(iit.toJson());

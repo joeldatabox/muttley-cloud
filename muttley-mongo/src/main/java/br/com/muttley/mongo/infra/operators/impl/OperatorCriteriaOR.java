@@ -43,7 +43,7 @@ public class OperatorCriteriaOR extends AbstractOperatorCriteria<Criteria> {
                 //criterionsOr[i] = extractCriteria(entityMetaData, of(expr[0]), replaceAllOperators(expr[0]), "");
             }
         }
-        return asList(new AggregationUtils.Pipelines(new Criteria().orOperator(pipelines.stream().map(it -> it.getCriteria()).toArray(Criteria[]::new))));
+        return new LinkedList<>(new AggregationUtils.Pipelines(new Criteria().orOperator(pipelines.stream().map(it -> it.getCriteria()).toArray(Criteria[]::new))));
         //return pipelines;*/
         throw new NotImplementedException();
     }
@@ -51,8 +51,8 @@ public class OperatorCriteriaOR extends AbstractOperatorCriteria<Criteria> {
     //Essa porra deve retornar uma lista de projeção
     @Override
     public Criteria extract(EntityMetaData entityMetaData, String compositePropertyWithFather, String key, Object value) {
-        final Projection p = Projection.ProjectionBuilder.from(entityMetaData, null);
-        p.get
+        //final Projection p = Projection.ProjectionBuilder.from(entityMetaData, null);
+        //p.get
         throw new NotImplementedException();
     }
 }
