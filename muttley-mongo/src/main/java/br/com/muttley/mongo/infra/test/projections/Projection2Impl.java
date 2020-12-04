@@ -8,8 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
@@ -151,31 +150,101 @@ public class Projection2Impl implements Projection2 {
                 .reduce((acc, others) -> {
                     acc.addAll(others);
                     return acc;
-                }).orElse(null);
+                }).orElse(new LinkedList<>());
     }
 
     @Override
     public List<Criteria> getCriteria() {
-
         //se o campo atual não tem subcampos, logo devemos apenas aplicar o critério
         if (this.subpropertiesIsEmpty()) {
             return this.criterions.stream()
-                    .map(it -> this.extractOperation(it))
-                    .collect(toList());
+                    .map(it -> this.extractCriteria(it))
+                    .reduce((acc, others) -> {
+                        acc.addAll(others);
+                        return acc;
+                    }).orElse(new LinkedList<>());
 
 
             //talvez, tenhamos uma subpropriedade e ela seja um id apenas
             //tendo isso como base basta apenas aplicar um critério simples sem
             //processo de lookup
-        }/* else if (!this.subpropertiesIsEmpty() && this.isDBRef() && this.subproperties.get(0).isId()) {
-            final List<AggregationOperation> list = new LinkedList<>(this.subproperties.get(0).criterions.stream().map(it -> this.extractOperation(it)).collect(toList()));
-            list.addAll(this.subproperties.subList(0, this.subproperties.size() - 1).stream().map(it -> it.getPipeline()).reduce((acc, others) -> {
-                acc.addAll(others);
-                return acc;
-            }).orElse(null));
+        }
+        //verificando se a propriedade atual precisa de um lookup
+        else if (this.isDBRef() && !this.generatedLookup) {
+            final List<Criteria> list = new LinkedList<>();
+            //indica se o primeiro campo no where era o id. Se sim pularemos ele durante a interação
+            //isso evitará que se repita condições já realizadas
+            boolean skipFirstId = false;
+
+            //contains subproperties
+            if (!this.subpropertiesIsEmpty()) {
+                //a primeira subproperty é um id?
+                if (this.subproperties.get(0).isId()) {
+                    //vamos adicionar isso no where sem fazer lookup
+                    final Projection2Impl subProperty = this.subproperties.get(0);
+                    list.addAll(
+                            subProperty.criterions
+                                    .stream()
+                                    .map(it -> this.extractCriteria(subProperty.entityMetaData, subProperty.compositePropertyWithFather, subProperty.property, it))
+                                    .reduce((acc, others) -> {
+                                        acc.addAll(others);
+                                        return acc;
+                                    }).orElse(new LinkedList<>())
+                    );
+                    //sinalizando para pularmos o primeiro campo
+                    skipFirstId = true;
+                }
+                //verificando se precisa fazer project
+                if (this.subproperties.size() > 1 || !this.subproperties.get(0).isId()) {
+                    //list.addAll(this.parentEntityMetadata.createProjectFor(this.compositePropertyWithFather));
+                    this.generatedLookup = true;//marcando que essa propriedade já foi fieta lookup
+                }
+
+                if (skipFirstId) {
+                    list.addAll(this.extractPipelineForCriteria(this.subproperties.subList(1, this.subproperties.size()).stream()));
+                } else {
+                    list.addAll(this.extractPipelineForCriteria(this.subproperties.stream()));
+                }
+            }
             return list;
-            //verificando se a propriedade atual precisa de um lookup
-        }*/ else if (this.isDBRef() && !this.generatedLookup) {
+        } else {
+            return this.subproperties
+                    .stream()
+                    .map(it -> it.getCriteria())
+                    .reduce((acc, others) -> {
+                        acc.addAll(others);
+                        return acc;
+                    }).orElse(new LinkedList<>());
+        }
+    }
+
+    private List<Criteria> extractPipelineForCriteria(final Stream<Projection2Impl> stream) {
+        return stream
+                .map(it -> it.getCriteria())
+                .reduce((acc, others) -> {
+                    acc.addAll(others);
+                    return acc;
+                }).orElse(new LinkedList<>());
+    }
+
+    @Override
+    public List<AggregationOperation> getQuery() {
+        //se o campo atual não tem subcampos, logo devemos apenas aplicar o critério
+        if (this.subpropertiesIsEmpty()) {
+            return this.criterions.stream()
+                    .map(it -> this.extractQuery(it))
+                    .reduce((acc, others) -> {
+                        acc.addAll(others);
+                        return acc;
+                    }).orElse(new LinkedList<>());
+
+
+            //talvez, tenhamos uma subpropriedade e ela seja um id apenas
+            //tendo isso como base basta apenas aplicar um critério simples sem
+            //processo de lookup
+        }
+        //verificando se a propriedade atual precisa de um lookup
+        else if (this.isDBRef() && !this.generatedLookup) {
             final List<AggregationOperation> list = new LinkedList<>();
             //indica se o primeiro campo no where era o id. Se sim pularemos ele durante a interação
             //isso evitará que se repita condições já realizadas
@@ -186,8 +255,16 @@ public class Projection2Impl implements Projection2 {
                 //a primeira subproperty é um id?
                 if (this.subproperties.get(0).isId()) {
                     //vamos adicionar isso no where sem fazer lookup
-                    final ProjectionImpl subProperty = this.subproperties.get(0);
-                    list.addAll(subProperty.criterions.stream().map(it -> this.extractOperation(subProperty.entityMetaData, subProperty.compositePropertyWithFather, subProperty.property, it)).collect(toList()));
+                    final Projection2Impl subProperty = this.subproperties.get(0);
+                    list.addAll(
+                            subProperty.criterions
+                                    .stream()
+                                    .map(it -> this.extractQuery(subProperty.entityMetaData, subProperty.compositePropertyWithFather, subProperty.property, it))
+                                    .reduce((acc, others) -> {
+                                        acc.addAll(others);
+                                        return acc;
+                                    }).orElse(new LinkedList<>())
+                    );
                     //sinalizando para pularmos o primeiro campo
                     skipFirstId = true;
                 }
@@ -198,19 +275,30 @@ public class Projection2Impl implements Projection2 {
                 }
 
                 if (skipFirstId) {
-                    list.addAll(this.extractPipeline(this.subproperties.subList(1, this.subproperties.size()).stream()));
+                    list.addAll(this.extractPipelineForQuery(this.subproperties.subList(1, this.subproperties.size()).stream()));
                 } else {
-                    list.addAll(this.extractPipeline(this.subproperties.stream()));
+                    list.addAll(this.extractPipelineForQuery(this.subproperties.stream()));
                 }
             }
             return list;
         } else {
-            return this.subproperties.stream().map(it -> it.getPipeline()).reduce((acc, others) -> {
-                acc.addAll(others);
-                return acc;
-            }).orElse(null);
+            return this.subproperties
+                    .stream()
+                    .map(it -> it.getQuery())
+                    .reduce((acc, others) -> {
+                        acc.addAll(others);
+                        return acc;
+                    }).orElse(new LinkedList<>());
         }
-        //return null;
+    }
+
+    private List<AggregationOperation> extractPipelineForQuery(final Stream<Projection2Impl> stream) {
+        return stream
+                .map(it -> it.getQuery())
+                .reduce((acc, others) -> {
+                    acc.addAll(others);
+                    return acc;
+                }).orElse(new LinkedList<>());
     }
 
     private Projection2Impl addCriterion(final Criterion2Impl criterion) {
@@ -256,6 +344,67 @@ public class Projection2Impl implements Projection2 {
         return criterion
                 .getOperator()
                 .extractAggregations(entityMetaData, customNameCompositePropertyWithFather, customNameProperty, criterion.getValue());
+    }
+
+    private List<Criteria> extractCriteria(final Criterion2 criterion) {
+        return this.extractCriteria(this.entityMetaData, this.compositePropertyWithFather, this.property, criterion);
+    }
+
+    private List<Criteria> extractCriteria(final EntityMetaData entityMetaData, final String compositePropertyWithFather, final String property, final Criterion2 criterion) {
+        final String customNameProperty;
+        final String customNameCompositePropertyWithFather;
+        if (entityMetaData.isId() && property.equals("id")) {
+            customNameProperty = "$" + property;
+            if (compositePropertyWithFather.endsWith(".id")) {
+                customNameCompositePropertyWithFather = compositePropertyWithFather.replace(".id", ".$id");
+            } else {
+                customNameCompositePropertyWithFather = compositePropertyWithFather;
+            }
+        } else {
+            customNameProperty = property;
+            customNameCompositePropertyWithFather = compositePropertyWithFather;
+        }
+
+        return criterion
+                .getOperator()
+                .extractCriteria(entityMetaData, customNameCompositePropertyWithFather, customNameProperty, criterion.getValue());
+    }
+
+    private List<AggregationOperation> extractQuery(final Criterion2 criterion) {
+        return this.extractQuery(this.entityMetaData, this.compositePropertyWithFather, this.property, criterion);
+    }
+
+    private List<AggregationOperation> extractQuery(final EntityMetaData entityMetaData, final String compositePropertyWithFather, final String property, final Criterion2 criterion) {
+        final String customNameProperty;
+        final String customNameCompositePropertyWithFather;
+        if (entityMetaData.isId() && property.equals("id")) {
+            customNameProperty = "$" + property;
+            if (compositePropertyWithFather.endsWith(".id")) {
+                customNameCompositePropertyWithFather = compositePropertyWithFather.replace(".id", ".$id");
+            } else {
+                customNameCompositePropertyWithFather = compositePropertyWithFather;
+            }
+        } else {
+            customNameProperty = property;
+            customNameCompositePropertyWithFather = compositePropertyWithFather;
+        }
+
+        final List<AggregationOperation> operations = new LinkedList<>(
+                criterion
+                        .getOperator()
+                        .extractAggregations(entityMetaData, customNameCompositePropertyWithFather, customNameProperty, criterion.getValue())
+        );
+
+        final List<Criteria> criteria = criterion
+                .getOperator()
+                .extractCriteria(entityMetaData, customNameCompositePropertyWithFather, customNameProperty, criterion.getValue());
+
+        if (criteria.size() == 1) {
+            operations.add(match(criteria.get(0)));
+        } else {
+            criteria.forEach(it -> operations.add(match(it)));
+        }
+        return operations;
     }
 
     /**

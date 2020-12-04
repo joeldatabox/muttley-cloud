@@ -155,19 +155,19 @@ public class EntityMetaData implements Cloneable {
                 return getFieldByName(nameField.replace(currentPath + ".", ""), currentEntityMetaData);
             }
             return null;
-        } else {
-            if (entityMetaData.fields == null) {
-                return null;
-            }
+        } else if (entityMetaData.fields != null) {
             return entityMetaData
                     .fields
-                    .stream()
+                    .parallelStream()
                     .filter(it -> {
                         final String referencedName = "$" + it.nameField;
                         return it.nameField.equals(nameField) || referencedName.equals(nameField);
                     })
                     .findFirst()
                     .orElse(null);
+        } else {
+            final String referencedName = "$" + entityMetaData.nameField;
+            return entityMetaData.nameField.equals(nameField) || referencedName.equals(referencedName) ? entityMetaData : null;
         }
     }
 

@@ -22,6 +22,8 @@ public interface Projection2 {
 
     List<Criteria> getCriteria();
 
+    List<AggregationOperation> getQuery();
+
     /**
      * Retorna uma query de consulta com agregações e tudo que for necessário incluindo o where
      */
