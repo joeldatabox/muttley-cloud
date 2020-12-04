@@ -13,6 +13,9 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,12 +39,28 @@ public class UserBase implements Model {
     @DBRef
     private Owner owner;
 
-    private Set<User> users;
+    @Min(value = 1, message = "Informe pelo menos um usuário")
+    @Valid
+    private Set<UserBaseItem> users;
 
     private Historic historic;
     private MetadataDocument metadata;
 
     public UserBase() {
         this.users = new HashSet<>();
+    }
+
+    public UserBase addUser(final UserBaseItem userBaseItem) {
+        if (userBaseItem != null) {
+            this.users.add(userBaseItem);
+        }
+        return this;
+    }
+
+    public UserBase addUser(final User currentUser, final User user) {
+        if (user != null) {
+            this.addUser(new UserBaseItem(currentUser, user, new Date(), true));
+        }
+        return this;
     }
 }

@@ -1,9 +1,12 @@
 package br.com.muttley.security.server.listeners;
 
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.events.OwnerCreateEvent;
+import br.com.muttley.security.server.service.AuthService;
+import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +29,15 @@ public class OwnerCreateEventListener implements ApplicationListener<OwnerCreate
 
     private final WorkTeamService service;
     private final UserService userService;
+    private final UserBaseService userBaseService;
+    //private final AuthService authService;
 
     @Autowired
-    public OwnerCreateEventListener(final WorkTeamService service, final UserService userService) {
+    public OwnerCreateEventListener(final WorkTeamService service, final UserService userService, final UserBaseService userBaseService) {
         this.service = service;
         this.userService = userService;
+        this.userBaseService = userBaseService;
+        this.authService = authService;
     }
 
     @Override
@@ -56,5 +63,12 @@ public class OwnerCreateEventListener implements ApplicationListener<OwnerCreate
             //salvando as alterções das preferencias
             this.userService.save(userMaster, preference);
         }
+
+        // Adicinando a base de usuário para esse novo owner cadastradao
+        final UserBase userBase = new UserBase();
+        userBase.setOwner(ownerCreateEvent.getSource())
+                .addUser(this.authService.getCurrentUser(), userMaster);
+
+        this.userBaseService.save(this.authService.getCurrentUser(), userBase);
     }
 }
