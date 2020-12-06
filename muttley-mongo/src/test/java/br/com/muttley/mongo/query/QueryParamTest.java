@@ -7,7 +7,6 @@ import br.com.muttley.mongo.query.model.Pessoa;
 import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -105,29 +104,30 @@ public class QueryParamTest {
         System.out.println(QueryBuilder.replaceAllOperators("tetes.$orderByAsc"));*/
 
         //final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
-        final Projection2 projection = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558"));
-        //projection.getPipeline()
-        //final List<AggregationOperation> operations = projection.getAggregations();
-        //final List<Criteria> criteria = projection.getCriteria();
-        final List<AggregationOperation> query = projection.getQuery();
-        /*operations.forEach(it -> {
-            it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
-                System.out.println(iit.toJson());
-            });
-        });
-        System.out.println("####################################");
-        criteria.forEach(it -> {
+        final Projection2 criteria = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
+        final Projection2 aggregation = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
+        final Projection2 query = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
+
+        criteria.getCriteria().forEach(it -> {
             match(it).toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
                 System.out.println(iit.toJson());
             });
-        });*/
+        });
+        query.addProjection(
+
+        )
         System.out.println("####################################");
-        query.forEach(it -> {
+        aggregation.getAggregations().forEach(it -> {
             it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
                 System.out.println(iit.toJson());
             });
         });
-
+        System.out.println("####################################");
+        query.getQuery().forEach(it -> {
+            it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
+                System.out.println(iit.toJson());
+            });
+        });
         //System.out.println(operations);
         //operations.forEach(it -> BasicDBObject);
 

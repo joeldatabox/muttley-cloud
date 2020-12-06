@@ -68,4 +68,12 @@ public class NewQueryParam {
         //return pipelines;
 
     }
+
+    @Override
+    public String toString() {
+        return "NewQueryParam{" +
+                "key='" + key + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }
