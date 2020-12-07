@@ -39,6 +39,13 @@ public class OwnerServiceImpl extends SecurityServiceImpl<Owner> implements Owne
     }
 
     @Override
+    public void checkPrecondictionSave(final User user, final Owner value) {
+        if (this.repository.existsByUserMaster(value.getUserMaster())) {
+            throw new MuttleyBadRequestException(Owner.class, "userMaster", "Já existe um owner cadastrado com esse usuário master");
+        }
+    }
+
+    @Override
     public Owner save(final User user, final Owner value) {
         if (value.getUserMaster() == null || value.getUserMaster().getId() == null) {
             throw new MuttleyBadRequestException(Owner.class, "userMaster", "Informe um usuário válido");
@@ -57,6 +64,11 @@ public class OwnerServiceImpl extends SecurityServiceImpl<Owner> implements Owne
             throw new MuttleyBadRequestException(Owner.class, "userMaster", "Informe um usuário válido");
         }
         return super.update(user, value);
+    }
+
+    @Override
+    public void checkPrecondictionDelete(final User user, final String id) {
+        throw new MuttleyBadRequestException(Owner.class, "id", "Não é possível deletear um owner");
     }
 
     @Override

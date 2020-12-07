@@ -30,10 +30,10 @@ public class OwnerCreateEventListener implements ApplicationListener<OwnerCreate
     private final WorkTeamService service;
     private final UserService userService;
     private final UserBaseService userBaseService;
-    //private final AuthService authService;
+    private final AuthService authService;
 
     @Autowired
-    public OwnerCreateEventListener(final WorkTeamService service, final UserService userService, final UserBaseService userBaseService) {
+    public OwnerCreateEventListener(final WorkTeamService service, final UserService userService, final UserBaseService userBaseService, final AuthService authService) {
         this.service = service;
         this.userService = userService;
         this.userBaseService = userBaseService;
@@ -67,8 +67,8 @@ public class OwnerCreateEventListener implements ApplicationListener<OwnerCreate
         // Adicinando a base de usuário para esse novo owner cadastradao
         final UserBase userBase = new UserBase();
         userBase.setOwner(ownerCreateEvent.getSource())
-                .addUser(this.authService.getCurrentUser(), userMaster);
+                .addUser(this.userService.getUserFromToken(this.authService.getCurrentToken()), userMaster);
 
-        this.userBaseService.save(this.authService.getCurrentUser(), userBase);
+        this.userBaseService.save(this.userService.getUserFromToken(this.authService.getCurrentToken()), userBase);
     }
 }

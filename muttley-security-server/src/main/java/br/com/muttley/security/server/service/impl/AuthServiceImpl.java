@@ -21,7 +21,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-//@Service
+@Service
 public class AuthServiceImpl implements AuthService {
 
     protected final String tokenHeader;
@@ -72,9 +72,9 @@ public class AuthServiceImpl implements AuthService {
     public Preference getPreference(final String key) {
         return this.getUserPreferences().get(key);
     }
-
+/*
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         return new JwtUser(new User());
-    }
+    }*/
 }

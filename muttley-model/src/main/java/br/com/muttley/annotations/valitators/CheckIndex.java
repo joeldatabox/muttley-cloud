@@ -1,4 +1,4 @@
-package br.com.muttley.utils;
+package br.com.muttley.annotations.valitators;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -26,13 +26,6 @@ public @interface CheckIndex {
      * Campos que compõe o index
      */
     String[] fields();
-
-    /**
-     * Campo que é dono do index.
-     * Caso der algum erro de index, a exception {@link br.com.muttley.exception.throwables.MuttleyConflictException}
-     * receberá como campo o valor aqui informado
-     */
-    String fieldOwner();
 
     Class<?>[] groups() default {};
 

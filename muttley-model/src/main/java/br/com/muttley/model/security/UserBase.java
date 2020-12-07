@@ -8,13 +8,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +33,12 @@ import java.util.Set;
 @Getter
 @Setter
 @Accessors(chain = true)
+@TypeAlias(UserBase.TYPE_ALIAS)
 public class UserBase implements Model {
+    @Transient
+    @JsonIgnore
+    public static final String TYPE_ALIAS = "user-base";
+
     @Id
     private String id;
 
@@ -39,7 +46,7 @@ public class UserBase implements Model {
     @DBRef
     private Owner owner;
 
-    @Min(value = 1, message = "Informe pelo menos um usuário")
+    @Size.List({@Size(min = 1, message = "Informe pelo menos um usuário")})
     @Valid
     private Set<UserBaseItem> users;
 

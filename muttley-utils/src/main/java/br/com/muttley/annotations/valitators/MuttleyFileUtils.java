@@ -1,4 +1,4 @@
-package br.com.muttley.utils;
+package br.com.muttley.annotations.valitators;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package br.com.muttley.utils;
+package br.com.muttley.annotations.valitators;
 
 import br.com.muttley.exception.throwables.MuttleyConflictException;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -36,7 +36,7 @@ public class CheckIndexValidator implements ConstraintValidator<CheckIndex, Obje
                 criteria.and(field).is(PropertyUtils.getProperty(value, field));
             }
             if (mongoOperations.exists(new Query(criteria), value.getClass())) {
-                throw new MuttleyConflictException(value.getClass(), checkIndex.fieldOwner(), checkIndex.message());
+                throw new MuttleyConflictException(value.getClass(), "", checkIndex.message());
             }
 
             //final String cpfCnpj = (String) PropertyUtils.getProperty(value, this.checkIndex.fields());

@@ -6,7 +6,7 @@ import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidId
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
-import br.com.muttley.mongo.service.annotations.CompoundIndexes;
+import br.com.muttley.annotations.index.CompoundIndexes;
 import br.com.muttley.mongo.service.infra.AggregationUtils;
 import br.com.muttley.mongo.service.infra.metadata.EntityMetaData;
 import com.mongodb.BasicDBObject;
