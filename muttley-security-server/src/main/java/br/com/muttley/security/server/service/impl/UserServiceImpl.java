@@ -378,7 +378,7 @@ public class UserServiceImpl implements UserService {
 
         //caso não tenha se inform um userName, vamos gerar um randomicamente
         if (StringUtils.isEmpty(user.getUserName())) {
-            user.setUserName(user.getName() + new ObjectId(new Date()).toString());
+            user.setUserName(user.getName().trim() + new ObjectId(new Date()).toString());
         }
 
         if (user.getId() == null) {

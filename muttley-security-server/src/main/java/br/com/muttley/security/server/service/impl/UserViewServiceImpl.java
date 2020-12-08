@@ -149,7 +149,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
         if (!StringUtils.isEmpty(idOwner)) {
             operations.add(
                     match(
-                            where("owners").elemMatch(new Criteria().is(new ObjectId(idOwner)))
+                            where("owner").elemMatch(new Criteria().is(new ObjectId(idOwner)))
                     )
             );
         }
