@@ -64,7 +64,7 @@ public class UserBase implements Model {
         return this;
     }
 
-    public UserBase addUser(final User currentUser, final User user) {
+    public UserBase addUser(final UserView currentUser, final UserView user) {
         if (user != null) {
             this.addUser(new UserBaseItem(currentUser, user, new Date(), true));
         }

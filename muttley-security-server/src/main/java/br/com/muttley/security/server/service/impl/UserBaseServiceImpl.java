@@ -1,5 +1,6 @@
 package br.com.muttley.security.server.service.impl;
 
+import br.com.muttley.domain.service.impl.ModelServiceImpl;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
@@ -29,6 +30,13 @@ public class UserBaseServiceImpl extends SecurityServiceImpl<UserBase> implement
     @Override
     public String[] getBasicRoles() {
         return basicRoles;
+    }
+
+    @Override
+    public void checkPrecondictionSave(final User user, final UserBase value) {
+        if (this.count(user, null) == 1) {
+            throw new MuttleyBadRequestException(UserBase.class, null, "Já existe uma base de usuário cadastrada no sistema");
+        }
     }
 
     @Override
