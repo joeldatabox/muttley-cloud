@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class SecurityServiceImpl<T extends Document> extends ServiceImpl<T> implements SecurityService<T> {
+public abstract class SecurityServiceImpl<T extends Document> extends ServiceImpl<T> implements SecurityService<T> {
     public SecurityServiceImpl(final DocumentMongoRepository<T> repository, final MongoTemplate mongoTemplate, final Class<T> clazz) {
         super(repository, mongoTemplate, clazz);
     }
