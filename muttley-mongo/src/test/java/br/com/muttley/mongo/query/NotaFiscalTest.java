@@ -1,5 +1,5 @@
 package br.com.muttley.mongo.query;
-import br.com.muttley.mongo.infra.test.projections.Projection;
+import br.com.muttley.mongo.infra.newagregation.projections.Projection;
 import org.junit.Test;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 

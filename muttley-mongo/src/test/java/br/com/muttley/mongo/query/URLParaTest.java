@@ -1,6 +1,6 @@
 package br.com.muttley.mongo.query;
 
-import br.com.muttley.mongo.infra.test.url.paramvalue.NewQueryParam;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.NewQueryParam;
 import org.junit.Test;
 
 import java.util.LinkedList;

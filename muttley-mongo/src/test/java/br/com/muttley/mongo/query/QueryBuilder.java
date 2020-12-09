@@ -1,7 +1,7 @@
 package br.com.muttley.mongo.query;
 
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
-import br.com.muttley.mongo.infra.operators.Operator;
+import br.com.muttley.mongo.infra.newagregation.operators.Operator;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.util.CollectionUtils;

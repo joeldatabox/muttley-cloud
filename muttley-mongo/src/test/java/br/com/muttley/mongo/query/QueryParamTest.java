@@ -1,8 +1,8 @@
 package br.com.muttley.mongo.query;
 
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
-import br.com.muttley.mongo.infra.test.projections.Projection;
-import br.com.muttley.mongo.infra.test.projections.Projection2;
+import br.com.muttley.mongo.infra.newagregation.projections.Projection;
+import br.com.muttley.mongo.infra.newagregation.projections.Projection2;
 import br.com.muttley.mongo.query.model.Pessoa;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -113,9 +113,7 @@ public class QueryParamTest {
                 System.out.println(iit.toJson());
             });
         });
-        query.addProjection(
 
-        )
         System.out.println("####################################");
         aggregation.getAggregations().forEach(it -> {
             it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
