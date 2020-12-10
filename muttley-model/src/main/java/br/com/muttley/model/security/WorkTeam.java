@@ -1,8 +1,8 @@
 package br.com.muttley.model.security;
 
-import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
+import br.com.muttley.model.Model;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
 import br.com.muttley.model.security.jackson.OwnerDeserializer;
 import br.com.muttley.model.security.jackson.UserCollectionSerializer;
@@ -35,7 +35,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 @CompoundIndexes({
         @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })
-public class WorkTeam implements Document {
+public class WorkTeam implements Model {
     @Id
     protected String id;
     @NotBlank(message = "Informe um nome válido para o grupo")

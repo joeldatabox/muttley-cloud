@@ -49,7 +49,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  * Service do owner do odin
  */
 @Service
-public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implements WorkTeamService {
+public class WorkTeamServiceImpl extends SecurityModelServiceImpl<WorkTeam> implements WorkTeamService {
     private final WorkTeamRepository repository;
     private final UserRolesView userRolesView;
     private static final String[] basicRoles = new String[]{"work_team"};
@@ -58,7 +58,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
     @Autowired
     public WorkTeamServiceImpl(final WorkTeamRepository repository, final UserRolesView userRolesView, final MongoTemplate template, final DocumentNameConfig documentNameConfig, final ApplicationEventPublisher applicationEventPublisher) {
-        super(repository, template, WorkTeam.class);
+        super(template, WorkTeam.class);
         this.repository = repository;
         this.userRolesView = userRolesView;
         this.documentNameConfig = documentNameConfig;
