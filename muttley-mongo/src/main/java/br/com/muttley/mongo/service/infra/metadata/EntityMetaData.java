@@ -48,7 +48,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwi
 @Accessors(chain = true)
 @EqualsAndHashCode(of = "nameField")
 @ToString
-public class EntityMetaData {
+public class EntityMetaData implements Cloneable {
     private static final String DATE_PATTERN = "yyyy-MM-dd";
     private static final String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     private static final String DATE_REGEX = "(\\d{4}|\\d{5}|\\d{6}|\\d{7})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|[3][01])";
@@ -60,7 +60,6 @@ public class EntityMetaData {
     private EntityMetaDataType type;
     private Set<EntityMetaData> fields;
     private String collection;
-    ;
 
     public EntityMetaData() {
     }
@@ -93,12 +92,12 @@ public class EntityMetaData {
         if (isBasicObject(type)) {
             return new EntityMetaData().setNameField(name);
         } else {
-            if (cache.containsKey(type.getName())) {
-                return cache.get(type.getName());
+            if (EntityMetaData.cache.containsKey(type.getName())) {
+                return EntityMetaData.cache.get(type.getName()).clone().setNameField(name);
             }
         }
-        final EntityMetaData metaData = new EntityMetaData().setNameField(name);
-        cache.put(type.getName(), metaData);
+        final EntityMetaData metaData = new EntityMetaData().setNameField(type.getName());
+        EntityMetaData.cache.put(type.getName(), metaData);
 
         final Document document = (Document) type.getAnnotation(Document.class);
         if (document != null) {
@@ -120,7 +119,7 @@ public class EntityMetaData {
                 });
 
 
-        return metaData;
+        return metaData.clone().setNameField(name);
     }
 
     private static EntityMetaData getFieldByName(final String nameField, final EntityMetaData entityMetaData) {
@@ -400,5 +399,14 @@ public class EntityMetaData {
             this.entityMetaData = entityMetaData;
         }
 
+    }
+
+    @Override
+    protected EntityMetaData clone() {
+        try {
+            return (EntityMetaData) super.clone();
+        } catch (final CloneNotSupportedException ex) {
+            throw new MuttleyBadRequestException(ex);
+        }
     }
 }

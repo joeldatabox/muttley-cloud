@@ -24,8 +24,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.Objects.isNull;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
  * @author Joel Rodrigues Moreira on 18/04/18.
@@ -88,6 +93,17 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         checkRoleRead(user);
         final T value = service.findById(user, id);
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
+        return ResponseEntity.ok(value);
+    }
+
+    @RequestMapping(value = "/ids", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
+    public ResponseEntity findByIds(@RequestParam(required = false, value = "ids") String[] ids, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, HttpServletResponse response) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        final Set<T> value = service.findByIds(user, ids);
+
+        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
+
         return ResponseEntity.ok(value);
     }
 

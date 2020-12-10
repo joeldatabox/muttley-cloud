@@ -16,7 +16,6 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.infra.AggregationUtils;
 import br.com.muttley.mongo.service.infra.metadata.EntityMetaData;
-import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import br.com.muttley.security.server.service.SecurityService;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -56,12 +55,12 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  * @project muttley-cloud
  */
 public abstract class SecurityModelServiceImpl<T extends Model> extends ModelServiceImpl<T> implements SecurityService<T> {
-    protected final DocumentMongoRepository<T> repository;
+    //protected final DocumentMongoRepository<T> repository;
     private final EntityMetaData entityMetaData;
 
-    public SecurityModelServiceImpl(final DocumentMongoRepository<T> repository, final MongoTemplate mongoTemplate, final Class<T> clazz) {
+    public SecurityModelServiceImpl(/*final DocumentMongoRepository<T> repository,*/ final MongoTemplate mongoTemplate, final Class<T> clazz) {
         super(null, mongoTemplate, clazz);
-        this.repository = repository;
+        //  this.repository = repository;
         this.entityMetaData = EntityMetaData.of(clazz);
     }
 
@@ -122,7 +121,8 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível alterar um registro sem informar um id válido");
         }
         //verificando se o registro realmente existe
-        if (!this.repository.exists(value)) {
+        //if (!this.repository.exists(value)) {
+        if (!this.existsByTemplate(user.getCurrentOwner(), value)) {
             throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         value.setOwner(user);
@@ -130,7 +130,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         //value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(user.getCurrentOwner(), value)));
         value.setHistoric(generateHistoricUpdate(user, this.loadHistoric(user, value)));
         //gerando metadata de alteração
-        this.generateMetaDataUpdate(user, value);
+        this.generateMetaDataUpdate(user, this.loadMetaDataByTemplate(user.getCurrentOwner(), value.getId()), value);
         //processa regra de negocio antes de qualquer validação
         this.beforeUpdate(user, value);
         //verificando precondições
@@ -154,7 +154,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         //verificando se o registro realmente existe
 
         final Map<Boolean, List<T>> agroupedValues = values.stream()
-                .collect(groupingBy(it -> this.repository.exists(it.getId())));
+                .collect(groupingBy(it -> this.existsByTemplate(user.getCurrentOwner(), it.getId())));
 
         final List<T> valuesForSave = agroupedValues.get(Boolean.TRUE);
 
@@ -162,7 +162,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
             //gerando metadata de alteração
             valuesForSave.forEach(it -> generateMetaDataUpdate(user, it));
             //gerando histórico de alteração
-            valuesForSave.forEach(it -> it.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(it))));
+            valuesForSave.forEach(it -> it.setHistoric(generateHistoricUpdate(user, this.loadHistoricByTemplate(user.getCurrentOwner(), it.getId()))));
             //processa regra de negocio antes de qualquer validação
             beforeUpdate(user, valuesForSave);
             //verificando precondições
@@ -182,15 +182,15 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
 
     @Override
     public T findById(final User user, final String id) {
-        if (isNull(id)) {
+        if (isNull(id) || !ObjectId.isValid(id)) {
             throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
         }
-
-        final T result = this.mongoTemplate.findById(new ObjectId(id), this.clazz);
-        if (isNull(result)) {
+        final List<T> result = this.mongoTemplate.find(new Query(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("id").is(new ObjectId(id))), this.clazz);
+        //final T result = this.mongoTemplate.findById(new ObjectId(id), this.clazz);
+        if (CollectionUtils.isEmpty(result)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
-        return result;
+        return result.get(0);
     }
 
     @Override
@@ -214,7 +214,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
 
     @Override
     public T findFirst(final User user) {
-        final List<T> result = this.mongoTemplate.find(new Query().limit(1), this.clazz);
+        final List<T> result = this.mongoTemplate.find(new Query(where("owner.$id").is(user.getCurrentOwner().getObjectId())).limit(1), this.clazz);
         if (isNull(result) || result.isEmpty()) {
             throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
         }
@@ -243,7 +243,8 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
     public void deleteById(final User user, final String id) {
         this.beforeDelete(user, id);
         checkPrecondictionDelete(user, id);
-        if (!repository.exists(user.getCurrentOwner(), id)) {
+        //if (!repository.exists(user.getCurrentOwner(), id)) {
+        if (!this.existsByTemplate(user.getCurrentOwner(), id)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         //this.repository.delete(user.getCurrentOwner(), id);
@@ -259,7 +260,8 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
     public void delete(final User user, final T value) {
         this.beforeDelete(user, value);
         checkPrecondictionDelete(user, value.getId());
-        if (!repository.exists(user.getCurrentOwner(), value)) {
+        //if (!repository.exists(user.getCurrentOwner(), value)) {
+        if (!this.existsByTemplate(user.getCurrentOwner(), value)) {
             throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
         }
         //this.repository.delete(user.getCurrentOwner(), value);
@@ -325,15 +327,28 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         //salvando o registro
         this.mongoTemplate.save(value);
         //pegando o registro salvo
-        final AggregationResults<T> results = mongoTemplate.aggregate(
-                newAggregation(
-                        asList(
-                                sort(DESC, "_id"),
-                                limit(1)
-                        )
-                ), this.clazz,
-                this.clazz
-        );
+        final AggregationResults<T> results;
+        if (!value.contaisObjectId()) {
+            results = mongoTemplate.aggregate(
+                    newAggregation(
+                            asList(
+                                    sort(DESC, "id"),
+                                    limit(1)
+                            )
+                    ), this.clazz,
+                    this.clazz
+            );
+        } else {
+            results = mongoTemplate.aggregate(
+                    newAggregation(
+                            asList(
+                                    match(where("owner.$id").is(owner.getObjectId()).and("id").is(value.getObjectId())),
+                                    limit(1)
+                            )
+                    ), this.clazz,
+                    this.clazz
+            );
+        }
         if (results == null || results.getUniqueMappedResult() == null) {
             throw new MuttleyException();
         }
@@ -394,8 +409,8 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
                         newAggregation(
                                 match(where("owner.$id").is(owner.getObjectId())
                                         .and("_id").is(new ObjectId(id))
-                                ), project().and("$metaData.timeZones").as("timeZones")
-                                        .and("$metaData.versionDocument").as("versionDocument")
+                                ), project().and("$metadata.timeZones").as("timeZones")
+                                        .and("$metadata.versionDocument").as("versionDocument")
                         ), this.clazz, MetadataDocument.class);
 
         return result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;
@@ -457,6 +472,23 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
                         )),
                 this.clazz, ResultCount.class);
         return result.getUniqueMappedResult() != null ? ((ResultCount) result.getUniqueMappedResult()).getCount() : 0;
+    }
+
+
+    /*private boolean existsByTemplate(final Owner owner, final T value) {
+        return this.mongoTemplate.exists(new Query(where("owner.$id").is(owner.getObjectId()).and("id").is(value.getObjectId())), this.clazz);
+    }*/
+
+    /*private boolean existsByTemplate(final Owner owner,final String id) {
+        return this.mongoTemplate.exists(new Query(where("owner.$id").is(owner.getObjectId()).and("id").is(new ObjectId(id))), this.clazz);
+    }*/
+
+    private boolean existsByTemplate(final Owner owner, final String id) {
+        return this.mongoTemplate.exists(new Query(where("owner.$id").is(owner.getObjectId()).and("_id").is(new ObjectId(id))), this.clazz);
+    }
+
+    private boolean existsByTemplate(final Owner owner, final T value) {
+        return this.existsByTemplate(owner, value.getId());
     }
 
     /**

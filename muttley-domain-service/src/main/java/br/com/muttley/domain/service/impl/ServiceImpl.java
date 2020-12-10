@@ -422,10 +422,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
                 .setDtChange(new Date());
     }
 
-    protected void generateMetaDataUpdate(final User user, final T value) {
-        //recuperando o registro do banco
-        final MetadataDocument currentMetadata = this.repository.loadMetadata(value);
-
+    protected void generateMetaDataUpdate(final User user, final MetadataDocument currentMetadata, final T value) {
         currentMetadata.getTimeZones().setServerCurrentTimeZone(this.currentTimezone.getCurrenteTimeZoneFromServer());
 
 
@@ -473,6 +470,11 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         currentMetadata.getVersionDocument().setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
         currentMetadata.getVersionDocument().setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer());
         return currentMetadata;*/
+    }
+
+    protected void generateMetaDataUpdate(final User user, final T value) {
+        //recuperando o registro do banco
+        this.generateMetaDataUpdate(user, this.repository.loadMetadata(value), value);
     }
 
     @Override

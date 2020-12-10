@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@Repository
+//@Repository
 public interface UserBaseRepository extends DocumentMongoRepository<UserBase> {
 }
