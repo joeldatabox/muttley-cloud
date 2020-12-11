@@ -28,6 +28,8 @@ public class Role {
     public static final Role ROLE_OWNER = new Role("ROLE_OWNER");
     @JsonIgnore
     public static final Role ROLE_ROOT = new Role("ROLE_ROOT");
+    @JsonIgnore
+    public static final Role ROLE_ODIN_USER = new Role("ROLE_ODIN_USER");
 
     @JsonIgnore
     public static final Role ROLE_ACCESS_PLAN_CREATE = new Role("ROLE_ACCESS_PLAN_CREATE");

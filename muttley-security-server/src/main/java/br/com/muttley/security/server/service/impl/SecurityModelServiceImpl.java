@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -112,6 +113,29 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         this.afterSave(user, otherValues);
         //valor salvo
         return otherValues;
+    }
+
+    @PreAuthorize("hasAnyRole(T(br.com.muttley.model.security.Role).ROLE_ODIN_USER)")
+    public T save(final User user, final Owner owner, final T value) {
+        //verificando se realmente está criando um novo registro
+        checkIdForSave(value);
+        //setando o dono do registro
+        value.setOwner(owner);
+        //garantindo que o históriconão ficará nulo
+        value.setHistoric(this.createHistoric(user));
+        //garantindo que o metadata ta preenchido
+        this.createMetaData(user, value);
+        //processa regra de negocio antes de qualquer validação
+        this.beforeSave(user, value);
+        //verificando precondições
+        this.checkPrecondictionSave(user, value);
+        //validando dados do objeto
+        this.validator.validate(value);
+        final T salvedValue = this.saveByTemplate(user.getCurrentOwner(), value);
+        //realizando regras de enegocio depois do objeto ter sido salvo
+        this.afterSave(user, salvedValue);
+        //valor salvo
+        return salvedValue;
     }
 
     @Override

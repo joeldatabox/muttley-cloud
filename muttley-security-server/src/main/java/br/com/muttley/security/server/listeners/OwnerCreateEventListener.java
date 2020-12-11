@@ -67,9 +67,10 @@ public class OwnerCreateEventListener implements ApplicationListener<OwnerCreate
 
         // Adicinando a base de usuário para esse novo owner cadastradao
         final UserBase userBase = new UserBase();
+        final User currentUser = this.userService.getUserFromToken(this.authService.getCurrentToken());
         userBase.setOwner(ownerCreateEvent.getSource())
-                .addUser(new UserView(this.userService.getUserFromToken(this.authService.getCurrentToken())), new UserView(userMaster));
+                .addUser(new UserView(currentUser), new UserView(userMaster));
 
-        this.userBaseService.save(this.userService.getUserFromToken(this.authService.getCurrentToken()), userBase);
+        this.userBaseService.save(currentUser, ownerCreateEvent.getSource(), userBase);
     }
 }
