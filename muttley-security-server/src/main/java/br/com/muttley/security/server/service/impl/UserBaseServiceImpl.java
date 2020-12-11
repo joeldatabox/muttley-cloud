@@ -6,6 +6,7 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.security.server.service.UserBaseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +20,12 @@ import static br.com.muttley.model.security.Role.ROLE_USER_BASE_CREATE;
 @Service
 public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> implements UserBaseService {
     private static final String[] basicRoles = new String[]{ROLE_USER_BASE_CREATE.getSimpleName()};
+    private final String ODIN_USER;
 
     @Autowired
-    public UserBaseServiceImpl(final MongoTemplate template) {
+    public UserBaseServiceImpl(final MongoTemplate template, @Value("${muttley.security.odin.user}") final String odinUser) {
         super(template, UserBase.class);
+        this.ODIN_USER = odinUser;
     }
 
     @Override
@@ -33,6 +36,13 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     @Override
     public void checkPrecondictionSave(final User user, final UserBase value) {
         if (this.count(user, null) == 1) {
+            throw new MuttleyBadRequestException(UserBase.class, null, "Já existe uma base de usuário cadastrada no sistema");
+        }
+    }
+
+    @Override
+    public void checkPrecondictionSave(final User user, final Owner owner, final UserBase value) {
+        if (this.count(user, owner, null) == 1) {
             throw new MuttleyBadRequestException(UserBase.class, null, "Já existe uma base de usuário cadastrada no sistema");
         }
     }

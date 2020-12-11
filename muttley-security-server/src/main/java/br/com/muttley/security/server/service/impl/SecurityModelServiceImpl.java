@@ -8,6 +8,7 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
+import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
@@ -18,11 +19,11 @@ import br.com.muttley.mongo.service.infra.AggregationUtils;
 import br.com.muttley.mongo.service.infra.metadata.EntityMetaData;
 import br.com.muttley.security.server.service.SecurityService;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -59,6 +60,9 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
     //protected final DocumentMongoRepository<T> repository;
     private final EntityMetaData entityMetaData;
 
+    @Value("${muttley.security.odin.user}")
+    private String odinUser;
+
     public SecurityModelServiceImpl(/*final DocumentMongoRepository<T> repository,*/ final MongoTemplate mongoTemplate, final Class<T> clazz) {
         super(null, mongoTemplate, clazz);
         //  this.repository = repository;
@@ -93,6 +97,10 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
 
     }
 
+    public void checkPrecondictionSave(final User user, final Owner owner, final T value) {
+
+    }
+
     @Override
     public Collection<T> save(final User user, final Collection<T> values) {
         //verificando se realmente está criando um novo registro
@@ -115,8 +123,10 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         return otherValues;
     }
 
-    @PreAuthorize("hasAnyRole(T(br.com.muttley.model.security.Role).ROLE_ODIN_USER)")
+    //@PreAuthorize("hasAnyRole(T(br.com.muttley.model.security.Role).ROLE_ODIN_USER)")
     public T save(final User user, final Owner owner, final T value) {
+        //somente usuario do serviço do odin podem fazer requisição para aqui
+        this.checkIsUserOdin(user);
         //verificando se realmente está criando um novo registro
         checkIdForSave(value);
         //setando o dono do registro
@@ -128,10 +138,10 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
-        this.checkPrecondictionSave(user, value);
+        this.checkPrecondictionSave(user, owner, value);
         //validando dados do objeto
         this.validator.validate(value);
-        final T salvedValue = this.saveByTemplate(user.getCurrentOwner(), value);
+        final T salvedValue = this.saveByTemplate(owner, value);
         //realizando regras de enegocio depois do objeto ter sido salvo
         this.afterSave(user, salvedValue);
         //valor salvo
@@ -316,6 +326,13 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
     public Long count(final User user, final Map<String, String> allRequestParams) {
         //return this.repository.count(user.getCurrentOwner(), allRequestParams);
         return this.countByTemplate(user.getCurrentOwner(), allRequestParams);
+    }
+
+    public Long count(final User user, final Owner owner, final Map<String, String> allRequestParams) {
+        //return this.repository.count(user.getCurrentOwner(), allRequestParams);
+        //somente usuario do serviço do odin podem fazer requisição para aqui
+        this.checkIsUserOdin(user);
+        return this.countByTemplate(owner, allRequestParams);
     }
 
     @Override
@@ -555,6 +572,12 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         public ResultCount setCount(final Long count) {
             this.count = count;
             return this;
+        }
+    }
+
+    private void checkIsUserOdin(final User user) {
+        if (!this.odinUser.equals(user.getEmail())) {
+            throw new MuttleySecurityCredentialException("Você não tem permissão para acessar esse recurso");
         }
     }
 
