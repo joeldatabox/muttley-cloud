@@ -3,6 +3,7 @@ package br.com.muttley.mongo.infra.newagregation.operators.impl;
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.infra.newagregation.operators.Operator2;
 import br.com.muttley.mongo.infra.newagregation.projections.Projection2;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 
@@ -18,6 +19,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
+@EqualsAndHashCode(of = "wildcard")
 public class OperatorCriteriaORDER_BY_ASC2 implements Operator2 {
     private static final String wildcard = "$orderByAsc";
 

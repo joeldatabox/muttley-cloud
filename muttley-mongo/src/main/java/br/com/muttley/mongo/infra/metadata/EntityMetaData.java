@@ -15,6 +15,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.CollectionUtils;
 
 import java.beans.Transient;
 import java.math.BigDecimal;
@@ -66,7 +67,6 @@ public class EntityMetaData implements Cloneable {
     private Set<EntityMetaData> fields;
     @Setter(AccessLevel.PRIVATE)
     private String collection;
-    ;
 
     private EntityMetaData() {
     }
@@ -411,9 +411,13 @@ public class EntityMetaData implements Cloneable {
                         MuttleyProjectionOperation.project(objectToArray.get(0)),
                         MuttleyProjectionOperation.project(arrayElemAt.get(0)),
                         lookup(currentField.getCollection(), keyEntityMetaData[keyEntityMetaData.length - 1], "_id", keyEntityMetaData[keyEntityMetaData.length - 1]),
-                        unwind("$" + keyEntityMetaData[keyEntityMetaData.length - 1]))
-
+                        unwind("$" + keyEntityMetaData[keyEntityMetaData.length - 1])
+                )
         );
+    }
+
+    public boolean fieldsIsEmpty() {
+        return CollectionUtils.isEmpty(this.fields);
     }
 
     /**

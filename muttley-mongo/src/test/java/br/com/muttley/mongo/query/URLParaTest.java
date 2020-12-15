@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Joel Rodrigues Moreira on 24/10/2020.
@@ -49,6 +50,13 @@ public class URLParaTest {
         /*} catch (UnsupportedEncodingException ex) {
             throw new AssertionError(ex);
         }*/
+    }
+
+    @Test
+    public void testSplit(){
+        Stream.of("test".split("\\.")).forEach(System.out::println);
+        Stream.of("test1.test2".split("\\.")).forEach(System.out::println);
+        //System.out.println();
     }
 
 }
