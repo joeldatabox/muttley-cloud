@@ -1,7 +1,6 @@
 package br.com.muttley.security.server.controller;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
-import br.com.muttley.exception.throwables.MuttleyMethodNotAllowedException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
@@ -120,6 +119,12 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity existUserByEmailOrUserNameOrNickUsers(@RequestParam(value = "email", required = false) final String email, @RequestParam(value = "userName", required = false) final String userName, @RequestParam(value = "nickUsers", required = false) final Set<String> nickUsers) {
         return ResponseEntity.ok(service.existUserByEmailOrUserNameOrNickUsers(email, userName, nickUsers));
+    }
+
+    @RequestMapping(value = "/exist-email-or-username-or-nickUser", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity existUserByEmailOrUserNameOrNickUsers(@RequestParam(value = "param", required = true) final String param) {
+        return ResponseEntity.ok(service.existUserByEmailOrUserNameOrNickUser(param));
     }
 
     @RequestMapping(value = "/user-from-token", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})

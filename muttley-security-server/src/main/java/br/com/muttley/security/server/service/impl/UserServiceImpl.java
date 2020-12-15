@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -223,6 +224,11 @@ public class UserServiceImpl implements UserService {
             return false;
         }
         return resultCount.getCount() > 0;
+    }
+
+    @Override
+    public boolean existUserByEmailOrUserNameOrNickUser(final String param) {
+        return this.existUserByEmailOrUserNameOrNickUsers(param, param, new HashSet<>(Arrays.asList(param)));
     }
 
     private Set<String> createSetForNicks(final String email, final String userName, final Set<String> nickUsers) {

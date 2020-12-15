@@ -37,6 +37,8 @@ public interface UserService extends UserDetailsService {
 
     boolean existUserByEmailOrUserNameOrNickUsers(final String email, final String userName, final Set<String> nickUsers);
 
+    boolean existUserByEmailOrUserNameOrNickUser(final String param);
+
     User findById(final String id);
 
     Collection<User> findAll();
