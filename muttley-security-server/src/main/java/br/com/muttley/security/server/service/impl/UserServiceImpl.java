@@ -36,13 +36,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM_PREFERENCE;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -227,8 +227,40 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean existUserByEmailOrUserNameOrNickUser(final String param) {
-        return this.existUserByEmailOrUserNameOrNickUsers(param, param, new HashSet<>(Arrays.asList(param)));
+    public boolean userNameIsAvaliable(final Set<String> userNames) {
+        if (CollectionUtils.isEmpty(userNames)) {
+            throw new MuttleyBadRequestException(null, "userNames", "Informe algum valor válido para consulta");
+        }
+
+        final Set<String> nicks = userNames
+                .parallelStream()
+                .filter(it -> !StringUtils.isEmpty(it))
+                .collect(Collectors.toSet());
+        for (final String nick : nicks) {
+            if (!User.isValidUserName(nick)) {
+                return false;
+            }
+        }
+
+        final AggregationResults<UserViewServiceImpl.ResultCount> result = template.aggregate(newAggregation(
+                match(
+                        new Criteria().orOperator(
+                                where("userName").in(nicks),
+                                where("email").in(nicks),
+                                where("nickUsers").in(nicks)
+                        )
+                ), Aggregation.count().as("count")
+        ), User.class, UserViewServiceImpl.ResultCount.class);
+
+        if (result == null) {
+            return true;
+        }
+
+        final UserViewServiceImpl.ResultCount resultCount = result.getUniqueMappedResult();
+        if (resultCount == null) {
+            return true;
+        }
+        return resultCount.getCount() == 0;
     }
 
     private Set<String> createSetForNicks(final String email, final String userName, final Set<String> nickUsers) {
@@ -384,7 +416,13 @@ public class UserServiceImpl implements UserService {
 
         //caso não tenha se inform um userName, vamos gerar um randomicamente
         if (StringUtils.isEmpty(user.getUserName())) {
-            user.setUserName(user.getName().trim() + new ObjectId(new Date()).toString());
+            final String startUserName;
+            if (!StringUtils.isEmpty(user.getEmail())) {
+                startUserName = user.getEmail().substring(0, user.getEmail().indexOf("@"));
+            } else {
+                startUserName = user.getName().trim();
+            }
+            user.setUserName(startUserName + new ObjectId(new Date()).toString());
         }
 
         if (user.getId() == null) {

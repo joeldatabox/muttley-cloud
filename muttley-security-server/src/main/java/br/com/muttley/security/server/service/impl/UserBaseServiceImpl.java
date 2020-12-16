@@ -5,10 +5,13 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.security.server.service.UserBaseService;
+import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 import static br.com.muttley.model.security.Role.ROLE_USER_BASE_CREATE;
 
@@ -21,11 +24,13 @@ import static br.com.muttley.model.security.Role.ROLE_USER_BASE_CREATE;
 public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> implements UserBaseService {
     private static final String[] basicRoles = new String[]{ROLE_USER_BASE_CREATE.getSimpleName()};
     private final String ODIN_USER;
+    private final UserService userService;
 
     @Autowired
-    public UserBaseServiceImpl(final MongoTemplate template, @Value("${muttley.security.odin.user}") final String odinUser) {
+    public UserBaseServiceImpl(final MongoTemplate template, @Value("${muttley.security.odin.user}") final String odinUser, final UserService userService) {
         super(template, UserBase.class);
         this.ODIN_USER = odinUser;
+        this.userService = userService;
     }
 
     @Override
@@ -50,5 +55,10 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     @Override
     public void checkPrecondictionDelete(final User user, final String id) {
         throw new MuttleyBadRequestException(Owner.class, "id", "Não é possível deletar a base de usuário");
+    }
+
+    @Override
+    public boolean userNameIsAvaliable(final User user, final Set<String> userNames) {
+        return this.userService.userNameIsAvaliable(userNames);
     }
 }

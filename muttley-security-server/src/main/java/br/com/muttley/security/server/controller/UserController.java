@@ -121,10 +121,10 @@ public class UserController {
         return ResponseEntity.ok(service.existUserByEmailOrUserNameOrNickUsers(email, userName, nickUsers));
     }
 
-    @RequestMapping(value = "/exist-email-or-username-or-nickUser", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/userNamesIsAvaliable", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity existUserByEmailOrUserNameOrNickUsers(@RequestParam(value = "param", required = true) final String param) {
-        return ResponseEntity.ok(service.existUserByEmailOrUserNameOrNickUser(param));
+    public ResponseEntity userNameIsAvaliable(@RequestParam(value = "userNames") final Set<String> userNames) {
+        return ResponseEntity.ok(service.userNameIsAvaliable(userNames));
     }
 
     @RequestMapping(value = "/user-from-token", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})

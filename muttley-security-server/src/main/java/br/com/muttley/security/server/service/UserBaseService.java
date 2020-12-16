@@ -4,6 +4,8 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 
+import java.util.Set;
+
 /**
  * @author Joel Rodrigues Moreira on 26/11/2020.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -11,4 +13,6 @@ import br.com.muttley.model.security.UserBase;
  */
 public interface UserBaseService extends SecurityService<UserBase> {
     UserBase save(final User user, final Owner owner, final UserBase userBase);
+
+    boolean userNameIsAvaliable(final User user, final Set<String> userNames);
 }

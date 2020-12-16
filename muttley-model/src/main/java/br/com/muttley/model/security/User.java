@@ -51,9 +51,6 @@ public class User implements Serializable {
     @Transient
     @JsonIgnore
     private static final String EMAIL_PATTERN = "\\b(^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@([A-Za-z0-9-])+(\\.[A-Za-z0-9-]+)*((\\.[A-Za-z0-9]{2,})|(\\.[A-Za-z0-9]{2,}\\.[A-Za-z0-9]{2,}))$)\\b";
-    @Transient
-    @JsonIgnore
-    private static final String NICK_PATTERN = "[^a-zA-Z0-9]";
 
     @Id
     private String id;
@@ -403,7 +400,7 @@ public class User implements Serializable {
     }
 
     private boolean isValidUserName() {
-        return !isEmpty(this.userName);
+        return isValidUserName(this.userName);
     }
 
     /**
@@ -415,18 +412,16 @@ public class User implements Serializable {
                 throw new MuttleySecurityBadRequestException(User.class, "email", "Informe um email válido!");
             }
         }
-        final Pattern patternNick = Pattern.compile(NICK_PATTERN, CASE_INSENSITIVE);
         if (!CollectionUtils.isEmpty(this.nickUsers)) {
 
-            for (final String nick : this.nickUsers) {
-                final Matcher matcher = patternNick.matcher(nick);
-                if (isEmpty(nick) || !matcher.matches()) {
+            this.nickUsers.forEach(it -> {
+                if (!isValidUserName(it)) {
                     new MuttleySecurityBadRequestException(User.class, "nickUsers", "Informe nickUser válidos")
                             .addDetails("informed", this.nickUsers);
                 }
-            }
+            });
         }
-        if (!isEmpty(this.userName) && !patternNick.matcher(this.userName).matches()) {
+        if (!isValidUserName(this.userName)) {
             new MuttleySecurityBadRequestException(User.class, "nickUsers", "Informe nickUser válidos")
                     .addDetails("informed", this.nickUsers);
         }
@@ -438,6 +433,77 @@ public class User implements Serializable {
     private void checkAuthority(Authority authority) {
         if (authority instanceof Enum) {
             throw new IllegalArgumentException("Um authority não pode ser instancia de Enum: [" + authority.toString() + "]");
+        }
+    }
+
+    public static boolean isValidUserName(final String userName) {
+        return UserNameValidator.isValid(4, 70, userName);
+    }
+
+    private static final class UserNameValidator {
+        private static final char[] SUPPORT_SYMBOLS_CHAR = {'.', '_', '-'};
+
+        public static boolean isValid(final int minLength, final int maxLength, final String userName) {
+
+            // check empty
+            if (userName == null || userName.length() == 0) {
+                return false;
+            }
+
+            // check length
+            if (userName.length() < minLength || userName.length() > maxLength) {
+                return false;
+            }
+
+            return isValidUsername(userName.toCharArray());
+        }
+
+        private static boolean isValidUsername(final char[] userName) {
+
+            int currentPosition = 0;
+            boolean valid = true;
+
+            // check char by char
+            for (char c : userName) {
+
+                // if alphanumeric char, no need check, process next
+                if (!Character.isLetterOrDigit(c)) {
+
+                    // for non-alphanumeric char, also not a supported symbol, break
+                    if (!isSupportedSymbols(c)) {
+                        valid = false;
+                        break;
+                    }
+
+                    // ensures first and last char not a supported symbol
+                    if (userName[0] == c || userName[userName.length - 1] == c) {
+                        valid = false;
+                        break;
+                    }
+
+                    // ensure supported symbol does not appear consecutively
+                    // is next position also a supported symbol?
+                    if (isSupportedSymbols(userName[currentPosition + 1])) {
+                        valid = false;
+                        break;
+                    }
+
+                }
+
+                currentPosition++;
+            }
+
+            return valid;
+
+        }
+
+        private static boolean isSupportedSymbols(final char symbol) {
+            for (char temp : SUPPORT_SYMBOLS_CHAR) {
+                if (temp == symbol) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

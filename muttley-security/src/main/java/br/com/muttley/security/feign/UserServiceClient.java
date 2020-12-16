@@ -58,6 +58,6 @@ public interface UserServiceClient {
     @RequestMapping(value = "/exist-email-or-username-or-nickUsers", method = RequestMethod.GET)
     public boolean existUserByEmailOrUserNameOrNickUsers(@RequestParam(value = "email", required = false) final String email, @RequestParam(value = "userName", required = false) final String userName, @RequestParam(value = "nickUsers", required = false) final Set<String> nickUsers);
 
-    @RequestMapping(value = "/exist-email-or-username-or-nickUser", method = RequestMethod.GET)
-    public boolean existUserByEmailOrUserNameOrNickUser(@RequestParam(value = "param", required = false) final String param);
+    @RequestMapping(value = "/userNamesIsAvaliable", method = RequestMethod.GET)
+    public boolean userNameIsAvaliable(@RequestParam(value = "userNames") final Set<String> userNames);
 }
