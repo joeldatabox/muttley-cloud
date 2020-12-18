@@ -237,7 +237,7 @@ public class UserServiceImpl implements UserService {
                 .filter(it -> !StringUtils.isEmpty(it))
                 .collect(Collectors.toSet());
         for (final String nick : nicks) {
-            if (!User.isValidUserName(nick)) {
+            if (!(User.isValidEmail(nick) || User.isValidUserName(nick))) {
                 return false;
             }
         }

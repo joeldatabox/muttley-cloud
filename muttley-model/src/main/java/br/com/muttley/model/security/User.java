@@ -392,6 +392,11 @@ public class User implements Serializable {
 
     @JsonIgnore
     private boolean isValidEmail() {
+        return User.isValidEmail(this.email);
+    }
+
+    @JsonIgnore
+    public static boolean isValidEmail(final String email) {
         if ((email == null) || (email.trim().isEmpty()))
             return false;
         final Pattern pattern = Pattern.compile(EMAIL_PATTERN, CASE_INSENSITIVE);
