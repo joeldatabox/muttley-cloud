@@ -43,4 +43,11 @@ public class UserBaseController extends AbstractRestController<UserBase> {
         return ResponseEntity.ok(this.service.userNameIsAvaliable(user, userNames));
     }
 
+    @RequestMapping(value = "/userByEmailOrUserName", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity userNameIsAvaliable(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestParam(value = "emailOrUsername") final String emailOrUsername) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        return ResponseEntity.ok(this.service.findUserByEmailOrUserNameOrNickUser(user, emailOrUsername));
+    }
+
 }

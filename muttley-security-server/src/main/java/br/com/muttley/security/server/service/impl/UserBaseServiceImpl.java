@@ -4,6 +4,7 @@ import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
+import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,5 +61,10 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     @Override
     public boolean userNameIsAvaliable(final User user, final Set<String> userNames) {
         return this.userService.userNameIsAvaliable(userNames);
+    }
+
+    @Override
+    public UserView findUserByEmailOrUserNameOrNickUser(final User user, final String emailOrUserName) {
+        return new UserView(this.userService.findUserByEmailOrUserNameOrNickUser(emailOrUserName));
     }
 }

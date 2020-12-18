@@ -37,7 +37,11 @@ public class UserBaseItem {
     }
 
     @JsonCreator
-    public UserBaseItem(@JsonProperty("addedBy") final UserView addedBy, @JsonProperty("user") final UserView user, @JsonProperty("dtCreate") final Date dtCreate, @JsonProperty("status") final boolean status) {
+    public UserBaseItem(
+            @JsonProperty("addedBy") final UserView addedBy,
+            @JsonProperty("user") final UserView user,
+            @JsonProperty("dtCreate") final Date dtCreate,
+            @JsonProperty("status") final boolean status) {
         this();
         this.addedBy = addedBy;
         this.user = user;

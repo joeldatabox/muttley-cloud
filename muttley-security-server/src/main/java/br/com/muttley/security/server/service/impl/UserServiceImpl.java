@@ -204,6 +204,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findUserByEmailOrUserNameOrNickUser(final String emailOrUserName) {
+        return this.findUserByEmailOrUserNameOrNickUsers(emailOrUserName, null, null);
+    }
+
+    @Override
     public boolean existUserByEmailOrUserNameOrNickUsers(final String email, final String userName, final Set<String> nickUsers) {
         final Set<String> nicks = createSetForNicks(email, userName, nickUsers);
         final AggregationResults<UserViewServiceImpl.ResultCount> result = template.aggregate(newAggregation(
