@@ -28,18 +28,10 @@ public interface Projection3 {
         public static Projection3 from(EntityMetaData entityMetaData, List<NewQueryParam> queriesParam) {
             final Projection3 projection = new Projection3Impl();
             final ProjectionMetadata metadata = ProjectionMetadata.ProjectionMetadataBuilder.build(entityMetaData);
-            queriesParam.forEach(entrySet -> {
-                //extraindo o nome do campo
-                /*final String keyTrimap = Projection2.ProjectionBuilder.replaceAllOperators(entrySet.getKey());
-
-                final Criterion3 criterion3 = Criterion3.CriterionBuilder.from(entrySet);
-
-                projection.add(projection, entityMetaData, keyTrimap, Criterion2.Criterion2Builder.from(entrySet));*/
-                /*if (!projection.subpropertiesIsEmpty()) {
-                    projection.subproperties.forEach(it -> it.parentEntityMetadata = entityMetaData);
-                }*/
-            });
+            queriesParam.forEach(it -> projection.addCriterion(Criterion3.CriterionBuilder.from(metadata, it)));
             return projection;
         }
     }
+
+    Projection3 addCriterion(Criterion3 criterion);
 }

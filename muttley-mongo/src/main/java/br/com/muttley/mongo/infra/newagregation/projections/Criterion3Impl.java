@@ -34,6 +34,12 @@ public class Criterion3Impl implements Criterion3 {
         this.addSubcriterions(subcriterions);
     }
 
+    public Criterion3Impl(final ProjectionMetadata metadata, final Operator2 operator, final List<Criterion3> subCriterions) {
+        this(metadata);
+        this.operator = operator;
+        this.addSubcriterions(subCriterions);
+    }
+
     protected Criterion3Impl addSubcriterions(final Criterion3 criterion3) {
         if (criterion3 != null) {
             this.subcriterions.add(criterion3);

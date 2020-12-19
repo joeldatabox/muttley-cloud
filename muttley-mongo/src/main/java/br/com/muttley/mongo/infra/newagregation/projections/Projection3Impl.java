@@ -7,8 +7,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import java.util.LinkedList;
 import java.util.List;
 
-import static br.com.muttley.mongo.infra.newagregation.projections.Criterion3.CriterionBuilder.from;
-
 /**
  * @author Joel Rodrigues Moreira on 10/12/2020.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -40,5 +38,11 @@ public class Projection3Impl implements Projection3 {
     @Override
     public List<AggregationOperation> getQuery() {
         return null;
+    }
+
+    @Override
+    public Projection3 addCriterion(Criterion3 criterion) {
+        this.criterions.add(criterion);
+        return this;
     }
 }

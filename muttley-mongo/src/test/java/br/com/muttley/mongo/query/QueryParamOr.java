@@ -1,8 +1,11 @@
 package br.com.muttley.mongo.query;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.infra.newagregation.paramvalue.NewQueryParam;
 import br.com.muttley.mongo.infra.newagregation.projections.Criterion2;
+import br.com.muttley.mongo.infra.newagregation.projections.Projection3;
+import br.com.muttley.mongo.query.model.Pessoa;
 import org.junit.Test;
 import org.springframework.util.StringUtils;
 
@@ -34,6 +37,8 @@ public class QueryParamOr {
         final String primeiroValor = "afd:'5';df:'78';$or:[at:'25';$or:[hh:'855']]";
         System.out.println("item processado -> " + primeiroValor);
         this.extractParams(primeiroValor).stream().forEach(System.out::println);
+
+        Projection3.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?$or=["+primeiroValor+"]"));
     }
 
     public LinkedList<Criterion2> extractParams(final String params) {

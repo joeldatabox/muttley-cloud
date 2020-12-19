@@ -48,6 +48,9 @@ public interface Operator2 {
 
     List<Criteria> extractCriteria(final Projection2 projection, final EntityMetaData entityMetaData, final String compositePropertyWithFather, String key, final Object value);
 
+    default boolean isTypeArray() {
+        return false;
+    }
 
     public static Operator2[] values() {
         return new Operator2[]{

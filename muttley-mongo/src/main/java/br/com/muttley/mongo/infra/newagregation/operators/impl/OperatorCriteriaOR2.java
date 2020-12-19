@@ -62,6 +62,11 @@ public class OperatorCriteriaOR2 implements Operator2 {
         return new LinkedList<>();
     }
 
+    @Override
+    public boolean isTypeArray() {
+        return true;
+    }
+
     private List<NewQueryParam> getQueryParams(final String params) {
 
         List<NewQueryParam> queryParams = new LinkedList<>();
