@@ -35,10 +35,13 @@ public class QueryParamOr {
     @Test
     public void testExtractComplex() {
         final String primeiroValor = "afd:'5';df:'78';$or:[at:'25';$or:[hh:'855']]";
-        System.out.println("item processado -> " + primeiroValor);
+        final String segundoValor = "afd:'5';$or:[at:'25';$or:[hh:'855']];df:'78';";
+        extractSubArray(primeiroValor);
+        extractSubArray(segundoValor);
+        /*System.out.println("item processado -> " + primeiroValor);
         this.extractParams(primeiroValor).stream().forEach(System.out::println);
 
-        Projection3.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?$or=["+primeiroValor+"]"));
+        Projection3.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?$or=[" + primeiroValor + "]"));*/
     }
 
     public LinkedList<Criterion2> extractParams(final String params) {
@@ -90,5 +93,46 @@ public class QueryParamOr {
         );
 
         return result;
+    }
+
+    public static void extractSubArray(final String params) {
+        final String paramsWithoutSubarray;
+
+        //verificando se precisaremos fazer recursão para arrays internos
+        if (params.contains("[") || params.contains("]")) {
+            final int totalIniChave = StringUtils.countOccurrencesOf(params, "[");
+            final int totalAtribuicaoChave = StringUtils.countOccurrencesOf(params, ":[");
+            final int totalEndChave = StringUtils.countOccurrencesOf(params, "]");
+            //verificando se tem a quantidade de abertura e fechamento de chaves
+            if (!(totalIniChave == totalEndChave && totalIniChave == totalAtribuicaoChave)) {
+
+                throw new MuttleyBadRequestException(null, null, "a expressão de consulta é inválida, por favor verifique")
+                        .addDetails("expression", params)
+                        .addDetails("obs", totalIniChave > totalEndChave ? "está faltando fechar chavez" : totalIniChave < totalEndChave ? "está faltando abrir chaves" : "está faltando atribuição de arra com ':'");
+            }
+            //nesse momento teremos que pegar subblocos de informações
+            //para percorrer recursivamente
+            //1º [ e o ] e chamamos a cascata de informação com recursividade
+            //inicio do subArray
+            final int startSubArray = params.indexOf("[") + 1;
+            final int endSubArray = params.lastIndexOf("]");
+            final String subArrray = params.substring(startSubArray, endSubArray);
+            extractSubArray(subArrray);
+            //extraindo o operador do subarray
+            final int startSubOperator = params.substring(0, startSubArray - 2).lastIndexOf("$");
+            final int endSubOperator = params.substring(0, startSubArray).lastIndexOf(":[");
+            final String subOperator = params.substring(startSubOperator, endSubOperator);
+
+            //se chegou até aqui é sinal que já consumimo todos os subarrays
+            //e que podemos seguir consumindo itens individuais
+            paramsWithoutSubarray = (params.substring(0, startSubOperator) + params.substring(endSubArray + 1)).replaceAll(";;", ";");
+        } else {
+            //se chegou até aqui é sinal que não tem subarray,
+            //logo os proprios params devem ser consumidos
+            paramsWithoutSubarray = params;
+        }
+        Stream.of(paramsWithoutSubarray.split(";"))
+                .parallel()
+                .forEach(System.out::println);
     }
 }

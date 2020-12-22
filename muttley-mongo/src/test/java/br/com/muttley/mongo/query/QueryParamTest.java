@@ -3,6 +3,7 @@ package br.com.muttley.mongo.query;
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.infra.newagregation.projections.Projection;
 import br.com.muttley.mongo.infra.newagregation.projections.Projection2;
+import br.com.muttley.mongo.infra.newagregation.projections.Projection3;
 import br.com.muttley.mongo.query.model.Pessoa;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -107,8 +108,9 @@ public class QueryParamTest {
         final Projection2 criteria = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
         final Projection2 aggregation = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
         final Projection2 query = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
+        final Projection3 query3 = Projection3.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?$or=[afd:'5';$or:[at:'25';$or:[hh:'855']];df:'78']"));
 
-        criteria.getCriteria().forEach(it -> {
+        /*criteria.getCriteria().forEach(it -> {
             match(it).toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
                 System.out.println(iit.toJson());
             });
@@ -125,7 +127,8 @@ public class QueryParamTest {
             it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
                 System.out.println(iit.toJson());
             });
-        });
+        });*/
+        query3.getCriteria();
         //System.out.println(operations);
         //operations.forEach(it -> BasicDBObject);
 
