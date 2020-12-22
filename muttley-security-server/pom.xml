@@ -17,6 +17,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-jackson</artifactId>
         </dependency>

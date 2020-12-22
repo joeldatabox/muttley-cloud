@@ -13,6 +13,7 @@ import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
@@ -26,6 +27,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -69,6 +71,7 @@ public class UserServiceImpl implements UserService {
     private final InmutablesPreferencesService inmutablesPreferencesService;
     private final MongoTemplate template;
     private final DocumentNameConfig documentNameConfig;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public UserServiceImpl(final UserRepository repository,
@@ -78,7 +81,8 @@ public class UserServiceImpl implements UserService {
                            final WorkTeamService workTeamService,
                            final ObjectProvider<InmutablesPreferencesService> inmutablesPreferencesService,
                            final MongoTemplate template,
-                           final DocumentNameConfig documentNameConfig) {
+                           final DocumentNameConfig documentNameConfig,
+                           final ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.preferencesRepository = preferencesRepository;
         this.tokenHeader = tokenHeader;
@@ -87,12 +91,14 @@ public class UserServiceImpl implements UserService {
         this.inmutablesPreferencesService = inmutablesPreferencesService.getIfAvailable();
         this.template = template;
         this.documentNameConfig = documentNameConfig;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
     public User save(final User user) {
         final User salvedUser = merge(user);
         salvedUser.setPreferences(this.preferencesRepository.save(new UserPreferences().setUser(salvedUser)));
+        this.eventPublisher.publishEvent(new UserCreatedEvent(salvedUser));
         return salvedUser;
     }
 
