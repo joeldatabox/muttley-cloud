@@ -3,6 +3,7 @@ package br.com.muttley.security.server.service;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
+import br.com.muttley.model.security.UserBaseItem;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.UserView;
 
@@ -21,6 +22,8 @@ public interface UserBaseService extends SecurityService<UserBase> {
     UserView findUserByEmailOrUserNameOrNickUser(final User user, final String emailOrUserName);
 
     void addUserItem(final User user, final User userForAdd);
+
+    void addUserItem(final User user, final UserBaseItem userForAdd);
 
     void createNewUserAndAdd(final User user, final UserPayLoad payLoad);
 }

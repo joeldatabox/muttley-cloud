@@ -4,6 +4,7 @@ import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
+import br.com.muttley.model.security.UserBaseItem;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.service.UserBaseService;
@@ -82,7 +83,8 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void addUserItem(final User user, final User userForAdd) {
-        if (!this.userHasBeenIncluded(user, userForAdd)) {
+        this.addUserItem(user, new UserBaseItem(new UserView(user), new UserView(user), new Date(), true));
+        /*if (!this.userHasBeenIncluded(user, userForAdd)) {
             this.mongoTemplate.updateFirst(
                     new Query(
                             where("owner.$id").is(user.getCurrentOwner().getObjectId())
@@ -93,7 +95,25 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
                             .each(new UserItemForAdd().setAddedBy(user).setUser(userForAdd).setDtCreate(new Date()).setStatus(true)),
                     UserBase.class
             );
+        }*/
+    }
+
+    @Override
+    public void addUserItem(final User user, final UserBaseItem userForAdd) {
+        this.validator.validate(userForAdd);
+        if (this.userHasBeenIncluded(user, userForAdd.getUser().getId())) {
+            throw new MuttleyBadRequestException(UserBase.class, "users", "Usuário já está presente na base");
         }
+        this.mongoTemplate.updateFirst(
+                new Query(
+                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                ),
+                new Update()
+                        .push("users")
+                        .atPosition(FIRST)
+                        .each(userForAdd),
+                UserBase.class
+        );
     }
 
     @Override
@@ -106,11 +126,15 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
      * Verifica se o usuário já existe na base
      */
     private boolean userHasBeenIncluded(final User user, final User userForCheck) {
+        return this.userHasBeenIncluded(user, userForCheck.getId());
+    }
+
+    private boolean userHasBeenIncluded(final User user, final String id) {
         return this.mongoTemplate.exists(
                 new Query(
                         where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                .and("users.user.$id").is(new ObjectId(userForCheck.getId()))
-                ), User.class
+                                .and("users.user.$id").is(new ObjectId(id))
+                ), UserBase.class
         );
     }
 

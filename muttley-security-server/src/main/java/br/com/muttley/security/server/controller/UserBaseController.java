@@ -3,6 +3,7 @@ package br.com.muttley.security.server.controller;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
+import br.com.muttley.model.security.UserBaseItem;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserService;
@@ -59,6 +60,14 @@ public class UserBaseController extends AbstractRestController<UserBase> {
     public ResponseEntity createNewUserAndAdd(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final UserPayLoad payLoad) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         this.service.createNewUserAndAdd(user, payLoad);
+        return ResponseEntity.ok().build();
+    }
+
+    @RequestMapping(value = "/add", method = RequestMethod.POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity add(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final UserBaseItem item) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        this.service.addUserItem(user, item);
         return ResponseEntity.ok().build();
     }
 
