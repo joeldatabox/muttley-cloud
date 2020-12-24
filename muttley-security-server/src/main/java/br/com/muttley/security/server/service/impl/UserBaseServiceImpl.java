@@ -100,6 +100,10 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void addUserItem(final User user, final UserBaseItem userForAdd) {
+        userForAdd.setAddedBy(new UserView(user));
+        if(userForAdd.getDtCreate() == null){
+            userForAdd.setDtCreate(new Date());
+        }
         this.validator.validate(userForAdd);
         if (this.userHasBeenIncluded(user, userForAdd.getUser().getId())) {
             throw new MuttleyBadRequestException(UserBase.class, "users", "Usuário já está presente na base");

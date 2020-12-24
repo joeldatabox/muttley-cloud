@@ -1,7 +1,11 @@
 package br.com.muttley.model.security;
 
+import br.com.muttley.model.security.jackson.UserViewDeserializer;
+import br.com.muttley.model.security.jackson.UserViewSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,10 +25,14 @@ import java.util.Date;
 public class UserBaseItem {
     @DBRef
     @NotNull(message = "Informe o usuário que está efetuando essa operação")
+    @JsonSerialize(using = UserViewSerializer.class)
+    @JsonDeserialize(using = UserViewDeserializer.class)
     private UserView addedBy;
 
     @DBRef
     @NotNull(message = "Informe o usuário participante da base")
+    @JsonSerialize(using = UserViewSerializer.class)
+    @JsonDeserialize(using = UserViewDeserializer.class)
     private UserView user;
 
     @NotNull
