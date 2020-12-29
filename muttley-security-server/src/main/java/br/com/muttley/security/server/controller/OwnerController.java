@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.controller;
 
 import br.com.muttley.model.Historic;
+import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.OwnerService;
@@ -33,10 +34,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping(value = "/api/v1/owners", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
 public class OwnerController extends AbstractRestController<Owner> {
+    private final OwnerService service;
 
     @Autowired
     public OwnerController(final OwnerService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
         super(service, userService, eventPublisher);
+        this.service = service;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
@@ -98,5 +101,11 @@ public class OwnerController extends AbstractRestController<Owner> {
     @ResponseStatus(HttpStatus.OK)
     public final ResponseEntity count(@RequestParam final Map<String, String> allRequestParams, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(String.valueOf(service.count(null, allRequestParams)));
+    }
+
+    @RequestMapping(value = "/by-user", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public final ResponseEntity loadOwnersOfUser(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+        return ResponseEntity.ok(String.valueOf(this.service.loadOwnersOfUser(this.userService.getUserFromToken(new JwtToken(tokenHeader)))));
     }
 }

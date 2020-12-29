@@ -3,16 +3,33 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.OwnerData;
+import br.com.muttley.model.security.OwnerDataImpl;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserBase;
+import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.events.OwnerCreateEvent;
 import br.com.muttley.security.server.repository.OwnerRepository;
 import br.com.muttley.security.server.service.OwnerService;
+import com.mongodb.BasicDBObject;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.List;
+
+import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * @author Joel Rodrigues Moreira on 26/02/18.
@@ -24,13 +41,15 @@ import static java.util.Objects.isNull;
 public class OwnerServiceImpl extends SecurityServiceImpl<Owner> implements OwnerService {
     private final OwnerRepository repository;
     private final ApplicationEventPublisher eventPublisher;
+    private final DocumentNameConfig documentNameConfig;
     private static final String[] basicRoles = new String[]{"owner"};
 
     @Autowired
-    public OwnerServiceImpl(final OwnerRepository repository, final MongoTemplate mongoTemplate, final ApplicationEventPublisher eventPublisher) {
+    public OwnerServiceImpl(final OwnerRepository repository, final MongoTemplate mongoTemplate, final ApplicationEventPublisher eventPublisher, final DocumentNameConfig documentNameConfig) {
         super(repository, mongoTemplate, Owner.class);
         this.repository = repository;
         this.eventPublisher = eventPublisher;
+        this.documentNameConfig = documentNameConfig;
     }
 
     @Override
@@ -78,5 +97,47 @@ public class OwnerServiceImpl extends SecurityServiceImpl<Owner> implements Owne
             throw new MuttleyNotFoundException(Owner.class, "name", "Registro não encontrado")
                     .addDetails("name", name);
         return clienteOwner;
+    }
+
+    @Override
+    public List<? extends OwnerData> loadOwnersOfUser(final User user) {
+        /**
+         * db.getCollection("muttley-users-base").aggregate([
+         *     {$match:{"users.user.$id":ObjectId("5feb26305c7fab2d6479b3ed")}},
+         *     {$unwind:"$users"},
+         *     {$match:{"users.user.$id":ObjectId("5feb26305c7fab2d6479b3ed")}},
+         *     {$project:{owner:{$objectToArray:"$owner"}}},
+         *     {$project:{owner:{$arrayElemAt:["$owner.v", 1]}}},
+         *     {$lookup:{
+         *         from: "muttley-owners",
+         *         localField: "owner",
+         *         foreignField:"_id",
+         *         as: "owner"
+         *     }},
+         *     {$unwind:"$owner"},
+         *     {$project:{_id:"$owner._id", name:"$owner.name", description:"$owner.description", userMaster:"$owner.userMaster"}}
+         * ])
+         */
+        final AggregationResults<OwnerDataImpl> owners = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("users.user.$id").is(new ObjectId(user.getId()))),
+                        unwind("$users"),
+                        match(where("users.user.$id").is(new ObjectId(user.getId()))),
+                        project().and(context -> new BasicDBObject("$objectToArray", "$owner")).as("owner"),
+                        project().and(context -> new BasicDBObject("$arrayElemAt", asList("$owner.v", 1))).as("owner"),
+                        lookup(this.documentNameConfig.getNameCollectionOwner(), "owner", "foreignField", "owner"),
+                        unwind("$owner"),
+                        project().and("$owner._id").as("_id")
+                                .and("$owner.name").as("name")
+                                .and("$owner.description").as("description")
+                                .and("$owner.userMaster").as("userMaster")
+                ),
+                UserBase.class,
+                OwnerDataImpl.class
+        );
+        if (owners == null || CollectionUtils.isEmpty(owners.getMappedResults())) {
+            throw new MuttleyBadRequestException(Owner.class, null, "Nenhum registro encontrado");
+        }
+        return owners.getMappedResults();
     }
 }

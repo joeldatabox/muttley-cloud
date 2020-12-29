@@ -1,7 +1,6 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.annotations.index.CompoundIndexes;
-import br.com.muttley.annotations.valitators.CheckIndex;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
@@ -28,7 +27,7 @@ import javax.validation.constraints.NotNull;
 @CompoundIndexes({
         @CompoundIndex(name = "userMaster_index_unique", def = "{'userMaster': 1}", unique = true)
 })
-public class Owner implements br.com.muttley.model.Document {
+public class Owner implements br.com.muttley.model.Document, OwnerData {
     @Id
     protected String id;
     @Indexed
@@ -57,6 +56,7 @@ public class Owner implements br.com.muttley.model.Document {
         return this;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -66,6 +66,7 @@ public class Owner implements br.com.muttley.model.Document {
         return this;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
@@ -75,6 +76,7 @@ public class Owner implements br.com.muttley.model.Document {
         return this;
     }
 
+    @Override
     public User getUserMaster() {
         return userMaster;
     }
@@ -124,5 +126,9 @@ public class Owner implements br.com.muttley.model.Document {
     @Override
     public int hashCode() {
         return Objects.hashCode(id, 93);
+    }
+
+    public OwnerData toOwnerData() {
+        return new OwnerDataImpl(this);
     }
 }
