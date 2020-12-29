@@ -1,5 +1,6 @@
 package br.com.muttley.model.security.jackson;
 
+import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.model.security.events.UserResolverEvent;
 import com.fasterxml.jackson.core.JsonParser;
@@ -20,12 +21,12 @@ import java.io.IOException;
  * @project muttley-cloud
  */
 @Component
-public class UserViewDeserializer extends JsonDeserializer<UserView> {
+public class UserDataDeserializer extends JsonDeserializer<UserData> {
     @Autowired
     protected ApplicationEventPublisher eventPublisher;
 
     @Override
-    public UserView deserialize(final JsonParser parser, final DeserializationContext context) throws IOException, JsonProcessingException {
+    public UserData deserialize(final JsonParser parser, final DeserializationContext context) throws IOException, JsonProcessingException {
         final ObjectCodec oc = parser.getCodec();
         final JsonNode node = oc.readTree(parser);
         //verificando se o eventPublisher foi injetado no contexto do spring
@@ -34,7 +35,7 @@ public class UserViewDeserializer extends JsonDeserializer<UserView> {
             //disparando para alguem ouvir esse evento
             this.eventPublisher.publishEvent(event);
             //retornando valor recuperado
-            return event.isResolved() ? new UserView(event.getUserResolver()) : new UserView().setUserName(event.getUserName());
+            return event.isResolved() ? event.getUserResolver() : new UserView().setUserName(event.getUserName());
         }
         //deserializando o usuário com apenas o username mesmo
         return node.isNull() ? null : new UserView().setUserName(node.asText());

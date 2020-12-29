@@ -21,7 +21,7 @@ import java.util.Set;
 @Setter
 @Accessors(chain = true)
 @EqualsAndHashCode(of = "id")
-public class UserView implements Document {
+public class UserView implements UserData, Document {
     private String id;
     private String name;
     private String description;

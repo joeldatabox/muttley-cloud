@@ -1,7 +1,7 @@
 package br.com.muttley.model.security;
 
-import br.com.muttley.model.security.jackson.UserViewDeserializer;
-import br.com.muttley.model.security.jackson.UserViewSerializer;
+import br.com.muttley.model.security.jackson.UserDataDeserializer;
+import br.com.muttley.model.security.jackson.UserDataSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -25,15 +25,15 @@ import java.util.Date;
 public class UserBaseItem {
     @DBRef
     @NotNull(message = "Informe o usuário que está efetuando essa operação")
-    @JsonSerialize(using = UserViewSerializer.class)
-    @JsonDeserialize(using = UserViewDeserializer.class)
-    private UserView addedBy;
+    @JsonSerialize(using = UserDataSerializer.class)
+    @JsonDeserialize(using = UserDataDeserializer.class)
+    private UserData addedBy;
 
     @DBRef
     @NotNull(message = "Informe o usuário participante da base")
-    @JsonSerialize(using = UserViewSerializer.class)
-    @JsonDeserialize(using = UserViewDeserializer.class)
-    private UserView user;
+    @JsonSerialize(using = UserDataSerializer.class)
+    @JsonDeserialize(using = UserDataDeserializer.class)
+    private UserData user;
 
     @NotNull
     private Date dtCreate;
@@ -46,8 +46,8 @@ public class UserBaseItem {
 
     @JsonCreator
     public UserBaseItem(
-            @JsonProperty("addedBy") final UserView addedBy,
-            @JsonProperty("user") final UserView user,
+            @JsonProperty("addedBy") final UserData addedBy,
+            @JsonProperty("user") final UserData user,
             @JsonProperty("dtCreate") final Date dtCreate,
             @JsonProperty("status") final boolean status) {
         this();

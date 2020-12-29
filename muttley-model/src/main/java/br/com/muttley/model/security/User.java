@@ -44,7 +44,7 @@ import static org.springframework.util.StringUtils.isEmpty;
         @CompoundIndex(name = "email_index", def = "{'email' : 1}"),
         @CompoundIndex(name = "nickUsers_index", def = "{'nickUsers' : 1}")
 })
-public class User implements Serializable {
+public class User implements Serializable, UserData {
     @Transient
     @JsonIgnore
     private static final int SALT = 8;
@@ -125,6 +125,7 @@ public class User implements Serializable {
         this.setPasswd(payLoad.getPasswd());
     }
 
+    @Override
     public String getId() {
         return id;
     }
@@ -172,6 +173,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -181,6 +183,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
@@ -190,6 +193,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @Override
     public String getUserName() {
         return userName;
     }
@@ -199,6 +203,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @Override
     public String getEmail() {
         return email;
     }
@@ -208,6 +213,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @Override
     public Set<String> getNickUsers() {
         return nickUsers;
     }

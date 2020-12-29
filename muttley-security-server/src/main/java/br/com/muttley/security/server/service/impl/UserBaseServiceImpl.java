@@ -83,7 +83,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void addUserItem(final User user, final User userForAdd) {
-        this.addUserItem(user, new UserBaseItem(new UserView(user), new UserView(user), new Date(), true));
+        this.addUserItem(user, new UserBaseItem(user, userForAdd, new Date(), true));
         /*if (!this.userHasBeenIncluded(user, userForAdd)) {
             this.mongoTemplate.updateFirst(
                     new Query(
@@ -100,8 +100,8 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void addUserItem(final User user, final UserBaseItem userForAdd) {
-        userForAdd.setAddedBy(new UserView(user));
-        if(userForAdd.getDtCreate() == null){
+        userForAdd.setAddedBy(user);
+        if (userForAdd.getDtCreate() == null) {
             userForAdd.setDtCreate(new Date());
         }
         this.validator.validate(userForAdd);
