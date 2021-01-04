@@ -1,8 +1,8 @@
 package br.com.muttley.security.zuul.client.service.config;
 
 import br.com.muttley.redis.service.RedisService;
+import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
-import br.com.muttley.security.feign.WorkTeamServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.component.UserAfterCacheLoadListener;
@@ -50,7 +50,7 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public UserAfterCacheLoadListener creaUserAfterCacheLoadListener(final UserPreferenceServiceClient userPreferenceServiceClient, final WorkTeamServiceClient workTeamServiceClient) {
-        return new UserAfterCacheLoadListener(userPreferenceServiceClient, workTeamServiceClient);
+    public UserAfterCacheLoadListener creaUserAfterCacheLoadListener(final UserPreferenceServiceClient userPreferenceServiceClient, final OwnerServiceClient ownerServiceClient) {
+        return new UserAfterCacheLoadListener(userPreferenceServiceClient, ownerServiceClient);
     }
 }

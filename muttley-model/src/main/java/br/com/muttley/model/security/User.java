@@ -55,8 +55,7 @@ public class User implements Serializable, UserData {
     @Id
     private String id;
     @Transient
-    private Set<WorkTeam> workTeams;//os workteam devem ser carregados separadamente
-    @Transient
+    @Deprecated
     private WorkTeam currentWorkTeam;
     @NotBlank(message = "O campo nome não pode ser nulo!")
     @Size(min = 4, max = 200, message = "O campo nome deve ter de 4 a 200 caracteres!")
@@ -82,13 +81,11 @@ public class User implements Serializable, UserData {
         this.authorities = new LinkedHashSet();
         this.enable = true;
         this.lastPasswordResetDate = Date.from(Instant.now());
-        this.workTeams = new HashSet();
     }
 
     @JsonCreator
     public User(
             @JsonProperty("id") final String id,
-            @JsonProperty("workTeams") final Set<WorkTeam> workTeams,
             @JsonProperty("currentWorkTeam") final WorkTeam currentWorkTeam,
             @JsonProperty("name") final String name,
             @JsonProperty("description") final String description,
@@ -101,7 +98,6 @@ public class User implements Serializable, UserData {
             @JsonProperty("authorities") final Set<Authority> authorities,
             @JsonProperty("preferences") final UserPreferences preferences) {
         this.id = id;
-        this.workTeams = workTeams;
         this.currentWorkTeam = currentWorkTeam;
         this.name = name;
         this.description = description;
@@ -132,27 +128,6 @@ public class User implements Serializable, UserData {
 
     public User setId(final String id) {
         this.id = id;
-        return this;
-    }
-
-    public Set<WorkTeam> getWorkTeams() {
-        return workTeams;
-    }
-
-    public User setWorkTeams(final Collection<? extends WorkTeam> workTeams) {
-        this.workTeams = new HashSet<>(workTeams);
-        return this;
-    }
-
-    public User addWorkTeam(final Collection<WorkTeam> workTeams) {
-        this.workTeams.addAll(workTeams);
-        return this;
-    }
-
-    public User addWorkTeam(final WorkTeam... workTeams) {
-        for (WorkTeam work : workTeams) {
-            this.workTeams.add(work);
-        }
         return this;
     }
 

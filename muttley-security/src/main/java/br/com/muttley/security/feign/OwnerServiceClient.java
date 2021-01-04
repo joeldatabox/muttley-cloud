@@ -4,6 +4,12 @@ import br.com.muttley.feign.service.config.FeignTimeoutConfig;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
  * @author Joel Rodrigues Moreira on 18/04/18.
@@ -12,5 +18,6 @@ import org.springframework.cloud.netflix.feign.FeignClient;
  */
 @FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/owners", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
 public interface OwnerServiceClient extends RestControllerClient<Owner> {
-
+    @RequestMapping(value = "/find-by-user", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    List findByUser();
 }
