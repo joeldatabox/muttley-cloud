@@ -125,7 +125,7 @@ public class OwnerServiceImpl extends SecurityServiceImpl<Owner> implements Owne
                         match(where("users.user.$id").is(new ObjectId(user.getId()))),
                         project().and(context -> new BasicDBObject("$objectToArray", "$owner")).as("owner"),
                         project().and(context -> new BasicDBObject("$arrayElemAt", asList("$owner.v", 1))).as("owner"),
-                        lookup(this.documentNameConfig.getNameCollectionOwner(), "owner", "foreignField", "owner"),
+                        lookup(this.documentNameConfig.getNameCollectionOwner(), "owner", "_id", "owner"),
                         unwind("$owner"),
                         project().and("$owner._id").as("_id")
                                 .and("$owner.name").as("name")

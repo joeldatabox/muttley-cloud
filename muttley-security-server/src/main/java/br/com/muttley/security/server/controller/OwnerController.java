@@ -103,9 +103,9 @@ public class OwnerController extends AbstractRestController<Owner> {
         return ResponseEntity.ok(String.valueOf(service.count(null, allRequestParams)));
     }
 
-    @RequestMapping(value = "/by-user", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
+    @RequestMapping(value = "/by-user", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public final ResponseEntity loadOwnersOfUser(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
-        return ResponseEntity.ok(String.valueOf(this.service.loadOwnersOfUser(this.userService.getUserFromToken(new JwtToken(tokenHeader)))));
+        return ResponseEntity.ok(this.service.loadOwnersOfUser(this.userService.getUserFromToken(new JwtToken(tokenHeader))));
     }
 }

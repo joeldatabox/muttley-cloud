@@ -2,9 +2,13 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.security.jackson.UserDataDeserializer;
 import br.com.muttley.model.security.jackson.UserDataSerializer;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * @author Joel Rodrigues Moreira 29/12/2020
@@ -12,15 +16,26 @@ import lombok.Getter;
  * @project muttley-cloud
  */
 @Getter
+@Setter
+@Accessors(chain = true)
 public class OwnerDataImpl implements OwnerData {
-    private final String id;
-    private final String name;
-    private final String description;
+    private String id;
+    private String name;
+    private String description;
     @JsonSerialize(using = UserDataSerializer.class)
     @JsonDeserialize(using = UserDataDeserializer.class)
-    private final UserData userMaster;
+    private UserData userMaster;
 
-    public OwnerDataImpl(final String id, final String name, final String description, final UserData userMaster) {
+    public OwnerDataImpl() {
+    }
+
+    @JsonCreator
+    public OwnerDataImpl(
+            @JsonProperty("id") final String id,
+            @JsonProperty("name") final String name,
+            @JsonProperty("description") final String description,
+            @JsonProperty("userMaster") final UserData userMaster) {
+        this();
         this.id = id;
         this.name = name;
         this.description = description;
