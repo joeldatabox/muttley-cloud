@@ -4,12 +4,12 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
+import br.com.muttley.security.feign.WorkTeamServiceClient;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PREFERENCE;
-import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM_PREFERENCE;
 
 /**
  * @author Joel Rodrigues Moreira on 17/05/18.
@@ -28,42 +27,40 @@ import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM
 @Component
 public class UserAfterCacheLoadListener implements ApplicationListener<UserAfterCacheLoadEvent> {
 
-    private final UserPreferenceServiceClient preferenceServiceClient;
-    private final OwnerServiceClient ownerServiceClient;
+    private final UserPreferenceServiceClient preferenceService;
+    private final OwnerServiceClient ownerService;
+    private final WorkTeamServiceClient workTeamService;
 
     @Autowired
-    public UserAfterCacheLoadListener(final UserPreferenceServiceClient preferenceServiceClient, final OwnerServiceClient ownerServiceClient) {
-        this.preferenceServiceClient = preferenceServiceClient;
-        this.ownerServiceClient = ownerServiceClient;
+    public UserAfterCacheLoadListener(final UserPreferenceServiceClient preferenceService, final OwnerServiceClient ownerService, final WorkTeamServiceClient workTeamService) {
+        this.preferenceService = preferenceService;
+        this.ownerService = ownerService;
+        this.workTeamService = workTeamService;
     }
 
     @Override
     public void onApplicationEvent(final UserAfterCacheLoadEvent event) {
         final User user = event.getSource();
         //carregando preferencias
-        final UserPreferences preferences = preferenceServiceClient.getPreferences(user.getId());
+        final UserPreferences preferences = preferenceService.getPreferences(user.getId());
         try {
             if (!preferences.contains(OWNER_PREFERENCE)) {
-                final List<Owner> owners = this.ownerServiceClient.findByUser();
+                final List<Owner> owners = this.ownerService.findByUser();
                 //final List<WorkTeam> itens = workteamService.findByUser();
                 final Preference preference = new Preference(OWNER_PREFERENCE, owners.get(0).getId());
                 preferences.set(preference);
-                preferenceServiceClient.setPreference(user.getId(), preference);
+                preferenceService.setPreference(user.getId(), preference);
 
-                //user.setCurrentWorkTeam(owners.get(0));
+                user.setCurrentOwner(owners.get(0));
                 //carregando authorities
-                //user.setAuthorities(this.workteamService.loadCurrentRoles());
-                //user.setAuthorities(itens.get(0).getRoles());
+                user.setAuthorities(this.workTeamService.loadCurrentRoles());
             } else {
-                final ObjectId idWorkTeam = new ObjectId(preferences.get(WORK_TEAM_PREFERENCE).getValue().toString());
+                final ObjectId idOwner = new ObjectId(preferences.get(OWNER_PREFERENCE).getValue().toString());
                 user.setPreferences(preferences);
-                //final WorkTeam workTeam = workteamService.findById(idWorkTeam.toString());
-                //user.setCurrentWorkTeam(workTeam);
+                final Owner owner = ownerService.findByUserAndId(idOwner.toString());
+                user.setCurrentOwner(owner);
                 //carregando authorities
-                /*if (workTeam != null) {
-                    user.setAuthorities(workTeam.getRoles());
-                }*/
-                //user.setAuthorities(this.workteamService.loadCurrentRoles());
+                user.setAuthorities(this.workTeamService.loadCurrentRoles());
             }
         } catch (MuttleyNotFoundException ex) {
             throw new MuttleySecurityCredentialException("Não foi possível recuperar informações do seu usuáiro");

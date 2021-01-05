@@ -3,7 +3,7 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
-import br.com.muttley.security.server.events.ConfigFirstWorkTeamEvent;
+import br.com.muttley.security.server.events.ConfigFirstOwnerPreferenceEvent;
 import br.com.muttley.security.server.service.UserRolesView;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
-import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM_PREFERENCE;
+import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PREFERENCE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -35,8 +35,8 @@ public class UserRolesViewImpl implements UserRolesView {
 
     @Override
     public Set<Role> findByUser(final User user) {
-        if (!user.containsPreference(WORK_TEAM_PREFERENCE)) {
-            this.eventPublisher.publishEvent(new ConfigFirstWorkTeamEvent(user));
+        if (!user.containsPreference(OWNER_PREFERENCE)) {
+            this.eventPublisher.publishEvent(new ConfigFirstOwnerPreferenceEvent(user));
         }
 
         final UserRolesViewResul result = this.template.findOne(new Query(

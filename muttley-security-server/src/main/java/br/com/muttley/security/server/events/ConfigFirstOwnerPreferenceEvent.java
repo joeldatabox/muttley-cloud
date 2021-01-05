@@ -8,10 +8,10 @@ import org.springframework.context.ApplicationEvent;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class ConfigFirstWorkTeamEvent extends ApplicationEvent {
+public class ConfigFirstOwnerPreferenceEvent extends ApplicationEvent {
     private final User owner;
 
-    public ConfigFirstWorkTeamEvent(final User owner) {
+    public ConfigFirstOwnerPreferenceEvent(final User owner) {
         super(owner);
         this.owner = owner;
     }

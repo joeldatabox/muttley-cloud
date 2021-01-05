@@ -24,10 +24,12 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.replaceRoot;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -139,5 +141,42 @@ public class OwnerServiceImpl extends SecurityServiceImpl<Owner> implements Owne
             throw new MuttleyBadRequestException(Owner.class, null, "Nenhum registro encontrado");
         }
         return owners.getMappedResults();
+    }
+
+    @Override
+    public Owner findByUserAndId(final User user, final String id) {
+        /**
+         * db.getCollection("muttley-users-base").aggregate([
+         *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6"), "users.user.$id":ObjectId("5feb26305c7fab2d6479b3ed")}},
+         *     {$limit:1},
+         *     {$project:{owner:{$objectToArray:"$owner"}}},
+         *     {$project:{owner:{$arrayElemAt:["$owner.v", 1]}}},
+         *     {$lookup:{
+         *         from: "muttley-owners",
+         *         localField: "owner",
+         *         foreignField:"_id",
+         *         as: "owner"
+         *     }},
+         *     {$unwind:"$owner"},
+         *     {$replaceRoot:{newRoot:"$owner"}}
+         * ])
+         */
+        final AggregationResults<Owner> owners = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(new ObjectId(id)).and("users.user.$id").is(new ObjectId(user.getId()))),
+                        limit(1l),
+                        project().and(context -> new BasicDBObject("$objectToArray", "$owner")).as("owner"),
+                        project().and(context -> new BasicDBObject("$arrayElemAt", asList("$owner.v", 1))).as("owner"),
+                        lookup(this.documentNameConfig.getNameCollectionOwner(), "owner", "_id", "owner"),
+                        unwind("$owner"),
+                        replaceRoot("$owner")
+                ),
+                UserBase.class,
+                Owner.class
+        );
+        if (owners == null || owners.getUniqueMappedResult() == null) {
+            throw new MuttleyBadRequestException(Owner.class, null, "Nenhum registro encontrado");
+        }
+        return owners.getUniqueMappedResult();
     }
 }

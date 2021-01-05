@@ -30,7 +30,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static java.util.Objects.isNull;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.stream.Collectors.toSet;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -55,8 +54,7 @@ public class User implements Serializable, UserData {
     @Id
     private String id;
     @Transient
-    @Deprecated
-    private WorkTeam currentWorkTeam;
+    private Owner currentOwner;
     @NotBlank(message = "O campo nome não pode ser nulo!")
     @Size(min = 4, max = 200, message = "O campo nome deve ter de 4 a 200 caracteres!")
     private String name;
@@ -86,7 +84,7 @@ public class User implements Serializable, UserData {
     @JsonCreator
     public User(
             @JsonProperty("id") final String id,
-            @JsonProperty("currentWorkTeam") final WorkTeam currentWorkTeam,
+            @JsonProperty("currentOwner") final Owner currentOwner,
             @JsonProperty("name") final String name,
             @JsonProperty("description") final String description,
             @JsonProperty("userName") final String userName,
@@ -98,7 +96,7 @@ public class User implements Serializable, UserData {
             @JsonProperty("authorities") final Set<Authority> authorities,
             @JsonProperty("preferences") final UserPreferences preferences) {
         this.id = id;
-        this.currentWorkTeam = currentWorkTeam;
+        this.currentOwner = currentOwner;
         this.name = name;
         this.description = description;
         this.userName = userName;
@@ -133,18 +131,11 @@ public class User implements Serializable, UserData {
 
     @JsonIgnore
     public Owner getCurrentOwner() {
-        if (isNull(getCurrentWorkTeam())) {
-            return null;
-        }
-        return getCurrentWorkTeam().getOwner();
+        return this.currentOwner;
     }
 
-    public WorkTeam getCurrentWorkTeam() {
-        return currentWorkTeam;
-    }
-
-    public User setCurrentWorkTeam(final WorkTeam currentWorkTeam) {
-        this.currentWorkTeam = currentWorkTeam;
+    public User setCurrentOwner(final Owner currentOwner) {
+        this.currentOwner = currentOwner;
         return this;
     }
 

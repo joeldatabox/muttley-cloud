@@ -15,7 +15,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import static br.com.muttley.model.security.Role.ROLE_OWNER;
-import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM_PREFERENCE;
+import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PREFERENCE;
 
 /**
  * @author Joel Rodrigues Moreira on 16/05/18.
@@ -51,7 +51,7 @@ public class OwnerCreateEventListener implements ApplicationListener<OwnerCreate
                 .setUserMaster(userMaster)
                 .addMember(userMaster)
                 .addRole(ROLE_OWNER);
-        userMaster.setCurrentWorkTeam(workTeam);
+        userMaster.setCurrentOwner(workTeam.getOwner());
 
         workTeam = this.service.save(userMaster, workTeam);
 
@@ -59,8 +59,8 @@ public class OwnerCreateEventListener implements ApplicationListener<OwnerCreate
          * tudo isso para evitar erros
          */
         final UserPreferences preference = this.userService.loadPreference(userMaster);
-        if (!preference.contains(WORK_TEAM_PREFERENCE)) {
-            preference.set(WORK_TEAM_PREFERENCE, workTeam);
+        if (!preference.contains(OWNER_PREFERENCE)) {
+            preference.set(OWNER_PREFERENCE, workTeam.getOwner());
             //salvando as alterções das preferencias
             this.userService.save(userMaster, preference);
         }

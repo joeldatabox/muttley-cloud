@@ -108,4 +108,10 @@ public class OwnerController extends AbstractRestController<Owner> {
     public final ResponseEntity loadOwnersOfUser(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(this.service.loadOwnersOfUser(this.userService.getUserFromToken(new JwtToken(tokenHeader))));
     }
+
+    @RequestMapping(value = "/by-user-and-id/{id}", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public final ResponseEntity findByUserAndId(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @PathVariable("id") final String id) {
+        return ResponseEntity.ok(this.service.findByUserAndId(this.userService.getUserFromToken(new JwtToken(tokenHeader)), id));
+    }
 }

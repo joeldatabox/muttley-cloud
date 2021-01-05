@@ -20,4 +20,9 @@ public interface OwnerService extends Service<Owner> {
      * a colection de UserBase
      */
     List<? extends OwnerData> loadOwnersOfUser(final User user);
+
+    /**
+     * Busca um owner pelo id que tenha vinculo com o usuário informado
+     */
+    Owner findByUserAndId(final User user, final String id);
 }

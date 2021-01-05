@@ -45,7 +45,7 @@ public class UserView implements UserData, Document {
                 .setUserName(user.getUserName())
                 .setEmail(user.getEmail())
                 .setNickUsers(user.getNickUsers())
-                .setOwner(user.getCurrentWorkTeam());
+                .setOwner(user.getCurrentOwner());
     }
 
     private UserView setOwner(final WorkTeam workTeam) {

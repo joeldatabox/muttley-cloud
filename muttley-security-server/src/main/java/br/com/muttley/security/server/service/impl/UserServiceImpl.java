@@ -21,8 +21,8 @@ import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.InmutablesPreferencesService;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
+import br.com.muttley.security.server.service.OwnerService;
 import br.com.muttley.security.server.service.UserService;
-import br.com.muttley.security.server.service.WorkTeamService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static br.com.muttley.model.security.preference.UserPreferences.WORK_TEAM_PREFERENCE;
+import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PREFERENCE;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
     private final UserPreferencesRepository preferencesRepository;
     private final JwtTokenUtilService tokenUtil;
     private final String tokenHeader;
-    private final WorkTeamService workTeamService;
+    private final OwnerService ownerService;
     private final InmutablesPreferencesService inmutablesPreferencesService;
     private final MongoTemplate template;
     private final DocumentNameConfig documentNameConfig;
@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
                            final UserPreferencesRepository preferencesRepository,
                            @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
                            final JwtTokenUtilService tokenUtil,
-                           final WorkTeamService workTeamService,
+                           final OwnerService ownerService,
                            final ObjectProvider<InmutablesPreferencesService> inmutablesPreferencesService,
                            final MongoTemplate template,
                            final DocumentNameConfig documentNameConfig,
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
         this.preferencesRepository = preferencesRepository;
         this.tokenHeader = tokenHeader;
         this.tokenUtil = tokenUtil;
-        this.workTeamService = workTeamService;
+        this.ownerService = ownerService;
         this.inmutablesPreferencesService = inmutablesPreferencesService.getIfAvailable();
         this.template = template;
         this.documentNameConfig = documentNameConfig;
@@ -318,8 +318,8 @@ public class UserServiceImpl implements UserService {
                 final User user = findByUserName(userName);
                 final UserPreferences preferences = this.preferencesRepository.findByUser(user);
                 user.setPreferences(preferences);
-                if (preferences.contains(WORK_TEAM_PREFERENCE)) {
-                    user.setCurrentWorkTeam(this.workTeamService.findById(user, preferences.get(WORK_TEAM_PREFERENCE).getValue().toString()));
+                if (preferences.contains(OWNER_PREFERENCE)) {
+                    user.setCurrentOwner(this.ownerService.findById(user, preferences.get(OWNER_PREFERENCE).getValue().toString()));
                 }
                 return user;
             }
