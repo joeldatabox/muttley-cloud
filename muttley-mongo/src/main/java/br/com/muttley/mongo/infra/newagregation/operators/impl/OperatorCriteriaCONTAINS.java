@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
  * @project muttley-cloud
  */
 public class OperatorCriteriaCONTAINS extends AbstractOperatorCriteria<Criteria> {
-    private static final String wildcard = ".$contains";
+    public static final String wildcard = ".$contains";
 
     @Override
     public String getWildcard() {

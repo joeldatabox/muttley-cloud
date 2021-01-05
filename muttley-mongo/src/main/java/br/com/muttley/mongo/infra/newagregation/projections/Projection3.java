@@ -26,8 +26,8 @@ public interface Projection3 {
         }
 
         public static Projection3 from(EntityMetaData entityMetaData, List<NewQueryParam> queriesParam) {
-            final Projection3 projection = new Projection3Impl();
             final ProjectionMetadata metadata = ProjectionMetadata.ProjectionMetadataBuilder.build(entityMetaData);
+            final Projection3 projection = new Projection3Impl(metadata);
             queriesParam.forEach(it -> projection.addCriterion(Criterion3.CriterionBuilder.from(metadata, it)));
             return projection;
         }

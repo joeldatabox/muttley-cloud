@@ -29,6 +29,12 @@ public class ProjectionMetadataImpl implements ProjectionMetadata {
     }
 
     @Override
+    public Object converteValueFor(String key, Object value) {
+        final EntityMetaData metaData = this.entityMetaData.getFieldByName(key);
+        return metaData != null ? metaData.converteValue(value) : value;
+    }
+
+    @Override
     public List<AggregationOperation> getLookupOperations(String key) {
         return this.createChainkeys(key)//gerando uma cadeia de chaves para fazer as navegaçõoes
                 //transformando em um fluxo

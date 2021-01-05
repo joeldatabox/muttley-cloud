@@ -11,7 +11,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.skip
  * @project muttley-cloud
  */
 public class OperatorCriteriaSKIP extends AbstractOperatorAggregationOperation {
-    private static final String wildcard = "$skip";
+    public static final String wildcard = "$skip";
 
     @Override
     public String getWildcard() {

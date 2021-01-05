@@ -11,6 +11,12 @@ import java.util.List;
  * @project muttley-cloud
  */
 public interface ProjectionMetadata {
+
+    /**
+     * Converte o parametro para um determinado campo
+     */
+    Object converteValueFor(final String key, final Object value);
+
     /**
      * Com base na chave passada, o mesmo retorna as operações necessária de
      * lookup para acessar a propriedade. Caso já tenha sido gerado lookup alguma vez,

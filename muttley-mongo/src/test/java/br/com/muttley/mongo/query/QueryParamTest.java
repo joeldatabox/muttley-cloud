@@ -108,27 +108,27 @@ public class QueryParamTest {
         final Projection2 criteria = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
         final Projection2 aggregation = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
         final Projection2 query = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
-        final Projection3 query3 = Projection3.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?$or=[afd:'5';$or:[at:'25';$or:[hh:'855']];df:'78']"));
+        final Projection3 query3 = Projection3.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.descricao.$is=asd&$or=[afd:'5';$or:[at:'25';$or:[hh:'855']];df:'78']"));
 
-        /*criteria.getCriteria().forEach(it -> {
+        /*query3.getCriteria().forEach(it -> {
             match(it).toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
                 System.out.println(iit.toJson());
             });
-        });
+        });*/
 
         System.out.println("####################################");
-        aggregation.getAggregations().forEach(it -> {
+        query3.getAggregations().forEach(it -> {
             it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
                 System.out.println(iit.toJson());
             });
         });
         System.out.println("####################################");
-        query.getQuery().forEach(it -> {
+        query3.getQuery().forEach(it -> {
             it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
                 System.out.println(iit.toJson());
             });
-        });*/
-        query3.getCriteria();
+        });
+        //query3.getCriteria();
         //System.out.println(operations);
         //operations.forEach(it -> BasicDBObject);
 

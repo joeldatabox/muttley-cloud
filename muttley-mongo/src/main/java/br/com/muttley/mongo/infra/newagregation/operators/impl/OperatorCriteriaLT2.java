@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
  */
 @EqualsAndHashCode(of = "wildcard")
 public class OperatorCriteriaLT2 implements Operator2 {
-    private static final String wildcard = ".$lt";
+    public static final String wildcard = ".$lt";
 
     @Override
     public String getWildcard() {

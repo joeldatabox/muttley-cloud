@@ -1,17 +1,10 @@
 package br.com.muttley.mongo.infra.newagregation.projections;
 
-import br.com.muttley.exception.throwables.MuttleyBadRequestException;
-import br.com.muttley.mongo.infra.newagregation.operators.Operator2;
+import br.com.muttley.mongo.infra.newagregation.operators.Operator3;
 import br.com.muttley.mongo.infra.newagregation.paramvalue.NewQueryParam;
-import org.springframework.util.StringUtils;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Stream;
-
-import static br.com.muttley.mongo.infra.newagregation.operators.Operator2.OR;
-import static java.util.stream.Collectors.toList;
-import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * @author Joel Rodrigues Moreira on 10/12/2020.
@@ -19,7 +12,7 @@ import static org.springframework.util.StringUtils.isEmpty;
  * @project muttley-cloud
  */
 public interface Criterion3 {
-    Operator2 getOperator();
+    Operator3 getOperator();
 
     String getKey();
 
@@ -27,23 +20,24 @@ public interface Criterion3 {
 
     List<Criterion3> getSubcriterions();
 
+    List<AggregationOperation> extractAgregations();
+
     public static class CriterionBuilder {
 
         public static Criterion3 from(final ProjectionMetadata metadata, final NewQueryParam param) {
-            final Operator2 operator2 = Operator2.of(param.getKey());
+            final Operator3 operator = Operator3.from(param.getKey());
             final Criterion3Impl result;
-            if (OR.equals(operator2)) {
-                result = new Criterion3Impl(metadata, operator2, null, null, extractCriterionsArray(metadata, param.getValue()));//precisa extrair os subitens aqui
+            if (operator.isTypeArray()) {
+                result = new Criterion3Impl(metadata, operator, null, null).addSubcriterionsArray(param.getValue());//precisa extrair os subitens aqui
             } else {
-                result = new Criterion3Impl(metadata, operator2, param.getKey(), param.getValue(), null);
-                //result = null;
+                result = new Criterion3Impl(metadata, operator, param.getKey(), param.getValue());
             }
             return result;
         }
 
         /**
          * Extrai toda a cadeia de criterio contido em expressões para arrays
-         */
+         *//*
         private static List<Criterion3> extractCriterionsArray(final ProjectionMetadata metadata, final String params) {
             List<Criterion3> criterios = new LinkedList<>();
 
@@ -81,7 +75,7 @@ public interface Criterion3 {
                 final Operator2 subOperator = Operator2.of(params.substring(startSubOperator, endSubOperator));
 
                 //adicionando criterio extraido de subArray;
-                criterios.add(0, new Criterion3Impl(metadata, subOperator, itensSubArray));
+                //criterios.add(0, new Criterion3Impl(metadata, subOperator, itensSubArray));
 
                 //se chegou até aqui é sinal que já consumimo todos os subArrays
                 //e que podemos seguir consumindo itens individuais
@@ -96,9 +90,9 @@ public interface Criterion3 {
             return criterios;
         }
 
-        /**
+        *//**
          * Extrai toda a cadeia de criterio contido em expressões para arrays
-         */
+         *//*
         private static List<Criterion3> extractCriterions(final ProjectionMetadata metadata, final String params) {
             return new LinkedList<>(
                     //quebrando os itens
@@ -115,5 +109,6 @@ public interface Criterion3 {
                             .collect(toList())
             );
         }
+    }*/
     }
 }

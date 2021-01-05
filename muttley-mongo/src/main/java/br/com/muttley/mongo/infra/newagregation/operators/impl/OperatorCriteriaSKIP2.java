@@ -20,7 +20,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.skip
  */
 @EqualsAndHashCode(of = "wildcard")
 public class OperatorCriteriaSKIP2 implements Operator2 {
-    private static final String wildcard = "$skip";
+    public static final String wildcard = "$skip";
 
     @Override
     public String getWildcard() {

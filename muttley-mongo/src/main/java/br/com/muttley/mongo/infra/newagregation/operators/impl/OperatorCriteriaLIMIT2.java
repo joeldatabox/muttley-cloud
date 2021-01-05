@@ -20,7 +20,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.limi
  */
 @EqualsAndHashCode(of = "wildcard")
 public class OperatorCriteriaLIMIT2 implements Operator2 {
-    private static final String wildcard = "$limit";
+    public static final String wildcard = "$limit";
 
     @Override
     public String getWildcard() {

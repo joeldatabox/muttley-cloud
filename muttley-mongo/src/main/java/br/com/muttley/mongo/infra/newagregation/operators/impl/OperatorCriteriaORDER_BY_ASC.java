@@ -12,7 +12,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort
  * @project muttley-cloud
  */
 public class OperatorCriteriaORDER_BY_ASC extends AbstractOperatorAggregationOperation {
-    private static final String wildcard = "$orderByAsc";
+    public static final String wildcard = "$orderByAsc";
 
     @Override
     public String getWildcard() {

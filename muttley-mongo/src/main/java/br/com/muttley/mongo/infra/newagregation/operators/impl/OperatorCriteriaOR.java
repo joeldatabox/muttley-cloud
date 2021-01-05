@@ -10,7 +10,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  * @project muttley-cloud
  */
 public class OperatorCriteriaOR extends AbstractOperatorCriteria<Criteria> {
-    private static final String wildcard = ".$or";
+    public static final String wildcard = ".$or";
 
     @Override
     public String getWildcard() {

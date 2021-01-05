@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  */
 @EqualsAndHashCode(of = "wildcard")
 public class OperatorCriteriaOR2 implements Operator2 {
-    private static final String wildcard = ".$or";
+    public static final String wildcard = ".$or";
 
     @Override
     public String getWildcard() {

@@ -11,7 +11,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.limi
  * @project muttley-cloud
  */
 public class OperatorCriteriaLIMIT extends AbstractOperatorAggregationOperation {
-    private static final String wildcard = "$limit";
+    public static final String wildcard = "$limit";
 
     @Override
     public String getWildcard() {

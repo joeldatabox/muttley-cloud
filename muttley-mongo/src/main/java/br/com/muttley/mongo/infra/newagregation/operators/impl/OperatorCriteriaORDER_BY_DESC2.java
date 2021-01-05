@@ -21,7 +21,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort
  */
 @EqualsAndHashCode(of = "wildcard")
 public class OperatorCriteriaORDER_BY_DESC2 implements Operator2 {
-    private static final String wildcard = "$orderByDesc";
+    public static final String wildcard = "$orderByDesc";
 
     @Override
     public String getWildcard() {
