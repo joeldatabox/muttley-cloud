@@ -2,6 +2,7 @@ package br.com.muttley.mongo.infra.newagregation.projections;
 
 import br.com.muttley.mongo.infra.newagregation.operators.Operator3;
 import br.com.muttley.mongo.infra.newagregation.paramvalue.NewQueryParam;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public interface Criterion3 {
 
     List<AggregationOperation> extractAgregations();
 
+    List<Criteria> extractCriteria();
     public static class CriterionBuilder {
 
         public static Criterion3 from(final ProjectionMetadata metadata, final NewQueryParam param) {

@@ -5,8 +5,14 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.concat;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 
 /**
  * @author Joel Rodrigues Moreira on 10/12/2020.
@@ -32,21 +38,35 @@ public class Projection3Impl implements Projection3 {
 
     @Override
     public List<AggregationOperation> getAggregations() {
-        final List<AggregationOperation> aggregationOperations = new LinkedList<>();
-        this.criterions.forEach(it -> {
-            aggregationOperations.addAll(this.extractAggregations(it));
-        });
-        return aggregationOperations;
+        return this.criterions
+                .stream()
+                .map(it -> this.extractAggregations(it))
+                .flatMap(Collection::stream)
+                .collect(toCollection(LinkedList::new));
     }
 
     @Override
     public List<Criteria> getCriteria() {
-        return null;
+        return this.criterions
+                .stream()
+                .map(it -> it.extractCriteria())
+                .flatMap(Collection::stream)
+                .collect(toCollection(LinkedList::new));
     }
 
     @Override
     public List<AggregationOperation> getQuery() {
-        return null;
+        return this.criterions
+                .stream()
+                .map(it ->
+                        concat(
+                                this.extractAggregations(it).stream(),
+                                it.extractCriteria()
+                                        .stream()
+                                        .map(iit -> match(iit))
+                        ).collect(toCollection(LinkedList::new))
+                ).flatMap(Collection::stream)
+                .collect(toCollection(LinkedList::new));
     }
 
     @Override
@@ -56,16 +76,17 @@ public class Projection3Impl implements Projection3 {
     }
 
     private List<AggregationOperation> extractAggregations(final Criterion3 criterion) {
-        final List<AggregationOperation> aggregations = new LinkedList<>();
         if (!CollectionUtils.isEmpty(criterion.getSubcriterions())) {
-            aggregations.addAll(criterion.getSubcriterions().stream().map(it -> this.extractAggregations(it)).reduce((acc, others) -> {
-                acc.addAll(others);
-                return acc;
-            }).orElse(new LinkedList<>()));
+            return new LinkedList<>(
+                    criterion.getSubcriterions()
+                            .stream()
+                            .map(it -> this.extractAggregations(it))
+                            .flatMap(Collection::stream)
+                            .collect(toList())
+            );
         } else {
-            aggregations.addAll(criterion.extractAgregations());
+            return new LinkedList<>(criterion.extractAgregations());
         }
-        return aggregations;
     }
 
 }

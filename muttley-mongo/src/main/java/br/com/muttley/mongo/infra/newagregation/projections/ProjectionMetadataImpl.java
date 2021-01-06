@@ -58,6 +58,17 @@ public class ProjectionMetadataImpl implements ProjectionMetadata {
                 }).orElse(new LinkedList<>());
     }
 
+    @Override
+    public boolean isDBRef(String key) {
+        final EntityMetaData metaData = this.entityMetaData.getFieldByName(key);
+        return metaData != null && metaData.isDBRef();
+    }
+
+    @Override
+    public boolean hasBeenGeneratedLookupFor(String key) {
+        return this.propertiesForlookup.contains(key);
+    }
+
     /**
      * Cria uma cadeia de chaves baseada na chave passada como parametro,
      * ex.: carro.roda.pneu

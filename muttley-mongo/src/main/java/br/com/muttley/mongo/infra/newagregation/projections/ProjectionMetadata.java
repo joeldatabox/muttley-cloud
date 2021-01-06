@@ -26,6 +26,13 @@ public interface ProjectionMetadata {
      */
     List<AggregationOperation> getLookupOperations(final String key);
 
+    boolean isDBRef(String key);
+
+    /**
+     * Informa se já foi gerado lookup para determinada propriedade
+     */
+    boolean hasBeenGeneratedLookupFor(String key);
+
     public static class ProjectionMetadataBuilder {
         static ProjectionMetadata build(final EntityMetaData entityMetaData) {
             return new ProjectionMetadataImpl(entityMetaData);

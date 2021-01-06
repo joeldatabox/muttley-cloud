@@ -117,14 +117,20 @@ public class QueryParamTest {
         });*/
 
         System.out.println("####################################");
-        query3.getAggregations().forEach(it -> {
+       /*query3.getAggregations().forEach(it -> {
+            it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
+                System.out.println(iit.toJson());
+            });
+        });*/
+        System.out.println("####################################");
+        query3.getQuery().forEach(it -> {
             it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
                 System.out.println(iit.toJson());
             });
         });
         System.out.println("####################################");
-        query3.getQuery().forEach(it -> {
-            it.toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
+        query3.getCriteria().forEach(it -> {
+            match(it).toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {
                 System.out.println(iit.toJson());
             });
         });

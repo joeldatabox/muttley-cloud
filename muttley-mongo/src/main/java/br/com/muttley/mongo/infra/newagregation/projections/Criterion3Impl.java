@@ -5,6 +5,7 @@ import br.com.muttley.mongo.infra.newagregation.operators.Operator3;
 import br.com.muttley.mongo.infra.newagregation.paramvalue.NewQueryParam;
 import lombok.Getter;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static br.com.muttley.mongo.infra.newagregation.projections.Criterion3.CriterionBuilder.from;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -60,7 +62,28 @@ public class Criterion3Impl implements Criterion3 {
 
     @Override
     public List<AggregationOperation> extractAgregations() {
-        return this.operator.extractAggregations(this.metadata, this.key, this.value);
+        final List<AggregationOperation> operations = new LinkedList<>(this.metadata.getLookupOperations(this.key));
+        operations.addAll(this.operator.extractAggregations(this.metadata, this.key, this.value));
+        return operations;
+    }
+
+    @Override
+    public List<Criteria> extractCriteria() {
+        if (this.operator.isTypeArray()) {
+            return new LinkedList<>(
+                    asList(new Criteria()
+                            .orOperator(
+                                    this.subcriterions
+                                            .stream()
+                                            .map(it -> it.extractCriteria())
+                                            .flatMap(Collection::stream)
+                                            .toArray(Criteria[]::new)
+                            )
+                    )
+            );
+        } else {
+            return this.operator.extractCriteria(this.metadata, this.key, this.value);
+        }
     }
 
     /**
