@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Joel Rodrigues Moreira on 10/12/2020.
@@ -52,10 +53,8 @@ public class ProjectionMetadataImpl implements ProjectionMetadata {
                     this.propertiesForlookup.add(it);
                     return entityMetaData.createProjectFor(it);
                 })
-                .reduce((acc, others) -> {
-                    acc.addAll(others);
-                    return acc;
-                }).orElse(new LinkedList<>());
+                .flatMap(Collection::stream)
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     @Override
