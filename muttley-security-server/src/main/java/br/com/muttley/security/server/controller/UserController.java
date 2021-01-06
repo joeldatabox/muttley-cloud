@@ -106,7 +106,7 @@ public class UserController {
     @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity findByUserName(@RequestParam("userName") final String userName, final HttpServletResponse response) {
-        return ResponseEntity.ok(service.findByUserName(userName).toJson());
+        return ResponseEntity.ok(service.findByUserName(userName).toJson() );
     }
 
     @RequestMapping(value = "/email-or-username-or-nickUsers", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})

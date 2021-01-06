@@ -3,6 +3,7 @@ package br.com.muttley.security.infra.component;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
 import br.com.muttley.model.security.preference.Preference;
@@ -45,7 +46,7 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
         final UserPreferences preferences = preferenceService.getPreferences(user.getId());
         try {
             if (!preferences.contains(OWNER_PREFERENCE)) {
-                final List<Owner> owners = this.ownerService.findByUser();
+                final List<OwnerData> owners = this.ownerService.findByUser();
                 //final List<WorkTeam> itens = workteamService.findByUser();
                 final Preference preference = new Preference(OWNER_PREFERENCE, owners.get(0).getId());
                 preferences.set(preference);

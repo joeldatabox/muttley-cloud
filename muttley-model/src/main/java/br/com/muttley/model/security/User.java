@@ -134,9 +134,34 @@ public class User implements Serializable, UserData {
         return this.currentOwner;
     }
 
+    @JsonProperty("currentOwner")
     public User setCurrentOwner(final Owner currentOwner) {
         this.currentOwner = currentOwner;
         return this;
+    }
+
+    public User setCurrentOwner(final OwnerData owner) {
+        if (owner != null) {
+            final User user;
+            if (owner.getUserMaster() != null) {
+                user = new User()
+                        .setId(owner.getUserMaster().getId())
+                        .setDescription(owner.getUserMaster().getDescription())
+                        .setEmail(owner.getUserMaster().getEmail())
+                        .setName(owner.getUserMaster().getName())
+                        .setNickUsers(owner.getUserMaster().getNickUsers());
+            } else {
+                user = null;
+            }
+            return this.setCurrentOwner(
+                    new Owner()
+                            .setId(owner.getId())
+                            .setName(owner.getName())
+                            .setDescription(owner.getDescription())
+                            .setUserMaster(user)
+            );
+        }
+        return this.setCurrentOwner((Owner) null);
     }
 
     @Override

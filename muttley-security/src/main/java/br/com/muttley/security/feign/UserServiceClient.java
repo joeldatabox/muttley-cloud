@@ -46,7 +46,7 @@ public interface UserServiceClient {
     @RequestMapping(value = "/ad$/{id}", method = GET)
     User findById(@PathVariable("id") String id);
 
-    @RequestMapping(method = GET)
+    @RequestMapping(method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     User findByUserName(@RequestParam("userName") String userName);
 
     @RequestMapping(value = "/user-from-token", method = GET)
