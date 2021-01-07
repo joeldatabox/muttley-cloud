@@ -5,6 +5,7 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.UserBaseItem;
+import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.service.UserBaseService;
