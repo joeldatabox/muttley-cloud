@@ -5,7 +5,6 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.UserBaseItem;
-import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.service.UserBaseService;
@@ -104,6 +103,9 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
         userForAdd.setAddedBy(user);
         if (userForAdd.getDtCreate() == null) {
             userForAdd.setDtCreate(new Date());
+        }
+        if (userForAdd.getAddedBy() == null) {
+            userForAdd.setAddedBy(user);
         }
         this.validator.validate(userForAdd);
         if (this.userHasBeenIncluded(user, userForAdd.getUser().getId())) {

@@ -23,6 +23,7 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 /**
  * @author Joel Rodrigues Moreira on 24/04/18.
@@ -91,4 +92,8 @@ public class UserPreferenceController {
         return ResponseEntity.ok(this.userService.loadPreference(this.userService.getUserFromToken(new JwtToken(tokenHeader))).getPreferences());
     }
 
+    @RequestMapping(value = "/{key}", method = PUT, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    public ResponseEntity getSetPreferences(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final Preference preference) {
+        return ResponseEntity.ok(this.userService.this.userService.loadPreference(this.userService.getUserFromToken(new JwtToken(tokenHeader))).getPreferences());
+    }
 }
