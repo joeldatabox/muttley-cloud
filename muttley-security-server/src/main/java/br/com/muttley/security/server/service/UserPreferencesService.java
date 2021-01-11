@@ -11,6 +11,9 @@ import br.com.muttley.model.security.preference.UserPreferences;
  * @project muttley-cloud
  */
 public interface UserPreferencesService {
+
+    UserPreferences createPreferencesFor(final User user);
+
     void save(final User user, final UserPreferences preferences);
 
     void setPreference(final User user, final Preference preference);
@@ -19,7 +22,13 @@ public interface UserPreferencesService {
 
     void setPreference(final User user, final String key, final Document value);
 
-    String getPreference(final User user, final String key);
+    Preference getPreference(final User user, final String key);
+
+    String getPreferenceValue(final User user, final String key);
+
+    void removePreference(final User user, final String key);
 
     UserPreferences getUserPreferences(final User user);
+
+    boolean containsPreference(final User user, final String key);
 }

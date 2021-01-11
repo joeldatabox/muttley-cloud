@@ -17,14 +17,12 @@ import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
-import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.repository.UserRepository;
-import br.com.muttley.security.server.service.InmutablesPreferencesService;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.OwnerService;
+import br.com.muttley.security.server.service.UserPreferencesService;
 import br.com.muttley.security.server.service.UserService;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -64,31 +62,28 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
-    private final UserPreferencesRepository preferencesRepository;
+    private final UserPreferencesService preferencesService;
     private final JwtTokenUtilService tokenUtil;
     private final String tokenHeader;
     private final OwnerService ownerService;
-    private final InmutablesPreferencesService inmutablesPreferencesService;
     private final MongoTemplate template;
     private final DocumentNameConfig documentNameConfig;
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public UserServiceImpl(final UserRepository repository,
-                           final UserPreferencesRepository preferencesRepository,
+                           final UserPreferencesService preferencesService,
                            @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
                            final JwtTokenUtilService tokenUtil,
                            final OwnerService ownerService,
-                           final ObjectProvider<InmutablesPreferencesService> inmutablesPreferencesService,
                            final MongoTemplate template,
                            final DocumentNameConfig documentNameConfig,
                            final ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
-        this.preferencesRepository = preferencesRepository;
+        this.preferencesService = preferencesService;
         this.tokenHeader = tokenHeader;
         this.tokenUtil = tokenUtil;
         this.ownerService = ownerService;
-        this.inmutablesPreferencesService = inmutablesPreferencesService.getIfAvailable();
         this.template = template;
         this.documentNameConfig = documentNameConfig;
         this.eventPublisher = eventPublisher;
@@ -97,7 +92,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User save(final User user) {
         final User salvedUser = merge(user);
-        salvedUser.setPreferences(this.preferencesRepository.save(new UserPreferences().setUser(salvedUser)));
+        salvedUser.setPreferences(this.preferencesService.createPreferencesFor(user));
         this.eventPublisher.publishEvent(new UserCreatedEvent(salvedUser));
         return salvedUser;
     }
@@ -105,8 +100,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(final User user, final UserPreferences preferences) {
         preferences.setUser(user);
-        this.validatePreferences(preferences);
-        this.preferencesRepository.save(preferences);
+        /*this.validatePreferences(preferences);
+        this.preferencesRepository.save(preferences);*/
     }
 
     @Override
@@ -316,7 +311,7 @@ public class UserServiceImpl implements UserService {
             final String userName = this.tokenUtil.getUsernameFromToken(token.getToken());
             if (!isNullOrEmpty(userName)) {
                 final User user = findByUserName(userName);
-                final UserPreferences preferences = this.preferencesRepository.findByUser(user);
+                final UserPreferences preferences = this.preferencesService.getUserPreferences(user);
                 user.setPreferences(preferences);
                 if (preferences.contains(OWNER_PREFERENCE)) {
                     user.setCurrentOwner(this.ownerService.findById(user, preferences.get(OWNER_PREFERENCE).getValue().toString()));
@@ -329,7 +324,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserPreferences loadPreference(final User user) {
-        return this.preferencesRepository.findByUser(user);
+        return this.preferencesService.getUserPreferences(user);
     }
 
     @Override
@@ -602,7 +597,7 @@ public class UserServiceImpl implements UserService {
         return result.getUniqueMappedResult().getCount() > 0;
     }
 
-    private void validatePreferences(final UserPreferences preferences) {
+    /*private void validatePreferences(final UserPreferences preferences) {
         //se o serviço foi injetado, devemos validar
         //se a preferencia do usuário já tiver o id, devemo validar
         if (this.inmutablesPreferencesService != null && !StringUtils.isEmpty(preferences.getId())) {
@@ -630,5 +625,5 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }
-    }
+    }*/
 }

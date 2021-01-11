@@ -3,8 +3,8 @@ package br.com.muttley.security.server.controller.auth;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
-import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
+import br.com.muttley.security.server.service.UserPreferencesService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,12 +24,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AuthenticationTokenController {
     private final JwtTokenUtilService tokenUtil;
     private final UserService userService;
-    private final UserPreferencesRepository preferencesRepository;
+    private final UserPreferencesService preferencesService;
 
-    public AuthenticationTokenController(final JwtTokenUtilService tokenUtil, final UserService userService, final UserPreferencesRepository preferencesRepository) {
+    public AuthenticationTokenController(final JwtTokenUtilService tokenUtil, final UserService userService, final UserPreferencesService preferencesService) {
         this.tokenUtil = tokenUtil;
         this.userService = userService;
-        this.preferencesRepository = preferencesRepository;
+        this.preferencesService = preferencesService;
     }
 
     @RequestMapping(value = "/user-from-token", method = RequestMethod.POST)
@@ -40,7 +40,7 @@ public class AuthenticationTokenController {
                 //buscando o usuário  presente no token
                 final JwtUser jwtUser = (JwtUser) this.userService.loadUserByUsername(userName);
                 //buscando as preferencias de usuário
-                jwtUser.getOriginUser().setPreferences(this.preferencesRepository.findByUser(jwtUser.getOriginUser()));
+                jwtUser.getOriginUser().setPreferences(this.preferencesService.getUserPreferences(jwtUser.getOriginUser()));
 
                 //verificando a validade do token
                 if (tokenUtil.validateToken(token.getToken(), jwtUser)) {

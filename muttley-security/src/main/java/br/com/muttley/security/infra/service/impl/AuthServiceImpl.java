@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
     public UserPreferences getUserPreferences() {
         final User user = this.getCurrentUser();
         if (user.getPreferences() == null || user.getPreferences().isEmpty()) {
-            final UserPreferences preferences = this.preferenceService.getPreferences(user.getId());
+            final UserPreferences preferences = this.preferenceService.getUserPreferences();
             if (preferences != null) {
                 user.setPreferences(preferences);
             }

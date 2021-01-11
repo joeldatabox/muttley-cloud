@@ -43,14 +43,14 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
     public void onApplicationEvent(final UserAfterCacheLoadEvent event) {
         final User user = event.getSource();
         //carregando preferencias
-        final UserPreferences preferences = preferenceService.getPreferences(user.getId());
+        final UserPreferences preferences = preferenceService.getUserPreferences();
         try {
             if (!preferences.contains(OWNER_PREFERENCE)) {
                 final List<OwnerData> owners = this.ownerService.findByUser();
                 //final List<WorkTeam> itens = workteamService.findByUser();
                 final Preference preference = new Preference(OWNER_PREFERENCE, owners.get(0).getId());
                 preferences.set(preference);
-                preferenceService.setPreference(user.getId(), preference);
+                preferenceService.setPreference(preference);
 
                 user.setCurrentOwner(owners.get(0));
                 //carregando authorities

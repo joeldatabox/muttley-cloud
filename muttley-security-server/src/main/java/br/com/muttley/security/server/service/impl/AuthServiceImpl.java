@@ -6,12 +6,11 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.service.AuthService;
+import br.com.muttley.security.server.service.UserPreferencesService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -26,10 +25,12 @@ public class AuthServiceImpl implements AuthService {
 
     protected final String tokenHeader;
     protected final UserService userService;
+    protected final UserPreferencesService preferencesService;
 
-    public AuthServiceImpl(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, final UserService userService) {
+    public AuthServiceImpl(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, final UserService userService, final UserPreferencesService preferencesService) {
         this.tokenHeader = tokenHeader;
         this.userService = userService;
+        this.preferencesService = preferencesService;
     }
 
     @Override
@@ -60,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
     public UserPreferences getUserPreferences() {
         final User user = this.getCurrentUser();
         if (user.getPreferences() == null || user.getPreferences().isEmpty()) {
-            final UserPreferences preferences = this.userService.loadPreference(user);
+            final UserPreferences preferences = this.preferencesService.getUserPreferences(user);
             if (preferences != null) {
                 user.setPreferences(preferences);
             }
@@ -70,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Preference getPreference(final String key) {
-        return this.getUserPreferences().get(key);
+        return this.preferencesService.getPreference(this.getCurrentUser(), key);
     }
 /*
     @Override
