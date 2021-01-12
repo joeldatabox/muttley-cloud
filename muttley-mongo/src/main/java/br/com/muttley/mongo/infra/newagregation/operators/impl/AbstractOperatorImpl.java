@@ -1,25 +1,14 @@
 package br.com.muttley.mongo.infra.newagregation.operators.impl;
 
-import br.com.muttley.exception.throwables.MuttleyBadRequestException;
-import br.com.muttley.mongo.infra.newagregation.operators.Operator2;
 import br.com.muttley.mongo.infra.newagregation.operators.Operator3;
-import br.com.muttley.mongo.infra.newagregation.paramvalue.NewQueryParam;
-import br.com.muttley.mongo.infra.newagregation.projections.Criterion3;
-import br.com.muttley.mongo.infra.newagregation.projections.Criterion3Impl;
 import br.com.muttley.mongo.infra.newagregation.projections.ProjectionMetadata;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.util.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Stream;
-
-import static br.com.muttley.mongo.infra.newagregation.projections.Criterion3.CriterionBuilder.from;
-import static java.util.stream.Collectors.toList;
-import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * @author Joel Rodrigues Moreira on 22/12/2020.
@@ -60,5 +49,8 @@ public abstract class AbstractOperatorImpl implements Operator3 {
         return false;
     }
 
-
+    @Override
+    public String toString() {
+        return wildcard;
+    }
 }

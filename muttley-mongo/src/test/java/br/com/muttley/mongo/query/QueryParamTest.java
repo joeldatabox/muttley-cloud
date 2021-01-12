@@ -75,7 +75,7 @@ public class QueryParamTest {
         System.out.println(QueryBuilder.replaceAllOperators("tetes.$orderByAsc"));*/
 
         //final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
-        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558"));
+        final Projection projection = Projection.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&$limit=1"));
         //projection.getPipeline()
         final List<AggregationOperation> operations = projection.getPipeline();
         operations.forEach(it -> {
@@ -108,7 +108,7 @@ public class QueryParamTest {
         final Projection2 criteria = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
         final Projection2 aggregation = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
         final Projection2 query = Projection2.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&.$or=[afd:5;;df:78]"));
-        final Projection3 query3 = Projection3.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?propriedade.descricao.$is=asd&$or=[afd:'5';$or:[at:'25';$or:[hh:'855']];df:'78']"));
+        final Projection3 query3 = Projection3.ProjectionBuilder.from(EntityMetaData.of(Pessoa.class), URLParaTest.getQueryParams("www.asdf.com?idade.$gt=52&propriedade.cor.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.teste.posicao.$gte=693&propriedade.id.$is=" + new ObjectId(new Date()) + "&propriedade.descricao.$is=asdf&propriedade.cor.nome.$is=558&propriedade.cor.teste.nome.$is=558&$limit=1"));
 
         /*query3.getCriteria().forEach(it -> {
             match(it).toPipelineStages(DEFAULT_CONTEXT).forEach(iit -> {

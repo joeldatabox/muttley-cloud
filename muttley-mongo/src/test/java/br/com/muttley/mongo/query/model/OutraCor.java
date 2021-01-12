@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -21,6 +20,7 @@ public class OutraCor {
     private String id;
     private String nome;
     private String descricao;
+    private Long posicao;
     /*@DBRef
     private OutraCor outraCor;*/
 }

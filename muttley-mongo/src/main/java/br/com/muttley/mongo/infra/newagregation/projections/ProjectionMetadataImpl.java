@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -78,11 +79,13 @@ public class ProjectionMetadataImpl implements ProjectionMetadata {
             return Arrays.asList(key);
         }
         final String[] keySplit = key.split("\\.");
-        final Set<String> result = new HashSet<>();
-        result.add(keySplit[0]);
+        final Collection<String> result = new LinkedHashSet<>();
+        String lastItem = keySplit[0];
+        result.add(lastItem);
         for (int i = 1; i < keySplit.length; i++) {
+            lastItem = lastItem + "." + keySplit[i];
             //pegando o indice anterior e concatenando com o atual
-            result.add(keySplit[i - 1] + "." + keySplit[i]);
+            result.add(lastItem);
         }
         return result;
     }

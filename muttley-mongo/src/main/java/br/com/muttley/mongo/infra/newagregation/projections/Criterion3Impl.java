@@ -12,11 +12,12 @@ import org.springframework.util.StringUtils;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Stream;
 
+import static br.com.muttley.mongo.infra.newagregation.operators.Operator3.values;
 import static br.com.muttley.mongo.infra.newagregation.projections.Criterion3.CriterionBuilder.from;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.of;
 import static org.springframework.util.StringUtils.isEmpty;
 
 /**
@@ -36,7 +37,7 @@ public class Criterion3Impl implements Criterion3 {
     protected Criterion3Impl(final ProjectionMetadata metadata, final Operator3 operator, final String key, final Object value) {
         this.metadata = metadata;
         this.operator = operator;
-        this.key = key;
+        this.key = this.replaceAllOperators(key);
         this.value = value;
         this.subcriterions = new LinkedList<>();
     }
@@ -147,7 +148,7 @@ public class Criterion3Impl implements Criterion3 {
     protected List<Criterion3> extractCriterions(final ProjectionMetadata metadata, final String params) {
         return new LinkedList<>(
                 //quebrando os itens
-                Stream.of(params.split(";"))
+                of(params.split(";"))
                         //removendo itens vazios
                         .filter(it -> !isEmpty(it))
                         //transformando chave:valor em objeto
@@ -159,5 +160,32 @@ public class Criterion3Impl implements Criterion3 {
                         .map(it -> from(metadata, it))
                         .collect(toList())
         );
+    }
+
+    /**
+     * Remove qualquer operador presente em uma string
+     * por exemplo:
+     *
+     * @param value => "pessoa.nome.$is"
+     * @return "pessoa.nome"
+     */
+    private final String replaceAllOperators(final String value) {
+        if (!StringUtils.isEmpty(value)) {
+            //lista de widcards
+            final String[] operators = of(values())
+                    .parallel()
+                    .map(Operator3::toString)
+                    .toArray(String[]::new);
+
+            String result = value;
+
+            //removendo tudo
+            for (final String widcard : operators) {
+                result = result.replace(widcard, "");
+            }
+
+            return result;
+        }
+        return value;
     }
 }

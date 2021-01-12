@@ -21,6 +21,7 @@ public class Cor {
     private String id;
     private String nome;
     private String descricao;
+    private Long posicao;
     @DBRef
     private Cor teste;
 }

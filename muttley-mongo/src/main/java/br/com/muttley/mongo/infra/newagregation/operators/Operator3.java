@@ -48,7 +48,6 @@ public interface Operator3 {
     List<Criteria> extractCriteria(final ProjectionMetadata metadata, final String compositePropertyWithFather, final String key, final Object value);
 
 
-
     boolean isTypeArray();
 
     public static Operator3[] values() {
