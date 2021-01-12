@@ -2,8 +2,8 @@ package br.com.muttley.mongo.infra.metadata;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyException;
-import br.com.muttley.model.security.Owner;
 import br.com.muttley.mongo.infra.aggregations.MuttleyProjectionOperation;
+import br.com.muttley.metadata.anotations.SensitiveNavigation;
 import com.mongodb.BasicDBObject;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,7 +55,8 @@ public class EntityMetaData implements Cloneable {
     private static final String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     private static final String DATE_REGEX = "(\\d{4}|\\d{5}|\\d{6}|\\d{7})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|[3][01])";
     private static final String DATE_TIME_REGEX = "(\\d{4}|\\d{5}|\\d{6}|\\d{7})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|[3][01])T(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23):(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59):(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59)([.])\\d{3}([+-])\\d{4}";
-    private static final Map<String, EntityMetaData> cache = new HashMap<>();
+    private static final Map<String, EntityMetaData> cacheFields = new HashMap<>();
+    private static final Set<Class<?>> cacheSensitiveNavegation = new HashSet<>();
     @Setter(AccessLevel.PRIVATE)
     private String nameField;
     @Setter(AccessLevel.PRIVATE)
@@ -100,15 +102,20 @@ public class EntityMetaData implements Cloneable {
     }
 
     private static EntityMetaData of(final String name, final Class type) {
+        //verificando se a casse é sensivel a navegação
+        if (type.getAnnotation(SensitiveNavigation.class) != null) {
+            //adicionado intem ao cache
+            cacheSensitiveNavegation.add(type);
+        }
         if (isBasicObject(type)) {
             return new EntityMetaData().setNameField(name);
         } else {
-            if (cache.containsKey(type.getName())) {
-                return cache.get(type.getName());
+            if (cacheFields.containsKey(type.getName())) {
+                return cacheFields.get(type.getName());
             }
         }
         final EntityMetaData metaData = new EntityMetaData().setNameField(name);
-        cache.put(type.getName(), metaData);
+        cacheFields.put(type.getName(), metaData);
 
         final Document document = (Document) type.getAnnotation(Document.class);
         if (document != null) {
@@ -357,10 +364,12 @@ public class EntityMetaData implements Cloneable {
 
         for (int a = 0; a < keyEntityMetaData.length; a++) {
             final EntityMetaData currentField = entityMetaData.getFieldByName(keyEntityMetaData[a]);
+            //garantindo que ninguem irá usar o campo com navegações sensiveis
+            this.checkSensitiveNavigation(currentField);
             //garantindo que ninguem irá usar o campo owner
-            if (currentField != null && currentField.getClassType() == Owner.class) {
+            /*if (currentField != null && currentField.getClassType() == Owner.class) {
                 throw new MuttleyBadRequestException(currentField.getClassType(), currentField.getNameField(), "Acesso indevido a propriedade");
-            }
+            }*/
             final String[] keysProject = getKeyForProject(keyEntityMetaData[a], entityMetaData);
             final BasicDBObject dbObject = new BasicDBObject();
             for (final String currentKey : keysProject) {
@@ -414,6 +423,15 @@ public class EntityMetaData implements Cloneable {
                         unwind("$" + keyEntityMetaData[keyEntityMetaData.length - 1])
                 )
         );
+    }
+
+    private void checkSensitiveNavigation(EntityMetaData currentField) {
+        if (EntityMetaData.cacheSensitiveNavegation
+                .parallelStream()
+                .filter(it -> it == currentField.getClassType())
+                .count() > 0l) {
+            throw new MuttleyBadRequestException(currentField.getClassType(), currentField.getNameField(), "Acesso indevido a propriedade");
+        }
     }
 
     public boolean fieldsIsEmpty() {
