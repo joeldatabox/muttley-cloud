@@ -104,6 +104,30 @@ public class Role {
     @JsonIgnore
     public static final Role ROLE_MOBILE_WORK_TEAM_DELETE = new Role("ROLE_MOBILE_WORK_TEAM_DELETE");
 
+    @JsonIgnore
+    public static final Role ROLE_USER_DATA_BINDING_CREATE = new Role("ROLE_USER_DATA_BINDING_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_USER_DATA_BINDING_READ = new Role("ROLE_USER_DATA_BINDING_READ");
+    @JsonIgnore
+    public static final Role ROLE_USER_DATA_BINDING_UPDATE = new Role("ROLE_USER_DATA_BINDING_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_USER_DATA_BINDING_DELETE = new Role("ROLE_USER_DATA_BINDING_DELETE");
+    @JsonIgnore
+    public static final Role ROLE_USER_DATA_BINDING_SIMPLE_USE = new Role("ROLE_USER_DATA_BINDING_SIMPLE_USE");
+    @JsonIgnore
+    public static final Role ROLE_USER_DATA_BINDING_OTHERS_USERS_MERGE = new Role("ROLE_USER_DATA_BINDING_SIMPLE_USE");
+
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_USER_DATA_BINDING_CREATE = new Role("ROLE_MOBILE_USER_DATA_BINDING_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_USER_DATA_BINDING_READ = new Role("ROLE_MOBILE_USER_DATA_BINDING_READ");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_USER_DATA_BINDING_UPDATE = new Role("ROLE_MOBILE_USER_DATA_BINDING_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_USER_DATA_BINDING_DELETE = new Role("ROLE_MOBILE_USER_DATA_BINDING_DELETE");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_USER_DATA_BINDING_OTHERS_USERS_MERGE = new Role("ROLE_MOBILE_USER_DATA_BINDING_SIMPLE_USE");
+
     @JsonCreator
     public Role(@JsonProperty("roleName") final String roleName) {
         if (!roleName.toUpperCase().startsWith("ROLE_")) {

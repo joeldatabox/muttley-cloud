@@ -54,7 +54,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User getCurrentUser() {
-        return getCurrentJwtUser().getOriginUser();
+        return this.userService.getUserFromToken(this.getCurrentToken());
+        //return getCurrentJwtUser().getOriginUser();
     }
 
     @Override
@@ -73,9 +74,5 @@ public class AuthServiceImpl implements AuthService {
     public Preference getPreference(final String key) {
         return this.preferencesService.getPreference(this.getCurrentUser(), key);
     }
-/*
-    @Override
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        return new JwtUser(new User());
-    }*/
+
 }

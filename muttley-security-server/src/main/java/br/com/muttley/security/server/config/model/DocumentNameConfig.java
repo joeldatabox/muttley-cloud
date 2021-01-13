@@ -18,6 +18,7 @@ public class DocumentNameConfig {
     private final String nameCollectionUserPreferences;
     private final String nameCollectionUserTokensNotification;
     private final String nameCollectionWorkTeam;
+    private final String nameCollectionUserDataBinding;
 
     public DocumentNameConfig(
             @Value("${br.com.muttley.security.server.owner-document:muttley-owners}") final String nameCollectionOwner,
@@ -26,7 +27,8 @@ public class DocumentNameConfig {
             @Value("${br.com.muttley.security.server.access-plan-document:muttley-access-plans}") final String nameCollectionAccessPlan,
             @Value("${br.com.muttley.security.server.user-preference-document:muttley-users-preferences}") final String nameCollectionUserPreferences,
             @Value("${br.com.muttley.security.server.user-tokens-notification-document:muttley-users-tokens-notification}") final String nameCollectionUserTokensNotification,
-            @Value("${br.com.muttley.security.server.work-team-document:muttley-work-teams}") final String nameCollectionWorkTeam) {
+            @Value("${br.com.muttley.security.server.work-team-document:muttley-work-teams}") final String nameCollectionWorkTeam,
+            @Value("${br.com.muttley.security.server.user-data-binding:muttley-users-databinding}") final String nameCollectionUserDataBinding) {
         this.nameCollectionOwner = nameCollectionOwner;
         this.nameCollectionUser = nameCollectionUser;
         this.nameCollectionUserBase = nameCollectionUserBase;
@@ -34,6 +36,7 @@ public class DocumentNameConfig {
         this.nameCollectionUserPreferences = nameCollectionUserPreferences;
         this.nameCollectionUserTokensNotification = nameCollectionUserTokensNotification;
         this.nameCollectionWorkTeam = nameCollectionWorkTeam;
+        this.nameCollectionUserDataBinding = nameCollectionUserDataBinding;
     }
 
     public String getNameCollectionOwner() {
@@ -62,6 +65,10 @@ public class DocumentNameConfig {
 
     public String getNameCollectionWorkTeam() {
         return nameCollectionWorkTeam;
+    }
+
+    public String getNameCollectionUserDataBinding() {
+        return nameCollectionUserDataBinding;
     }
 }
 

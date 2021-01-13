@@ -18,6 +18,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>br.com.muttley</groupId>
+            <artifactId>muttley-model</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-feign</artifactId>
         </dependency>

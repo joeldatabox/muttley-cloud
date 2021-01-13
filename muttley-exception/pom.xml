@@ -29,9 +29,8 @@
         </dependency>
 
         <dependency>
-            <groupId>br.com.muttley</groupId>
-            <artifactId>muttley-feign</artifactId>
-            <scope>provided</scope>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-feign</artifactId>
         </dependency>
 
         <dependency>

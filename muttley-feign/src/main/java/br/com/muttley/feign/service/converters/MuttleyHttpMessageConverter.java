@@ -3,6 +3,7 @@ package br.com.muttley.feign.service.converters;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +16,7 @@ import java.util.Scanner;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public abstract class MuttleyHttpMessageConverter<T> extends AbstractHttpMessageConverter<T> {
+public abstract class MuttleyHttpMessageConverter<T> extends AbstractHttpMessageConverter<T> implements HttpMessageConverter<T> {
     public MuttleyHttpMessageConverter() {
     }
 

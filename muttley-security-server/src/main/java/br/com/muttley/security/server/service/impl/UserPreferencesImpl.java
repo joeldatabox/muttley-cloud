@@ -70,8 +70,8 @@ public class UserPreferencesImpl implements UserPreferencesService {
         } else {
             this.template.updateFirst(
                     new Query(where("user.$id").is(new ObjectId(user.getId()))),
-                    new Update().set("preferences", preference),
-                    UserPreferencesService.class
+                    new Update().addToSet("preferences", preference),
+                    UserPreferences.class
             );
         }
     }

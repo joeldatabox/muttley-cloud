@@ -2,8 +2,11 @@ package br.com.muttley.feign.service;
 
 import br.com.muttley.feign.service.converters.BooleanHttpMessageConverter;
 import br.com.muttley.feign.service.converters.DateHttpMessageConverter;
+import br.com.muttley.feign.service.converters.ListOwnerDataHttpMessageConverter;
 import br.com.muttley.feign.service.converters.LongHttpMessageConverter;
+import br.com.muttley.feign.service.converters.OwnerDataHttpMessageConverter;
 import br.com.muttley.feign.service.interceptors.PropagateHeadersInterceptor;
+import br.com.muttley.feign.service.service.MuttleyDecodersService;
 import br.com.muttley.feign.service.service.MuttleyPropagateHeadersService;
 import feign.Feign;
 import feign.Logger;
@@ -42,6 +45,9 @@ public class FeignConfig extends FeignClientsConfiguration {
     @Autowired
     private ObjectProvider<MuttleyPropagateHeadersService> muttleyPropagateHeadersService;
 
+    @Autowired
+    private ObjectProvider<MuttleyDecodersService> muttleyDecodersService;
+
 
     @Bean
     public Feign.Builder feignBuilder(
@@ -71,6 +77,14 @@ public class FeignConfig extends FeignClientsConfiguration {
         decoderConverters.add(new LongHttpMessageConverter());
         decoderConverters.add(new BooleanHttpMessageConverter());
         decoderConverters.add(new DateHttpMessageConverter());
+        decoderConverters.add(new OwnerDataHttpMessageConverter());
+        //decoderConverters.add(new ListOwnerDataHttpMessageConverter());
+
+        //verificando se alguem implementou algum decoder
+        final MuttleyDecodersService decodersService = this.muttleyDecodersService.getIfAvailable();
+        if (decodersService != null) {
+            decodersService.getDecoders().forEach(it -> decoderConverters.add(it));
+        }
 
         //HttpMessageConverters httpMessageConverters = new HttpMessageConverters(decoderConverters);
 
