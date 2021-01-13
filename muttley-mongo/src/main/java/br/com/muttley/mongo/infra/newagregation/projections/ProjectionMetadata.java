@@ -26,7 +26,9 @@ public interface ProjectionMetadata {
      */
     List<AggregationOperation> getLookupOperations(final String key);
 
-    boolean isDBRef(String key);
+    boolean isDBRef(final String key);
+
+    boolean isId(final String key);
 
     /**
      * Informa se já foi gerado lookup para determinada propriedade

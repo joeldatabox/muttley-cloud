@@ -83,7 +83,14 @@ public class Criterion3Impl implements Criterion3 {
                     )
             );
         } else {
-            return this.operator.extractCriteria(this.metadata, this.key, this.value);
+            final String key;
+            //achustando caso a key seja um id e nao use "$" para referenciar
+            if (this.metadata.isId(this.key)) {
+                key = this.key.substring(0, this.key.lastIndexOf(".")) + ".$" + this.key.substring(this.key.lastIndexOf(".") + 1).replace("$", "");
+            } else {
+                key = this.key;
+            }
+            return this.operator.extractCriteria(this.metadata, key, this.value);
         }
     }
 

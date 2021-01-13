@@ -2,8 +2,8 @@ package br.com.muttley.mongo.infra.metadata;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyException;
-import br.com.muttley.mongo.infra.aggregations.MuttleyProjectionOperation;
 import br.com.muttley.metadata.anotations.SensitiveNavigation;
+import br.com.muttley.mongo.infra.aggregations.MuttleyProjectionOperation;
 import com.mongodb.BasicDBObject;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -16,6 +16,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.beans.Transient;
 import java.math.BigDecimal;
@@ -83,6 +84,13 @@ public class EntityMetaData implements Cloneable {
 
     public Set<EntityMetaData> getFields() {
         return Collections.unmodifiableSet(fields);
+    }
+
+    public String getCollection() {
+        if (StringUtils.isEmpty(collection) && this.isDBRef()) {
+            return this.getClassType().getSimpleName().toLowerCase();
+        }
+        return collection;
     }
 
     private EntityMetaData addField(final EntityMetaData entityMetaData) {
