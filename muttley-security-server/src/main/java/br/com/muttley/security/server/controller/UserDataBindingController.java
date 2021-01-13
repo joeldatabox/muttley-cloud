@@ -23,4 +23,6 @@ public class UserDataBindingController extends AbstractRestController<UserDataBi
         super(service, userService, eventPublisher);
     }
 
+
+
 }

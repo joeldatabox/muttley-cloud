@@ -1,6 +1,7 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.annotations.index.CompoundIndexes;
+import br.com.muttley.annotations.valitators.CheckIndex;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
@@ -17,6 +18,8 @@ import lombok.experimental.Accessors;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Joel Rodrigues Moreira 12/01/2021
@@ -38,6 +41,7 @@ public class UserDataBinding implements Model {
     @JsonDeserialize(using = OwnerDeserializer.class)
     @DBRef
     private Owner owner;
+    @NotNull(message = "Informe um usuário")
     @JsonSerialize(using = UserDataSerializer.class)
     @JsonDeserialize(using = UserDataDeserializer.class)
     @DBRef

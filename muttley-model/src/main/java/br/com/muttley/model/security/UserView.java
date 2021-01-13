@@ -20,7 +20,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Accessors(chain = true)
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"id", "email", "userName"})
 public class UserView implements UserData, Document {
     private String id;
     private String name;

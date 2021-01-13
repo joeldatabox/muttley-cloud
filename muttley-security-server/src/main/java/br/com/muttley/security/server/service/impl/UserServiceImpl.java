@@ -314,7 +314,11 @@ public class UserServiceImpl implements UserService {
                 final UserPreferences preferences = this.preferencesService.getUserPreferences(user);
                 user.setPreferences(preferences);
                 if (preferences.contains(OWNER_PREFERENCE)) {
-                    user.setCurrentOwner(this.ownerService.findById(user, preferences.get(OWNER_PREFERENCE).getValue().toString()));
+                    user.setCurrentOwner(this.ownerService.findByUserAndId(user, preferences.get(OWNER_PREFERENCE).getValue().toString()));
+                } else {
+                    user.setCurrentOwner(this.ownerService.loadOwnersOfUser(user).get(0));
+                    preferences.set(OWNER_PREFERENCE, user.getCurrentOwner().getId());
+                    this.preferencesService.setPreference(user, OWNER_PREFERENCE, user.getCurrentOwner().getId());
                 }
                 return user;
             }
