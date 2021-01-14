@@ -1,7 +1,5 @@
 package br.com.muttley.security.server.service;
 
-import br.com.muttley.domain.service.ModelService;
-import br.com.muttley.domain.service.Service;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserDataBinding;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,7 +11,12 @@ import java.util.List;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface UserDataBindingService extends ModelService<UserDataBinding> {
+public interface UserDataBindingService {
+
+    UserDataBinding save(final User user, final UserDataBinding dataBinding);
+
+    UserDataBinding update(final User user, final UserDataBinding dataBinding);
+
     /**
      * Lista os itens levando em consideração não o usuário da requisição,
      * mas sim o userName informado
@@ -91,5 +94,7 @@ public interface UserDataBindingService extends ModelService<UserDataBinding> {
                     "): " +
                     "   true "
     )
-    UserDataBinding updateByUserName(final User user, final String userName, final UserDataBinding value);
+    UserDataBinding updateByUserName(final User user, final String userName, final UserDataBinding dataBinding);
+
+    void merge(final User user, final UserDataBinding dataBinding);
 }

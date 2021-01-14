@@ -1,13 +1,34 @@
 package br.com.muttley.security.server.controller;
 
+import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserDataBinding;
+import br.com.muttley.rest.hateoas.resource.PageableResource;
+import br.com.muttley.security.server.service.AuthService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletResponse;
+
+import java.util.Map;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 /**
  * @author Joel Rodrigues Moreira 12/01/2021
@@ -15,14 +36,63 @@ import org.springframework.web.bind.annotation.RestController;
  * @project muttley-cloud
  */
 @RestController
-@RequestMapping(value = "/api/v1/users-databinding", produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/api/v1/users-databinding", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
 public class UserDataBindingController extends AbstractRestController<UserDataBinding> {
 
+    private final UserDataBindingService service;
+    private final AuthService authService;
+
     @Autowired
-    public UserDataBindingController(final UserDataBindingService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
+    public UserDataBindingController(final UserDataBindingService service, final UserService userService, final ApplicationEventPublisher eventPublisher, final AuthService authService) {
         super(service, userService, eventPublisher);
+        this.service = service;
+        this.authService = authService;
     }
 
+    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity save(
+            @RequestBody final UserDataBinding value,
+            final HttpServletResponse response,
+            @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity,
+            @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        this.checkRoleCreate(user);
+        final UserDataBinding record = service.save(user, value);
+
+        publishCreateResourceEvent(this.eventPublisher, response, record);
+
+        if (returnEntity != null && returnEntity.equals("true")) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(record);
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @RequestMapping(value = "/{id}", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity update(
+            @PathVariable("id") final String id,
+            @RequestBody final UserDataBinding model,
+            @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        checkRoleUpdate(user);
+        model.setId(id);
+        return ResponseEntity.ok(service.update(user, model));
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<UserDataBinding>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
+                                                 @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        checkRoleRead(user);
+        return ResponseEntity.ok(this.service.li);
+    }
+
+    @RequestMapping(value = "/by-username/{userName}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    public ResponseEntity removePreference(@PathVariable("userName") final String userName) {
+        return ResponseEntity.ok(this.service.listByUserName(authService.getCurrentUser(), userName));
+    }
 
 
 }
