@@ -3,11 +3,8 @@ package br.com.muttley.security.server.controller;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserDataBinding;
-import br.com.muttley.rest.hateoas.resource.PageableResource;
-import br.com.muttley.security.server.service.AuthService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +18,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
@@ -37,16 +33,16 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  */
 @RestController
 @RequestMapping(value = "/api/v1/users-databinding", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-public class UserDataBindingController extends AbstractRestController<UserDataBinding> {
+public class UserDataBindingController  {
 
     private final UserDataBindingService service;
-    private final AuthService authService;
+    private final UserService userService;
+    private final ApplicationEventPublisher publishCreateResourceEvent;
 
-    @Autowired
-    public UserDataBindingController(final UserDataBindingService service, final UserService userService, final ApplicationEventPublisher eventPublisher, final AuthService authService) {
-        super(service, userService, eventPublisher);
+    public UserDataBindingController(final UserDataBindingService service, final UserService userService, final ApplicationEventPublisher publishCreateResourceEvent) {
         this.service = service;
-        this.authService = authService;
+        this.userService = userService;
+        this.publishCreateResourceEvent = publishCreateResourceEvent;
     }
 
     @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
@@ -58,7 +54,6 @@ public class UserDataBindingController extends AbstractRestController<UserDataBi
             @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
 
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        this.checkRoleCreate(user);
         final UserDataBinding record = service.save(user, value);
 
         publishCreateResourceEvent(this.eventPublisher, response, record);
@@ -82,15 +77,15 @@ public class UserDataBindingController extends AbstractRestController<UserDataBi
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<UserDataBinding>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
-                                                 @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+    public ResponseEntity list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
+                               @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         checkRoleRead(user);
-        return ResponseEntity.ok(this.service.li);
+        return ResponseEntity.ok(this.service.listByUserName(user, user.getUserName()));
     }
 
     @RequestMapping(value = "/by-username/{userName}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-    public ResponseEntity removePreference(@PathVariable("userName") final String userName) {
+    public ResponseEntity listByUserName(@PathVariable("userName") final String userName) {
         return ResponseEntity.ok(this.service.listByUserName(authService.getCurrentUser(), userName));
     }
 
