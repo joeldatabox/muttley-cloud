@@ -130,7 +130,7 @@ public class EntityMetaData implements Cloneable {
             metaData.setCollection(document.collection());
         }
         Stream.of(getAllFields(type))
-                .filter(field -> field.getDeclaredAnnotation(Transient.class) == null || field.getDeclaredAnnotation(org.springframework.data.annotation.Transient.class) == null)
+                .filter(field -> field.getDeclaredAnnotation(Transient.class) == null && field.getDeclaredAnnotation(org.springframework.data.annotation.Transient.class) == null)
                 .map(field -> {
                     final EntityMetaData ent;
                     if (isBasicObject(field.getType())) {
@@ -162,7 +162,9 @@ public class EntityMetaData implements Cloneable {
         if (nameField.contains(".")) {
             //pegando o primeiro nome
             final String currentPath = nameField.substring(0, nameField.indexOf("."));
-
+            if(CollectionUtils.isEmpty(entityMetaData.fields)){
+                return null;
+            }
             final EntityMetaData currentEntityMetaData = entityMetaData.fields.stream().filter(it -> it.nameField.equals(currentPath))
                     .findFirst()
                     .orElse(null);

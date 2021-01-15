@@ -42,7 +42,7 @@ public class ProjectionMetadataImpl implements ProjectionMetadata {
                 //transformando em um fluxo
                 .stream()
                 //se a propriedade já existe quer dizer que já foi feito outro lookup
-                .filter(it -> !this.propertiesForlookup.contains(it))
+                //.filter(it -> !this.propertiesForlookup.contains(it))
                 //recuperando item e verificando se o mesmo é um dbref
                 //apenas dbref que se faz neessário fazer lookup
                 .filter(it -> {
@@ -50,22 +50,30 @@ public class ProjectionMetadataImpl implements ProjectionMetadata {
                     if (it.contains(".")) {
                         //Só vamos fazer lookup se o item atual não for um id e
                         //o item anterior for um dbref
+                        //e se o dbref não tiver lookup ainda
                         //para verificar isso vamos navegar pelo indices da string de 0 até o ultimo "."
                         final EntityMetaData fieldAtual = this.entityMetaData.getFieldByName(it);
                         if (fieldAtual != null) {
                             //field atual não é um DBRef e nem um id?
                             if (!fieldAtual.isDBRef() && !fieldAtual.isId()) {
                                 final EntityMetaData fieldAnterior = this.entityMetaData.getFieldByName(it.substring(0, it.lastIndexOf(".")));
-                                return fieldAnterior.isDBRef();
+                                return fieldAnterior.isDBRef() && !this.propertiesForlookup.contains(fieldAnterior.getNameField());
                             }
                         }
                     }
                     return false;
                 })
-                //adicionado a chave que chegou ate aqui e criando o lookup necessário
+                //adicionado a chave do dbref que chegou ate aqui e criando o lookup necessário
                 .map(it -> {
-                    this.propertiesForlookup.add(it);
-                    return entityMetaData.createProjectFor(it);
+                    final String keyForLookUp;
+                    //pegando a referencia do dbref para o cache
+                    if (it.contains(".")) {
+                        keyForLookUp = it.substring(0, it.lastIndexOf("."));
+                    } else {
+                        keyForLookUp = it;
+                    }
+                    this.propertiesForlookup.add(keyForLookUp);
+                    return entityMetaData.createProjectFor(keyForLookUp);
                 })
                 .flatMap(Collection::stream)
                 .collect(Collectors.toCollection(LinkedList::new));

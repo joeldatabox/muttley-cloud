@@ -1,9 +1,8 @@
-package br.com.muttley.mongo.query.testapi3;
+package br.com.muttley.mongo.query.testapi3.fieldtype;
 
-import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.infra.newagregation.projections.Projection3;
-import br.com.muttley.mongo.query.URLParaTest;
 import br.com.muttley.mongo.query.model2.NotaFiscal;
+import br.com.muttley.mongo.query.testapi3.AbstractTest;
 import org.junit.Test;
 
 /**
@@ -19,8 +18,8 @@ public class DBRefTest extends AbstractTest {
 
     @Test
     public void testValidId() {
-        final Projection3 projection = Projection3.ProjectionBuilder.from(EntityMetaData.of(NotaFiscal.class), URLParaTest.getQueryParams(URL_TEST));
-
-        this.printResult(projection);
+        this.printResult(getProjection(NotaFiscal.class));
     }
+
+
 }
