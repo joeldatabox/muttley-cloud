@@ -4,8 +4,14 @@ import br.com.muttley.domain.service.Validator;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
+import br.com.muttley.headers.components.MuttleyCurrentTimezone;
+import br.com.muttley.headers.components.MuttleyCurrentVersion;
+import br.com.muttley.headers.components.MuttleyUserAgentName;
 import br.com.muttley.model.BasicAggregateResult;
 import br.com.muttley.model.BasicAggregateResultCount;
+import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetadataDocument;
+import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
@@ -16,15 +22,16 @@ import com.mongodb.BasicDBObject;
 import io.jsonwebtoken.lang.Collections;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Date;
 import java.util.List;
 
-import static br.com.muttley.model.security.Role.ROLE_USER_DATA_BINDING_READ;
 import static java.util.Arrays.asList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.count;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
@@ -41,12 +48,19 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  */
 @Service
 public class UserDataBindingServiceImpl implements UserDataBindingService {
-    private static final String[] basicRoles = new String[]{ROLE_USER_DATA_BINDING_READ.getSimpleName()};
+    @Autowired
+    protected MuttleyCurrentTimezone currentTimezone;
+    @Autowired
+    protected MuttleyCurrentVersion currentVersion;
+    @Autowired
+    protected MuttleyUserAgentName userAgentName;
     private final MongoTemplate mongoTemplate;
     private final UserDataBindingRepository repository;
     private final DocumentNameConfig documentNameConfig;
     private final Validator validator;
     private final UserService userService;
+    @Value("${muttley.security.check-roles:false}")
+    private boolean checkRoles;
 
     @Autowired
     public UserDataBindingServiceImpl(final MongoTemplate mongoTemplate, final UserDataBindingRepository repository, final DocumentNameConfig documentNameConfig, final Validator validator, final UserService userService) {
@@ -57,11 +71,16 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         this.userService = userService;
     }
 
+    public boolean isCheckRole() {
+        return checkRoles;
+    }
+
     @Override
     public UserDataBinding save(final User user, final UserDataBinding dataBinding) {
         if (dataBinding.getUser() == null) {
             dataBinding.setUser(user);
         }
+        checkBasicInfos(user, dataBinding);
         checkPrecondictionSave(user, dataBinding);
         return repository.save(dataBinding);
     }
@@ -80,8 +99,9 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         if (dataBinding.getUser() == null) {
             dataBinding.setUser(user);
         }
+        checkBasicInfos(user, dataBinding);
         this.checkPrecondictionUpdate(user, dataBinding);
-        return null;
+        return repository.save(dataBinding);
     }
 
     public void checkPrecondictionUpdate(final User user, final UserDataBinding dataBinding) {
@@ -90,6 +110,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         //verificando se já não existe um registro com as informações
         this.checkIndex(user, dataBinding);
+        this.validator.validate(dataBinding);
     }
 
     @Override
@@ -151,8 +172,18 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         if (dataBinding.getUser() == null) {
             dataBinding.setUser(this.userService.findByUserName(userName));
         }
-        checkPrecondictionSave(user, dataBinding);
+        checkBasicInfos(user, dataBinding);
+        checkPrecondictionSaveByUserName(user, userName, dataBinding);
         return repository.save(dataBinding);
+    }
+
+    public void checkPrecondictionSaveByUserName(final User user, final String userName, final UserDataBinding dataBinding) {
+        if (!userName.equals(dataBinding.getUser().getUserName())) {
+            throw new MuttleyBadRequestException(UserDataBinding.class, "user", "O usuário informado é diferente do da requisição!");
+        }
+        //verificando se já não existe um registro com as informações
+        this.checkIndex(user, dataBinding);
+        this.validator.validate(dataBinding);
     }
 
     @Override
@@ -160,17 +191,34 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         if (dataBinding.getUser() == null) {
             dataBinding.setUser(this.userService.findByUserName(userName));
         }
-        checkPrecondictionUpdate(user, dataBinding);
+        if (StringUtils.isEmpty(dataBinding.getId())) {
+            dataBinding.setId(this.loadIdFrom(user, dataBinding));
+        }
+        checkBasicInfos(user, dataBinding);
+        checkPrecondictionUpdateByUserName(user, userName, dataBinding);
         return repository.save(dataBinding);
     }
 
-    @Override
-    public void merge(final User user, final UserDataBinding dataBinding) {
+    public void checkPrecondictionUpdateByUserName(final User user, final String userName, final UserDataBinding dataBinding) {
+        if (!userName.equals(dataBinding.getUser().getUserName())) {
+            throw new MuttleyBadRequestException(UserDataBinding.class, "user", "O usuário informado é diferente do da requisição!");
+        }
         this.validator.validate(dataBinding);
+        //verificando se já não existe um registro com as informações
+        this.checkIndex(user, dataBinding);
+    }
+
+    @Override
+    public void merge(final User user, final String userName, final UserDataBinding dataBinding) {
+        if (dataBinding.getUser() == null) {
+            dataBinding.setUser(this.userService.findByUserName(userName));
+        }
         if (exists(user, dataBinding)) {
-            this.repository.save(dataBinding.setId(this.loadIdFrom(user, dataBinding)));
+
+            this.updateByUserName(user, userName, dataBinding);
         } else {
-            this.repository.save(dataBinding);
+
+            this.saveByUserName(user, userName, dataBinding);
         }
     }
 
@@ -243,5 +291,108 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
                 BasicAggregateResult.class
         );
         return results.getUniqueMappedResult().getResult().toString();
+    }
+
+    private void checkBasicInfos(final User user, final UserDataBinding userDataBinding) {
+        userDataBinding.setOwner(user.getCurrentOwner());
+        if (StringUtils.isEmpty(userDataBinding.getId())) {
+            userDataBinding.setHistoric(this.createHistoric(user));
+            this.createMetaData(user, userDataBinding);
+        } else {
+            this.generateHistoricUpdate(user, this.repository.loadHistoric(userDataBinding), userDataBinding);
+            this.generateMetaDataUpdate(user, this.repository.loadMetadata(userDataBinding), userDataBinding);
+        }
+    }
+
+    protected void createMetaData(final User user, final UserDataBinding value) {
+        //se não tiver nenhum metadata criado, vamos criar um
+        if (!value.containsMetadata()) {
+            value.setMetadata(new MetadataDocument()
+                    .setTimeZones(this.currentTimezone.getCurrentTimezoneDocument())
+                    .setVersionDocument(
+                            new VersionDocument()
+                                    .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
+                                    .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue())
+                                    .setOriginNameClientCreate(this.userAgentName.getCurrentValue())
+                                    .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
+                                    .setServerVersionCreate(this.currentVersion.getCurrenteFromServer())
+                                    .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
+                    ));
+        } else {
+            //se não tem um timezone válido, vamos criar um
+            if (!value.getMetadata().containsTimeZones()) {
+                value.getMetadata().setTimeZones(this.currentTimezone.getCurrentTimezoneDocument());
+            } else {
+                //se chegou aqui é sinal que já possui infos de timezones e devemos apenas checar e atualizar caso necessário
+
+                //O timezone atual informado é valido?
+                if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
+                    //adicionado a mesma info no createTimezone já que estamos criando um novo registro
+                    value.getMetadata().getTimeZones().setCreateTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
+                }
+
+                //adicionando infos de timezone do servidor
+                final String currentServerTimezone = this.currentTimezone.getCurrenteTimeZoneFromServer();
+                value.getMetadata().getTimeZones().setServerCreteTimeZone(currentServerTimezone);
+                value.getMetadata().getTimeZones().setServerCurrentTimeZone(currentServerTimezone);
+            }
+
+            //criando version valido
+            value.getMetadata().setVersionDocument(
+                    new VersionDocument()
+                            .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
+                            .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue())
+                            .setOriginNameClientCreate(this.userAgentName.getCurrentValue())
+                            .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
+                            .setServerVersionCreate(this.currentVersion.getCurrenteFromServer())
+                            .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
+            );
+
+
+        }
+    }
+
+    protected Historic createHistoric(final User user) {
+        final Date now = new Date();
+        return new Historic()
+                .setCreatedBy(user)
+                .setDtCreate(now)
+                .setLastChangeBy(user)
+                .setDtChange(now);
+    }
+
+    protected void generateMetaDataUpdate(final User user, final MetadataDocument currentMetadata, final UserDataBinding value) {
+        currentMetadata.getTimeZones().setServerCurrentTimeZone(this.currentTimezone.getCurrenteTimeZoneFromServer());
+
+
+        //se veio informações no registro, devemos aproveitar
+        if (value.containsMetadata()) {
+            if (value.getMetadata().containsTimeZones()) {
+                if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
+                    currentMetadata.getTimeZones().setCurrentTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
+                } else {
+                    currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue());
+                }
+            } else {
+                currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue());
+            }
+        } else {
+            currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue())
+                    .setServerCurrentTimeZone(this.currentTimezone.getCurrenteTimeZoneFromServer());
+        }
+        //setando versionamento
+        currentMetadata
+                .getVersionDocument()
+                .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
+                .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
+                .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
+
+        value.setMetadata(currentMetadata);
+    }
+
+    protected void generateHistoricUpdate(final User user, final Historic historic, final UserDataBinding userDataBinding) {
+        userDataBinding.setHistoric(historic
+                .setLastChangeBy(user)
+                .setDtChange(new Date()));
     }
 }

@@ -3,8 +3,10 @@ package br.com.muttley.security.server.controller;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserDataBinding;
+import br.com.muttley.rest.RestResource;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,16 +35,17 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  */
 @RestController
 @RequestMapping(value = "/api/v1/users-databinding", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-public class UserDataBindingController  {
+public class UserDataBindingController implements RestResource {
 
     private final UserDataBindingService service;
     private final UserService userService;
-    private final ApplicationEventPublisher publishCreateResourceEvent;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public UserDataBindingController(final UserDataBindingService service, final UserService userService, final ApplicationEventPublisher publishCreateResourceEvent) {
+    @Autowired
+    public UserDataBindingController(final UserDataBindingService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
         this.service = service;
         this.userService = userService;
-        this.publishCreateResourceEvent = publishCreateResourceEvent;
+        this.eventPublisher = eventPublisher;
     }
 
     @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
@@ -71,7 +74,7 @@ public class UserDataBindingController  {
             @RequestBody final UserDataBinding model,
             @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        checkRoleUpdate(user);
+        //checkRoleUpdate(user);
         model.setId(id);
         return ResponseEntity.ok(service.update(user, model));
     }
@@ -80,13 +83,50 @@ public class UserDataBindingController  {
     public ResponseEntity list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
                                @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        checkRoleRead(user);
+        //checkRoleRead(user);
         return ResponseEntity.ok(this.service.listByUserName(user, user.getUserName()));
     }
 
     @RequestMapping(value = "/by-username/{userName}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-    public ResponseEntity listByUserName(@PathVariable("userName") final String userName) {
-        return ResponseEntity.ok(this.service.listByUserName(authService.getCurrentUser(), userName));
+    public ResponseEntity listByUserName(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @PathVariable("userName") final String userName) {
+        return ResponseEntity.ok(this.service.listByUserName(userService.getUserFromToken(new JwtToken(tokenHeader)), userName));
+    }
+
+    @RequestMapping(value = "/by-username/{userName}", method = POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    public ResponseEntity saveByUserName(
+            final HttpServletResponse response,
+            @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity,
+            @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader,
+            @PathVariable("userName") final String userName,
+            @RequestBody final UserDataBinding model) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        final UserDataBinding record = service.saveByUserName(user, userName, model);
+
+        publishCreateResourceEvent(this.eventPublisher, response, record);
+
+        if (returnEntity != null && returnEntity.equals("true")) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(record);
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @RequestMapping(value = "/by-username/{userName}", method = PUT, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    public ResponseEntity updateByUserName(
+            @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader,
+            @PathVariable("userName") final String userName,
+            @RequestBody final UserDataBinding model) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        return ResponseEntity.ok(service.updateByUserName(user, userName, model));
+    }
+
+    @RequestMapping(value = "/merge/{userName}", method = PUT, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    public ResponseEntity merger(
+            @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader,
+            @PathVariable("userName") final String userName,
+            @RequestBody final UserDataBinding model) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        service.merge(user, userName, model);
+        return ResponseEntity.ok().build();
     }
 
 
