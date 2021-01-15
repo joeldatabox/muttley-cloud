@@ -31,8 +31,6 @@ import static org.springframework.util.Assert.notNull;
         @CompoundIndex(name = "preferences_key_value_index", def = "{'preferences.key': 1, 'preferences.value':1}")
 })
 public class UserPreferences implements Document {
-    @Deprecated
-    public static final String WORK_TEAM_PREFERENCE = "WorkTeamPreference";
     public static final String OWNER_PREFERENCE = "OWNER_PREFERENCE";
     @Id
     private String id;
