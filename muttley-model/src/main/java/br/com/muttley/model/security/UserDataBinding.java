@@ -1,7 +1,6 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.annotations.index.CompoundIndexes;
-import br.com.muttley.annotations.valitators.CheckIndex;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
@@ -9,12 +8,15 @@ import br.com.muttley.model.jackson.converter.DocumentSerializer;
 import br.com.muttley.model.security.jackson.OwnerDeserializer;
 import br.com.muttley.model.security.jackson.UserDataDeserializer;
 import br.com.muttley.model.security.jackson.UserDataSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -31,11 +33,16 @@ import javax.validation.constraints.NotNull;
 @CompoundIndexes({
         @CompoundIndex(name = "userMaster_index_unique", def = "{'owner': 1, 'user': 1, 'key': 1}", unique = true)
 })
+@TypeAlias(UserDataBinding.TYPE_ALIAS)
 @Getter
 @Setter
 @Accessors(chain = true)
 @EqualsAndHashCode(of = "id")
 public class UserDataBinding implements Model {
+    @Transient
+    @JsonIgnore
+    public static final String TYPE_ALIAS = "user-data-binding";
+
     private String id;
     @JsonSerialize(using = DocumentSerializer.class)
     @JsonDeserialize(using = OwnerDeserializer.class)
