@@ -20,6 +20,7 @@ import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.OwnerService;
+import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserPreferencesService;
 import br.com.muttley.security.server.service.UserService;
 import org.bson.types.ObjectId;
@@ -63,6 +64,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
     private final UserPreferencesService preferencesService;
+    private final UserDataBindingService dataBindingService;
     private final JwtTokenUtilService tokenUtil;
     private final String tokenHeader;
     private final OwnerService ownerService;
@@ -73,6 +75,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     public UserServiceImpl(final UserRepository repository,
                            final UserPreferencesService preferencesService,
+                           final UserDataBindingService dataBindingService,
                            @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
                            final JwtTokenUtilService tokenUtil,
                            final OwnerService ownerService,
@@ -81,6 +84,7 @@ public class UserServiceImpl implements UserService {
                            final ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.preferencesService = preferencesService;
+        this.dataBindingService = dataBindingService;
         this.tokenHeader = tokenHeader;
         this.tokenUtil = tokenUtil;
         this.ownerService = ownerService;
@@ -313,6 +317,11 @@ public class UserServiceImpl implements UserService {
                 final User user = findByUserName(userName);
                 final UserPreferences preferences = this.preferencesService.getUserPreferences(user);
                 user.setPreferences(preferences);
+                user.setCurrentOwner(this.ownerService.findByUserAndId(user, preferences.get(OWNER_PREFERENCE).getValue().toString()));
+                try {
+                    user.setDataBindings(this.dataBindingService.listBy(user));
+                } catch (MuttleyNoContentException ex) {
+                }
                 if (preferences.contains(OWNER_PREFERENCE)) {
                     user.setCurrentOwner(this.ownerService.findByUserAndId(user, preferences.get(OWNER_PREFERENCE).getValue().toString()));
                 } else {

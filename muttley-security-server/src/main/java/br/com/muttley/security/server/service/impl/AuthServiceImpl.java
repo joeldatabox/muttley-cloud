@@ -1,11 +1,15 @@
 package br.com.muttley.security.server.service.impl;
 
+import br.com.muttley.exception.throwables.MuttleyNoContentException;
+import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.service.AuthService;
+import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserPreferencesService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +18,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira on 19/04/18.
@@ -26,11 +32,13 @@ public class AuthServiceImpl implements AuthService {
     protected final String tokenHeader;
     protected final UserService userService;
     protected final UserPreferencesService preferencesService;
+    protected final UserDataBindingService dataBindingService;
 
-    public AuthServiceImpl(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, final UserService userService, final UserPreferencesService preferencesService) {
+    public AuthServiceImpl(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, final UserService userService, final UserPreferencesService preferencesService, final UserDataBindingService dataBindingService) {
         this.tokenHeader = tokenHeader;
         this.userService = userService;
         this.preferencesService = preferencesService;
+        this.dataBindingService = dataBindingService;
     }
 
     @Override
@@ -67,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
                 user.setPreferences(preferences);
             }
         }
-        return this.getCurrentUser().getPreferences();
+        return user.getPreferences();
     }
 
     @Override
@@ -75,4 +83,24 @@ public class AuthServiceImpl implements AuthService {
         return this.preferencesService.getPreference(this.getCurrentUser(), key);
     }
 
+    @Override
+    public Set<UserDataBinding> getDataBindings() {
+        final User user = this.getCurrentUser();
+        if (user.getDataBindings() == null || user.dataBindingsIsEmpty()) {
+            try {
+                user.setDataBindings(this.dataBindingService.listBy(user));
+            } catch (final MuttleyNoContentException ex) {
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public UserDataBinding getDataBinding(final String key) {
+        try {
+            return this.dataBindingService.getKey(this.getCurrentUser(), key);
+        } catch (final MuttleyNotFoundException ex) {
+        }
+        return null;
+    }
 }

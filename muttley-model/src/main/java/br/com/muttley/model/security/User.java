@@ -6,6 +6,7 @@ import br.com.muttley.model.security.preference.UserPreferences;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.jsonwebtoken.lang.Collections;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
@@ -24,6 +25,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -72,6 +74,7 @@ public class User implements Serializable, UserData {
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo workteam corrente
     @Transient
     private UserPreferences preferences;
+    private List<UserDataBinding> dataBindings;
     //Define se o usuário é do odin ou de algum outro owner
     private boolean odinUser = false;
 
@@ -94,7 +97,8 @@ public class User implements Serializable, UserData {
             @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
             @JsonProperty("enable") final Boolean enable,
             @JsonProperty("authorities") final Set<Authority> authorities,
-            @JsonProperty("preferences") final UserPreferences preferences) {
+            @JsonProperty("preferences") final UserPreferences preferences,
+            @JsonProperty("dataBindings") final List<UserDataBinding> dataBindings) {
         this.id = id;
         this.currentOwner = currentOwner;
         this.name = name;
@@ -107,6 +111,7 @@ public class User implements Serializable, UserData {
         this.enable = enable;
         this.authorities = authorities;
         this.preferences = preferences;
+        this.dataBindings = dataBindings;
     }
 
     public User(final UserPayLoad payLoad) {
@@ -349,6 +354,38 @@ public class User implements Serializable, UserData {
     public User setPreferences(final UserPreferences preferences) {
         this.preferences = preferences;
         return this;
+    }
+
+    public List<UserDataBinding> getDataBindings() {
+        return dataBindings;
+    }
+
+    public User setDataBindings(final List<UserDataBinding> dataBindings) {
+        this.dataBindings = dataBindings;
+        return this;
+    }
+
+    @JsonIgnore
+    public boolean containsDatabinding(final String key) {
+        return this.dataBindings
+                .parallelStream()
+                .filter(it -> key.equals(it.getKey()))
+                .count() > 0;
+    }
+
+    public boolean dataBindingsIsEmpty() {
+        return Collections.isEmpty(this.dataBindings);
+    }
+
+    public UserDataBinding getDataBinding(final String key) {
+        if (isEmpty(key) || dataBindingsIsEmpty()) {
+            return null;
+        }
+        return this.dataBindings
+                .parallelStream()
+                .filter(it -> key.equals(it.getKey()))
+                .findFirst()
+                .orElse(null);
     }
 
     public boolean isOdinUser() {

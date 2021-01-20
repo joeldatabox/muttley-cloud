@@ -129,5 +129,37 @@ public class UserDataBindingController implements RestResource {
         return ResponseEntity.ok().build();
     }
 
+    @RequestMapping(value = "/key/{key}", method = RequestMethod.GET)
+    public ResponseEntity getKey(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @PathVariable("key") final String key) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        //checkRoleRead(user);
+        return ResponseEntity.ok(this.service.getKey(user, key));
+    }
+
+    @RequestMapping(value = "/by-username/{userName}/key/{key}", method = RequestMethod.GET)
+    public ResponseEntity getKeyByUserName(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @PathVariable("userName") final String userName, @PathVariable("key") final String key) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        //checkRoleRead(user);
+        return ResponseEntity.ok(this.service.getKeyByUserName(user, userName, key));
+    }
+
+    @RequestMapping(value = "/contains/key/{key}", method = RequestMethod.GET)
+    public ResponseEntity contains(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @PathVariable("key") final String key) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        //checkRoleRead(user);
+        return ResponseEntity.ok(this.service.contains(user, key));
+    }
+
+    @RequestMapping(value = "/by-username/{userName}/contains/key/{key}", method = RequestMethod.GET)
+    public ResponseEntity containsByUserName(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @PathVariable("userName") final String userName, @PathVariable("key") final String key) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        return ResponseEntity.ok(this.service.containsByUserName(user, userName, key));
+    }
+
+    @RequestMapping(value = "/user-by", method = RequestMethod.GET)
+    public ResponseEntity getUserBy(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestParam(required = false, value = "key", defaultValue = "") final String key, @RequestParam(required = false, value = "value", defaultValue = "") final String value) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        return ResponseEntity.ok(this.service.getUserBy(user, key, value));
+    }
 
 }

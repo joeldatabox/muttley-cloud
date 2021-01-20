@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.replaceRoot;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -101,7 +102,8 @@ public class UserPreferencesImpl implements UserPreferencesService {
                         match(where("user.$id").is(new ObjectId(user.getId())).and("preferences.key").is(key)),
                         project("preferences"),
                         unwind("$preferences"),
-                        match(where("preferences.key").is(key))
+                        match(where("preferences.key").is(key)),
+                        replaceRoot("preferences")
                 ),
                 UserPreferences.class,
                 Preference.class);

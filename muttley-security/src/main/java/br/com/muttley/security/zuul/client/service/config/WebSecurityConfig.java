@@ -2,6 +2,7 @@ package br.com.muttley.security.zuul.client.service.config;
 
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.OwnerServiceClient;
+import br.com.muttley.security.feign.UserDataBindingClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.feign.WorkTeamServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
@@ -45,13 +46,13 @@ public class WebSecurityConfig {
 
     @Bean
     @Primary
-    public AuthService createAuthService(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, @Autowired final UserPreferenceServiceClient userPreferenceServiceClient) {
-        return new AuthServiceImpl(tokenHeader, userPreferenceServiceClient);
+    public AuthService createAuthService(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, @Autowired final UserPreferenceServiceClient userPreferenceServiceClient, final UserDataBindingClient dataBindingClient) {
+        return new AuthServiceImpl(tokenHeader, userPreferenceServiceClient, dataBindingClient);
     }
 
     @Bean
     @Autowired
-    public UserAfterCacheLoadListener creaUserAfterCacheLoadListener(final UserPreferenceServiceClient userPreferenceServiceClient, final OwnerServiceClient ownerServiceClient, final WorkTeamServiceClient workTeamService) {
-        return new UserAfterCacheLoadListener(userPreferenceServiceClient, ownerServiceClient, workTeamService);
+    public UserAfterCacheLoadListener creaUserAfterCacheLoadListener(final UserPreferenceServiceClient userPreferenceServiceClient, final UserDataBindingClient dataBindingService, final OwnerServiceClient ownerServiceClient, final WorkTeamServiceClient workTeamService) {
+        return new UserAfterCacheLoadListener(userPreferenceServiceClient, dataBindingService, ownerServiceClient, workTeamService);
     }
 }

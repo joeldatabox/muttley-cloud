@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.service;
 
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserDataBinding;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -101,6 +102,30 @@ public interface UserDataBindingService {
                     "   ) " +
                     "or " +
                     "   hasAnyRole( " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_USER_DATA_BINDING_READ.toString() " +
+                    "   ) " +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).ROLE_MOBILE_USER_DATA_BINDING_READ.toString()  " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
+    List<UserDataBinding> listBy(final User user);
+
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "( " +
+                    "   hasAnyRole( " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString() " +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole( " +
                     "       T(br.com.muttley.model.security.Role).ROLE_USER_DATA_BINDING_OTHERS_USERS_MERGE.toString() " +
                     "   ) " +
                     "or (" +
@@ -162,5 +187,15 @@ public interface UserDataBindingService {
                     "): " +
                     "   true "
     )
-    void merge(final User user,final String userName, final UserDataBinding dataBinding);
+    void merge(final User user, final String userName, final UserDataBinding dataBinding);
+
+    UserDataBinding getKey(final User user, final String key);
+
+    UserDataBinding getKeyByUserName(final User user, final String userName, final String key);
+
+    boolean contains(final User user, final String key);
+
+    boolean containsByUserName(final User user, final String userName, final String key);
+
+    UserData getUserBy(final User user, final String key, final String value);
 }

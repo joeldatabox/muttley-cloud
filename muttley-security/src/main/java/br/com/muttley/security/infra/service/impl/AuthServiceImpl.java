@@ -5,6 +5,7 @@ import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
+import br.com.muttley.security.feign.UserDataBindingClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.infra.service.AuthService;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,10 +27,12 @@ public class AuthServiceImpl implements AuthService {
 
     protected final String tokenHeader;
     protected final UserPreferenceServiceClient preferenceService;
+    protected final UserDataBindingClient dataBindingService;
 
-    public AuthServiceImpl(@Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader, final UserPreferenceServiceClient preferenceService) {
+    public AuthServiceImpl(@Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader, final UserPreferenceServiceClient preferenceService, final UserDataBindingClient dataBindingService) {
         this.tokenHeader = tokenHeader;
         this.preferenceService = preferenceService;
+        this.dataBindingService = dataBindingService;
     }
 
     @Override

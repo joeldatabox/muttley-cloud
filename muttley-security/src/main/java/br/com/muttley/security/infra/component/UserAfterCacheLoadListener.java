@@ -5,10 +5,12 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialExc
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.feign.OwnerServiceClient;
+import br.com.muttley.security.feign.UserDataBindingClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.feign.WorkTeamServiceClient;
 import org.bson.types.ObjectId;
@@ -29,12 +31,14 @@ import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PRE
 public class UserAfterCacheLoadListener implements ApplicationListener<UserAfterCacheLoadEvent> {
 
     private final UserPreferenceServiceClient preferenceService;
+    private final UserDataBindingClient dataBindingService;
     private final OwnerServiceClient ownerService;
     private final WorkTeamServiceClient workTeamService;
 
     @Autowired
-    public UserAfterCacheLoadListener(final UserPreferenceServiceClient preferenceService, final OwnerServiceClient ownerService, final WorkTeamServiceClient workTeamService) {
+    public UserAfterCacheLoadListener(final UserPreferenceServiceClient preferenceService, final UserDataBindingClient dataBindingService, final OwnerServiceClient ownerService, final WorkTeamServiceClient workTeamService) {
         this.preferenceService = preferenceService;
+        this.dataBindingService = dataBindingService;
         this.ownerService = ownerService;
         this.workTeamService = workTeamService;
     }
@@ -44,6 +48,7 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
         final User user = event.getSource();
         //carregando preferencias
         final UserPreferences preferences = preferenceService.getUserPreferences();
+        final List<UserDataBinding> dataBindings = dataBindingService.list();
         try {
             if (!preferences.contains(OWNER_PREFERENCE)) {
                 final List<OwnerData> owners = this.ownerService.findByUser();
@@ -55,9 +60,11 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
                 user.setCurrentOwner(owners.get(0));
                 //carregando authorities
                 user.setAuthorities(this.workTeamService.loadCurrentRoles());
+                user.setDataBindings(dataBindings);
             } else {
                 final ObjectId idOwner = new ObjectId(preferences.get(OWNER_PREFERENCE).getValue().toString());
                 user.setPreferences(preferences);
+                user.setDataBindings(dataBindings);
                 final Owner owner = ownerService.findByUserAndId(idOwner.toString());
                 user.setCurrentOwner(owner);
                 //carregando authorities

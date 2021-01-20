@@ -31,7 +31,7 @@ import javax.validation.constraints.NotNull;
  */
 @Document(collection = "#{documentNameConfig.getNameCollectionUserDataBinding()}")
 @CompoundIndexes({
-        @CompoundIndex(name = "userMaster_index_unique", def = "{'owner': 1, 'user': 1, 'key': 1}", unique = true)
+        @CompoundIndex(name = "owner_user_key_index_unique", def = "{'owner': 1, 'user': 1, 'key': 1}", unique = true)
 })
 @TypeAlias(UserDataBinding.TYPE_ALIAS)
 @Getter

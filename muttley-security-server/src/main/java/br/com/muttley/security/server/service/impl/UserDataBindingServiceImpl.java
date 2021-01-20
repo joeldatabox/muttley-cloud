@@ -4,6 +4,7 @@ import br.com.muttley.domain.service.Validator;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
+import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.headers.components.MuttleyCurrentTimezone;
 import br.com.muttley.headers.components.MuttleyCurrentVersion;
 import br.com.muttley.headers.components.MuttleyUserAgentName;
@@ -13,22 +14,25 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserDataBinding;
+import br.com.muttley.model.security.events.UserResolverEvent;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.UserDataBindingRepository;
 import br.com.muttley.security.server.service.UserDataBindingService;
-import br.com.muttley.security.server.service.UserService;
 import com.mongodb.BasicDBObject;
 import io.jsonwebtoken.lang.Collections;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -58,17 +62,18 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     private final UserDataBindingRepository repository;
     private final DocumentNameConfig documentNameConfig;
     private final Validator validator;
-    private final UserService userService;
+    //private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
     @Value("${muttley.security.check-roles:false}")
     private boolean checkRoles;
 
     @Autowired
-    public UserDataBindingServiceImpl(final MongoTemplate mongoTemplate, final UserDataBindingRepository repository, final DocumentNameConfig documentNameConfig, final Validator validator, final UserService userService) {
+    public UserDataBindingServiceImpl(final MongoTemplate mongoTemplate, final UserDataBindingRepository repository, final DocumentNameConfig documentNameConfig, final Validator validator, final ApplicationEventPublisher eventPublisher) {
         this.mongoTemplate = mongoTemplate;
         this.repository = repository;
         this.documentNameConfig = documentNameConfig;
         this.validator = validator;
-        this.userService = userService;
+        this.eventPublisher = eventPublisher;
     }
 
     public boolean isCheckRole() {
@@ -115,54 +120,58 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
 
     @Override
     public List<UserDataBinding> listByUserName(final User user, final String userName) {
-
-        final AggregationResults<UserDataBinding> results;
-
         if (user.getUserName().equals(userName)) {
-            /**
-             * db.getCollection("muttley-users-databinding").aggregate([
-             *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6"),"user.$id":ObjectId("5e28b3e3637e580001e465d6")}},
-             * ])
-             */
-            results = this.mongoTemplate.aggregate(
-                    newAggregation(
-                            match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("user.$id").is(new ObjectId(user.getId())))
-                    ),
-                    UserDataBinding.class,
-                    UserDataBinding.class
-            );
-        } else {
-            /**
-             * db.getCollection("muttley-users-databinding").aggregate([
-             *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6")}},
-             *     {$project:{_class:1, key:1, value:1, metadata:1, historic:1, owner:1, user:{$objectToArray:"$user"}}},
-             *     {$project:{_class:1, key:1, value:1, metadata:1, historic:1, owner:1, user:{$arrayElemAt:["$user.v", 1]}}},
-             *     {$lookup:{
-             *         from:"muttley-users",
-             *         localField:"user",
-             *         foreignField:"_id",
-             *         as: "user"
-             *     }},
-             *     {$unwind:"$user"},
-             *     {$match:{"user.userName":"OwnerSiapi5e28b392637e580001e465d3"}}
-             * ])
-             */
-            results = this.mongoTemplate.aggregate(
-                    newAggregation(
-                            match(where("owner.$id").is(user.getCurrentOwner().getObjectId())),
-                            project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$objectToArray", "$user")).as("user"),
-                            project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$arrayElemAt", asList("$user.v", 1))).as("user"),
-                            lookup(documentNameConfig.getNameCollectionUser(), "user", "_id", "user"),
-                            unwind("$user"),
-                            match(where("user.userName").is(userName))
-                    ),
-                    documentNameConfig.getNameCollectionUserDataBinding(),
-                    UserDataBinding.class
-            );
+            return this.listBy(user);
         }
-
+        /**
+         * db.getCollection("muttley-users-databinding").aggregate([
+         *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6")}},
+         *     {$project:{_class:1, key:1, value:1, metadata:1, historic:1, owner:1, user:{$objectToArray:"$user"}}},
+         *     {$project:{_class:1, key:1, value:1, metadata:1, historic:1, owner:1, user:{$arrayElemAt:["$user.v", 1]}}},
+         *     {$lookup:{
+         *         from:"muttley-users",
+         *         localField:"user",
+         *         foreignField:"_id",
+         *         as: "user"
+         *     }},
+         *     {$unwind:"$user"},
+         *     {$match:{"user.userName":"OwnerSiapi5e28b392637e580001e465d3"}}
+         * ])
+         */
+        final AggregationResults<UserDataBinding> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId())),
+                        project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$objectToArray", "$user")).as("user"),
+                        project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$arrayElemAt", asList("$user.v", 1))).as("user"),
+                        lookup(documentNameConfig.getNameCollectionUser(), "user", "_id", "user"),
+                        unwind("$user"),
+                        match(where("user.userName").is(userName))
+                ),
+                documentNameConfig.getNameCollectionUserDataBinding(),
+                UserDataBinding.class
+        );
         if (results == null || Collections.isEmpty(results.getMappedResults())) {
-            throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Nenhum registro encontrado para o usuário desejado");
+            return new ArrayList<>();
+        }
+        return results.getMappedResults();
+    }
+
+    @Override
+    public List<UserDataBinding> listBy(final User user) {
+        /**
+         * db.getCollection("muttley-users-databinding").aggregate([
+         *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6"),"user.$id":ObjectId("5e28b3e3637e580001e465d6")}},
+         * ])
+         */
+        final AggregationResults<UserDataBinding> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("user.$id").is(new ObjectId(user.getId())))
+                ),
+                UserDataBinding.class,
+                UserDataBinding.class
+        );
+        if (results == null || Collections.isEmpty(results.getMappedResults())) {
+            new ArrayList<>();
         }
         return results.getMappedResults();
     }
@@ -170,7 +179,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     @Override
     public UserDataBinding saveByUserName(final User user, final String userName, final UserDataBinding dataBinding) {
         if (dataBinding.getUser() == null) {
-            dataBinding.setUser(this.userService.findByUserName(userName));
+            dataBinding.setUser(this.findByUserName(userName));
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionSaveByUserName(user, userName, dataBinding);
@@ -189,7 +198,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     @Override
     public UserDataBinding updateByUserName(final User user, final String userName, final UserDataBinding dataBinding) {
         if (dataBinding.getUser() == null) {
-            dataBinding.setUser(this.userService.findByUserName(userName));
+            dataBinding.setUser(this.findByUserName(userName));
         }
         if (StringUtils.isEmpty(dataBinding.getId())) {
             dataBinding.setId(this.loadIdFrom(user, dataBinding));
@@ -211,7 +220,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     @Override
     public void merge(final User user, final String userName, final UserDataBinding dataBinding) {
         if (dataBinding.getUser() == null) {
-            dataBinding.setUser(this.userService.findByUserName(userName));
+            dataBinding.setUser(this.findByUserName(userName));
         }
         if (exists(user, dataBinding)) {
 
@@ -220,6 +229,143 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
 
             this.saveByUserName(user, userName, dataBinding);
         }
+    }
+
+    @Override
+    public UserDataBinding getKey(final User user, final String key) {
+        /**
+         * db.getCollection("muttley-users-databinding").aggregate([
+         *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6"),"user.$id":ObjectId("5e28b3e3637e580001e465d6"), "key":"asdfasd"}},
+         * ])
+         */
+        final AggregationResults<UserDataBinding> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(
+                                where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                        .and("user.$id").is(new ObjectId(user.getId()))
+                                        .and("key").is(key)
+                        )
+                ),
+                UserDataBinding.class,
+                UserDataBinding.class
+        );
+        if (results == null || results.getUniqueMappedResult() == null) {
+            return null;
+        }
+        return results.getUniqueMappedResult();
+    }
+
+    @Override
+    public UserDataBinding getKeyByUserName(final User user, final String userName, final String key) {
+        if (user.getUserName().equals(userName)) {
+            return this.getKey(user, key);
+        }
+        /**
+         * db.getCollection("muttley-users-databinding").aggregate([
+         *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6"), "key":"asdfasd"}},
+         *     {$project:{_class:1, key:1, value:1, metadata:1, historic:1, owner:1, user:{$objectToArray:"$user"}}},
+         *     {$project:{_class:1, key:1, value:1, metadata:1, historic:1, owner:1, user:{$arrayElemAt:["$user.v", 1]}}},
+         *     {$lookup:{
+         *         from:"muttley-users",
+         *         localField:"user",
+         *         foreignField:"_id",
+         *         as: "user"
+         *     }},
+         *     {$unwind:"$user"},
+         *     {$match:{"user.userName":"OwnerSiapi5e28b392637e580001e465d3", "key":"asdfasd"}}
+         * ])
+         */
+        final AggregationResults<UserDataBinding> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("key").is(key)),
+                        project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$objectToArray", "$user")).as("user"),
+                        project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$arrayElemAt", asList("$user.v", 1))).as("user"),
+                        lookup(documentNameConfig.getNameCollectionUser(), "user", "_id", "user"),
+                        unwind("$user"),
+                        match(where("user.userName").is(userName).and("key").is(key))
+                ),
+                documentNameConfig.getNameCollectionUserDataBinding(),
+                UserDataBinding.class
+        );
+        if (results == null || results.getUniqueMappedResult() == null) {
+            return null;
+        }
+        return results.getUniqueMappedResult();
+    }
+
+    @Override
+    public boolean contains(final User user, final String key) {
+        /**
+         * db.getCollection("muttley-users-databinding").aggregate([
+         *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6"),"user.$id":ObjectId("5e28b3e3637e580001e465d6"), "key":"asdfasd"}},
+         * ])
+         */
+        return this.mongoTemplate.exists(
+                new Query(
+                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                .and("user.$id").is(new ObjectId(user.getId()))
+                                .and("key").is(key)
+                ), UserDataBinding.class);
+    }
+
+    @Override
+    public boolean containsByUserName(final User user, final String userName, final String key) {
+        if (user.getUserName().equals(userName)) {
+            return this.contains(user, key);
+        }
+        /**
+         * db.getCollection("muttley-users-databinding").aggregate([
+         *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6"), "key":"asdfasd"}},
+         *     {$project:{_class:1, key:1, value:1, metadata:1, historic:1, owner:1, user:{$objectToArray:"$user"}}},
+         *     {$project:{_class:1, key:1, value:1, metadata:1, historic:1, owner:1, user:{$arrayElemAt:["$user.v", 1]}}},
+         *     {$lookup:{
+         *         from:"muttley-users",
+         *         localField:"user",
+         *         foreignField:"_id",
+         *         as: "user"
+         *     }},
+         *     {$unwind:"$user"},
+         *     {$match:{"user.userName":"OwnerSiapi5e28b392637e580001e465d3", "key":"asdfasd"}}
+         * ])
+         */
+        final AggregationResults<BasicAggregateResultCount> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("key").is(key)),
+                        project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$objectToArray", "$user")).as("user"),
+                        project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$arrayElemAt", asList("$user.v", 1))).as("user"),
+                        lookup(documentNameConfig.getNameCollectionUser(), "user", "_id", "user"),
+                        unwind("$user"),
+                        match(where("user.userName").is(userName).and("key").is(key)),
+                        count().as("result")
+                ),
+                documentNameConfig.getNameCollectionUserDataBinding(),
+                BasicAggregateResultCount.class
+        );
+        if (results == null || results.getUniqueMappedResult() == null) {
+            throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Nenhum registro encontrado para o usuário desejado");
+        }
+        return results.getUniqueMappedResult().getResult() > 0;
+    }
+
+    @Override
+    public UserData getUserBy(final User user, final String key, final String value) {
+        /**
+         * db.getCollection("muttley-users-databinding").aggregate([
+         *     {$match:{"owner.$id": ObjectId("5e28b3e3637e580001e465d6"), "key":"UserColaborador", "value":"5e28bcf86f985c00017e7a28"}},
+         *     {$project:{user:1}}
+         * ])
+         */
+        final AggregationResults<UserDataBinding> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("key").is(key).and("value").is(value))
+                ),
+                UserDataBinding.class,
+                UserDataBinding.class
+        );
+        if (results == null || results.getUniqueMappedResult() == null) {
+            return null;
+        }
+        return results.getUniqueMappedResult().getUser();
     }
 
     private final void checkIndex(final User user, final UserDataBinding dataBinding) {
@@ -394,5 +540,11 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         userDataBinding.setHistoric(historic
                 .setLastChangeBy(user)
                 .setDtChange(new Date()));
+    }
+
+    protected User findByUserName(final String userName) {
+        final UserResolverEvent event = new UserResolverEvent(userName);
+        this.eventPublisher.publishEvent(event);
+        return event.getUserResolver();
     }
 }

@@ -1,5 +1,7 @@
 package br.com.muttley.model.security;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.util.Set;
 
 /**
@@ -7,6 +9,7 @@ import java.util.Set;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
+@JsonDeserialize(as = User.class)
 public interface UserData {
     String getId();
 
