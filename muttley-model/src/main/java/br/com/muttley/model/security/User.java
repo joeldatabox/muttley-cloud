@@ -480,8 +480,8 @@ public class User implements Serializable, UserData {
     }
 
     private static final class UserNameValidator {
-        //private static final char[] SUPPORT_SYMBOLS_CHAR = {'.', '_', '-'};
-        private static final char[] SUPPORT_SYMBOLS_CHAR = {'_', '-'};
+        private static final char[] SUPPORT_SYMBOLS_CHAR = {'.', '_', '-'};
+        //private static final char[] SUPPORT_SYMBOLS_CHAR = {'_', '-'};
 
         public static boolean isValid(final int minLength, final int maxLength, final String userName) {
 
