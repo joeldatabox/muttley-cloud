@@ -1,5 +1,6 @@
 package br.com.muttley.security.server.listeners;
 
+import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.security.server.events.CurrentOwnerResolverEvent;
@@ -42,16 +43,20 @@ public class CurrentOwnerResolverEventListener implements ApplicationListener<Cu
             if (preferencesService.containsPreference(event.getSource(), OWNER_PREFERENCE)) {
                 ownerId = preferencesService.getPreference(event.getSource(), OWNER_PREFERENCE).getValue().toString();
             } else {
-                //se chegou até aqui é sinal que não tem nenhum owner para o usuário corrente
-                //logo vamo ver se conseguimos encontrar um owner
-                final List<? extends OwnerData> owners = ownerService.loadOwnersOfUser(event.getSource());
-                //pegando o primeiro owner e salvando o mesmo na preferencia
-                final Preference preference = new Preference(OWNER_PREFERENCE, owners.get(0).getId());
-                //salvando nas preferencias do usuario
-                this.preferencesService.setPreference(event.getSource(), preference);
-                //setando a preferencia criada
-                event.getSource().getPreferences().set(preference);
-                event.setOwnerResolved(owners.get(0));
+                try {
+                    //se chegou até aqui é sinal que não tem nenhum owner para o usuário corrente
+                    //logo vamo ver se conseguimos encontrar um owner
+                    final List<? extends OwnerData> owners = ownerService.loadOwnersOfUser(event.getSource());
+                    //pegando o primeiro owner e salvando o mesmo na preferencia
+                    final Preference preference = new Preference(OWNER_PREFERENCE, owners.get(0).getId());
+                    //salvando nas preferencias do usuario
+                    this.preferencesService.setPreference(event.getSource(), preference);
+                    //setando a preferencia criada
+                    event.getSource().getPreferences().set(preference);
+                    event.setOwnerResolved(owners.get(0));
+                } catch (MuttleyNoContentException exception) {
+                    //se chegou aqui quer dizer que é uma requisição do odin
+                }
                 return;
                 //ownerId = preference.getValue().toString();
             }

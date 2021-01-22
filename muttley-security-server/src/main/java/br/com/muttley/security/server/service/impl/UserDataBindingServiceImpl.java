@@ -4,7 +4,6 @@ import br.com.muttley.domain.service.Validator;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
-import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.headers.components.MuttleyCurrentTimezone;
 import br.com.muttley.headers.components.MuttleyCurrentVersion;
 import br.com.muttley.headers.components.MuttleyUserAgentName;
@@ -13,6 +12,7 @@ import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.VersionDocument;
+import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserDataBinding;
@@ -163,9 +163,10 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
          *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6"),"user.$id":ObjectId("5e28b3e3637e580001e465d6")}},
          * ])
          */
+        final Owner currentOwner = user.getCurrentOwner();
         final AggregationResults<UserDataBinding> results = this.mongoTemplate.aggregate(
                 newAggregation(
-                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("user.$id").is(new ObjectId(user.getId())))
+                        match(where("owner.$id").is(currentOwner != null ? currentOwner.getObjectId() : null).and("user.$id").is(new ObjectId(user.getId())))
                 ),
                 UserDataBinding.class,
                 UserDataBinding.class

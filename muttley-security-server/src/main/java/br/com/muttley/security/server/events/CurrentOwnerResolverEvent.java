@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationEvent;
  */
 public class CurrentOwnerResolverEvent extends ApplicationEvent {
     private final User user;
+    private boolean resolved = false;
 
     public CurrentOwnerResolverEvent(final User user) {
         super(user);
@@ -25,12 +26,17 @@ public class CurrentOwnerResolverEvent extends ApplicationEvent {
 
     public CurrentOwnerResolverEvent setOwnerResolved(final Owner owner) {
         this.user.setCurrentOwner(owner);
+        this.resolved = owner != null;
         return this;
     }
 
     public CurrentOwnerResolverEvent setOwnerResolved(final OwnerData owner) {
         this.user.setCurrentOwner(owner);
+        this.resolved = owner != null;
         return this;
     }
 
+    public boolean isResolved() {
+        return resolved;
+    }
 }

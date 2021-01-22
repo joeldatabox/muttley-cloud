@@ -4,12 +4,10 @@ import br.com.muttley.jackson.service.infra.MuttleyJacksonDeserialize;
 import br.com.muttley.jackson.service.infra.MuttleyJacksonSerialize;
 import br.com.muttley.jackson.service.infra.deserializer.BigDecimalDeserializer;
 import br.com.muttley.jackson.service.infra.deserializer.ObjectIdDeserializer;
-import br.com.muttley.jackson.service.infra.deserializer.OwnerDataDeserializer;
 import br.com.muttley.jackson.service.infra.deserializer.ZonedDateTimeDeserializer;
 import br.com.muttley.jackson.service.infra.serializer.ObjectIdSerializer;
 import br.com.muttley.jackson.service.infra.serializer.ZonedDateTimeSerializer;
 import br.com.muttley.model.jackson.DefaultDateFormatConfig;
-import br.com.muttley.model.security.OwnerData;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.bson.types.ObjectId;
@@ -21,7 +19,6 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.List;
 
 
 /**

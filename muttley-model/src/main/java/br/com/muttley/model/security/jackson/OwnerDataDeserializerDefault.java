@@ -21,6 +21,9 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.IOException;
 
+import static br.com.muttley.model.jackson.util.NodeUtils.readAsText;
+import static br.com.muttley.model.jackson.util.NodeUtils.readNodeAsType;
+
 /**
  * @author Joel Rodrigues Moreira 13/01/2021
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -38,9 +41,9 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
             //instancia de Owner completa
             if (node.has("accessPlan") || node.has("historic") || node.has("metadata")) {
                 final Owner owner = new Owner();
-                owner.setId(node.get("id").asText());
-                owner.setDescription(node.get("description").asText());
-                owner.setName(node.get("name").asText());
+                owner.setId(readAsText("id", node));
+                owner.setDescription(readAsText("description", node));
+                owner.setName(readAsText("name", node));
 
                 owner.setUserMaster(
                         this.readUserMaster(node.get("userMaster"), parser)
@@ -57,9 +60,9 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
                 return owner;
             } else {
                 return new OwnerDataImpl(
-                        node.get("id").asText(),
-                        node.get("name").asText(),
-                        node.get("description").asText(),
+                        readAsText("id", node),
+                        readAsText("name", node),
+                        readAsText("description", node),
                         this.readUserMaster(node.get("userMaster"), parser)
                 );
             }
@@ -83,7 +86,7 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
     private User readUserMaster(final JsonNode node, final JsonParser parser) throws IOException {
         if (node != null && !node.isNull()) {
             if (node.isObject()) {
-                return readNode(node, parser, new TypeReference<User>() {
+                return readNodeAsType(node, parser, new TypeReference<User>() {
                 });
             } else
                 //Vamos verificar se o deserializer está no contexto do spring e que o mesmo conseguiu injetar o eventPublisher
@@ -102,7 +105,7 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
     private AccessPlan readAccessPlan(final JsonNode node, final JsonParser parser) throws IOException {
         if (node != null && !node.isNull()) {
             if (node.isObject()) {
-                return readNode(node, parser, new TypeReference<AccessPlan>() {
+                return readNodeAsType(node, parser, new TypeReference<AccessPlan>() {
                 });
             } else
                 //Vamos verificar se o deserializer está no contexto do spring e que o mesmo conseguiu injetar o eventPublisher
@@ -119,23 +122,12 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
     }
 
     private Historic readHistoric(final JsonNode node, final JsonParser parser) throws IOException {
-        if (node != null && !node.isNull()) {
-            return readNode(node, parser, new TypeReference<Historic>() {
-            });
-        }
-        return null;
+        return readNodeAsType(node, parser, new TypeReference<Historic>() {
+        });
     }
 
     private MetadataDocument readMetadata(final JsonNode node, final JsonParser parser) throws IOException {
-        if (node != null && !node.isNull()) {
-            return readNode(node, parser, new TypeReference<MetadataDocument>() {
-            });
-        }
-        return null;
-    }
-
-    private <T> T readNode(final JsonNode node, final JsonParser parser, TypeReference<?> typeReference) throws IOException {
-        return node.traverse(parser.getCodec()).readValueAs(new TypeReference<MetadataDocument>() {
+        return readNodeAsType(node, parser, new TypeReference<MetadataDocument>() {
         });
     }
 

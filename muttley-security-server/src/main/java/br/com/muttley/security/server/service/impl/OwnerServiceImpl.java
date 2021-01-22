@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.OwnerData;
@@ -138,7 +139,7 @@ public class OwnerServiceImpl extends SecurityServiceImpl<Owner> implements Owne
                 OwnerDataImpl.class
         );
         if (owners == null || CollectionUtils.isEmpty(owners.getMappedResults())) {
-            throw new MuttleyBadRequestException(Owner.class, null, "Nenhum registro encontrado");
+            throw new MuttleyNoContentException(Owner.class, null, "Nenhum registro encontrado");
         }
         return owners.getMappedResults();
     }

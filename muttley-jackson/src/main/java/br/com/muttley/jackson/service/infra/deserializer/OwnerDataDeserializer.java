@@ -1,7 +1,8 @@
 package br.com.muttley.jackson.service.infra.deserializer;
 
-import br.com.muttley.model.security.OwnerData;
-import br.com.muttley.model.security.OwnerDataImpl;
+/*import br.com.muttley.model.security.OwnerData;
+import br.com.muttley.model.security.OwnerDataImpl;*/
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
@@ -19,15 +20,15 @@ import java.util.List;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class OwnerDataDeserializer extends JsonDeserializer<List<OwnerData>> {
+public class OwnerDataDeserializer extends JsonDeserializer</*OwnerData*/ Object> {
     @Override
-    public List<OwnerData> deserialize(final JsonParser parser, final DeserializationContext context) throws IOException, JsonProcessingException {
+    public List</*OwnerData*/ Object> deserialize(final JsonParser parser, final DeserializationContext context) throws IOException, JsonProcessingException {
         final ObjectCodec oc = parser.getCodec();
         final JsonNode node = oc.readTree(parser);
-        final List<OwnerData> owners = new ArrayList<>();
+        final List</*OwnerData*/ Object> owners = new ArrayList<>();
         node.forEach(it -> {
             try {
-                owners.add(it.traverse(parser.getCodec()).readValueAs(new TypeReference<OwnerDataImpl>() {
+                owners.add(it.traverse(parser.getCodec()).readValueAs(new TypeReference</*OwnerData*/ Object>() {
                 }));
             } catch (IOException e) {
                 throw new RuntimeException(e);

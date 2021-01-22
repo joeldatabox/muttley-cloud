@@ -17,6 +17,7 @@ import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
+import br.com.muttley.security.server.events.CurrentOwnerResolverEvent;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.OwnerService;
@@ -312,23 +313,28 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserFromToken(final JwtToken token) {
         if (token != null && !token.isEmpty()) {
+            //pegando o nome de usuário do token
             final String userName = this.tokenUtil.getUsernameFromToken(token.getToken());
             if (!isNullOrEmpty(userName)) {
                 final User user = findByUserName(userName);
                 final UserPreferences preferences = this.preferencesService.getUserPreferences(user);
                 user.setPreferences(preferences);
-                user.setCurrentOwner(this.ownerService.findByUserAndId(user, preferences.get(OWNER_PREFERENCE).getValue().toString()));
+
+                    final CurrentOwnerResolverEvent event = new CurrentOwnerResolverEvent(user);
+                    this.eventPublisher.publishEvent(event);
+
+                //user.setCurrentOwner(this.ownerService.findByUserAndId(user, preferences.get(OWNER_PREFERENCE).getValue().toString()));
                 try {
                     user.setDataBindings(this.dataBindingService.listBy(user));
                 } catch (MuttleyNoContentException ex) {
                 }
-                if (preferences.contains(OWNER_PREFERENCE)) {
+                /*if (preferences.contains(OWNER_PREFERENCE)) {
                     user.setCurrentOwner(this.ownerService.findByUserAndId(user, preferences.get(OWNER_PREFERENCE).getValue().toString()));
                 } else {
                     user.setCurrentOwner(this.ownerService.loadOwnersOfUser(user).get(0));
                     preferences.set(OWNER_PREFERENCE, user.getCurrentOwner().getId());
                     this.preferencesService.setPreference(user, OWNER_PREFERENCE, user.getCurrentOwner().getId());
-                }
+                }*/
                 return user;
             }
         }
