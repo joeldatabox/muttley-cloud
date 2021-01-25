@@ -12,6 +12,7 @@ import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
 import br.com.muttley.model.security.rolesconfig.event.AvaliableRolesEvent;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
+import br.com.muttley.security.server.service.OwnerService;
 import br.com.muttley.security.server.service.UserRolesView;
 import br.com.muttley.security.server.service.WorkTeamService;
 import org.bson.types.ObjectId;
@@ -55,14 +56,16 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     private static final String[] basicRoles = new String[]{"work_team"};
     private final DocumentNameConfig documentNameConfig;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final OwnerService ownerService;
 
     @Autowired
-    public WorkTeamServiceImpl(final WorkTeamRepository repository, final UserRolesView userRolesView, final MongoTemplate template, final DocumentNameConfig documentNameConfig, final ApplicationEventPublisher applicationEventPublisher) {
+    public WorkTeamServiceImpl(final WorkTeamRepository repository, final UserRolesView userRolesView, final MongoTemplate template, final DocumentNameConfig documentNameConfig, final ApplicationEventPublisher applicationEventPublisher, final OwnerService ownerService) {
         super(repository, template, WorkTeam.class);
         this.repository = repository;
         this.userRolesView = userRolesView;
         this.documentNameConfig = documentNameConfig;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.ownerService = ownerService;
     }
 
     @Override
@@ -221,6 +224,15 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         this.applicationEventPublisher.publishEvent(event);
 
         return event.getSource();
+    }
+
+    @Override
+    public WorkTeam createWorkTeamFor(final User user, final String ownerId, final WorkTeam workTeam) {
+        final Owner owner = this.ownerService.findById(user, ownerId);
+        workTeam.setOwner(owner);
+        workTeam.setUserMaster(owner.getUserMaster());
+        //this.checkPrecondictionSave(owner.getUserMaster(), workTeam);
+        return workTeam;
     }
 
     @Override

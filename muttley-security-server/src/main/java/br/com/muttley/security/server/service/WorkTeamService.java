@@ -27,6 +27,11 @@ public interface WorkTeamService extends Service<WorkTeam> {
     AvaliableRoles loadAvaliableRoles(final User user);
 
     /**
+     * Método para
+     */
+    WorkTeam createWorkTeamFor(final User user, final String ownerId, final WorkTeam workTeam);
+
+    /**
      * Realiza as configurações
      */
     void configWorkTeams(final User user);

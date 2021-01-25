@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * @author Joel Rodrigues Moreira on 23/02/18.
@@ -58,6 +60,12 @@ public class WorkTeamController extends AbstractRestController<WorkTeam> {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity findByUser(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(service.findByUser(userService.getUserFromToken(new JwtToken(tokenHeader))));
+    }
+
+    @RequestMapping(value = "/create-work-team-for", method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity createWorkTeamFor(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestParam(required = false, value = "ownerId", defaultValue = "") final String ownerId, @RequestBody final WorkTeam workTeam) {
+        return ResponseEntity.ok(service.createWorkTeamFor(userService.getUserFromToken(new JwtToken(tokenHeader)), ownerId, workTeam));
     }
 
 }
