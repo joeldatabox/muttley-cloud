@@ -1,22 +1,29 @@
 package br.com.muttley.security.server.service.impl;
 
+import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.security.server.events.ConfigFirstOwnerPreferenceEvent;
 import br.com.muttley.security.server.service.UserRolesView;
+import com.mongodb.BasicDBObject;
+import org.bson.BsonString;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
 import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PREFERENCE;
+import static java.util.Arrays.asList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -75,29 +82,42 @@ public class UserRolesViewImpl implements UserRolesView {
          * ])
          */
         final ObjectId idUser = new ObjectId(user.getId());
-        this.template.aggregate(
-                newAggregation(
+        final AggregationResults<UserRolesResult> result = this.template.aggregate(
+                Aggregation.newAggregation(
                         match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).orOperator(
                                 where("userMaster.$id").is(idUser),
                                 where("members.$id").is(idUser)
                         )),
                         group("$owner").addToSet("$roles").as("roles"),
-                        project().
+                        project().and(context ->
+                                new BasicDBObject("$reduce",
+                                        new BasicDBObject("input", "$roles")
+                                                .append("initialValue", asList())
+                                                .append("in",
+                                                        new BasicDBObject("$concatArrays", asList("$$value", "$$this"))
+                                                )
+                                )
+                        ).as("roles").and(context -> new BasicDBObject("aux", new BsonString("1"))).as("aux"),
+                        unwind("$roles"),
+                        group("$aux").addToSet("roles").as("roles")
                 ),
-                "",
-                UserRolesViewResul.class
+                WorkTeam.class,
+                UserRolesResult.class
         );
-
+        if (result == null || result.getUniqueMappedResult() == null) {
+            throw new MuttleyNotFoundException(UserRolesResult.class, "userId", "Nenhuma role foi encontrada");
+        }
+        return result.getUniqueMappedResult().getRoles();
     }
 
-    private class UserRolesViewResul {
+    private class UserRolesResult {
         Set<Role> roles;
 
         public Set<Role> getRoles() {
             return roles;
         }
 
-        public UserRolesViewResul setRoles(final Set<Role> roles) {
+        public UserRolesResult setRoles(final Set<Role> roles) {
             this.roles = roles;
             return this;
         }

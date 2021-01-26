@@ -50,7 +50,7 @@ public class UserPreferenceController {
         return ResponseEntity.ok(preferences);
     }
 
-    @RequestMapping(value = "/preferences", method = PUT, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/preferences", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     public ResponseEntity setPreference(@RequestBody final Preference preference) {
         this.preferencesService.setPreference(this.authService.getCurrentUser(), preference);
         return ResponseEntity.ok().build();

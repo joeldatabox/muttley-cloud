@@ -71,6 +71,12 @@ public class UserPreferencesImpl implements UserPreferencesService {
         } else {
             this.template.updateFirst(
                     new Query(where("user.$id").is(new ObjectId(user.getId()))),
+                    new Update().pull("preferences", new BasicDBObject("key", preference.getKey())),
+                    UserPreferences.class
+            );
+
+            this.template.updateFirst(
+                    new Query(where("user.$id").is(new ObjectId(user.getId()))),
                     new Update().addToSet("preferences", preference),
                     UserPreferences.class
             );
