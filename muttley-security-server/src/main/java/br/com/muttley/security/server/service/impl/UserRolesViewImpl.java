@@ -105,7 +105,7 @@ public class UserRolesViewImpl implements UserRolesView {
                 UserRolesResult.class
         );
         if (result == null || result.getUniqueMappedResult() == null) {
-            throw new MuttleyNotFoundException(UserRolesResult.class, "userId", "Nenhuma role foi encontrada");
+            throw new MuttleyNotFoundException(UserRolesResult.class, "userId", "Você está sem permissões de acesso. Para resolver isso contate o administrador do sistema");
         }
         return result.getUniqueMappedResult().getRoles();
     }
