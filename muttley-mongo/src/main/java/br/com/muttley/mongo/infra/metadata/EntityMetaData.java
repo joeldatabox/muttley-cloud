@@ -19,6 +19,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.beans.Transient;
+import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
@@ -70,6 +71,8 @@ public class EntityMetaData implements Cloneable {
     private Set<EntityMetaData> fields;
     @Setter(AccessLevel.PRIVATE)
     private String collection;
+    private EntityMetaData parameterizedType;//Contem metadata de classes do tipo Array<?>
+    private boolean parametrized = false;
 
     private EntityMetaData() {
     }
@@ -143,6 +146,11 @@ public class EntityMetaData implements Cloneable {
                                 .setNameField(field.getName())
                                 .setType(EntityMetaDataType.of(field))
                                 .setClassType(field.getType());
+                        //se estivermos trabalhando com um tipo array,
+                        //devemos capturar o metadado parametrizado entre "<>"
+                        if (EntityMetaDataType.ARRAY.equals(ent.getType())) {
+                            ent.setParameterizedType(EntityMetaData.of((Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]));
+                        }
                     }
                     if (field.getAnnotation(Id.class) != null) {
                         ent.setId(true);
@@ -162,7 +170,10 @@ public class EntityMetaData implements Cloneable {
         if (nameField.contains(".")) {
             //pegando o primeiro nome
             final String currentPath = nameField.substring(0, nameField.indexOf("."));
-            if(CollectionUtils.isEmpty(entityMetaData.fields)){
+            if (CollectionUtils.isEmpty(entityMetaData.fields)) {
+                if (EntityMetaDataType.ARRAY.equals(entityMetaData.getType()) && entityMetaData.isParametrized()) {
+                    return getFieldByName(nameField, entityMetaData.getParameterizedType());
+                }
                 return null;
             }
             final EntityMetaData currentEntityMetaData = entityMetaData.fields.stream().filter(it -> it.nameField.equals(currentPath))
@@ -182,6 +193,8 @@ public class EntityMetaData implements Cloneable {
                     })
                     .findFirst()
                     .orElse(null);
+        } else if (CollectionUtils.isEmpty(entityMetaData.fields) && (EntityMetaDataType.ARRAY.equals(entityMetaData.getType()) && entityMetaData.isParametrized())) {
+            return getFieldByName(nameField, entityMetaData.getParameterizedType());
         } else {
             final String referencedName = "$" + entityMetaData.nameField;
             return entityMetaData.nameField.equals(nameField) || referencedName.equals(referencedName) ? entityMetaData : null;
@@ -380,6 +393,12 @@ public class EntityMetaData implements Cloneable {
             /*if (currentField != null && currentField.getClassType() == Owner.class) {
                 throw new MuttleyBadRequestException(currentField.getClassType(), currentField.getNameField(), "Acesso indevido a propriedade");
             }*/
+
+            //verificando se o campo é um tipo parametrizado de um array
+            //caso for não precisa fazer lookup
+            if (currentField.isParametrized()) {
+                return asList();
+            }
             final String[] keysProject = getKeyForProject(keyEntityMetaData[a], entityMetaData);
             final BasicDBObject dbObject = new BasicDBObject();
             for (final String currentKey : keysProject) {
@@ -477,5 +496,22 @@ public class EntityMetaData implements Cloneable {
         } catch (final CloneNotSupportedException ex) {
             throw new MuttleyException(ex);
         }
+    }
+
+    public EntityMetaData setParameterizedType(EntityMetaData parameterizedType) {
+        this.parameterizedType = parameterizedType;
+        this.setParametrized(this.parameterizedType != null);
+        return this;
+    }
+
+    public EntityMetaData setParametrized(boolean parametrized) {
+        this.parametrized = parametrized;
+        if (!this.fieldsIsEmpty()) {
+            this.getFields().parallelStream().forEach(it -> it.setParametrized(true));
+        }
+        if (this.getParameterizedType() != null) {
+            this.getParameterizedType().setParametrized(parametrized);
+        }
+        return this;
     }
 }
