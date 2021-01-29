@@ -301,32 +301,47 @@ public class EntityMetaData implements Cloneable {
                 return object;
             }
             case NUMBER: {
-                if ((this.classType == int.class) || (this.classType == Integer.class)) {
-                    return Integer.valueOf(object.toString());
-                }
-                if ((this.classType == long.class) || (this.classType == Long.class)) {
-                    return Long.valueOf(object.toString());
-                }
-                if ((this.classType == float.class) || (this.classType == Float.class)) {
-                    return Float.valueOf(object.toString());
-                }
-                if ((this.classType == double.class) || (this.classType == Double.class)) {
-                    return Double.valueOf(object.toString());
-                }
-                if (this.classType == BigDecimal.class) {
-                    return new BigDecimal(object.toString());
-                }
-                if ((this.classType == short.class) || (this.classType == Short.class)) {
-                    return Short.valueOf(object.toString());
-                }
-                if ((this.classType == BigInteger.class)) {
-                    return BigInteger.valueOf(Long.valueOf(object.toString()));
+                try {
+                    if ((this.classType == int.class) || (this.classType == Integer.class)) {
+                        return Integer.valueOf(this.prepareValueToConvertNumber(object));
+                    }
+                    if ((this.classType == long.class) || (this.classType == Long.class)) {
+                        return Long.valueOf(this.prepareValueToConvertNumber(object));
+                    }
+                    if ((this.classType == float.class) || (this.classType == Float.class)) {
+                        return Float.valueOf(this.prepareValueToConvertNumber(object));
+                    }
+                    if ((this.classType == double.class) || (this.classType == Double.class)) {
+                        return Double.valueOf(this.prepareValueToConvertNumber(object));
+                    }
+                    if (this.classType == BigDecimal.class) {
+                        return new BigDecimal(this.prepareValueToConvertNumber(object));
+                    }
+                    if ((this.classType == short.class) || (this.classType == Short.class)) {
+                        return Short.valueOf(this.prepareValueToConvertNumber(object));
+                    }
+                    if ((this.classType == BigInteger.class)) {
+                        return BigInteger.valueOf(Long.valueOf(this.prepareValueToConvertNumber(object)));
+                    }
+                } catch (final NumberFormatException ex) {
                 }
                 return object;
             }
             default:
                 return object;
         }
+    }
+
+    private String prepareValueToConvertNumber(final Object value) {
+        if (value == null) {
+            return null;
+        }
+        final String numberStr = value.toString();
+        return (numberStr.contains(".") && numberStr.contains(",")) ?
+                numberStr.replace(".", "").replace(",", ".") :
+                numberStr.contains(",") ?
+                        numberStr.replace(",", ".") :
+                        numberStr;
     }
 
     private static boolean isBasicObject(final Class clazz) {

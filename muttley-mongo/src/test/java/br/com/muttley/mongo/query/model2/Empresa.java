@@ -21,6 +21,8 @@ import java.util.Objects;
 public class Empresa extends PessoaJuridica {
     private boolean principal;
 
+    private int sequencial = 0;
+
     public Empresa() {
         this.principal = false;
     }

@@ -21,6 +21,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import static org.springframework.util.StringUtils.isEmpty;
@@ -61,6 +62,8 @@ public class Conta {
     private String telefone1;
     private String telefone2;
     private String contato;
+
+    private BigDecimal limite;
 
     private String inscEstadual;
     @JsonSerialize(using = DateSerializer.class)

@@ -46,6 +46,8 @@ public class NotaFiscal {
     @DBRef
     private Owner owner;
 
+    private Long sequencial;
+
     @DBRef
     private Empresa empresa;
 
