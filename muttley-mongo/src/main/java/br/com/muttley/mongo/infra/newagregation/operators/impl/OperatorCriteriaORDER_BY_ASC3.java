@@ -15,7 +15,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class OperatorCriteriaORDER_BY_ASC3 extends AbstractOperatorImpl {
+public class OperatorCriteriaORDER_BY_ASC3 extends OperatorCriteriaWithArray {
     public static final String wildcard = "$orderByAsc";
 
     public OperatorCriteriaORDER_BY_ASC3() {
@@ -25,7 +25,7 @@ public class OperatorCriteriaORDER_BY_ASC3 extends AbstractOperatorImpl {
     @Override
     public List<AggregationOperation> extractAggregations(final ProjectionMetadata metadata, final String compositePropertyWithFather, final String key, final Object value) {
         return new LinkedList<>(asList(
-                sort(ASC, (String[]) value)
+                sort(ASC, this.splitArray(value.toString()))
         ));
     }
 }
