@@ -5,31 +5,25 @@ import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Stream.of;
 
 /**
  * @author Joel Rodrigues Moreira on 01/09/2020.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class OperatorCriteriaIN3 extends OperatorCriteriaWithArray {
-    public static final String wildcard = ".$in";
+public class OperatorCriteriaIS extends AbstractOperatorImpl {
+    public static final String wildcard = ".$is";
 
-    public OperatorCriteriaIN3() {
+    public OperatorCriteriaIS() {
         super(wildcard);
     }
 
     @Override
     public List<Criteria> extractCriteria(final ProjectionMetadata metadata, final String compositePropertyWithFather, final String key, final Object value) {
         return new LinkedList<>(asList(
-                new Criteria(compositePropertyWithFather).in(
-                        of(this.splitArray(value.toString()))
-                                .map(it -> metadata.converteValueFor(key, it))
-                                .toArray()
-                )
+                new Criteria(compositePropertyWithFather).is(metadata.converteValueFor(key, value))
         ));
     }
 }

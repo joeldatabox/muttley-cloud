@@ -7,25 +7,26 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.count;
 
 /**
- * @author Joel Rodrigues Moreira on 01/09/2020.
+ * @author Joel Rodrigues Moreira on 02/02/2021.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class OperatorCriteriaORDER_BY_ASC3 extends OperatorCriteriaWithArray {
-    public static final String wildcard = "$orderByAsc";
 
-    public OperatorCriteriaORDER_BY_ASC3() {
+public class OperatorCriteriaCount extends AbstractOperatorImpl {
+    public static final String wildcard = "$count";
+
+    public OperatorCriteriaCount() {
         super(wildcard);
     }
 
     @Override
     public List<AggregationOperation> extractAggregations(final ProjectionMetadata metadata, final String compositePropertyWithFather, final String key, final Object value) {
         return new LinkedList<>(asList(
-                sort(ASC, this.splitArray(value.toString()))
+                count().as("count")
         ));
     }
+
 }

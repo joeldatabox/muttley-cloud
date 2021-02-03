@@ -1,20 +1,20 @@
 package br.com.muttley.mongo.infra.newagregation.operators;
 
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaAND3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaCONTAINS3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaCount3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaGT3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaGTE3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaIN3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaIS3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaLIMIT3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaLT3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaLTE3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaOR3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaORDER_BY_ASC3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaORDER_BY_DESC3;
-import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaSKIP3;
-import br.com.muttley.mongo.infra.newagregation.projections.Criterion3;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaAND;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaCONTAINS;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaCount;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaGT;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaGTE;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaIN;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaIS;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaLIMIT;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaLT;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaLTE;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaOR;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaORDER_BY_ASC;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaORDER_BY_DESC;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaSKIP;
+import br.com.muttley.mongo.infra.newagregation.projections.Criterion;
 import br.com.muttley.mongo.infra.newagregation.projections.ProjectionMetadata;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -26,21 +26,21 @@ import java.util.List;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface Operator3 {
-    public static final Operator3 GTE = new OperatorCriteriaGTE3();
-    public static final Operator3 LTE = new OperatorCriteriaLTE3();
-    public static final Operator3 GT = new OperatorCriteriaGT3();
-    public static final Operator3 LT = new OperatorCriteriaLT3();
-    public static final Operator3 IN = new OperatorCriteriaIN3();
-    public static final Operator3 CONTAINS = new OperatorCriteriaCONTAINS3();
-    public static final Operator3 IS = new OperatorCriteriaIS3();
-    public static final Operator3 SKIP = new OperatorCriteriaSKIP3();
-    public static final Operator3 COUNT = new OperatorCriteriaCount3();
-    public static final Operator3 LIMIT = new OperatorCriteriaLIMIT3();
-    public static final Operator3 OR = new OperatorCriteriaOR3();
-    public static final Operator3 AND = new OperatorCriteriaAND3();
-    public static final Operator3 ORDER_BY_ASC = new OperatorCriteriaORDER_BY_ASC3();
-    public static final Operator3 ORDER_BY_DESC = new OperatorCriteriaORDER_BY_DESC3();
+public interface Operator {
+    public static final Operator GTE = new OperatorCriteriaGTE();
+    public static final Operator LTE = new OperatorCriteriaLTE();
+    public static final Operator GT = new OperatorCriteriaGT();
+    public static final Operator LT = new OperatorCriteriaLT();
+    public static final Operator IN = new OperatorCriteriaIN();
+    public static final Operator CONTAINS = new OperatorCriteriaCONTAINS();
+    public static final Operator IS = new OperatorCriteriaIS();
+    public static final Operator SKIP = new OperatorCriteriaSKIP();
+    public static final Operator COUNT = new OperatorCriteriaCount();
+    public static final Operator LIMIT = new OperatorCriteriaLIMIT();
+    public static final Operator OR = new OperatorCriteriaOR();
+    public static final Operator AND = new OperatorCriteriaAND();
+    public static final Operator ORDER_BY_ASC = new OperatorCriteriaORDER_BY_ASC();
+    public static final Operator ORDER_BY_DESC = new OperatorCriteriaORDER_BY_DESC();
 
     String getWildcard();
 
@@ -55,12 +55,12 @@ public interface Operator3 {
     /**
      * Serve para operador que recebe um array como criterio [$or, $and]
      */
-    List<Criteria> extractCriteriaArray(final ProjectionMetadata metadata, final List<Criterion3> subcriterions);
+    List<Criteria> extractCriteriaArray(final ProjectionMetadata metadata, final List<Criterion> subcriterions);
 
     boolean isTypeArray();
 
-    public static Operator3[] values() {
-        return new Operator3[]{
+    public static Operator[] values() {
+        return new Operator[]{
                 GTE,
                 LTE,
                 GT,
@@ -78,7 +78,7 @@ public interface Operator3 {
         };
     }
 
-    public static Operator3 from(String value) {
+    public static Operator from(String value) {
         if (value.contains(".$id")) {
             value = value.replace(".$id", "");
         }

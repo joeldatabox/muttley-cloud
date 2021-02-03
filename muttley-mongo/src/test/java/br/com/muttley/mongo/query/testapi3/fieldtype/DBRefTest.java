@@ -1,6 +1,5 @@
 package br.com.muttley.mongo.query.testapi3.fieldtype;
 
-import br.com.muttley.mongo.infra.newagregation.projections.Projection3;
 import br.com.muttley.mongo.query.model2.NotaFiscal;
 import br.com.muttley.mongo.query.testapi3.AbstractTest;
 import org.junit.Test;

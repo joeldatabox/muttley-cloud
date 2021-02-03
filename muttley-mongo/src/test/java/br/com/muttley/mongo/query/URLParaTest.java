@@ -1,6 +1,7 @@
 package br.com.muttley.mongo.query;
 
-import br.com.muttley.mongo.infra.newagregation.paramvalue.NewQueryParam;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParamImpl;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -18,35 +19,24 @@ public class URLParaTest {
     public void testParams() {
         final String urlParams = "www.teste.com?nome=kasdfasd&idade=50&$or=[val:asdfa;;b:70]&$or=[val:asdfa;;b:70]";
 
-        final List<NewQueryParam> params = getQueryParams(urlParams);
 
-        for (final NewQueryParam queryParam : params) {
-            System.out.println(queryParam.getKey() + " => " + queryParam.getValue());
-            if (queryParam.isArrayValue()) {
-                queryParam.valueToArray().forEach(it -> {
-                    System.out.println(it.getKey() + " => " + it.getValue());
-                });
-            }
-        }
     }
 
 
-    public static List<NewQueryParam> getQueryParams(String url) {
+    public static List<QueryParam> getQueryParams(String url) {
         //try {
-        List<NewQueryParam> params = new LinkedList<>();
+        return QueryParam.BuilderFromURL.newInstance().fromURL(url).build();
+        /*List<QueryParamImpl> params = new LinkedList<>();
         String[] urlParts = url.split("\\?");
         if (urlParts.length > 1) {
             String query = urlParts[1];
             for (String param : query.split("&")) {
-                params.add(new NewQueryParam(param));
+                params.add(new QueryParamImpl(param));
             }
-        }
-        for (int i = 0; i < urlParts[1].length(); i++) {
-
-        }
+        }*/
 
 
-        return params;
+        //return params;
         /*} catch (UnsupportedEncodingException ex) {
             throw new AssertionError(ex);
         }*/

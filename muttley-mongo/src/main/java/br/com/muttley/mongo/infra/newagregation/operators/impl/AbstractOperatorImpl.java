@@ -1,7 +1,7 @@
 package br.com.muttley.mongo.infra.newagregation.operators.impl;
 
-import br.com.muttley.mongo.infra.newagregation.operators.Operator3;
-import br.com.muttley.mongo.infra.newagregation.projections.Criterion3;
+import br.com.muttley.mongo.infra.newagregation.operators.Operator;
+import br.com.muttley.mongo.infra.newagregation.projections.Criterion;
 import br.com.muttley.mongo.infra.newagregation.projections.ProjectionMetadata;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import java.util.List;
  * @project muttley-cloud
  */
 @EqualsAndHashCode(of = "wildcard")
-public abstract class AbstractOperatorImpl implements Operator3 {
+public abstract class AbstractOperatorImpl implements Operator {
     @Getter
     protected final String wildcard;
 
@@ -46,7 +46,7 @@ public abstract class AbstractOperatorImpl implements Operator3 {
     }
 
     @Override
-    public List<Criteria> extractCriteriaArray(final ProjectionMetadata metadata, final List<Criterion3> subcriterions) {
+    public List<Criteria> extractCriteriaArray(final ProjectionMetadata metadata, final List<Criterion> subcriterions) {
         return new LinkedList<>();
     }
 

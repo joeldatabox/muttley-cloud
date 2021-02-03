@@ -1,7 +1,7 @@
 package br.com.muttley.mongo.query.testapi3;
 
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
-import br.com.muttley.mongo.infra.newagregation.projections.Projection3;
+import br.com.muttley.mongo.infra.newagregation.projections.Projection;
 import br.com.muttley.mongo.query.URLParaTest;
 import br.com.muttley.mongo.query.model2.NotaFiscal;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
@@ -30,15 +30,15 @@ public class AbstractTest {
         });
     }
 
-    protected Projection3 getProjection(final Class clazz) {
-        return Projection3.ProjectionBuilder.from(EntityMetaData.of(clazz), URLParaTest.getQueryParams(URL_TEST));
+    protected Projection getProjection(final Class clazz) {
+        return Projection.Builder.newInstance().withEntityMetadata(EntityMetaData.of(clazz)).withQueriesParams(URLParaTest.getQueryParams(URL_TEST)).build();
     }
 
-    protected Projection3 getProjection() {
+    protected Projection getProjection() {
         return this.getProjection(NotaFiscal.class);
     }
 
-    protected void printResult(Projection3 projection) {
+    protected void printResult(Projection projection) {
         this.printResult(projection.getQuery());
     }
 }

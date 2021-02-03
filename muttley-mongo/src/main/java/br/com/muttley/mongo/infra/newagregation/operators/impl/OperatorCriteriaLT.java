@@ -15,15 +15,15 @@ import static java.util.Arrays.asList;
  * @project muttley-cloud
  */
 @EqualsAndHashCode(of = "wildcard")
-public class OperatorCriteriaLTE3 extends AbstractOperatorImpl {
-    public static final String wildcard = ".$lte";
+public class OperatorCriteriaLT extends AbstractOperatorImpl {
+    public static final String wildcard = ".$lt";
 
-    public OperatorCriteriaLTE3() {
+    public OperatorCriteriaLT() {
         super(wildcard);
     }
 
     @Override
     public List<Criteria> extractCriteria(final ProjectionMetadata metadata, final String compositePropertyWithFather, final String key, final Object value) {
-        return new LinkedList<>(asList(new Criteria(compositePropertyWithFather).lte(metadata.converteValueFor(key, value))));
+        return new LinkedList<>(asList(new Criteria(compositePropertyWithFather).lt(metadata.converteValueFor(key, value))));
     }
 }

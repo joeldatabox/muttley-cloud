@@ -1,7 +1,6 @@
 package br.com.muttley.mongo.infra.newagregation.operators.impl;
 
 import br.com.muttley.mongo.infra.newagregation.projections.ProjectionMetadata;
-import lombok.EqualsAndHashCode;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.LinkedList;
@@ -14,16 +13,17 @@ import static java.util.Arrays.asList;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@EqualsAndHashCode(of = "wildcard")
-public class OperatorCriteriaLT3 extends AbstractOperatorImpl {
-    public static final String wildcard = ".$lt";
+public class OperatorCriteriaGTE extends AbstractOperatorImpl {
+    public static final String wildcard = ".$gte";
 
-    public OperatorCriteriaLT3() {
+    public OperatorCriteriaGTE() {
         super(wildcard);
     }
 
     @Override
     public List<Criteria> extractCriteria(final ProjectionMetadata metadata, final String compositePropertyWithFather, final String key, final Object value) {
-        return new LinkedList<>(asList(new Criteria(compositePropertyWithFather).lt(metadata.converteValueFor(key, value))));
+        return new LinkedList(asList(
+                new Criteria(compositePropertyWithFather).gte(metadata.converteValueFor(key, value))
+        ));
     }
 }

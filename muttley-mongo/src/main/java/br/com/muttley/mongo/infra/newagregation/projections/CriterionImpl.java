@@ -1,8 +1,8 @@
 package br.com.muttley.mongo.infra.newagregation.projections;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
-import br.com.muttley.mongo.infra.newagregation.operators.Operator3;
-import br.com.muttley.mongo.infra.newagregation.paramvalue.NewQueryParam;
+import br.com.muttley.mongo.infra.newagregation.operators.Operator;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import lombok.Getter;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,9 +13,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import static br.com.muttley.mongo.infra.newagregation.operators.Operator3.values;
-import static br.com.muttley.mongo.infra.newagregation.projections.Criterion3.CriterionBuilder.from;
-import static java.util.Arrays.asList;
+import static br.com.muttley.mongo.infra.newagregation.operators.Operator.values;
+import static br.com.muttley.mongo.infra.newagregation.projections.Criterion.CriterionBuilder.from;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -26,15 +25,15 @@ import static org.springframework.util.StringUtils.isEmpty;
  * @project muttley-cloud
  */
 @Getter
-public class Criterion3Impl implements Criterion3 {
-    private Operator3 operator;
+public class CriterionImpl implements Criterion {
+    private Operator operator;
     private String key;
     private Object value;
-    private List<Criterion3> subcriterions;
+    private List<Criterion> subcriterions;
     private final ProjectionMetadata metadata;
 
 
-    protected Criterion3Impl(final ProjectionMetadata metadata, final Operator3 operator, final String key, final Object value) {
+    protected CriterionImpl(final ProjectionMetadata metadata, final Operator operator, final String key, final Object value) {
         this.metadata = metadata;
         this.operator = operator;
         this.key = this.replaceAllOperators(key);
@@ -42,21 +41,21 @@ public class Criterion3Impl implements Criterion3 {
         this.subcriterions = new LinkedList<>();
     }
 
-    protected Criterion3Impl addSubcriterions(final Criterion3 criterion3) {
+    protected CriterionImpl addSubcriterions(final Criterion criterion3) {
         if (criterion3 != null) {
             this.subcriterions.add(criterion3);
         }
         return this;
     }
 
-    protected Criterion3Impl addSubcriterions(final Collection<Criterion3> criterion3) {
+    protected CriterionImpl addSubcriterions(final Collection<Criterion> criterion3) {
         if (!CollectionUtils.isEmpty(criterion3)) {
             criterion3.forEach(it -> this.addSubcriterions(it));
         }
         return this;
     }
 
-    protected Criterion3Impl addSubcriterionsArray(final String params) {
+    protected CriterionImpl addSubcriterionsArray(final String params) {
         return this.addSubcriterions(this.extractCriterionsArray(this.getMetadata(), params));
     }
 
@@ -99,8 +98,8 @@ public class Criterion3Impl implements Criterion3 {
     /**
      * Extrai toda a cadeia de criterio contido em expressões para arrays
      */
-    protected List<Criterion3> extractCriterionsArray(final ProjectionMetadata metadata, final String params) {
-        List<Criterion3> criterios = new LinkedList<>();
+    protected List<Criterion> extractCriterionsArray(final ProjectionMetadata metadata, final String params) {
+        List<Criterion> criterios = new LinkedList<>();
 
         //armazena todos os parametros sem subArrays
         final String paramsWithoutSubarray;
@@ -125,7 +124,7 @@ public class Criterion3Impl implements Criterion3 {
             final int endSubArray = params.lastIndexOf("]");
 
             //extraindo os criterios do subArray
-            final List<Criterion3> itensSubArray = extractCriterionsArray(metadata, params.substring(startSubArray, endSubArray));
+            final List<Criterion> itensSubArray = extractCriterionsArray(metadata, params.substring(startSubArray, endSubArray));
 
             //extraindo o operador do subArray
             //onde começa o operador do subArray
@@ -133,10 +132,10 @@ public class Criterion3Impl implements Criterion3 {
             //onde termina o operador do subArray
             final int endSubOperator = params.substring(0, startSubArray).lastIndexOf(":[");
             //operador extraido
-            final Operator3 subOperator = Operator3.from(params.substring(startSubOperator, endSubOperator));
+            final Operator subOperator = Operator.from(params.substring(startSubOperator, endSubOperator));
 
             //adicionando criterio extraido de subArray;
-            criterios.add(0, new Criterion3Impl(metadata, subOperator, null, null).addSubcriterions(itensSubArray));
+            criterios.add(0, new CriterionImpl(metadata, subOperator, null, null).addSubcriterions(itensSubArray));
 
             //se chegou até aqui é sinal que já consumimo todos os subArrays
             //e que podemos seguir consumindo itens individuais
@@ -154,7 +153,7 @@ public class Criterion3Impl implements Criterion3 {
     /**
      * Extrai toda a cadeia de criterio contido em expressões para arrays
      */
-    protected List<Criterion3> extractCriterions(final ProjectionMetadata metadata, final String params) {
+    protected List<Criterion> extractCriterions(final ProjectionMetadata metadata, final String params) {
         return new LinkedList<>(
                 //quebrando os itens
                 of(params.split(";"))
@@ -164,9 +163,12 @@ public class Criterion3Impl implements Criterion3 {
                         .map(it -> {
                             //separando chave:valor
                             final String[] keyParam = it.split(":");
-                            return new NewQueryParam(keyParam[0], keyParam[1].replace("'", ""));
-                        })
-                        .map(it -> from(metadata, it))
+                            return QueryParam.Builder
+                                    .newInstance()
+                                    .withKey(keyParam[0])
+                                    .withValue(keyParam[1].replace("'", ""))
+                                    .build();
+                        }).map(it -> from(metadata, it))
                         .collect(toList())
         );
     }
@@ -183,7 +185,7 @@ public class Criterion3Impl implements Criterion3 {
             //lista de widcards
             final String[] operators = of(values())
                     .parallel()
-                    .map(Operator3::toString)
+                    .map(Operator::toString)
                     .toArray(String[]::new);
 
             String result = value;
