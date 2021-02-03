@@ -68,7 +68,7 @@ public interface Projection {
             final Projection projection = new ProjectionImpl(metadata);
 
             //garantindo que não teremos uma lista que queries vazia
-            if (!CollectionUtils.isEmpty(this.queriesParams)) {
+            if (CollectionUtils.isEmpty(this.queriesParams)) {
                 this.queriesParams = new LinkedList<>();
             }
             //adicionar os parametros iniciais necessarios
