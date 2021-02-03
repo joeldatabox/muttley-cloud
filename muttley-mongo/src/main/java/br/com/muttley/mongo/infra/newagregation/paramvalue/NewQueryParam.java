@@ -29,8 +29,13 @@ public class NewQueryParam {
             this.value = value.substring(this.key.length() + 2, value.length() - 1);
         } else {
             final String[] valueSplit = value.split("=");
-            this.key = valueSplit[0];
-            this.value = valueSplit[1];
+            if (valueSplit.length < 2) {
+                this.key = valueSplit[0];
+                this.value = null;
+            } else {
+                this.key = valueSplit[0];
+                this.value = valueSplit[1];
+            }
         }
     }
 

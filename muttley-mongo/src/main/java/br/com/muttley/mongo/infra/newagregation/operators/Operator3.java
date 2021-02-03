@@ -2,6 +2,7 @@ package br.com.muttley.mongo.infra.newagregation.operators;
 
 import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaAND3;
 import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaCONTAINS3;
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaCount3;
 import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaGT3;
 import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaGTE3;
 import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaIN3;
@@ -34,6 +35,7 @@ public interface Operator3 {
     public static final Operator3 CONTAINS = new OperatorCriteriaCONTAINS3();
     public static final Operator3 IS = new OperatorCriteriaIS3();
     public static final Operator3 SKIP = new OperatorCriteriaSKIP3();
+    public static final Operator3 COUNT = new OperatorCriteriaCount3();
     public static final Operator3 LIMIT = new OperatorCriteriaLIMIT3();
     public static final Operator3 OR = new OperatorCriteriaOR3();
     public static final Operator3 AND = new OperatorCriteriaAND3();
@@ -67,6 +69,7 @@ public interface Operator3 {
                 CONTAINS,
                 IS,
                 SKIP,
+                COUNT,
                 LIMIT,
                 OR,
                 AND,
@@ -109,6 +112,8 @@ public interface Operator3 {
                 return IS;
             case "$skip":
                 return SKIP;
+            case "$count":
+                return COUNT;
             case "$limit":
                 return LIMIT;
             case ".$or":
@@ -145,6 +150,7 @@ public interface Operator3 {
                 value.contains(".$is") ||
                 value.contains("$is") ||
                 value.contains("$skip") ||
+                value.contains("$count") ||
                 value.contains("$limit") ||
                 value.contains(".$or") ||
                 value.contains("$or") ||
@@ -170,6 +176,7 @@ public interface Operator3 {
                 value.equalsIgnoreCase(".$is") ||
                 value.equalsIgnoreCase("$is") ||
                 value.equalsIgnoreCase("$skip") ||
+                value.equalsIgnoreCase("$count") ||
                 value.equalsIgnoreCase("$limit") ||
                 value.equalsIgnoreCase(".$or") ||
                 value.equalsIgnoreCase("$or") ||
