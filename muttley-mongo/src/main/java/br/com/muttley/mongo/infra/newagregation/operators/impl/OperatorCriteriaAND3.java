@@ -15,10 +15,10 @@ import static java.util.Arrays.asList;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class OperatorCriteriaOR3 extends AbstractOperatorImpl {
-    public static final String wildcard = ".$or";
+public class OperatorCriteriaAND3 extends AbstractOperatorImpl {
+    public static final String wildcard = ".$and";
 
-    public OperatorCriteriaOR3() {
+    public OperatorCriteriaAND3() {
         super(wildcard);
     }
 
@@ -26,7 +26,7 @@ public class OperatorCriteriaOR3 extends AbstractOperatorImpl {
     public List<Criteria> extractCriteriaArray(ProjectionMetadata metadata, List<Criterion3> subcriterions) {
         return new LinkedList<>(
                 asList(new Criteria()
-                        .orOperator(
+                        .andOperator(
                                 subcriterions
                                         .stream()
                                         .map(it -> it.extractCriteria())

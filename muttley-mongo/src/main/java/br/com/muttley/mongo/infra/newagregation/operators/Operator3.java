@@ -1,5 +1,6 @@
 package br.com.muttley.mongo.infra.newagregation.operators;
 
+import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaAND3;
 import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaCONTAINS3;
 import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaGT3;
 import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaGTE3;
@@ -12,6 +13,7 @@ import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaO
 import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaORDER_BY_ASC3;
 import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaORDER_BY_DESC3;
 import br.com.muttley.mongo.infra.newagregation.operators.impl.OperatorCriteriaSKIP3;
+import br.com.muttley.mongo.infra.newagregation.projections.Criterion3;
 import br.com.muttley.mongo.infra.newagregation.projections.ProjectionMetadata;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -34,6 +36,7 @@ public interface Operator3 {
     public static final Operator3 SKIP = new OperatorCriteriaSKIP3();
     public static final Operator3 LIMIT = new OperatorCriteriaLIMIT3();
     public static final Operator3 OR = new OperatorCriteriaOR3();
+    public static final Operator3 AND = new OperatorCriteriaAND3();
     public static final Operator3 ORDER_BY_ASC = new OperatorCriteriaORDER_BY_ASC3();
     public static final Operator3 ORDER_BY_DESC = new OperatorCriteriaORDER_BY_DESC3();
 
@@ -47,6 +50,10 @@ public interface Operator3 {
 
     List<Criteria> extractCriteria(final ProjectionMetadata metadata, final String compositePropertyWithFather, final String key, final Object value);
 
+    /**
+     * Serve para operador que recebe um array como criterio [$or, $and]
+     */
+    List<Criteria> extractCriteriaArray(final ProjectionMetadata metadata, final List<Criterion3> subcriterions);
 
     boolean isTypeArray();
 
@@ -62,6 +69,7 @@ public interface Operator3 {
                 SKIP,
                 LIMIT,
                 OR,
+                AND,
                 ORDER_BY_ASC,
                 ORDER_BY_DESC
         };
@@ -106,6 +114,9 @@ public interface Operator3 {
             case ".$or":
             case "$or":
                 return OR;
+            case ".$and":
+            case "$and":
+                return AND;
             case "$orderByAsc":
             case "$orderbyasc":
                 return ORDER_BY_ASC;
@@ -137,6 +148,8 @@ public interface Operator3 {
                 value.contains("$limit") ||
                 value.contains(".$or") ||
                 value.contains("$or") ||
+                value.contains(".$and") ||
+                value.contains("$and") ||
                 value.contains("$orderByAsc") ||
                 value.contains("$orderByDesc");
     }
@@ -160,6 +173,8 @@ public interface Operator3 {
                 value.equalsIgnoreCase("$limit") ||
                 value.equalsIgnoreCase(".$or") ||
                 value.equalsIgnoreCase("$or") ||
+                value.equalsIgnoreCase(".$and") ||
+                value.equalsIgnoreCase("$and") ||
                 value.equalsIgnoreCase("$orderByAsc") ||
                 value.equalsIgnoreCase("$orderByDesc");
 

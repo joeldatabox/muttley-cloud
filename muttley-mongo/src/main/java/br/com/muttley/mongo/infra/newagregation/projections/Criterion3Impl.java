@@ -71,6 +71,8 @@ public class Criterion3Impl implements Criterion3 {
     @Override
     public List<Criteria> extractCriteria() {
         if (this.operator.isTypeArray()) {
+            return this.operator.extractCriteriaArray(this.metadata, this.subcriterions);
+/*
             return new LinkedList<>(
                     asList(new Criteria()
                             .orOperator(
@@ -81,7 +83,7 @@ public class Criterion3Impl implements Criterion3 {
                                             .toArray(Criteria[]::new)
                             )
                     )
-            );
+            );*/
         } else {
             final String key;
             //achustando caso a key seja um id e nao use "$" para referenciar

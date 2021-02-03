@@ -1,6 +1,7 @@
 package br.com.muttley.mongo.infra.newagregation.operators.impl;
 
 import br.com.muttley.mongo.infra.newagregation.operators.Operator3;
+import br.com.muttley.mongo.infra.newagregation.projections.Criterion3;
 import br.com.muttley.mongo.infra.newagregation.projections.ProjectionMetadata;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -41,6 +42,11 @@ public abstract class AbstractOperatorImpl implements Operator3 {
 
     @Override
     public List<Criteria> extractCriteria(final ProjectionMetadata metadata, final String compositePropertyWithFather, final String key, final Object value) {
+        return new LinkedList<>();
+    }
+
+    @Override
+    public List<Criteria> extractCriteriaArray(final ProjectionMetadata metadata, final List<Criterion3> subcriterions) {
         return new LinkedList<>();
     }
 
