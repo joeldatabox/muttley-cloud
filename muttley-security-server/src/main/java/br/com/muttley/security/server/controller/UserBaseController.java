@@ -10,7 +10,9 @@ import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,6 +70,14 @@ public class UserBaseController extends AbstractRestController<UserBase> {
     public ResponseEntity add(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final UserBaseItem item) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         this.service.addUserItem(user, item);
+        return ResponseEntity.ok().build();
+    }
+
+    @RequestMapping(value = "/remove-user/{userName}",  method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity removeUser(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @PathVariable(value = "userName") final String userName) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        this.service.removeByUserName(user, userName);
         return ResponseEntity.ok().build();
     }
 

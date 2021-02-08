@@ -9,6 +9,7 @@ import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserService;
+import com.mongodb.BasicDBObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -127,6 +128,19 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     public void createNewUserAndAdd(final User user, final UserPayLoad payLoad) {
         final User salvedUser = userService.save(new User(payLoad));
         this.addUserItem(user, salvedUser);
+    }
+
+    @Override
+    public void removeByUserName(final User user, final String userName) {
+        final User userLoaded = this.userService.findByUserName(userName);
+        this.mongoTemplate.updateFirst(
+                new Query(
+                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                ),
+                new Update()
+                        .pull("users", new BasicDBObject("user.$id", new ObjectId(userLoaded.getId()))),
+                UserBase.class
+        );
     }
 
     /**
