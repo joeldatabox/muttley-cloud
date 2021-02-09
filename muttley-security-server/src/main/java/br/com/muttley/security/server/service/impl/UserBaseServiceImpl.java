@@ -8,6 +8,7 @@ import br.com.muttley.model.security.UserBaseItem;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.service.UserBaseService;
+import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserService;
 import com.mongodb.BasicDBObject;
 import lombok.Getter;
@@ -40,12 +41,18 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     private static final String[] basicRoles = new String[]{ROLE_USER_BASE_CREATE.getSimpleName()};
     private final String ODIN_USER;
     private final UserService userService;
+    private final UserDataBindingService dataBindingService;
 
     @Autowired
-    public UserBaseServiceImpl(final MongoTemplate template, @Value("${muttley.security.odin.user}") final String odinUser, final UserService userService) {
+    public UserBaseServiceImpl(
+            final MongoTemplate template,
+            @Value("${muttley.security.odin.user}") final String odinUser,
+            final UserService userService,
+            final UserDataBindingService dataBindingService) {
         super(template, UserBase.class);
         this.ODIN_USER = odinUser;
         this.userService = userService;
+        this.dataBindingService = dataBindingService;
     }
 
     @Override
@@ -84,7 +91,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void addUserItem(final User user, final User userForAdd) {
-        this.addUserItem(user, new UserBaseItem(user, userForAdd, new Date(), true));
+        this.addUserItem(user, new UserBaseItem(user, userForAdd, new Date(), true, null));
         /*if (!this.userHasBeenIncluded(user, userForAdd)) {
             this.mongoTemplate.updateFirst(
                     new Query(
@@ -127,6 +134,9 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     @Override
     public void createNewUserAndAdd(final User user, final UserPayLoad payLoad) {
         final User salvedUser = userService.save(new User(payLoad));
+        if (!payLoad.dataBindingsIsEmpty()) {
+            this.dataBindingService.merge(user, salvedUser.getUserName(), payLoad.getDataBindings());
+        }
         this.addUserItem(user, salvedUser);
     }
 

@@ -20,8 +20,10 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira 12/01/2021
@@ -37,7 +39,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @Accessors(chain = true)
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"key"})
 public class UserDataBinding implements Model {
     @Transient
     @JsonIgnore

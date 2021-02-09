@@ -6,6 +6,7 @@ import br.com.muttley.model.security.UserDataBinding;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira 12/01/2021
@@ -188,6 +189,30 @@ public interface UserDataBindingService {
                     "   true "
     )
     void merge(final User user, final String userName, final UserDataBinding dataBinding);
+
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "( " +
+                    "   hasAnyRole( " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString() " +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole( " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_USER_DATA_BINDING_OTHERS_USERS_MERGE.toString() " +
+                    "   ) " +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).ROLE_MOBILE_USER_DATA_BINDING_OTHERS_USERS_MERGE.toString()" +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
+    void merge(final User user, final String userName, final Set<UserDataBinding> dataBindings);
 
     UserDataBinding getKey(final User user, final String key);
 

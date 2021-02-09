@@ -16,6 +16,7 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserDataBinding;
+import br.com.muttley.model.security.events.UserDatabindingValidateMergeEvent;
 import br.com.muttley.model.security.events.UserResolverEvent;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.UserDataBindingRepository;
@@ -35,6 +36,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.count;
@@ -87,6 +89,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionSave(user, dataBinding);
+        this.eventPublisher.publishEvent(new UserDatabindingValidateMergeEvent(dataBinding));
         return repository.save(dataBinding);
     }
 
@@ -106,6 +109,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         this.checkPrecondictionUpdate(user, dataBinding);
+        this.eventPublisher.publishEvent(new UserDatabindingValidateMergeEvent(dataBinding));
         return repository.save(dataBinding);
     }
 
@@ -184,6 +188,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionSaveByUserName(user, userName, dataBinding);
+        this.eventPublisher.publishEvent(new UserDatabindingValidateMergeEvent(dataBinding));
         return repository.save(dataBinding);
     }
 
@@ -206,6 +211,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionUpdateByUserName(user, userName, dataBinding);
+        this.eventPublisher.publishEvent(new UserDatabindingValidateMergeEvent(dataBinding));
         return repository.save(dataBinding);
     }
 
@@ -229,6 +235,24 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         } else {
 
             this.saveByUserName(user, userName, dataBinding);
+        }
+    }
+
+    @Override
+    public void merge(final User user, final String userName, final Set<UserDataBinding> dataBindings) {
+        User userCurrent = null;
+        for (UserDataBinding dataBinding : dataBindings) {
+            if (dataBinding.getUser() == null) {
+                if (userCurrent == null) {
+                    userCurrent = this.findByUserName(userName);
+                }
+                dataBinding.setUser(userCurrent);
+            }
+            if (exists(user, dataBinding)) {
+                this.updateByUserName(user, userName, dataBinding);
+            } else {
+                this.saveByUserName(user, userName, dataBinding);
+            }
         }
     }
 

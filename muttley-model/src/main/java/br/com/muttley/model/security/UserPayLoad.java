@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -26,6 +27,7 @@ public class UserPayLoad implements Serializable {
     private Set<String> nickUsers;
     @NotBlank(message = "Informe uma senha valida!")
     private String passwd;
+    private Set<UserDataBinding> dataBindings;
 
     @JsonCreator
     public UserPayLoad(
@@ -34,13 +36,15 @@ public class UserPayLoad implements Serializable {
             @JsonProperty("email") final String email,
             @JsonProperty("userName") final String userName,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
-            @JsonProperty("passwd") final String passwd) {
+            @JsonProperty("passwd") final String passwd,
+            @JsonProperty("dataBindings") final Set<UserDataBinding> dataBindings) {
         this.name = name;
         this.description = description;
         this.email = email;
         this.userName = userName;
         this.nickUsers = nickUsers;
         this.passwd = passwd;
+        this.dataBindings = dataBindings;
     }
 
     public String getName() {
@@ -65,5 +69,13 @@ public class UserPayLoad implements Serializable {
 
     public String getPasswd() {
         return passwd;
+    }
+
+    public Set<UserDataBinding> getDataBindings() {
+        return this.dataBindings;
+    }
+
+    public boolean dataBindingsIsEmpty() {
+        return CollectionUtils.isEmpty(this.dataBindings);
     }
 }

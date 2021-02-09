@@ -9,10 +9,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira 04/12/2020
@@ -40,6 +43,12 @@ public class UserBaseItem {
 
     private boolean status;
 
+    /**
+     * Variável para apenas transacionar os item de usuário para databindings
+     */
+    @Transient
+    private Set<UserDataBinding> dataBindings;
+
     public UserBaseItem() {
         this.status = true;
     }
@@ -49,11 +58,17 @@ public class UserBaseItem {
             @JsonProperty("addedBy") final UserData addedBy,
             @JsonProperty("user") final UserData user,
             @JsonProperty("dtCreate") final Date dtCreate,
-            @JsonProperty("status") final boolean status) {
+            @JsonProperty("status") final boolean status,
+            @JsonProperty("dataBindings") Set<UserDataBinding> dataBindings) {
         this();
         this.addedBy = addedBy;
         this.user = user;
         this.dtCreate = dtCreate;
         this.status = status;
+        this.dataBindings = dataBindings;
+    }
+
+    public boolean dataBindingsIsEmpty() {
+        return CollectionUtils.isEmpty(this.dataBindings);
     }
 }
