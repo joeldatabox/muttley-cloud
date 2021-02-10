@@ -220,7 +220,17 @@ public interface UserDataBindingService {
 
     boolean contains(final User user, final String key);
 
-    boolean containsByUserName(final User user, final String userName, final String key);
+    boolean containsByUserNameAndKey(final User user, final String userName, final String key);
+
+    /**
+     * Verifica se uma determina chave e valor já esta reservado para algum usuário
+     */
+    boolean containsByKeyAndValue(final User user, final String key, final String value);
+
+    /**
+     * Verifica se uma determina chave e valor já esta reservado para algum usuário diferente do username informado
+     */
+    boolean containsByKeyAndValueAndUserNameNotEq(final User user, final String userName, final String key, final String value);
 
     UserData getUserBy(final User user, final String key, final String value);
 }

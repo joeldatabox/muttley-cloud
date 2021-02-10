@@ -153,7 +153,7 @@ public class UserDataBindingController implements RestResource {
     @RequestMapping(value = "/by-username/{userName}/contains/key/{key}", method = RequestMethod.GET)
     public ResponseEntity containsByUserName(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @PathVariable("userName") final String userName, @PathVariable("key") final String key) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        return ResponseEntity.ok(this.service.containsByUserName(user, userName, key));
+        return ResponseEntity.ok(this.service.containsByUserNameAndKey(user, userName, key));
     }
 
     @RequestMapping(value = "/user-by", method = RequestMethod.GET)

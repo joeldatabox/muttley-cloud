@@ -55,7 +55,7 @@ public class UserDataBinding implements Model {
     @JsonDeserialize(using = UserDataDeserializer.class)
     @DBRef
     private UserData user;
-    private String key;
+    private KeyUserDataBinding key;
     private String value;
     private MetadataDocument metadata;
     private Historic historic;

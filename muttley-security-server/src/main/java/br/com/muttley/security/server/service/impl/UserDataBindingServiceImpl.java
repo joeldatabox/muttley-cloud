@@ -16,7 +16,6 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserDataBinding;
-import br.com.muttley.model.security.events.UserDatabindingValidateMergeEvent;
 import br.com.muttley.model.security.events.UserResolverEvent;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.UserDataBindingRepository;
@@ -89,7 +88,6 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionSave(user, dataBinding);
-        this.eventPublisher.publishEvent(new UserDatabindingValidateMergeEvent(dataBinding));
         return repository.save(dataBinding);
     }
 
@@ -109,7 +107,6 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         this.checkPrecondictionUpdate(user, dataBinding);
-        this.eventPublisher.publishEvent(new UserDatabindingValidateMergeEvent(dataBinding));
         return repository.save(dataBinding);
     }
 
@@ -188,7 +185,6 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionSaveByUserName(user, userName, dataBinding);
-        this.eventPublisher.publishEvent(new UserDatabindingValidateMergeEvent(dataBinding));
         return repository.save(dataBinding);
     }
 
@@ -196,8 +192,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         if (!userName.equals(dataBinding.getUser().getUserName())) {
             throw new MuttleyBadRequestException(UserDataBinding.class, "user", "O usuário informado é diferente do da requisição!");
         }
-        //verificando se já não existe um registro com as informações
-        this.checkIndex(user, dataBinding);
+        this.checkIndex(user, userName, dataBinding);
         this.validator.validate(dataBinding);
     }
 
@@ -211,7 +206,6 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionUpdateByUserName(user, userName, dataBinding);
-        this.eventPublisher.publishEvent(new UserDatabindingValidateMergeEvent(dataBinding));
         return repository.save(dataBinding);
     }
 
@@ -221,7 +215,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         this.validator.validate(dataBinding);
         //verificando se já não existe um registro com as informações
-        this.checkIndex(user, dataBinding);
+        this.checkIndex(user, userName, dataBinding);
     }
 
     @Override
@@ -334,7 +328,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     }
 
     @Override
-    public boolean containsByUserName(final User user, final String userName, final String key) {
+    public boolean containsByUserNameAndKey(final User user, final String userName, final String key) {
         if (user.getUserName().equals(userName)) {
             return this.contains(user, key);
         }
@@ -368,6 +362,65 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         );
         if (results == null || results.getUniqueMappedResult() == null) {
             throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Nenhum registro encontrado para o usuário desejado");
+        }
+        return results.getUniqueMappedResult().getResult() > 0;
+    }
+
+    @Override
+    public boolean containsByKeyAndValue(final User user, final String key, final String value) {
+        /**
+         * db.getCollection("muttley-users-databinding").aggregate([
+         *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6"), "key":"UserColaborador", value:"5ff65e339208bc0007c0d6ba"}},
+         *     {}
+         * ])
+         */
+        final AggregationResults<BasicAggregateResultCount> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("key").is(key).and("value").is(value)),
+                        count().as("result")
+                ),
+                documentNameConfig.getNameCollectionUserDataBinding(),
+                BasicAggregateResultCount.class
+        );
+        if (results == null || results.getUniqueMappedResult() == null) {
+            throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Erro na consulta");
+        }
+        return results.getUniqueMappedResult().getResult() > 0;
+    }
+
+    @Override
+    public boolean containsByKeyAndValueAndUserNameNotEq(final User user, final String userName, final String key, final String value) {
+        /**
+         * db.getCollection("muttley-users-databinding").aggregate([
+         *
+         *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6"), "key":"UserColaborador", value:"5ff65e339208bc0007c0d6ba"}},
+         *     {$project:{_class:1, key:1, value:1, metadata:1, historic:1, owner:1, user:{$objectToArray:"$user"}}},
+         *     {$project:{_class:1, key:1, value:1, metadata:1, historic:1, owner:1, user:{$arrayElemAt:["$user.v", 1]}}},
+         *     {$lookup:{
+         *         from:"muttley-users",
+         *         localField:"user",
+         *         foreignField:"_id",
+         *         as: "user"
+         *     }},
+         *     {$unwind:"$user"},
+         *     {$match:{"user.userName":{$ne:"0756143600010711000523BRUNA.Ab"}}}
+         * ])
+         */
+        final AggregationResults<BasicAggregateResultCount> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("key").is(key).and("value").is(value)),
+                        project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$objectToArray", "$user")).as("user"),
+                        project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$arrayElemAt", asList("$user.v", 1))).as("user"),
+                        lookup(documentNameConfig.getNameCollectionUser(), "user", "_id", "user"),
+                        unwind("$user"),
+                        match(where("user.userName").ne(userName).and("key").is(key)),
+                        count().as("result")
+                ),
+                documentNameConfig.getNameCollectionUserDataBinding(),
+                BasicAggregateResultCount.class
+        );
+        if (results == null || results.getUniqueMappedResult() == null) {
+            throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Erro na consulta");
         }
         return results.getUniqueMappedResult().getResult() > 0;
     }
@@ -407,6 +460,31 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
                                     .and("key").is(dataBinding.getKey())
                     ), UserDataBinding.class)) {
                 throw new MuttleyConflictException(UserDataBinding.class, "key", "Jás existe um registro com essas informações");
+            }
+        }
+
+        if (dataBinding.getKey().isUnique()) {
+            //verificando se outro usário já tem esse databinding
+            if (this.containsByKeyAndValueAndUserNameNotEq(user, user.getUserName(), dataBinding.getKey().getKey(), dataBinding.getValue())) {
+                throw new MuttleyBadRequestException(UserDataBinding.class, "key", "Já existe um usuário que possui ligação com " + dataBinding.getKey().getDisplayKey() + " informado(a)");
+            }
+        }
+    }
+
+    private final void checkIndex(final User user, final String userName, final UserDataBinding dataBinding) {
+        if (user.getUserName().equals(userName)) {
+            this.checkIndex(user, dataBinding);
+        } else {
+
+            if (this.exists(user, userName, dataBinding.getKey().getKey())) {
+                throw new MuttleyConflictException(UserDataBinding.class, "key", "Jás existe um registro com essas informações");
+            }
+
+            if (dataBinding.getKey().isUnique()) {
+                //verificando se outro usário já tem esse databinding
+                if (this.containsByKeyAndValueAndUserNameNotEq(user, user.getUserName(), dataBinding.getKey().getKey(), dataBinding.getValue())) {
+                    throw new MuttleyBadRequestException(UserDataBinding.class, "key", "Já existe um usuário que possui ligação com " + dataBinding.getKey().getDisplayKey() + " informado(a)");
+                }
             }
         }
     }
