@@ -12,6 +12,7 @@ import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.VersionDocument;
+import br.com.muttley.model.security.KeyUserDataBinding;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserData;
@@ -251,6 +252,11 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     }
 
     @Override
+    public UserDataBinding getKey(User user, KeyUserDataBinding key) {
+        return this.getKey(user, key.getKey());
+    }
+
+    @Override
     public UserDataBinding getKey(final User user, final String key) {
         /**
          * db.getCollection("muttley-users-databinding").aggregate([
@@ -272,6 +278,11 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
             return null;
         }
         return results.getUniqueMappedResult();
+    }
+
+    @Override
+    public UserDataBinding getKeyByUserName(User user, String userName, KeyUserDataBinding key) {
+        return this.getKeyByUserName(user, userName, key.getKey());
     }
 
     @Override
@@ -313,6 +324,11 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     }
 
     @Override
+    public boolean contains(User user, KeyUserDataBinding key) {
+        return this.contains(user, key.getKey());
+    }
+
+    @Override
     public boolean contains(final User user, final String key) {
         /**
          * db.getCollection("muttley-users-databinding").aggregate([
@@ -325,6 +341,11 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
                                 .and("user.$id").is(new ObjectId(user.getId()))
                                 .and("key").is(key)
                 ), UserDataBinding.class);
+    }
+
+    @Override
+    public boolean containsByUserNameAndKey(User user, String userName, KeyUserDataBinding key) {
+        return this.containsByUserNameAndKey(user, userName, key);
     }
 
     @Override
@@ -367,6 +388,11 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     }
 
     @Override
+    public boolean containsByKeyAndValue(User user, KeyUserDataBinding key, String value) {
+        return this.containsByKeyAndValue(user, key.getKey(), value);
+    }
+
+    @Override
     public boolean containsByKeyAndValue(final User user, final String key, final String value) {
         /**
          * db.getCollection("muttley-users-databinding").aggregate([
@@ -386,6 +412,11 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
             throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Erro na consulta");
         }
         return results.getUniqueMappedResult().getResult() > 0;
+    }
+
+    @Override
+    public boolean containsByKeyAndValueAndUserNameNotEq(User user, String userName, KeyUserDataBinding key, String value) {
+        return this.containsByKeyAndValueAndUserNameNotEq(user, userName, key.getKey(), value);
     }
 
     @Override
@@ -423,6 +454,11 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
             throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Erro na consulta");
         }
         return results.getUniqueMappedResult().getResult() > 0;
+    }
+
+    @Override
+    public UserData getUserBy(final User user, final KeyUserDataBinding key, final String value) {
+        return this.getUserBy(user, key.getKey(), value);
     }
 
     @Override

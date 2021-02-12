@@ -1,5 +1,6 @@
 package br.com.muttley.security.server.service;
 
+import br.com.muttley.model.security.KeyUserDataBinding;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserDataBinding;
@@ -214,13 +215,26 @@ public interface UserDataBindingService {
     )
     void merge(final User user, final String userName, final Set<UserDataBinding> dataBindings);
 
+    UserDataBinding getKey(final User user, final KeyUserDataBinding key);
+
     UserDataBinding getKey(final User user, final String key);
+
+    UserDataBinding getKeyByUserName(final User user, final String userName, final KeyUserDataBinding key);
 
     UserDataBinding getKeyByUserName(final User user, final String userName, final String key);
 
+    boolean contains(final User user, final KeyUserDataBinding key);
+
     boolean contains(final User user, final String key);
 
+    boolean containsByUserNameAndKey(final User user, final String userName, final KeyUserDataBinding key);
+
     boolean containsByUserNameAndKey(final User user, final String userName, final String key);
+
+    /**
+     * Verifica se uma determina chave e valor já esta reservado para algum usuário
+     */
+    boolean containsByKeyAndValue(final User user, final KeyUserDataBinding key, final String value);
 
     /**
      * Verifica se uma determina chave e valor já esta reservado para algum usuário
@@ -230,7 +244,14 @@ public interface UserDataBindingService {
     /**
      * Verifica se uma determina chave e valor já esta reservado para algum usuário diferente do username informado
      */
+    boolean containsByKeyAndValueAndUserNameNotEq(final User user, final String userName, final KeyUserDataBinding key, final String value);
+
+    /**
+     * Verifica se uma determina chave e valor já esta reservado para algum usuário diferente do username informado
+     */
     boolean containsByKeyAndValueAndUserNameNotEq(final User user, final String userName, final String key, final String value);
+
+    UserData getUserBy(final User user, final KeyUserDataBinding key, final String value);
 
     UserData getUserBy(final User user, final String key, final String value);
 }
