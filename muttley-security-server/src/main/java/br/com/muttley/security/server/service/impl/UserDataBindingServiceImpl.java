@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -437,23 +439,39 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
          *     {$match:{"user.userName":{$ne:"0756143600010711000523BRUNA.Ab"}}}
          * ])
          */
-        final AggregationResults<BasicAggregateResultCount> results = this.mongoTemplate.aggregate(
+        final List<AggregationOperation> operations = new LinkedList<>(
+                asList(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("key").is(key).and("value").is(value))
+                )
+        );
+        /*if (!StringUtils.isEmpty(userName)) {
+            operations.addAll(
+                    asList(
+                            project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$objectToArray", "$user")).as("user"),
+                            project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$arrayElemAt", asList("$user.v", 1))).as("user"),
+                            lookup(documentNameConfig.getNameCollectionUser(), "user", "_id", "user"),
+                            unwind("$user")
+                            //match(where("user.userName").ne(userName).and("key").is(key))
+                    )
+            );
+        }*/
+        //operations.add(count().as("result"));
+        final AggregationResults<UserDataBinding> results = this.mongoTemplate.aggregate(
                 newAggregation(
-                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("key").is(key).and("value").is(value)),
-                        project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$objectToArray", "$user")).as("user"),
-                        project("key", "value", "metadata", "historic", "owner").and(context -> new BasicDBObject("$arrayElemAt", asList("$user.v", 1))).as("user"),
-                        lookup(documentNameConfig.getNameCollectionUser(), "user", "_id", "user"),
-                        unwind("$user"),
-                        match(where("user.userName").ne(userName).and("key").is(key)),
-                        count().as("result")
+                        operations
                 ),
                 documentNameConfig.getNameCollectionUserDataBinding(),
-                BasicAggregateResultCount.class
+                UserDataBinding.class
         );
         if (results == null || results.getUniqueMappedResult() == null) {
-            throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Erro na consulta");
+            //se não encontrou nada é sinal que o databinding está disponivel
+            return false;
+        } else {
+            return results.getMappedResults()
+                    .parallelStream()
+                    .filter(it -> !it.getUser().getUserName().equals(userName))
+                    .count() > 0;
         }
-        return results.getUniqueMappedResult().getResult() > 0;
     }
 
     @Override

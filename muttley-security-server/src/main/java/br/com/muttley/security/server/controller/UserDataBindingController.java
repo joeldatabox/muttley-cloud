@@ -156,6 +156,12 @@ public class UserDataBindingController implements RestResource {
         return ResponseEntity.ok(this.service.containsByUserNameAndKey(user, userName, key));
     }
 
+    @RequestMapping(value = "/constains-by-key-and-value-and-user-name-not-eq", method = RequestMethod.GET)
+    public ResponseEntity containsByKeyAndValueAndUserNameNotEq(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestParam(value = "userName", required = false, defaultValue = "") final String userName, @RequestParam("key") final String key, @RequestParam("value") final String value) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        return ResponseEntity.ok(this.service.containsByKeyAndValueAndUserNameNotEq(user, userName, key, value));
+    }
+
     @RequestMapping(value = "/user-by", method = RequestMethod.GET)
     public ResponseEntity getUserBy(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestParam(required = false, value = "key", defaultValue = "") final String key, @RequestParam(required = false, value = "value", defaultValue = "") final String value) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
