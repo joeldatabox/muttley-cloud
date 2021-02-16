@@ -391,7 +391,7 @@ public class User implements Serializable, UserData {
         }
         return this.dataBindings
                 .parallelStream()
-                .filter(it -> key.equals(it.getKey()))
+                .filter(it -> it.getKey().getKey().equals(key))
                 .findFirst()
                 .orElse(null);
     }
