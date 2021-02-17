@@ -90,9 +90,24 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     }
 
     @Override
-    public void addUserItem(final User user, final User userForAdd) {
-        this.addUserItem(user, new UserBaseItem(user, userForAdd, new Date(), true, null));
-        /*if (!this.userHasBeenIncluded(user, userForAdd)) {
+    public void addUserItemIfNotExists(final User user, final User userForAdd) {
+        this.addUserItemIfNotExists(user, new UserBaseItem(user, userForAdd, new Date(), true, null));
+    }
+
+    @Override
+    public void addUserItemIfNotExists(final User user, final UserBaseItem userForAdd) {
+        if (!this.userHasBeenIncluded(user, userForAdd.getUser().getId())) {
+            userForAdd.setAddedBy(user);
+            if (userForAdd.getDtCreate() == null) {
+                userForAdd.setDtCreate(new Date());
+            }
+            if (userForAdd.getAddedBy() == null) {
+                userForAdd.setAddedBy(user);
+            }
+            this.validator.validate(userForAdd);
+            if (this.userHasBeenIncluded(user, userForAdd.getUser().getId())) {
+                throw new MuttleyBadRequestException(UserBase.class, "users", "Usuário já está presente na base");
+            }
             this.mongoTemplate.updateFirst(
                     new Query(
                             where("owner.$id").is(user.getCurrentOwner().getObjectId())
@@ -100,35 +115,10 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
                     new Update()
                             .push("users")
                             .atPosition(FIRST)
-                            .each(new UserItemForAdd().setAddedBy(user).setUser(userForAdd).setDtCreate(new Date()).setStatus(true)),
+                            .each(userForAdd),
                     UserBase.class
             );
-        }*/
-    }
-
-    @Override
-    public void addUserItem(final User user, final UserBaseItem userForAdd) {
-        userForAdd.setAddedBy(user);
-        if (userForAdd.getDtCreate() == null) {
-            userForAdd.setDtCreate(new Date());
         }
-        if (userForAdd.getAddedBy() == null) {
-            userForAdd.setAddedBy(user);
-        }
-        this.validator.validate(userForAdd);
-        if (this.userHasBeenIncluded(user, userForAdd.getUser().getId())) {
-            throw new MuttleyBadRequestException(UserBase.class, "users", "Usuário já está presente na base");
-        }
-        this.mongoTemplate.updateFirst(
-                new Query(
-                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                ),
-                new Update()
-                        .push("users")
-                        .atPosition(FIRST)
-                        .each(userForAdd),
-                UserBase.class
-        );
     }
 
     @Override
@@ -137,7 +127,16 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
         if (!payLoad.dataBindingsIsEmpty()) {
             this.dataBindingService.merge(user, salvedUser.getUserName(), payLoad.getDataBindings());
         }
-        this.addUserItem(user, salvedUser);
+        this.addUserItemIfNotExists(user, salvedUser);
+    }
+
+    @Override
+    public void mergeUserItemIfExists(final User user, final UserPayLoad payLoad) {
+        final User salvedUser = userService.update(user, new User(payLoad));
+        if (!payLoad.dataBindingsIsEmpty()) {
+            this.dataBindingService.merge(user, salvedUser.getUserName(), payLoad.getDataBindings());
+        }
+        this.addUserItemIfNotExists(user, salvedUser);
     }
 
     @Override

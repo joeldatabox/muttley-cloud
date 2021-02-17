@@ -367,14 +367,20 @@ public class User implements Serializable, UserData {
 
     @JsonIgnore
     public boolean containsDatabinding(final String key) {
+        if (this.dataBindingsIsEmpty()) {
+            return false;
+        }
         return this.dataBindings
                 .parallelStream()
-                .filter(it -> it.getKey().getKey().equals(key))
+                .filter(it -> it.getKey().toString().equals(key))
                 .count() > 0;
     }
 
     @JsonIgnore
     public boolean containsDatabinding(final KeyUserDataBinding key) {
+        if (this.dataBindingsIsEmpty()) {
+            return false;
+        }
         return this.dataBindings
                 .parallelStream()
                 .filter(it -> it.getKey().equals(key))
@@ -391,7 +397,7 @@ public class User implements Serializable, UserData {
         }
         return this.dataBindings
                 .parallelStream()
-                .filter(it -> it.getKey().getKey().equals(key))
+                .filter(it -> it.getKey().toString().equals(key))
                 .findFirst()
                 .orElse(null);
     }

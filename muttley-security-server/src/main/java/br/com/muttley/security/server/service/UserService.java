@@ -29,6 +29,8 @@ public interface UserService extends UserDetailsService {
 
     User update(final User user, final JwtToken token);
 
+    User update(final User user, final User userForUpdate);
+
     User updatePasswd(final Passwd user);
 
     User findByUserName(final String userName);
@@ -46,14 +48,6 @@ public interface UserService extends UserDetailsService {
     Collection<User> findAll();
 
     User getUserFromToken(final JwtToken token);
-
-    /*Authentication getCurrentAuthentication();
-
-    JwtUser getCurrentJwtUser();
-
-    JwtToken getCurrentToken();
-
-    User getCurrentUser();*/
 
     UserPreferences loadPreference(final User user);
 

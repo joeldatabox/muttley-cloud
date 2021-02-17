@@ -21,11 +21,13 @@ public interface UserBaseService extends SecurityService<UserBase> {
 
     UserView findUserByEmailOrUserNameOrNickUser(final User user, final String emailOrUserName);
 
-    void addUserItem(final User user, final User userForAdd);
+    void addUserItemIfNotExists(final User user, final User userForAdd);
 
-    void addUserItem(final User user, final UserBaseItem userForAdd);
+    void addUserItemIfNotExists(final User user, final UserBaseItem userForAdd);
 
     void createNewUserAndAdd(final User user, final UserPayLoad payLoad);
+
+    void mergeUserItemIfExists(User user, UserPayLoad payLoad);
 
     void removeByUserName(User user, String userName);
 }

@@ -46,7 +46,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PREFERENCE;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
@@ -139,6 +138,24 @@ public class UserServiceImpl implements UserService {
         //validando infos do usuário
         user.validateBasicInfoForLogin();
         return repository.save(user);
+    }
+
+    @Override
+    public User update(final User user, final User userForUpdate) {
+        final User otherUser = this.findUserByEmailOrUserNameOrNickUsers(userForUpdate.getEmail(), userForUpdate.getUserName(), userForUpdate.getNickUsers());
+        userForUpdate.setId(otherUser.getId())
+                .setEmail(otherUser.getEmail())
+                .setUserName(otherUser.getUserName())
+                .setNickUsers(otherUser.getNickUsers())
+                .setPasswd(otherUser)
+                .setLastPasswordResetDate(otherUser.getLastPasswordResetDate())
+                .setEnable(otherUser.isEnable())
+                .setOdinUser(otherUser.isOdinUser());
+
+        checkNameIsValid(userForUpdate);
+        //validando infos do usuário
+        user.validateBasicInfoForLogin();
+        return this.repository.save(user);
     }
 
     private void checkNameIsValid(final User user) {
@@ -320,8 +337,8 @@ public class UserServiceImpl implements UserService {
                 final UserPreferences preferences = this.preferencesService.getUserPreferences(user);
                 user.setPreferences(preferences);
 
-                    final CurrentOwnerResolverEvent event = new CurrentOwnerResolverEvent(user);
-                    this.eventPublisher.publishEvent(event);
+                final CurrentOwnerResolverEvent event = new CurrentOwnerResolverEvent(user);
+                this.eventPublisher.publishEvent(event);
 
                 //user.setCurrentOwner(this.ownerService.findByUserAndId(user, preferences.get(OWNER_PREFERENCE).getValue().toString()));
                 try {

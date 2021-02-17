@@ -65,15 +65,23 @@ public class UserBaseController extends AbstractRestController<UserBase> {
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/add", method = RequestMethod.POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/merge-user-item-if-exists", method = RequestMethod.POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity add(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final UserBaseItem item) {
+    public ResponseEntity mergeUserItemIfExists(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final UserPayLoad payLoad) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        this.service.addUserItem(user, item);
+        this.service.mergeUserItemIfExists(user, payLoad);
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/remove-user/{userName}",  method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/add-if-not-exists", method = RequestMethod.POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity addIfNotExists(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final UserBaseItem item) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        this.service.addUserItemIfNotExists(user, item);
+        return ResponseEntity.ok().build();
+    }
+
+    @RequestMapping(value = "/remove-user/{userName}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity removeUser(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @PathVariable(value = "userName") final String userName) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
