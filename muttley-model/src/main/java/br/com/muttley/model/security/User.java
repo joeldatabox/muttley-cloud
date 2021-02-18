@@ -121,7 +121,9 @@ public class User implements Serializable, UserData {
         this.setUserName(payLoad.getUserName());
         this.setEmail(payLoad.getEmail());
         this.setNickUsers(payLoad.getNickUsers());
-        this.setPasswd(payLoad.getPasswd());
+        if (!isEmpty(payLoad.getPasswd())) {
+            this.setPasswd(payLoad.getPasswd());
+        }
     }
 
     @Override

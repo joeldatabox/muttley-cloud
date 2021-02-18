@@ -38,6 +38,9 @@ public class UserBaseItem {
     @JsonDeserialize(using = UserDataDeserializer.class)
     private UserData user;
 
+    @Transient
+    private UserPayLoad userInfoForMerge;
+
     @NotNull
     private Date dtCreate;
 
@@ -57,12 +60,14 @@ public class UserBaseItem {
     public UserBaseItem(
             @JsonProperty("addedBy") final UserData addedBy,
             @JsonProperty("user") final UserData user,
+            @JsonProperty("userInfoForMerge") final UserPayLoad userInfoForMerge,
             @JsonProperty("dtCreate") final Date dtCreate,
             @JsonProperty("status") final boolean status,
             @JsonProperty("dataBindings") Set<UserDataBinding> dataBindings) {
         this();
         this.addedBy = addedBy;
         this.user = user;
+        this.userInfoForMerge = userInfoForMerge;
         this.dtCreate = dtCreate;
         this.status = status;
         this.dataBindings = dataBindings;

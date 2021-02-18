@@ -154,8 +154,8 @@ public class UserServiceImpl implements UserService {
 
         checkNameIsValid(userForUpdate);
         //validando infos do usuário
-        user.validateBasicInfoForLogin();
-        return this.repository.save(user);
+        userForUpdate.validateBasicInfoForLogin();
+        return this.repository.save(userForUpdate);
     }
 
     private void checkNameIsValid(final User user) {

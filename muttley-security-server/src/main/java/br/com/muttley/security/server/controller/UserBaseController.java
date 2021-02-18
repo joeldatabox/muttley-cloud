@@ -59,17 +59,17 @@ public class UserBaseController extends AbstractRestController<UserBase> {
 
     @RequestMapping(value = "/create-new-user-and-add", method = RequestMethod.POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity createNewUserAndAdd(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final UserPayLoad payLoad) {
+    public ResponseEntity createNewUserAndAdd(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final UserBaseItem item) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        this.service.createNewUserAndAdd(user, payLoad);
+        this.service.createNewUserAndAdd(user, item);
         return ResponseEntity.ok().build();
     }
 
     @RequestMapping(value = "/merge-user-item-if-exists", method = RequestMethod.POST, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity mergeUserItemIfExists(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final UserPayLoad payLoad) {
+    public ResponseEntity mergeUserItemIfExists(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final UserBaseItem item) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        this.service.mergeUserItemIfExists(user, payLoad);
+        this.service.mergeUserItemIfExists(user, item);
         return ResponseEntity.ok().build();
     }
 

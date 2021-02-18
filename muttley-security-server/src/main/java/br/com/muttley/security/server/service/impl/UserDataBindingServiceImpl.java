@@ -241,7 +241,11 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         for (UserDataBinding dataBinding : dataBindings) {
             if (dataBinding.getUser() == null) {
                 if (userCurrent == null) {
-                    userCurrent = this.findByUserName(userName);
+                    if (user.getUserName().equals(userName)) {
+                        userCurrent = user;
+                    } else {
+                        userCurrent = this.findByUserName(userName);
+                    }
                 }
                 dataBinding.setUser(userCurrent);
             }
@@ -530,13 +534,17 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
             this.checkIndex(user, dataBinding);
         } else {
 
-            if (this.exists(user, userName, dataBinding.getKey().getKey())) {
-                throw new MuttleyConflictException(UserDataBinding.class, "key", "Jás existe um registro com essas informações");
+            //caso o registro não tenha id é sinal que estamos inserindo um novo
+            //com isso se faz necessário verificar se já não existe o mesmo
+            if (!dataBinding.contaisObjectId()) {
+                if (this.exists(user, userName, dataBinding.getKey().getKey())) {
+                    throw new MuttleyConflictException(UserDataBinding.class, "key", "Jás existe um registro com essas informações");
+                }
             }
 
             if (dataBinding.getKey().isUnique()) {
                 //verificando se outro usário já tem esse databinding
-                if (this.containsByKeyAndValueAndUserNameNotEq(user, user.getUserName(), dataBinding.getKey().getKey(), dataBinding.getValue())) {
+                if (this.containsByKeyAndValueAndUserNameNotEq(user, userName, dataBinding.getKey().getKey(), dataBinding.getValue())) {
                     throw new MuttleyBadRequestException(UserDataBinding.class, "key", "Já existe um usuário que possui ligação com " + dataBinding.getKey().getDisplayKey() + " informado(a)");
                 }
             }
@@ -544,7 +552,7 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     }
 
     private boolean exists(final User user, UserDataBinding dataBinding) {
-        return this.repository.exists("owner.$id", user.getCurrentOwner().getObjectId(), "user.$id", new ObjectId(dataBinding.getUser().getId()), "key", dataBinding.getKey());
+        return this.repository.exists("owner.$id", user.getCurrentOwner().getObjectId(), "user.$id", new ObjectId(dataBinding.getUser().getId()), "key", dataBinding.getKey().getKey());
     }
 
     private boolean exists(final User user, final String userName, final String key) {

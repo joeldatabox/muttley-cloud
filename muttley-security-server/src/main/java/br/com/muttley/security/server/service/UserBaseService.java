@@ -25,9 +25,9 @@ public interface UserBaseService extends SecurityService<UserBase> {
 
     void addUserItemIfNotExists(final User user, final UserBaseItem userForAdd);
 
-    void createNewUserAndAdd(final User user, final UserPayLoad payLoad);
+    void createNewUserAndAdd(final User user, final UserBaseItem item);
 
-    void mergeUserItemIfExists(User user, UserPayLoad payLoad);
+    void mergeUserItemIfExists(User user, final UserBaseItem item);
 
     void removeByUserName(User user, String userName);
 }

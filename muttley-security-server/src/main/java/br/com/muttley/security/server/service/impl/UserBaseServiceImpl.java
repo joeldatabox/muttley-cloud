@@ -91,7 +91,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void addUserItemIfNotExists(final User user, final User userForAdd) {
-        this.addUserItemIfNotExists(user, new UserBaseItem(user, userForAdd, new Date(), true, null));
+        this.addUserItemIfNotExists(user, new UserBaseItem(user, userForAdd, null, new Date(), true, null));
     }
 
     @Override
@@ -122,19 +122,19 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     }
 
     @Override
-    public void createNewUserAndAdd(final User user, final UserPayLoad payLoad) {
-        final User salvedUser = userService.save(new User(payLoad));
-        if (!payLoad.dataBindingsIsEmpty()) {
-            this.dataBindingService.merge(user, salvedUser.getUserName(), payLoad.getDataBindings());
+    public void createNewUserAndAdd(final User user, final UserBaseItem item) {
+        final User salvedUser = userService.save(new User(item.getUserInfoForMerge()));
+        if (!item.dataBindingsIsEmpty()) {
+            this.dataBindingService.merge(user, salvedUser.getUserName(), item.getDataBindings());
         }
         this.addUserItemIfNotExists(user, salvedUser);
     }
 
     @Override
-    public void mergeUserItemIfExists(final User user, final UserPayLoad payLoad) {
-        final User salvedUser = userService.update(user, new User(payLoad));
-        if (!payLoad.dataBindingsIsEmpty()) {
-            this.dataBindingService.merge(user, salvedUser.getUserName(), payLoad.getDataBindings());
+    public void mergeUserItemIfExists(final User user, final UserBaseItem item) {
+        final User salvedUser = userService.update(user, new User(item.getUserInfoForMerge()));
+        if (!item.dataBindingsIsEmpty()) {
+            this.dataBindingService.merge(user, salvedUser.getUserName(), item.getDataBindings());
         }
         this.addUserItemIfNotExists(user, salvedUser);
     }
