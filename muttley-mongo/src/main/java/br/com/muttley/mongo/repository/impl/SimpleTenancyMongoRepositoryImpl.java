@@ -6,8 +6,9 @@ import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidId
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
-import br.com.muttley.mongo.infra.AggregationUtils;
 import br.com.muttley.mongo.infra.metadata.EntityMetaData;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
+import br.com.muttley.mongo.infra.newagregation.projections.Projection;
 import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
 import br.com.muttley.mongo.service.annotations.CompoundIndexes;
 import com.mongodb.BasicDBObject;
@@ -62,7 +63,7 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
 
     @Override
     public boolean isEmpty() {
-        return this.count((Map<String, String>) null) == 0l;
+        return this.count((List)null) == 0l;
     }
 
     @Override
@@ -103,27 +104,34 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     }
 
     @Override
-    public List<T> findAll(final Map<String, String> queryParams) {
-        return operations
-                .aggregate(
-                        newAggregation(
-                                AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.CLASS),
-                                        ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())
-                                )
-                        ),
-                        COLLECTION, CLASS
-                )
-                .getMappedResults();
+    public List<T> findAll(final List<QueryParam> params) {
+        return operations.aggregate(
+                newAggregation(
+                        Projection.Builder
+                                .newInstance()
+                                .withEntityMetadata(this.entityMetaData)
+                                .withQueriesParams(params)
+                                .build()
+                                .getQuery()
+                ),
+                COLLECTION, CLASS
+        ).getMappedResults();
     }
 
     @Override
-    public long count(final Map<String, String> queryParams) {
+    public long count(final List<QueryParam> params) {
         final AggregationResults result = operations.aggregate(
                 newAggregation(
-                        AggregationUtils.createAggregationsCount(this.entityMetaData, getBasicPipelines(this.CLASS),
-                                ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())
-                        )
-                ), COLLECTION, ResultCount.class);
+                        Projection.Builder
+                                .newInstance()
+                                .withEntityMetadata(this.entityMetaData)
+                                .withQueriesParams(params)
+                                .addCountParamEndsIfNotExists()
+                                .build()
+                                .getQuery()
+                ),
+                COLLECTION, ResultCount.class
+        );
 
         return result.getUniqueMappedResult() != null ? ((ResultCount) result.getUniqueMappedResult()).count : 0;
     }

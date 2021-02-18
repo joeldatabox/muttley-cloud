@@ -11,6 +11,7 @@ import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.events.ValidateOwnerInWorkGroupEvent;
 import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
 import br.com.muttley.model.security.rolesconfig.event.AvaliableRolesEvent;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
 import br.com.muttley.security.server.service.UserRolesViewService;
 import br.com.muttley.security.server.service.WorkTeamService;
@@ -145,7 +146,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     @Override
-    public List<WorkTeam> findAll(User user, Map<String, String> allRequestParams) {
+    public List<WorkTeam> findAll(User user, final List<QueryParam> params) {
         return this.findByUser(user);
     }
 

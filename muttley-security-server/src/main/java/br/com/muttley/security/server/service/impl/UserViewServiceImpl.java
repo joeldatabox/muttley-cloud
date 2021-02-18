@@ -7,6 +7,7 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserView;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import br.com.muttley.security.server.service.UserViewService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
     }
 
     @Override
-    public Long count(final User user, final Map<String, String> allRequestParams) {
+    public Long count(final User user, final List<QueryParam> params) {
         throw new NotImplementedException();
     }
 
@@ -98,7 +99,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
     }
 
     @Override
-    public List<UserView> findAll(final User user, final Map<String, String> allRequestParams) {
+    public List<UserView> findAll(final User user, final List<QueryParam> params) {
         throw new NotImplementedException();
     }
 

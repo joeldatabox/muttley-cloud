@@ -4,13 +4,15 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserView;
-import br.com.muttley.mongo.infra.Operator;
+import br.com.muttley.mongo.infra.newagregation.operators.Operator;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import br.com.muttley.rest.hateoas.resource.MetadataPageable;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.UserViewService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
@@ -46,20 +49,23 @@ public class UserViewController extends AbstractRestController<UserView> {
 
     @Override
     @RequestMapping(method = GET)
-    public ResponseEntity<PageableResource<UserView>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
+    public ResponseEntity<PageableResource<UserView>> list(final HttpServletRequest request, final HttpServletResponse response,
                                                            @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         //validando os parametros passados
-        final Map<String, Object> params = validPageable(allRequestParams);
-        final Long SKIP = Long.valueOf(allRequestParams.get(Operator.SKIP.toString()).toString());
-        final Long LIMIT = Long.valueOf(allRequestParams.get(Operator.LIMIT.toString()).toString());
+        final List<QueryParam> params = validPageable(QueryParam.BuilderFromURL.newInstance().fromURL(this.getCurrentUrl(request)).build());
+        final Long SKIP = Long.valueOf(this.getOperatorValue(params, Operator.SKIP));
+        final Long LIMIT = Long.valueOf(this.getOperatorValue(params, Operator.LIMIT));
 
-        final long total = service.count(allRequestParams.get("q"), allRequestParams.get("owner"));
+        final User currentUser = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+
+        final long total = service.count(currentUser, params);
 
         if (total == 0) {
             throw new MuttleyNoContentException(null, null, "registros não encontrados!");
         }
-        final long totalAll = service.count(null, allRequestParams.get("owner"));
-        final List records = service.list(allRequestParams.get("q"), allRequestParams.get("owner"));
+        final long totalAll = service.count(currentUser, null);
+        final String q = this.getQ(params);
+        final List records = service.list(q, null);
 
         final Long recordSize = Long.valueOf(records.size());
 
@@ -94,8 +100,17 @@ public class UserViewController extends AbstractRestController<UserView> {
 
     @RequestMapping(value = "/count", method = GET, produces = {TEXT_PLAIN_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity count(@RequestParam final Map<String, String> allRequestParams, @RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt}", defaultValue = "") final String tokenHeader) {
+    public ResponseEntity count(final HttpServletRequest request, @RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        return ResponseEntity.ok(String.valueOf(service.count(allRequestParams.get("q"), allRequestParams.get("owner"))));
+        final List<QueryParam> params = validPageable(QueryParam.BuilderFromURL.newInstance().fromURL(this.getCurrentUrl(request)).build());
+        return ResponseEntity.ok(String.valueOf(service.count(this.getQ(params), null)));
+    }
+
+    private String getQ(final List<QueryParam> params) {
+        return CollectionUtils.isEmpty(params) ? "" : params.parallelStream()
+                .filter(it -> !it.isArrayValue() && it.getKey().endsWith("q"))
+                .findFirst()
+                .get()
+                .getValue();
     }
 }

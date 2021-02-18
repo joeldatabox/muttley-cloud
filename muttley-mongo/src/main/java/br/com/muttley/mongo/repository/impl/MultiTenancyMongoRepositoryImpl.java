@@ -7,7 +7,8 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.MultiTenancyModel;
 import br.com.muttley.model.security.Owner;
-import br.com.muttley.mongo.infra.AggregationUtils;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
+import br.com.muttley.mongo.infra.newagregation.projections.Projection;
 import br.com.muttley.mongo.repository.MultiTenancyMongoRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,9 +142,28 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
     }
 
     @Override
-    public final List<T> findAll(final Owner owner, final Map<String, String> queryParams) {
+    public final List<T> findAll(final Owner owner, final List<QueryParam> params) {
         validateOwner(owner);
+
         return operations.aggregate(
+                newAggregation(
+                        Projection.Builder
+                                .newInstance()
+                                .withEntityMetadata(this.entityMetaData)
+                                .withQueriesParams(params)
+                                .addQueryParamFirst(
+                                        QueryParam.Builder
+                                                .newInstance()
+                                                .withKey("owner.$is")
+                                                .withValue(owner.getObjectId().toString())
+                                                .build()
+                                ).build()
+                                .getQuery()
+                ),
+                COLLECTION, CLASS
+        ).getMappedResults();
+
+        /*return operations.aggregate(
                 newAggregation(
                         AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.CLASS),
 
@@ -151,19 +171,34 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
                         )
                 ),
                 COLLECTION, CLASS)
-                .getMappedResults();
+                .getMappedResults();*/
     }
 
     @Override
-    public final long count(final Owner owner, final Map<String, String> queryParams) {
+    public final long count(final Owner owner, final List<QueryParam> params) {
         validateOwner(owner);
+
         final AggregationResults result = operations.aggregate(
                 newAggregation(
-                        AggregationUtils.createAggregationsCount(this.entityMetaData, getBasicPipelines(this.CLASS),
-                                new HashMap<>(addOwnerQueryParam(owner, ((queryParams != null && !queryParams.isEmpty()) ? queryParams : new HashMap<>())))
-                        )),
-                COLLECTION, ResultCount.class);
+                        Projection.Builder
+                                .newInstance()
+                                .withEntityMetadata(this.entityMetaData)
+                                .withQueriesParams(params)
+                                .addQueryParamFirst(
+                                        QueryParam.Builder
+                                                .newInstance()
+                                                .withKey("owner.$is")
+                                                .withValue(owner.getObjectId().toString())
+                                                .build()
+                                ).addCountParamEndsIfNotExists()
+                                .build()
+                                .getQuery()
+                ),
+                COLLECTION, ResultCount.class
+        );
+
         return result.getUniqueMappedResult() != null ? ((ResultCount) result.getUniqueMappedResult()).getCount() : 0;
+
     }
 
     @Override

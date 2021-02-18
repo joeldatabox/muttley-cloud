@@ -1,5 +1,6 @@
 package br.com.muttley.model.security;
 
+import br.com.muttley.metadata.anotations.SensitiveNavigation;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
@@ -36,6 +37,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Accessors(chain = true)
 @EqualsAndHashCode(of = "id")
+@SensitiveNavigation
 public class Owner implements br.com.muttley.model.Document {
     @Id
     protected String id;

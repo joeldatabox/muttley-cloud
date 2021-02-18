@@ -5,6 +5,7 @@ import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import br.com.muttley.rest.RestResource;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.UserService;
@@ -20,8 +21,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 import java.util.Set;
 
 import static br.com.muttley.security.server.property.MuttleySecurityProperty.TOKEN_HEADER_JWT;
@@ -120,17 +121,16 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     }
 
     @RequestMapping(method = GET)
-    public ResponseEntity<PageableResource<T>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
-                                                    @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
+    public ResponseEntity<PageableResource<T>> list(final HttpServletRequest request, final HttpServletResponse response, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, user, allRequestParams));
+        return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, user, QueryParam.BuilderFromURL.newInstance().fromURL(this.getCurrentUrl(request)).build()));
     }
 
     @RequestMapping(value = "/count", method = GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity count(@RequestParam final Map<String, String> allRequestParams, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
+    public ResponseEntity count(final HttpServletRequest request, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        return ResponseEntity.ok(String.valueOf(service.count(user, allRequestParams)));
+        return ResponseEntity.ok(String.valueOf(service.count(user, QueryParam.BuilderFromURL.newInstance().fromURL(this.getCurrentUrl(request)).build())));
     }
 
 
