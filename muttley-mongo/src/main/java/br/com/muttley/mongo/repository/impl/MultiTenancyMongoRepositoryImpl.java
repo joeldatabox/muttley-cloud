@@ -142,7 +142,7 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
     }
 
     @Override
-    public final List<T> findAll(final Owner owner, final String urlRequest) {
+    public final List<T> findAll(final Owner owner, final List<QueryParam> params) {
         validateOwner(owner);
 
         return operations.aggregate(
@@ -150,18 +150,14 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
                         Projection.Builder
                                 .newInstance()
                                 .withEntityMetadata(this.entityMetaData)
-                                .withQueriesParams(
-                                        QueryParam.BuilderFromURL
+                                .withQueriesParams(params)
+                                .addQueryParamFirst(
+                                        QueryParam.Builder
                                                 .newInstance()
-                                                .fromURL(urlRequest)
+                                                .withKey("owner.$is")
+                                                .withValue(owner.getObjectId().toString())
                                                 .build()
-                                ).addQueryParamFirst(
-                                QueryParam.Builder
-                                        .newInstance()
-                                        .withKey("owner.$is")
-                                        .withValue(owner.getObjectId().toString())
-                                        .build())
-                                .build()
+                                ).build()
                                 .getQuery()
                 ),
                 COLLECTION, CLASS
@@ -179,7 +175,7 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
     }
 
     @Override
-    public final long count(final Owner owner, final String urlRequest) {
+    public final long count(final Owner owner, final List<QueryParam> params) {
         validateOwner(owner);
 
         final AggregationResults result = operations.aggregate(
@@ -187,12 +183,7 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
                         Projection.Builder
                                 .newInstance()
                                 .withEntityMetadata(this.entityMetaData)
-                                .withQueriesParams(
-                                        QueryParam.BuilderFromURL
-                                                .newInstance()
-                                                .fromURL(urlRequest)
-                                                .build()
-                                )
+                                .withQueriesParams(params)
                                 .addQueryParamFirst(
                                         QueryParam.Builder
                                                 .newInstance()

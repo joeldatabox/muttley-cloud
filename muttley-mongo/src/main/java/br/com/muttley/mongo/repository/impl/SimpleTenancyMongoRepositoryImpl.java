@@ -63,7 +63,7 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
 
     @Override
     public boolean isEmpty() {
-        return this.count("") == 0l;
+        return this.count((List)null) == 0l;
     }
 
     @Override
@@ -104,18 +104,14 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     }
 
     @Override
-    public List<T> findAll(final String urlRequest) {
+    public List<T> findAll(final List<QueryParam> params) {
         return operations.aggregate(
                 newAggregation(
                         Projection.Builder
                                 .newInstance()
                                 .withEntityMetadata(this.entityMetaData)
-                                .withQueriesParams(
-                                        QueryParam.BuilderFromURL
-                                                .newInstance()
-                                                .fromURL(urlRequest)
-                                                .build()
-                                ).build()
+                                .withQueriesParams(params)
+                                .build()
                                 .getQuery()
                 ),
                 COLLECTION, CLASS
@@ -123,18 +119,14 @@ public class SimpleTenancyMongoRepositoryImpl<T extends Document> extends Simple
     }
 
     @Override
-    public long count(final String urlRequest) {
+    public long count(final List<QueryParam> params) {
         final AggregationResults result = operations.aggregate(
                 newAggregation(
                         Projection.Builder
                                 .newInstance()
                                 .withEntityMetadata(this.entityMetaData)
-                                .withQueriesParams(
-                                        QueryParam.BuilderFromURL
-                                                .newInstance()
-                                                .fromURL(urlRequest)
-                                                .build()
-                                ).addCountParamEndsIfNotExists()
+                                .withQueriesParams(params)
+                                .addCountParamEndsIfNotExists()
                                 .build()
                                 .getQuery()
                 ),

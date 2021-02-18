@@ -7,6 +7,7 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MultiTenancyModel;
 import br.com.muttley.model.security.User;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import br.com.muttley.mongo.repository.MultiTenancyMongoRepository;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -191,8 +192,8 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
     }
 
     @Override
-    public Long count(final User user, final Map<String, String> allRequestParams) {
-        return this.repository.count(user.getCurrentOwner(), allRequestParams);
+    public Long count(final User user, final List<QueryParam> params) {
+        return this.repository.count(user.getCurrentOwner(), params);
     }
 
     @Override
@@ -206,8 +207,8 @@ public abstract class ModelServiceImpl<T extends MultiTenancyModel> extends Serv
     }
 
     @Override
-    public List<T> findAll(final User user, final Map<String, String> allRequestParams) {
-        final List<T> results = this.repository.findAll(user.getCurrentOwner(), allRequestParams);
+    public List<T> findAll(final User user, final List<QueryParam> params) {
+        final List<T> results = this.repository.findAll(user.getCurrentOwner(), params);
         if (CollectionUtils.isEmpty(results)) {
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");
         }

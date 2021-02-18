@@ -1,6 +1,7 @@
 package br.com.muttley.rest;
 
 import br.com.muttley.model.Historic;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,11 +88,11 @@ public interface RestControllerClient<T extends Serializable> {
     Historic loadHistoric(@PathVariable("id") String id);
 
     /**
-     * @param allRequestParams -> all parameters in request
+     * @param params -> all parameters in request
      * @return A pageable list of records
      */
     @RequestMapping(method = GET, consumes = APPLICATION_JSON_VALUE)
-    PageableResource<T> list(@RequestParam Map<String, String> allRequestParams);
+    PageableResource<T> list(final List<QueryParam> params);
 
     /**
      * @return A pageable list of records
@@ -101,11 +103,11 @@ public interface RestControllerClient<T extends Serializable> {
     /**
      * Count total record
      *
-     * @param allRequestParams -> all parameters in request
+     * @param params -> all parameters in request
      * @return total record
      */
     @RequestMapping(value = "/count", method = GET, consumes = TEXT_PLAIN_VALUE)
-    Long count(@RequestParam Map<String, String> allRequestParams);
+    Long count(final List<QueryParam> params);
 
     /**
      * Count total record

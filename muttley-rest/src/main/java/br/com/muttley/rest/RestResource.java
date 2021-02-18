@@ -5,7 +5,8 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyPageableRequestException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.security.User;
-import br.com.muttley.mongo.infra.Operator;
+import br.com.muttley.mongo.infra.newagregation.operators.Operator;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import br.com.muttley.rest.hateoas.event.PaginatedResultsRetrievedEvent;
 import br.com.muttley.rest.hateoas.event.ResourceCreatedEvent;
 import br.com.muttley.rest.hateoas.event.SingleResourceRetrievedEvent;
@@ -13,13 +14,15 @@ import br.com.muttley.rest.hateoas.resource.MetadataPageable;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -89,11 +92,11 @@ public interface RestResource<T extends Document> {
      * @param user    -> user atual da requisição
      * @param params  -> parametros da requisição
      */
-    default PageableResource toPageableResource(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final Service service, final User user, final Map<String, String> params) {
+    default PageableResource toPageableResource(final ApplicationEventPublisher eventPublisher, final HttpServletResponse response, final Service service, final User user, final List<QueryParam> params) {
         //validando os parametros passados
-        final Map<String, Object> allRequestParams = validPageable(params);
-        final Long SKIP = Long.valueOf(allRequestParams.get(Operator.SKIP.toString()).toString());
-        final Long LIMIT = Long.valueOf(allRequestParams.get(Operator.LIMIT.toString()).toString());
+        final List<QueryParam> allRequestParams = validPageable(params);
+        final Long SKIP = Long.valueOf(this.getOperatorValue(allRequestParams, Operator.SKIP));
+        final Long LIMIT = Long.valueOf(this.getOperatorValue(allRequestParams, Operator.LIMIT));
 
         final long total = service.count(user, createQueryParamForCount(allRequestParams));
 
@@ -176,42 +179,40 @@ public interface RestResource<T extends Document> {
      *
      * @param allRequestParams -> parametros da requisição
      */
-    default Map<String, Object> createQueryParamForCount(final Map<String, Object> allRequestParams) {
+    default List<QueryParam> createQueryParamForCount(final List<QueryParam> allRequestParams) {
         return allRequestParams
-                .entrySet()
-                .stream()
-                .filter(key ->
-                        !key.getKey().equals(Operator.LIMIT.toString()) && !key.getKey().equals(Operator.SKIP.toString())
-                )
-                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+                .parallelStream()
+                .filter(it ->
+                        !it.getKey().endsWith(Operator.LIMIT.toString()) && !it.getKey().endsWith(Operator.SKIP.toString())
+                ).collect(Collectors.toList());
     }
 
     /**
      * Valida parametros passado na requisição para paginação
      *
-     * @param allRequestParams -> parametro da requisição
+     * @param params -> parametro da requisição
      */
-    default Map<String, Object> validPageable(final Map<String, String> allRequestParams) {
+    default List<QueryParam> validPageable(final List<QueryParam> params) {
         final MuttleyPageableRequestException ex = new MuttleyPageableRequestException();
 
-        if (allRequestParams.containsKey(Operator.LIMIT.toString())) {
+        if (this.containsOperator(params, Operator.LIMIT)) {
             Integer limit = null;
             try {
-                limit = Integer.valueOf(allRequestParams.get(Operator.LIMIT.toString()));
+                limit = Integer.valueOf(this.getOperatorValue(params, Operator.LIMIT));
                 if (limit > 100) {
                     ex.addDetails(Operator.LIMIT.toString(), "o limite informado foi (" + limit + ") mas o maxímo é(100)");
                 }
-            } catch (NumberFormatException nex) {
+            } catch (final NumberFormatException nex) {
                 ex.addDetails(Operator.LIMIT.toString(), "deve conter um numero com o tamanho maximo de 100");
             }
         } else {
-            allRequestParams.put(Operator.LIMIT.toString(), "100");
+            params.add(QueryParam.Builder.newInstance().withKey(Operator.LIMIT.toString()).withValue("100").build());
         }
 
-        if (allRequestParams.containsKey(Operator.SKIP.toString())) {
-            Integer page = null;
+        if (this.containsOperator(params, Operator.SKIP)) {
+            Long page = null;
             try {
-                page = Integer.valueOf(allRequestParams.get(Operator.SKIP.toString()));
+                page = Long.valueOf(this.getOperatorValue(params, Operator.SKIP));
                 if (page < 0) {
                     ex.addDetails(Operator.SKIP.toString(), "a pagina informada foi (" + page + ") mas a deve ter o tamanho minimo de (0)");
                 }
@@ -219,12 +220,42 @@ public interface RestResource<T extends Document> {
                 ex.addDetails(Operator.SKIP.toString(), "deve conter um numero com o tamanho minimo de 0");
             }
         } else {
-            allRequestParams.put(Operator.SKIP.toString(), "0");
+            params.add(QueryParam.Builder.newInstance().withKey(Operator.SKIP.toString()).withValue("0").build());
         }
 
         if (ex.containsDetais()) {
             throw ex;
         }
-        return new HashMap<>(allRequestParams);
+        return params;
     }
+
+    default boolean containsOperator(final List<QueryParam> params, final Operator operator) {
+        if (CollectionUtils.isEmpty(params)) {
+            return false;
+        }
+        return params.parallelStream()
+                .filter(it -> !it.isArrayValue() && it.getKey().endsWith(operator.toString()))
+                .count() > 0;
+    }
+
+    default String getOperatorValue(final List<QueryParam> params, final Operator operator) {
+        if (CollectionUtils.isEmpty(params)) {
+            return null;
+        }
+        return params.parallelStream()
+                .filter(it -> !it.isArrayValue() && it.getKey().endsWith(operator.toString()))
+                .findFirst()
+                .get()
+                .getValue();
+    }
+
+    default String getCurrentUrl() {
+        return this.getCurrentUrl(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                .getRequest());
+    }
+
+    default String getCurrentUrl(final HttpServletRequest request) {
+        return request.getRequestURL().toString();
+    }
+
 }

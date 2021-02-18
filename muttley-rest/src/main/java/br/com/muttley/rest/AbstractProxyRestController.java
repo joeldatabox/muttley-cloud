@@ -2,6 +2,7 @@ package br.com.muttley.rest;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -11,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
@@ -91,14 +92,14 @@ public abstract class AbstractProxyRestController<T extends Document> implements
 
     @Override
     @RequestMapping(method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<PageableResource<T>> list(final HttpServletResponse response, @RequestBody final Map<String, String> allRequestParams) {
-        final PageableResource pageableResource = client.list(allRequestParams);
+    public ResponseEntity<PageableResource<T>> list(final HttpServletResponse response, final HttpServletRequest request) {
+        final PageableResource pageableResource = client.list(QueryParam.BuilderFromURL.newInstance().fromURL(this.getCurrentUrl(request)).build());
         return ResponseEntity.ok(toPageableResource(eventPublisher, response, pageableResource));
     }
 
     @Override
     @RequestMapping(value = "/count", method = GET, produces = TEXT_PLAIN_VALUE)
-    public ResponseEntity count(@RequestParam final Map<String, String> allRequestParams) {
-        return ResponseEntity.ok(client.count(allRequestParams));
+    public ResponseEntity count(final HttpServletRequest request) {
+        return ResponseEntity.ok(client.count(QueryParam.BuilderFromURL.newInstance().fromURL(this.getCurrentUrl(request)).build()));
     }
 }

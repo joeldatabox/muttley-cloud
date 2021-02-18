@@ -3,6 +3,7 @@ package br.com.muttley.domain;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
@@ -420,8 +421,8 @@ public interface Service<T extends Document> {
      * Realiza o processo de count com base nos critérios
      * recebidos como parâmetros;
      *
-     * @param user             -> usuário da requisição corrente
-     * @param allRequestParams -> Todos os parametros passado na query da requisição
+     * @param user   -> usuário da requisição corrente
+     * @param params -> Todos os parametros passado na query de requisição
      */
     @PreAuthorize(
             "        this.isCheckRole()? " +
@@ -447,7 +448,7 @@ public interface Service<T extends Document> {
                     "): " +
                     "   true "
     )
-    Long count(final User user, final Map<String, String> allRequestParams);
+    Long count(final User user, final List<QueryParam> params);
 
     /**
      * Verifica se existe um determinado registro no banco de dados
@@ -518,7 +519,7 @@ public interface Service<T extends Document> {
      * recebidos como parâmetros;
      *
      * @param user             -> usuário da requisição corrente
-     * @param allRequestParams -> Todos os parametros passado na query da requisição
+     * @param params -> Todos os parametros passado na query de requisição
      */
     @PreAuthorize(
             "        this.isCheckRole()? " +
@@ -543,7 +544,7 @@ public interface Service<T extends Document> {
                     "): " +
                     "   true "
     )
-    List<T> findAll(final User user, final Map<String, String> allRequestParams);
+    List<T> findAll(final User user, final List<QueryParam> params);
 
     /**
      * Verifica se existe algum registro no DB

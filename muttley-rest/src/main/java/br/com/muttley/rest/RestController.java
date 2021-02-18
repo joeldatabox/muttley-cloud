@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
@@ -55,9 +55,9 @@ public interface RestController<T> {
     ResponseEntity loadHistoric(@PathVariable("id") String id, HttpServletResponse response);
 
     @RequestMapping(method = GET)
-    ResponseEntity<PageableResource<T>> list(HttpServletResponse response, @RequestParam Map<String, String> allRequestParams);
+    ResponseEntity<PageableResource<T>> list(HttpServletResponse response, final HttpServletRequest request);
 
     @RequestMapping(value = "/count", method = GET, consumes = TEXT_PLAIN_VALUE)
     @ResponseStatus(OK)
-    ResponseEntity<Long> count(Map<String, String> allRequestParams);
+    ResponseEntity<Long> count(final HttpServletRequest request);
 }

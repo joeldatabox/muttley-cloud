@@ -3,6 +3,7 @@ package br.com.muttley.rest;
 import br.com.muttley.domain.Service;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.infra.services.AuthService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.Set;
@@ -117,14 +119,14 @@ public abstract class AbstractRestController<T extends Document> implements Rest
 
     @Override
     @RequestMapping(method = GET)
-    public ResponseEntity<PageableResource<T>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams) {
-        return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, this.userService.getCurrentUser(), allRequestParams));
+    public ResponseEntity<PageableResource<T>> list(final HttpServletResponse response, final HttpServletRequest request) {
+        return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, this.userService.getCurrentUser(), QueryParam.BuilderFromURL.newInstance().fromURL(this.getCurrentUrl(request)).build()));
     }
 
     @Override
     @RequestMapping(value = "/count", method = GET, produces = {TEXT_PLAIN_VALUE})
     @ResponseStatus(OK)
-    public final ResponseEntity count(final Map<String, String> allRequestParams) {
-        return ResponseEntity.ok(String.valueOf(service.count(this.userService.getCurrentUser(), allRequestParams)));
+    public final ResponseEntity count(final HttpServletRequest request) {
+        return ResponseEntity.ok(String.valueOf(service.count(this.userService.getCurrentUser(), QueryParam.BuilderFromURL.newInstance().fromURL(this.getCurrentUrl(request)).build())));
     }
 }

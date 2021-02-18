@@ -2,6 +2,7 @@ package br.com.muttley.mongo.repository;
 
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -32,16 +33,16 @@ public interface SimpleTenancyMongoRepository<T> extends MongoRepository<T, Stri
     /**
      * Lista registros de uma determinada collection
      *
-     * @param urlRequest -> url com reqparametros para criterios
+     * @param params -> parametros da para criterios
      */
-    List<T> findAll(final String urlRequest);
+    List<T> findAll(final List<QueryParam> params);
 
     /**
      * Conta registros de uma determinada collection
      *
-     * @param urlRequest -> url com reqparametros para criterios
+     * @param params -> parametros da para criterios
      */
-    long count(final String urlRequest);
+    long count(final List<QueryParam> params);
 
     /**
      * Verifica se existe um determinado registro no banco de dados

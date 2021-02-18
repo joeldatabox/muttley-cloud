@@ -2,6 +2,7 @@ package br.com.muttley.security.server.controller;
 
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.server.service.OwnerService;
 import br.com.muttley.security.server.service.UserService;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
@@ -90,13 +92,13 @@ public class OwnerController extends AbstractRestController<Owner> {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<PageableResource<Owner>> list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
-        return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, null, allRequestParams));
+    public ResponseEntity<PageableResource<Owner>> list(final HttpServletResponse response, final HttpServletRequest request, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
+        return ResponseEntity.ok(toPageableResource(eventPublisher, response, this.service, null, QueryParam.BuilderFromURL.newInstance().fromURL(this.getCurrentUrl(request)).build()));
     }
 
     @RequestMapping(value = "/count", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public final ResponseEntity count(@RequestParam final Map<String, String> allRequestParams, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
-        return ResponseEntity.ok(String.valueOf(service.count(null, allRequestParams)));
+    public final ResponseEntity count(final HttpServletRequest request, @RequestHeader(value = TOKEN_HEADER_JWT, defaultValue = "") final String tokenHeader) {
+        return ResponseEntity.ok(String.valueOf(service.count(null, QueryParam.BuilderFromURL.newInstance().fromURL(this.getCurrentUrl(request)).build())));
     }
 }

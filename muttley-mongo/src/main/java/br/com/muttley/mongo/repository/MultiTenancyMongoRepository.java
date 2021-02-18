@@ -3,6 +3,7 @@ package br.com.muttley.mongo.repository;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.List;
@@ -69,18 +70,18 @@ public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoReposi
     /**
      * Lista registros de uma determinada collection
      *
-     * @param owner       -> dono do registro
-     * @param urlRequest -> url com reqparametros para criterios
+     * @param owner      -> dono do registro
+     * * @param params -> parametros da url para criterios
      */
-    List<T> findAll(final Owner owner, final String urlRequest);
+    List<T> findAll(final Owner owner, final List<QueryParam> params);
 
     /**
      * Conta registros de uma determinada collection
      *
-     * @param owner       -> dono do registro
-     * @param urlRequest -> url com reqparametros para criterios
+     * @param owner  -> dono do registro
+     * @param params -> parametros da url para criterios
      */
-    long count(final Owner owner, final String urlRequest);
+    long count(final Owner owner, final List<QueryParam> params);
 
     /**
      * Verifica se existe um determinado registro no banco de dados
