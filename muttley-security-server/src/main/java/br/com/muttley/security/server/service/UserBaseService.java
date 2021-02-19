@@ -4,7 +4,6 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.UserBaseItem;
-import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.UserView;
 
 import java.util.Set;
@@ -16,6 +15,8 @@ import java.util.Set;
  */
 public interface UserBaseService extends SecurityService<UserBase> {
     UserBase save(final User user, final Owner owner, final UserBase userBase);
+
+    boolean userNameIsAvaliableForUserName(final User user, final String userName, final Set<String> userNames);
 
     boolean userNameIsAvaliable(final User user, final Set<String> userNames);
 

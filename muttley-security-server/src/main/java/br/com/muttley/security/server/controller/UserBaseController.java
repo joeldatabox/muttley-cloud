@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -45,9 +46,9 @@ public class UserBaseController extends AbstractRestController<UserBase> {
 
     @RequestMapping(value = "/userNamesIsAvaliable", method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity userNameIsAvaliable(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestParam(value = "userNames") final Set<String> userNames) {
+    public ResponseEntity userNameIsAvaliable(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestParam(value = "userNameFor", required = false) final String userNameFor, @RequestParam(value = "userNames") final Set<String> userNames) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        return ResponseEntity.ok(this.service.userNameIsAvaliable(user, userNames));
+        return ResponseEntity.ok(StringUtils.isEmpty(userNameFor) ? this.service.userNameIsAvaliable(user, userNames) : this.service.userNameIsAvaliableForUserName(user, userNameFor, userNames));
     }
 
     @RequestMapping(value = "/userByEmailOrUserName", method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})

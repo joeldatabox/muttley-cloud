@@ -255,6 +255,49 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean userNameIsAvaliableForUserName(final String userName, final Set<String> userNames) {
+        if (StringUtils.isEmpty(userName)) {
+            return this.userNameIsAvaliable(userNames);
+        } else {
+            if (CollectionUtils.isEmpty(userNames)) {
+                throw new MuttleyBadRequestException(null, "userNames", "Informe algum valor válido para consulta");
+            }
+
+            final Set<String> nicks = userNames
+                    .parallelStream()
+                    .filter(it -> !StringUtils.isEmpty(it))
+                    .collect(Collectors.toSet());
+            for (final String nick : nicks) {
+                if (!(User.isValidEmail(nick) || User.isValidUserName(nick))) {
+                    return false;
+                }
+            }
+
+            final AggregationResults<UserViewServiceImpl.ResultCount> result = template.aggregate(newAggregation(
+                    match(
+                            new Criteria()
+                                    .and("userName").ne(userName)
+                                    .orOperator(
+                                            where("userName").in(nicks),
+                                            where("email").in(nicks),
+                                            where("nickUsers").in(nicks)
+                                    )
+                    ), Aggregation.count().as("count")
+            ), User.class, UserViewServiceImpl.ResultCount.class);
+
+            if (result == null) {
+                return true;
+            }
+
+            final UserViewServiceImpl.ResultCount resultCount = result.getUniqueMappedResult();
+            if (resultCount == null) {
+                return true;
+            }
+            return resultCount.getCount() == 0;
+        }
+    }
+
+    @Override
     public boolean userNameIsAvaliable(final Set<String> userNames) {
         if (CollectionUtils.isEmpty(userNames)) {
             throw new MuttleyBadRequestException(null, "userNames", "Informe algum valor válido para consulta");

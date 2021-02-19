@@ -5,7 +5,6 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.UserBaseItem;
-import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserDataBindingService;
@@ -80,6 +79,11 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     }
 
     @Override
+    public boolean userNameIsAvaliableForUserName(final User user, final String userName, final Set<String> userNames) {
+        return this.userService.userNameIsAvaliableForUserName(userName, userNames);
+    }
+
+    @Override
     public boolean userNameIsAvaliable(final User user, final Set<String> userNames) {
         return this.userService.userNameIsAvaliable(userNames);
     }
@@ -118,6 +122,15 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
                             .each(userForAdd),
                     UserBase.class
             );
+        } else {
+            this.mongoTemplate.updateMulti(
+                    new Query(
+                            where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                    .and("users.user.$id").is(new ObjectId(userForAdd.getUser().getId()))
+                    ),
+                    new Update().set("users.$.status", userForAdd.isStatus()),
+                    UserBase.class
+            );
         }
     }
 
@@ -132,11 +145,11 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void mergeUserItemIfExists(final User user, final UserBaseItem item) {
-        final User salvedUser = userService.update(user, new User(item.getUserInfoForMerge()));
+        item.setUser(userService.update(user, new User(item.getUserInfoForMerge())));
         if (!item.dataBindingsIsEmpty()) {
-            this.dataBindingService.merge(user, salvedUser.getUserName(), item.getDataBindings());
+            this.dataBindingService.merge(user, item.getUser().getUserName(), item.getDataBindings());
         }
-        this.addUserItemIfNotExists(user, salvedUser);
+        this.addUserItemIfNotExists(user, item);
     }
 
     @Override
