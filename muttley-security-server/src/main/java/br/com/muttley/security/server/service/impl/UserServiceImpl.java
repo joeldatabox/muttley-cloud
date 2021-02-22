@@ -144,12 +144,12 @@ public class UserServiceImpl implements UserService {
     public User update(final User user, final User userForUpdate) {
         final User otherUser = this.findUserByEmailOrUserNameOrNickUsers(userForUpdate.getEmail(), userForUpdate.getUserName(), userForUpdate.getNickUsers());
         userForUpdate.setId(otherUser.getId())
-                .setEmail(otherUser.getEmail())
+                //.setEmail(otherUser.getEmail())
                 .setUserName(otherUser.getUserName())
-                .setNickUsers(otherUser.getNickUsers())
+                //.setNickUsers(otherUser.getNickUsers())
                 .setPasswd(otherUser)
                 .setLastPasswordResetDate(otherUser.getLastPasswordResetDate())
-                .setEnable(otherUser.isEnable())
+                //.setEnable(otherUser.isEnable())
                 .setOdinUser(otherUser.isOdinUser());
 
         checkNameIsValid(userForUpdate);
@@ -221,7 +221,7 @@ public class UserServiceImpl implements UserService {
             throw new MuttleySecurityNotFoundException(User.class, null, userName + " este registro não foi encontrado");
         }
         if (users.size() > 1) {
-            throw new MuttleyException("Mais de um usuário foi encontrado");
+            throw new MuttleyBadRequestException(User.class, null, "Mais de um usuário foi encontrado com os critérios informados");
         }
         return users.get(0);
     }

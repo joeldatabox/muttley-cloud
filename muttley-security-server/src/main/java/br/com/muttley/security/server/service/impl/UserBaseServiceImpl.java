@@ -5,6 +5,7 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.UserBaseItem;
+import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserDataBindingService;
@@ -136,7 +137,17 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void createNewUserAndAdd(final User user, final UserBaseItem item) {
-        final User salvedUser = userService.save(new User(item.getUserInfoForMerge()));
+        final User userForSave = new User(item.getUserInfoForMerge());
+        if (!item.dataBindingsIsEmpty()) {
+            item.getDataBindings().forEach(it -> {
+                if (it.getKey().isUnique()) {
+                    if (this.dataBindingService.containsByKeyAndValueAndUserNameNotEq(user, userForSave.getUserName(), it.getKey(), it.getValue())) {
+                        throw new MuttleyBadRequestException(UserDataBinding.class, "key", "Já existe um usuário que possui ligação com " + it.getKey().getDisplayKey() + " informado(a)");
+                    }
+                }
+            });
+        }
+        final User salvedUser = userService.save(userForSave);
         if (!item.dataBindingsIsEmpty()) {
             this.dataBindingService.merge(user, salvedUser.getUserName(), item.getDataBindings());
         }
