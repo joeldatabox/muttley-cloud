@@ -59,7 +59,8 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
 
                 user.setCurrentOwner(owners.get(0));
                 //carregando authorities
-                user.setAuthorities(this.workTeamService.loadCurrentRoles());
+                //user.setAuthorities(this.workTeamService.loadCurrentRoles());
+                this.loadRoles(user);
                 user.setDataBindings(dataBindings);
             } else {
                 final ObjectId idOwner = new ObjectId(preferences.get(OWNER_PREFERENCE).getValue().toString());
@@ -68,10 +69,18 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
                 final Owner owner = ownerService.findByUserAndId(idOwner.toString());
                 user.setCurrentOwner(owner);
                 //carregando authorities
-                user.setAuthorities(this.workTeamService.loadCurrentRoles());
+                //user.setAuthorities(this.workTeamService.loadCurrentRoles());
+                this.loadRoles(user);
             }
         } catch (MuttleyNotFoundException ex) {
             throw new MuttleySecurityCredentialException("Não foi possível recuperar informações do seu usuáiro");
+        }
+    }
+
+    private void loadRoles(final User user) {
+        try {
+            user.setAuthorities(this.workTeamService.loadCurrentRoles());
+        } catch (final MuttleyNotFoundException ex) {
         }
     }
 }

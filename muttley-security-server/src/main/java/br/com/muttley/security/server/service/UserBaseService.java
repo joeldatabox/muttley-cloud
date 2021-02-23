@@ -4,6 +4,7 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.UserBaseItem;
+import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserView;
 
 import java.util.Set;
@@ -31,4 +32,12 @@ public interface UserBaseService extends SecurityService<UserBase> {
     void mergeUserItemIfExists(User user, final UserBaseItem item);
 
     void removeByUserName(User user, String userName);
+
+    boolean hasBeenIncludedAnyGroup(final User user, UserData userForCheck);
+
+    boolean hasBeenIncludedAnyGroup(UserData userForCheck);
+
+    boolean hasBeenIncludedAnyGroup(final User user, final String userNameForCheck);
+
+    boolean hasBeenIncludedAnyGroup(final String userNameForCheck);
 }

@@ -1,5 +1,6 @@
 package br.com.muttley.security.server.listeners;
 
+import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.preference.Preference;
@@ -65,6 +66,12 @@ public class CurrentOwnerResolverEventListener implements ApplicationListener<Cu
             ownerId = event.getSource().getPreferences().get(OWNER_PREFERENCE).getValue().toString();
         }
         //carregando o owner
-        event.setOwnerResolved(this.ownerService.findByUserAndId(event.getSource(), ownerId));
+        try {
+            event.setOwnerResolved(this.ownerService.findByUserAndId(event.getSource(), ownerId));
+        } catch (final MuttleyBadRequestException ex) {
+            //se chegou aqui é sinal que o usuário não está em nenhuma base de usuário
+            //logo podemos remover
+            preferencesService.removePreference(event.getSource(), OWNER_PREFERENCE);
+        }
     }
 }

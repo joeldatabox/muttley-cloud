@@ -6,6 +6,7 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityConflictException;
+import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.BasicAggregateResultCount;
@@ -17,6 +18,7 @@ import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
+import br.com.muttley.security.server.events.CheckUserHasBeenIncludedAnyGroupEvent;
 import br.com.muttley.security.server.events.CurrentOwnerResolverEvent;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
@@ -195,6 +197,12 @@ public class UserServiceImpl implements UserService {
         }
         if (users.size() > 1) {
             throw new MuttleyException("Erro interno no sistema");
+        }
+
+        final CheckUserHasBeenIncludedAnyGroupEvent event = new CheckUserHasBeenIncludedAnyGroupEvent(users.get(0).getUserName());
+        this.eventPublisher.publishEvent(event);
+        if (!event.isUserHasBeenIncludedAnyGroup()) {
+            throw new MuttleySecurityCredentialException("Usuário não autorizado para utilização");
         }
 
         return users.get(0);

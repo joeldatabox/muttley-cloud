@@ -1,12 +1,15 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.UserBaseItem;
+import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.model.security.UserView;
+import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserService;
@@ -18,7 +21,10 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
@@ -28,6 +34,13 @@ import java.util.Date;
 import java.util.Set;
 
 import static br.com.muttley.model.security.Role.ROLE_USER_BASE_CREATE;
+import static java.util.Arrays.asList;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Update.Position.FIRST;
 
@@ -42,17 +55,20 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     private final String ODIN_USER;
     private final UserService userService;
     private final UserDataBindingService dataBindingService;
+    private final DocumentNameConfig documentNameConfig;
 
     @Autowired
     public UserBaseServiceImpl(
             final MongoTemplate template,
             @Value("${muttley.security.odin.user}") final String odinUser,
             final UserService userService,
-            final UserDataBindingService dataBindingService) {
+            final UserDataBindingService dataBindingService,
+            final DocumentNameConfig documentNameConfig) {
         super(template, UserBase.class);
         this.ODIN_USER = odinUser;
         this.userService = userService;
         this.dataBindingService = dataBindingService;
+        this.documentNameConfig = documentNameConfig;
     }
 
     @Override
@@ -101,7 +117,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void addUserItemIfNotExists(final User user, final UserBaseItem userForAdd) {
-        if (!this.userHasBeenIncluded(user, userForAdd.getUser().getId())) {
+        if (!this.hasBeenIncludedAnyGroup(user, userForAdd.getUser())) {
             userForAdd.setAddedBy(user);
             if (userForAdd.getDtCreate() == null) {
                 userForAdd.setDtCreate(new Date());
@@ -110,7 +126,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
                 userForAdd.setAddedBy(user);
             }
             this.validator.validate(userForAdd);
-            if (this.userHasBeenIncluded(user, userForAdd.getUser().getId())) {
+            if (this.hasBeenIncludedAnyGroup(user, userForAdd.getUser())) {
                 throw new MuttleyBadRequestException(UserBase.class, "users", "Usuário já está presente na base");
             }
             this.mongoTemplate.updateFirst(
@@ -176,9 +192,151 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
         );
     }
 
+    @Override
+    public boolean hasBeenIncludedAnyGroup(final User user, final UserData userForCheck) {
+        return this.mongoTemplate.exists(
+                new Query(
+                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                .and("users.user.$id").is(new ObjectId(userForCheck.getId()))
+                ), UserBase.class
+        );
+    }
+
+    @Override
+    public boolean hasBeenIncludedAnyGroup(final UserData userForCheck) {
+        return this.mongoTemplate.exists(
+                new Query(
+                        /*where("owner.$id").is(user.getCurrentOwner().getObjectId())*/
+                        where("users.user.$id").is(new ObjectId(userForCheck.getId()))
+                ), UserBase.class
+        );
+    }
+
+    @Override
+    public boolean hasBeenIncludedAnyGroup(final User user, final String userNameForCheck) {
+        /**
+         * db.getCollection("muttley-users-base").aggregate([
+         *     {$match:{"owner.$id":ObjectId("5e28b3e3637e580001e465d6")}},
+         *     {$unwind:"$users"},
+         *     {$project:{user:{$objectToArray:"$users.user"}}},
+         *     {$project:{user:{$arrayElemAt:["$user.v",1]}}},
+         *     {$lookup:{
+         *         from:"muttley-users",
+         *         localField:"user",
+         *         foreignField:"_id",
+         *         as:"user"
+         *     }},
+         *     {$unwind:"$user"},
+         *     {$match:{
+         *         $or:[
+         *             {"user.userName":"asdfasd234asdfasdf"},
+         *             {"user.email":"df7899@gmail.com"},
+         *             {"user.nickUsers":{$in:["asdfas"]}},
+         *         ]
+         *     }},
+         *     {$group:{_id:"$user"}},
+         *     {$count:"result"}
+         * ])
+         */
+        final AggregationResults<UserViewServiceImpl.ResultCount> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId())),
+                        unwind("$users"),
+                        project().and(context -> new BasicDBObject("$objectToArray", "$users.user")).as("user"),
+                        project().and(context -> new BasicDBObject("$arrayElemAt", asList("$user.v", 1))).as("user"),
+                        lookup(
+                                this.documentNameConfig.getNameCollectionUser(),
+                                "user",
+                                "_id",
+                                "user"
+                        ),
+                        unwind("$user"),
+                        match(new Criteria().orOperator(
+                                where("user.userName").is(userNameForCheck),
+                                where("user.email").is(userNameForCheck),
+                                where("user.nickUsers").in(asList(userNameForCheck))
+                        )),
+                        group("$user"),
+                        Aggregation.count().as("count")
+                ),
+                this.documentNameConfig.getNameCollectionUserBase(),
+                UserViewServiceImpl.ResultCount.class
+        );
+        if (results == null || results.getUniqueMappedResult() == null || results.getUniqueMappedResult().getCount() == 0) {
+            return false;
+        }
+        if (results.getUniqueMappedResult().getCount() > 1) {
+            //não pode retornar mais de um usuário
+            throw new MuttleyException("Erro interno");
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean hasBeenIncludedAnyGroup(final String userNameForCheck) {
+        /**
+         * db.getCollection("muttley-users-base").aggregate([
+         *     {$unwind:"$users"},
+         *     {$project:{user:{$objectToArray:"$users.user"}}},
+         *     {$project:{user:{$arrayElemAt:["$user.v",1]}}},
+         *     {$lookup:{
+         *         from:"muttley-users",
+         *         localField:"user",
+         *         foreignField:"_id",
+         *         as:"user"
+         *     }},
+         *     {$unwind:"$user"},
+         *     {$match:{
+         *         $or:[
+         *             {"user.userName":"asdfasd234asdfasdf"},
+         *             {"user.email":"df7899@gmail.com"},
+         *             {"user.nickUsers":{$in:["asdfas"]}},
+         *         ]
+         *     }},
+         *     {$group:{_id:"$user"}},
+         *     {$count:"result"}
+         * ])
+         */
+        final AggregationResults<UserViewServiceImpl.ResultCount> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        unwind("$users"),
+                        project().and(context -> new BasicDBObject("$objectToArray", "$users.user")).as("user"),
+                        project().and(context -> new BasicDBObject("$arrayElemAt", asList("$user.v", 1))).as("user"),
+                        lookup(
+                                this.documentNameConfig.getNameCollectionUser(),
+                                "user",
+                                "_id",
+                                "user"
+                        ),
+                        unwind("$user"),
+                        match(new Criteria().orOperator(
+                                where("user.userName").is(userNameForCheck),
+                                where("user.email").is(userNameForCheck),
+                                where("user.nickUsers").in(asList(userNameForCheck))
+                        )),
+                        group("$user"),
+                        Aggregation.count().as("count")
+                ),
+                UserBase.class,
+                UserViewServiceImpl.ResultCount.class
+        );
+        if (results == null || results.getUniqueMappedResult() == null || results.getUniqueMappedResult().getCount() == 0) {
+            return false;
+        }
+        if (results.getUniqueMappedResult().getCount() > 1) {
+            //não pode retornar mais de um usuário
+            throw new MuttleyException("Erro interno");
+        }
+
+        return true;
+    }
+
+    /* */
+
     /**
      * Verifica se o usuário já existe na base
-     */
+     *//*
     private boolean userHasBeenIncluded(final User user, final User userForCheck) {
         return this.userHasBeenIncluded(user, userForCheck.getId());
     }
@@ -190,7 +348,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
                                 .and("users.user.$id").is(new ObjectId(id))
                 ), UserBase.class
         );
-    }
+    }*/
 
     @Getter
     @Setter

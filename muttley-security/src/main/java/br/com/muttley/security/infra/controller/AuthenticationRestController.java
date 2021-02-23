@@ -65,8 +65,6 @@ public class AuthenticationRestController {
 
         try {
 
-            //pegando o token do serviço de usuários
-            final JwtToken jwtToken = this.authenticationRestService.createAuthenticationToken(new UserPayLoadLogin(payload.get(USERNAME), payload.get(PASSWORD)));
             //pegando usuário do token
             //final JwtUser userDetails = this.authenticationTokenService.getUserFromToken(jwtToken);
 
@@ -76,6 +74,9 @@ public class AuthenticationRestController {
             );
 
             final JwtUser userDetails = (JwtUser) authentication.getPrincipal();
+
+            //pegando o token do serviço de usuários
+            final JwtToken jwtToken = this.authenticationRestService.createAuthenticationToken(new UserPayLoadLogin(payload.get(USERNAME), payload.get(PASSWORD)));
 
             //despachando a requisição para a validação do spring
             SecurityContextHolder.getContext().setAuthentication(authentication);
