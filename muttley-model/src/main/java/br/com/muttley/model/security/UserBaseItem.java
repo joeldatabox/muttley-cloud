@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.util.CollectionUtils;
@@ -24,6 +25,7 @@ import java.util.Set;
  */
 @Getter
 @Setter
+@Accessors(chain = true)
 @EqualsAndHashCode(of = "user")
 public class UserBaseItem {
     @DBRef

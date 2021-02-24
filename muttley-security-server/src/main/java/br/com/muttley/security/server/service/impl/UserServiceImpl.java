@@ -6,7 +6,6 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityConflictException;
-import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.BasicAggregateResultCount;
@@ -201,9 +200,9 @@ public class UserServiceImpl implements UserService {
 
         final CheckUserHasBeenIncludedAnyGroupEvent event = new CheckUserHasBeenIncludedAnyGroupEvent(users.get(0).getUserName());
         this.eventPublisher.publishEvent(event);
-        if (!event.isUserHasBeenIncludedAnyGroup()) {
-            throw new MuttleySecurityCredentialException("Usuário não autorizado para utilização");
-        }
+        /*if (!event.isUserHasBeenIncludedAnyGroup()) {
+            throw new MuttleySecurityUnauthorizedException("Usuário não autorizado para utilização");
+        }*/
 
         return users.get(0);
     }

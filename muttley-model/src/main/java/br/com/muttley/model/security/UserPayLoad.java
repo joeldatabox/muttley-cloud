@@ -70,11 +70,62 @@ public class UserPayLoad implements Serializable {
         return passwd;
     }
 
-    /*public Set<UserDataBinding> getDataBindings() {
-        return this.dataBindings;
-    }
+    public static final class Builder {
+        private String name;
+        private String description;
+        private String email;
+        private String userName;
+        private Set<String> nickUsers;
+        private String passwd;
 
-    public boolean dataBindingsIsEmpty() {
-        return CollectionUtils.isEmpty(this.dataBindings);
-    }*/
+        private Builder() {
+        }
+
+        public Builder setName(final String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder setDescription(final String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder setEmail(final String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder setUserName(final String userName) {
+            this.userName = userName;
+            return this;
+        }
+
+        public Builder setNickUsers(final Set<String> nickUsers) {
+            this.nickUsers = nickUsers;
+            return this;
+        }
+
+        public Builder setPasswd(final String passwd) {
+            this.passwd = passwd;
+            return this;
+        }
+
+        public Builder set(final User user) {
+            return this.setName(user.getName())
+                    .setDescription(user.getDescription())
+                    .setEmail(user.getEmail())
+                    .setUserName(user.getUserName())
+                    .setNickUsers(user.getNickUsers())
+                    .setPasswd(user.getPasswd());
+        }
+
+        public static Builder newInstance() {
+            return new Builder();
+        }
+
+        public UserPayLoad build() {
+            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd);
+        }
+    }
 }

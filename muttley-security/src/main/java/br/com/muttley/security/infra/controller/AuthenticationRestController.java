@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -89,6 +90,8 @@ public class AuthenticationRestController {
             return ResponseEntity.ok(jwtToken);
         } catch (BadCredentialsException ex) {
             throw new MuttleySecurityUserNameOrPasswordInvalidException();
+        } catch (InternalAuthenticationServiceException ex) {
+            throw (RuntimeException) ex.getCause();
         }
     }
 
