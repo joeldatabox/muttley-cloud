@@ -4,9 +4,7 @@ import br.com.muttley.feign.service.config.FeignTimeoutConfig;
 import br.com.muttley.model.security.KeyUserDataBinding;
 import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserDataBinding;
-import br.com.muttley.model.security.expanders.KeyUserDataBindingExpander;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
-import feign.Param;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -78,7 +76,7 @@ public interface UserDataBindingClient {
     boolean containsByUserName(@PathVariable("userName") final String userName, @PathVariable("key") final String key);
 
     @RequestMapping(value = "/user-by", method = RequestMethod.GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    UserData getUserBy(@Param(value = "key", expander = KeyUserDataBindingExpander.class) final KeyUserDataBinding key, @RequestParam(required = false, value = "value", defaultValue = "") final String value);
+    UserData getUserBy(@RequestParam(value = "key") final KeyUserDataBinding key, @RequestParam(required = false, value = "value", defaultValue = "") final String value);
 
     @RequestMapping(value = "/user-by", method = RequestMethod.GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     UserData getUserBy(@RequestParam(required = false, value = "key", defaultValue = "") final String key, @RequestParam(required = false, value = "value", defaultValue = "") final String value);
