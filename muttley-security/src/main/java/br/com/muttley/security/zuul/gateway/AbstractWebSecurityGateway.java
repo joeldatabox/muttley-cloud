@@ -1,6 +1,8 @@
 package br.com.muttley.security.zuul.gateway;
 
 import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.Password;
+import br.com.muttley.model.security.User;
 import br.com.muttley.security.feign.UserServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
@@ -59,7 +61,12 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
                 .userDetailsService(new UserDetailsService() {
                     @Override
                     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-                        return new JwtUser(userServiceClient.findByUserName(username));
+                        final User user = userServiceClient.findByUserName(username);
+                        final Password password = userServiceClient.loadPasswordById(user.getId());
+                        return JwtUser.Builder.newInstance()
+                                .set(user)
+                                .setPassword(password)
+                                .build();
                     }
                 })
                 .passwordEncoder(new BCryptPasswordEncoder());

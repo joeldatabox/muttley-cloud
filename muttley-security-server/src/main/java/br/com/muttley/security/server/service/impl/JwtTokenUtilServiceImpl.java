@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.User;
 import br.com.muttley.security.server.service.SecretService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -143,6 +144,15 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
         return generateToken(claims);
     }
 
+    @Override
+    public String generateToken(final User user, final Device device) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(CLAIM_KEY_USERNAME, user.getUserName());
+        claims.put(CLAIM_KEY_AUDIENCE, generateAudience(device));
+        claims.put(CLAIM_KEY_CREATED, new Date());
+        return generateToken(claims);
+    }
+
     final String generateToken(final Map<String, Object> claims) {
         return Jwts.builder()
                 .setClaims(claims)
@@ -179,6 +189,17 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
         //final Date expiration = getExpirationDateFromToken(token);
         return (
                 username.equals(user.getUsername())
+                        && !isTokenExpired(token)
+                        && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate()));
+    }
+
+    @Override
+    public boolean validateToken(final String token, final User user) {
+        final String username = getUsernameFromToken(token);
+        final Date created = getCreatedDateFromToken(token);
+        //final Date expiration = getExpirationDateFromToken(token);
+        return (
+                username.equals(user.getUserName())
                         && !isTokenExpired(token)
                         && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate()));
     }

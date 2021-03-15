@@ -1,5 +1,6 @@
 package br.com.muttley.security.server.service;
 
+import br.com.muttley.model.security.User;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -21,9 +22,13 @@ public interface JwtTokenUtilService {
 
     String generateToken(UserDetails userDetails, Device device);
 
+    String generateToken(User user, Device device);
+
     boolean canTokenBeRefreshed(String token, Date lastPasswordReset);
 
     String refreshToken(String token);
 
     boolean validateToken(String token, UserDetails userDetails);
+
+    boolean validateToken(String token, User user);
 }

@@ -6,14 +6,13 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * @author Joel Rodrigues Moreira on 19/04/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface AuthService extends UserDetailsService {
+public interface AuthService {
     Authentication getCurrentAuthentication();
 
     JwtUser getCurrentJwtUser();

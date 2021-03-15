@@ -4,17 +4,16 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestExc
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
 import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserLoggedEvent;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
+import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,13 +42,13 @@ public class AuthenticationRestController {
     protected final ApplicationEventPublisher eventPublisher;
     protected final AuthenticationManager authenticationManager;
     protected final JwtTokenUtilService jwtTokenUtil;
-    protected final UserDetailsService userDetailsService;
+    protected final UserService userService;
 
     @Autowired
-    public AuthenticationRestController(final AuthenticationManager authenticationManager, final JwtTokenUtilService jwtTokenUtil, final UserDetailsService userDetailsService, final ApplicationEventPublisher eventPublisher) {
+    public AuthenticationRestController(final AuthenticationManager authenticationManager, final JwtTokenUtilService jwtTokenUtil, final UserService userService, final ApplicationEventPublisher eventPublisher) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;
-        this.userDetailsService = userDetailsService;
+        this.userService = userService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -61,11 +60,11 @@ public class AuthenticationRestController {
         try {
 
             //se chegou até aqui é sinal que o usuário e senha é valido
-            final JwtUser userDetails = (JwtUser) userDetailsService.loadUserByUsername(payload.get(USERNAME));
+            final User userDetails = userService.findByUserName(payload.get(USERNAME));
             //gerando o token de autorização
             JwtToken token = new JwtToken(jwtTokenUtil.generateToken(userDetails, device));
             //lançando evento de usuário logado
-            this.eventPublisher.publishEvent(new UserLoggedEvent(token, userDetails.getOriginUser()));
+            this.eventPublisher.publishEvent(new UserLoggedEvent(token, userDetails));
             //devolvendo token gerado
             return ResponseEntity.ok(token);
         } catch (BadCredentialsException | MuttleySecurityUnauthorizedException ex) {
@@ -76,7 +75,7 @@ public class AuthenticationRestController {
     @RequestMapping(value = "/refresh", method = POST)
     public ResponseEntity<?> refreshAndGetAuthenticationToken(@RequestBody JwtToken token) {
         String username = jwtTokenUtil.getUsernameFromToken(token.getToken());
-        JwtUser user = (JwtUser) userDetailsService.loadUserByUsername(username);
+        User user = userService.findByUserName(username);
         if (jwtTokenUtil.canTokenBeRefreshed(token.getToken(), user.getLastPasswordResetDate())) {
             String refreshedToken = jwtTokenUtil.refreshToken(token.getToken());
             return ResponseEntity.ok(new JwtToken(refreshedToken));

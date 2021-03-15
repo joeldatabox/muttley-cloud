@@ -23,7 +23,7 @@ public class JwtUser implements UserDetails {
     private final String id;
     private final String name;
 
-    private final String password;
+    private final Password password;
     private final String username;
     private final Collection<? extends GrantedAuthority> authorities;
     private final boolean enabled;
@@ -32,33 +32,22 @@ public class JwtUser implements UserDetails {
     private String issuer ;*/
     private final User originUser;
 
-    public JwtUser(final User user) {
-        this.id = user.getId();
-        this.name = user.getName();
-        this.password = user.getPasswd();
-        this.username = user.getUserName();
-        this.authorities = mapToGrantedAuthorities(user.getAuthorities());
-        this.enabled = user.isEnable();
-        this.lastPasswordResetDate = user.getLastPasswordResetDate();
-        this.originUser = user;
-    }
-
-    public JwtUser(final UserBuilder userBuilder) {
-        this.id = userBuilder.id;
-        this.name = userBuilder.name;
-        this.password = userBuilder.password;
-        this.username = userBuilder.userName;
-        this.authorities = userBuilder.authorities;
-        this.enabled = userBuilder.enabled;
-        this.lastPasswordResetDate = userBuilder.lastPasswordResetDate;
-        this.originUser = userBuilder.originUser;
+    public JwtUser(final Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.password = builder.password;
+        this.username = builder.userName;
+        this.authorities = builder.authorities;
+        this.enabled = builder.enabled;
+        this.lastPasswordResetDate = builder.lastPasswordResetDate;
+        this.originUser = builder.originUser;
     }
 
     @JsonCreator
     public JwtUser(
             @JsonProperty("id") final String id,
             @JsonProperty("name") final String name,
-            @JsonProperty("password") final String password,
+            @JsonProperty("password") final Password password,
             @JsonProperty("username") final String userName,
             @JsonProperty("authorities") final Collection<? extends GrantedAuthority> authorities,
             @JsonProperty("enabled") final boolean enabled,
@@ -110,7 +99,7 @@ public class JwtUser implements UserDetails {
     @JsonIgnore
     @Override
     public String getPassword() {
-        return password;
+        return password.getPassword();
     }
 
     @Override
@@ -141,61 +130,75 @@ public class JwtUser implements UserDetails {
         return JsonHelper.toJson(this);
     }
 
-    public static class UserBuilder {
+    public static class Builder {
         private String id;
         private String name;
-
-        private String password;
+        private Password password;
         private String userName;
         private Collection<? extends GrantedAuthority> authorities;
         private boolean enabled;
         private Date lastPasswordResetDate;
-        /*@Value("${springboot..security.jwt.issuer}")
-        private String issuer;*/
         private User originUser;
 
-        public UserBuilder setId(final String id) {
+        private Builder() {
+
+        }
+
+        public static Builder newInstance() {
+            return new Builder();
+        }
+
+        public Builder setId(final String id) {
             this.id = id;
             return this;
         }
 
-        public UserBuilder setName(final String name) {
+        public Builder setName(final String name) {
             this.name = name;
             return this;
         }
 
-        public UserBuilder setPassword(final String password) {
+        public Builder setPassword(final Password password) {
             this.password = password;
             return this;
         }
 
-        public UserBuilder setUserName(final String userName) {
+        public Builder setUserName(final String userName) {
             this.userName = userName;
             return this;
         }
 
-        public UserBuilder setAuthorities(final Collection<? extends GrantedAuthority> authorities) {
+        public Builder setAuthorities(final Collection<? extends GrantedAuthority> authorities) {
             this.authorities = authorities;
             return this;
         }
 
-        public UserBuilder setEnabled(final boolean enabled) {
+        public Builder setEnabled(final boolean enabled) {
             this.enabled = enabled;
             return this;
         }
 
-        public UserBuilder setLastPasswordResetDate(final Date lastPasswordResetDate) {
+        public Builder setLastPasswordResetDate(final Date lastPasswordResetDate) {
             this.lastPasswordResetDate = lastPasswordResetDate;
             return this;
         }
 
-        public UserBuilder setOriginUser(final User originUser) {
+        public Builder setOriginUser(final User originUser) {
             this.originUser = originUser;
             return this;
         }
 
+        public Builder set(final User user) {
+            return this.setId(user.getId())
+                    .setName(user.getName())
+                    .setUserName(user.getUserName())
+                    .setAuthorities(user.getAuthorities().parallelStream().map(Authority::toGrantedAuthority).collect(Collectors.toList()))
+                    .setEnabled(user.isEnable())
+                    .setOriginUser(user);
+        }
+
         public JwtUser build() {
-            return new JwtUser(this);
+            return new JwtUser(this.id, this.name, this.password, this.userName, this.authorities, this.enabled, this.lastPasswordResetDate, this.originUser);
         }
     }
 }

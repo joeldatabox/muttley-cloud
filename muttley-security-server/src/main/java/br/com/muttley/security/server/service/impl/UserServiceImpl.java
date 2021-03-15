@@ -11,8 +11,8 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedE
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
-import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
@@ -22,6 +22,7 @@ import br.com.muttley.security.server.events.CurrentOwnerResolverEvent;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.OwnerService;
+import br.com.muttley.security.server.service.PasswordService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserPreferencesService;
 import br.com.muttley.security.server.service.UserService;
@@ -66,6 +67,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final UserPreferencesService preferencesService;
     private final UserDataBindingService dataBindingService;
+    private final PasswordService passwordService;
     private final JwtTokenUtilService tokenUtil;
     private final String tokenHeader;
     private final OwnerService ownerService;
@@ -77,6 +79,7 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(final UserRepository repository,
                            final UserPreferencesService preferencesService,
                            final UserDataBindingService dataBindingService,
+                           final PasswordService passwordService,
                            @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
                            final JwtTokenUtilService tokenUtil,
                            final OwnerService ownerService,
@@ -86,12 +89,20 @@ public class UserServiceImpl implements UserService {
         this.repository = repository;
         this.preferencesService = preferencesService;
         this.dataBindingService = dataBindingService;
+        this.passwordService = passwordService;
         this.tokenHeader = tokenHeader;
         this.tokenUtil = tokenUtil;
         this.ownerService = ownerService;
         this.template = template;
         this.documentNameConfig = documentNameConfig;
         this.eventPublisher = eventPublisher;
+    }
+
+    @Override
+    public User save(final UserPayLoad value) {
+        final User newUser = this.save(new User(value));
+        this.passwordService.createPasswordFor(newUser, value.getPasswd());
+        return newUser;
     }
 
     @Override
@@ -129,7 +140,7 @@ public class UserServiceImpl implements UserService {
                 .setEmail(otherUser.getEmail())
                 .setUserName(otherUser.getUserName())
                 .setNickUsers(otherUser.getNickUsers())
-                .setPasswd(otherUser)
+                //.setPasswd(otherUser)
                 .setLastPasswordResetDate(otherUser.getLastPasswordResetDate())
                 .setEnable(otherUser.isEnable())
                 .setOdinUser(otherUser.isOdinUser());
@@ -148,7 +159,7 @@ public class UserServiceImpl implements UserService {
                 //.setEmail(otherUser.getEmail())
                 .setUserName(otherUser.getUserName())
                 //.setNickUsers(otherUser.getNickUsers())
-                .setPasswd(otherUser)
+                //.setPasswd(otherUser)
                 .setLastPasswordResetDate(otherUser.getLastPasswordResetDate())
                 //.setEnable(otherUser.isEnable())
                 .setOdinUser(otherUser.isOdinUser());
@@ -165,15 +176,15 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Override
-    public User updatePasswd(final Passwd passwd) {
-        final User user = getUserFromToken(passwd.getToken());
-        user.setPasswd(passwd);
+    /*@Override
+    public User updatePasswd(final PasswdPayload passwdPayload) {
+        final User user = getUserFromToken(passwdPayload.getToken());
+        user.setPasswd(passwdPayload);
         checkNameIsValid(user);
         //validando infos do usuário
         user.validateBasicInfoForLogin();
         return repository.save(user);
-    }
+    }*/
 
     @Override
     public User findByUserName(final String userName) {
@@ -527,9 +538,9 @@ public class UserServiceImpl implements UserService {
             this.checkIndexUser(user);
 
             //validando se preencheu a senha corretamente
-            if (!user.isValidPasswd()) {
+            /*if (!user.isValidPasswd()) {
                 throw new MuttleySecurityBadRequestException(User.class, "passwd", "Informe uma senha válida!");
-            }
+            }*/
             return repository.save(user);
         } else {
             final User self = findById(user.getId());
@@ -546,7 +557,7 @@ public class UserServiceImpl implements UserService {
 */
 
             //garantindo que a senha não irá ser modificada
-            user.setPasswd(self);
+            //user.setPasswd(self);
 
             return repository.save(user);
         }
@@ -644,11 +655,6 @@ public class UserServiceImpl implements UserService {
     public List<User> findAll(final User user, final Map<String, Object> allRequestParams) {
         throw new UnsupportedOperationException("Implemente o methodo");
         //return repository.findAll(allRequestParams);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        return new JwtUser(this.findByUserName(username));
     }
 
     /**

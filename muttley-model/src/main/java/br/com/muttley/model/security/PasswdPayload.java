@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 /**
  * Classe para auxiliar a atulização da senha
  */
-public class Passwd {
+public class PasswdPayload {
 
     private JwtToken token;
     @NotNull(message = "Informe a senha atual!")
@@ -19,11 +19,11 @@ public class Passwd {
     @NotEmpty(message = "Informe uma nova senha valida!")
     private String newPasswd;
 
-    public Passwd() {
+    public PasswdPayload() {
     }
 
     @JsonCreator
-    public Passwd(
+    public PasswdPayload(
             @JsonProperty("token") final JwtToken token,
             @JsonProperty("actualPasswd") final String actualPasswd,
             @JsonProperty("newPasswd") final String newPasswd) {
@@ -36,7 +36,7 @@ public class Passwd {
         return token;
     }
 
-    public Passwd setToken(final JwtToken token) {
+    public PasswdPayload setToken(final JwtToken token) {
         this.token = token;
         return this;
     }

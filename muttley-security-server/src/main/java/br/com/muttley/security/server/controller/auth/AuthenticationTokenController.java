@@ -2,7 +2,7 @@ package br.com.muttley.security.server.controller.auth;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.User;
 import br.com.muttley.security.server.events.CurrentOwnerResolverEvent;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.UserDataBindingService;
@@ -45,15 +45,15 @@ public class AuthenticationTokenController {
             final String userName = this.tokenUtil.getUsernameFromToken(token.getToken());
             if (!isNullOrEmpty(userName)) {
                 //buscando o usuário  presente no token
-                final JwtUser jwtUser = (JwtUser) this.userService.loadUserByUsername(userName);
+                final User jwtUser = this.userService.findByUserName(userName);
                 //buscando as preferencias de usuário
 
-                jwtUser.getOriginUser().setPreferences(this.preferencesService.getUserPreferences(jwtUser.getOriginUser()));
+                jwtUser.setPreferences(this.preferencesService.getUserPreferences(jwtUser));
                 //disparando evento para resolver o owner corrent
-                final CurrentOwnerResolverEvent event = new CurrentOwnerResolverEvent(jwtUser.getOriginUser());
+                final CurrentOwnerResolverEvent event = new CurrentOwnerResolverEvent(jwtUser);
                 this.eventPublisher.publishEvent(event);
                 //buscando os databindinqs do usuário
-                jwtUser.getOriginUser().setDataBindings(this.dataBindingService.listBy(jwtUser.getOriginUser()));
+                jwtUser.setDataBindings(this.dataBindingService.listBy(jwtUser));
 
                 //verificando a validade do token
                 if (tokenUtil.validateToken(token.getToken(), jwtUser)) {

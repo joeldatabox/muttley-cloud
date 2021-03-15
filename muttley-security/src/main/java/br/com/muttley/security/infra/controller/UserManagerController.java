@@ -1,7 +1,7 @@
 package br.com.muttley.security.infra.controller;
 
 import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.Passwd;
+import br.com.muttley.model.security.PasswdPayload;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.resource.UserResource;
 import br.com.muttley.security.feign.UserServiceClient;
@@ -45,9 +45,9 @@ public class UserManagerController {
 
     @RequestMapping(value = "${muttley.security.jwt.controller.managerUserEndPoint}/password", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity updatePasswd(@RequestBody @Valid Passwd passwd, final @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") String tokenHeader) {
-        passwd.setToken(new JwtToken(tokenHeader));
-        service.updatePasswd(passwd);
+    public ResponseEntity updatePasswd(@RequestBody @Valid PasswdPayload passwdPayload, final @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") String tokenHeader) {
+        passwdPayload.setToken(new JwtToken(tokenHeader));
+        service.updatePasswd(passwdPayload);
         return ResponseEntity.ok().build();
 
     }

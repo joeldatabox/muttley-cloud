@@ -2,7 +2,8 @@ package br.com.muttley.security.feign;
 
 import br.com.muttley.feign.service.config.FeignTimeoutConfig;
 import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.Passwd;
+import br.com.muttley.model.security.PasswdPayload;
+import br.com.muttley.model.security.Password;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
@@ -37,7 +38,7 @@ public interface UserServiceClient {
     public User update(@PathVariable("userName") final String userName, @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String token, @RequestBody final User user);
 
     @RequestMapping(value = "/passwd", method = PUT)
-    public void updatePasswd(@RequestBody final Passwd passwd);
+    public void updatePasswd(@RequestBody final PasswdPayload passwdPayload);
 
     @RequestMapping(method = DELETE)
     void deleteByUserName(@RequestParam("userName") String userName);
@@ -48,6 +49,9 @@ public interface UserServiceClient {
 
     @RequestMapping(method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     User findByUserName(@RequestParam("userName") String userName);
+
+    @RequestMapping(value = "/{id}/password", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public Password loadPasswordById(@RequestParam("id") final String id);
 
     @RequestMapping(value = "/user-from-token", method = GET)
     public User getUserFromToken(@RequestBody final JwtToken token);

@@ -1,8 +1,8 @@
 package br.com.muttley.security.server.service;
 
 import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.Passwd;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,7 +15,9 @@ import java.util.Set;
  * @author Joel Rodrigues Moreira on 12/01/18.
  * @project spring-cloud
  */
-public interface UserService extends UserDetailsService {
+public interface UserService {
+    User save(final UserPayLoad value);
+
     User save(final User user);
 
     /**
@@ -31,7 +33,7 @@ public interface UserService extends UserDetailsService {
 
     User update(final User user, final User userForUpdate);
 
-    User updatePasswd(final Passwd user);
+    /*User updatePasswd(final PasswdPayload user);*/
 
     User findByUserName(final String userName);
 

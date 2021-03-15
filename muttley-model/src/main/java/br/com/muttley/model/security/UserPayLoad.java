@@ -116,8 +116,7 @@ public class UserPayLoad implements Serializable {
                     .setDescription(user.getDescription())
                     .setEmail(user.getEmail())
                     .setUserName(user.getUserName())
-                    .setNickUsers(user.getNickUsers())
-                    .setPasswd(user.getPasswd());
+                    .setNickUsers(user.getNickUsers());
         }
 
         public static Builder newInstance() {

@@ -1,5 +1,6 @@
 package br.com.muttley.model.security;
 
+import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.jackson.JsonHelper;
 import br.com.muttley.model.security.preference.UserPreferences;
@@ -7,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.jsonwebtoken.lang.Collections;
+import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
@@ -46,9 +48,11 @@ import static org.springframework.util.StringUtils.isEmpty;
         @CompoundIndex(name = "nickUsers_index", def = "{'nickUsers' : 1}")
 })
 public class User implements Serializable, UserData {
-    @Transient
+    /*@Transient
     @JsonIgnore
-    private static final int SALT = 8;
+    private static final int SALT = 8;*/
+
+
     @Transient
     @JsonIgnore
     private static final String EMAIL_PATTERN = "\\b(^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@([A-Za-z0-9-])+(\\.[A-Za-z0-9-]+)*((\\.[A-Za-z0-9]{2,})|(\\.[A-Za-z0-9]{2,}\\.[A-Za-z0-9]{2,}))$)\\b";
@@ -66,9 +70,9 @@ public class User implements Serializable, UserData {
     @NotBlank(message = "Informe um userName válido")
     private String userName;
     private Set<String> nickUsers = new HashSet<>();
-    @NotBlank(message = "Informe uma senha valida!")
-    private String passwd;
-    private Date lastPasswordResetDate;
+    //@NotBlank(message = "Informe uma senha valida!")
+    //private String passwd;
+    //private Date lastPasswordResetDate;
     private Boolean enable;
     @Transient
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo workteam corrente
@@ -81,7 +85,7 @@ public class User implements Serializable, UserData {
     public User() {
         this.authorities = new LinkedHashSet();
         this.enable = true;
-        this.lastPasswordResetDate = Date.from(Instant.now());
+        //this.lastPasswordResetDate = Date.from(Instant.now());
     }
 
     @JsonCreator
@@ -93,7 +97,7 @@ public class User implements Serializable, UserData {
             @JsonProperty("userName") final String userName,
             @JsonProperty("email") final String email,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
-            @JsonProperty("passwd") final String passwd,
+            /*@JsonProperty("passwd") final String passwd,*/
             @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
             @JsonProperty("enable") final Boolean enable,
             @JsonProperty("authorities") final Set<Authority> authorities,
@@ -106,8 +110,8 @@ public class User implements Serializable, UserData {
         this.userName = userName;
         this.email = email;
         this.setNickUsers(nickUsers);
-        this.passwd = passwd;
-        this.lastPasswordResetDate = lastPasswordResetDate;
+        /*this.passwd = passwd;*/
+        //this.lastPasswordResetDate = lastPasswordResetDate;
         this.enable = enable;
         this.authorities = authorities;
         this.preferences = preferences;
@@ -121,9 +125,9 @@ public class User implements Serializable, UserData {
         this.setUserName(payLoad.getUserName());
         this.setEmail(payLoad.getEmail());
         this.setNickUsers(payLoad.getNickUsers());
-        if (!isEmpty(payLoad.getPasswd())) {
+        /*if (!isEmpty(payLoad.getPasswd())) {
             this.setPasswd(payLoad.getPasswd());
-        }
+        }*/
     }
 
     @Override
@@ -134,6 +138,17 @@ public class User implements Serializable, UserData {
     public User setId(final String id) {
         this.id = id;
         return this;
+    }
+
+    public ObjectId getObjectId() {
+        if (!isEmpty(getId())) {
+            try {
+                return new ObjectId(getId());
+            } catch (IllegalArgumentException ex) {
+                throw new MuttleyInvalidObjectIdException(this.getClass(), "id", "ObjectId inválido");
+            }
+        }
+        return null;
     }
 
     @JsonIgnore
@@ -235,7 +250,7 @@ public class User implements Serializable, UserData {
         return this;
     }
 
-    @JsonIgnore
+    /*@JsonIgnore
     public String getPasswd() {
         return passwd;
     }
@@ -247,33 +262,27 @@ public class User implements Serializable, UserData {
         }
         this.passwd = new BCryptPasswordEncoder(SALT).encode(passwd);
         return this;
-    }
-
+    }*/
+/*
     public User setPasswd(final User user) {
         this.passwd = user.passwd;
         return this;
-    }
+    }*/
 
-    public User setPasswd(final Passwd passwd) {
-        if (!checkPasswd(passwd.getActualPasswd())) {
+    /*public User setPasswd(final PasswdPayload passwdPayload) {
+        if (!checkPasswd(passwdPayload.getActualPasswd())) {
             throw new MuttleySecurityBadRequestException(User.class, "passwd", "A senha atual informada é invalida!").setStatus(HttpStatus.NOT_ACCEPTABLE);
         }
-        this.passwd = new BCryptPasswordEncoder(SALT).encode(passwd.getNewPasswd());
+        this.passwd = new BCryptPasswordEncoder(SALT).encode(passwdPayload.getNewPasswd());
         return this;
-    }
+    }*/
 
-    public boolean checkPasswd(final String passwd) {
-        return checkPasswd(passwd, this.passwd);
-    }
 
-    public boolean checkPasswd(final String passwd, String cryptPasswd) {
-        return new BCryptPasswordEncoder().matches(passwd, cryptPasswd);
-    }
 
-    @JsonIgnore
+/*    @JsonIgnore
     public boolean isValidPasswd() {
         return this.passwd != null && !this.passwd.isEmpty();
-    }
+    }*/
 
     public Boolean isEnable() {
         return enable;

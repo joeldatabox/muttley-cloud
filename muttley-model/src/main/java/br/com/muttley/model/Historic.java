@@ -73,4 +73,15 @@ public class Historic {
         this.dtChange = dtChange;
         return this;
     }
+
+    public static class Builder {
+        public static Historic createNew(final User user) {
+            final Date now = new Date();
+            return new Historic()
+                    .setCreatedBy(user)
+                    .setDtCreate(now)
+                    .setLastChangeBy(user)
+                    .setDtChange(now);
+        }
+    }
 }

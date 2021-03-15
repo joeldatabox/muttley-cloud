@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class DocumentNameConfig {
     private final String nameCollectionOwner;
     private final String nameCollectionUser;
+    private final String nameCollectionPassword;
     private final String nameCollectionUserBase;
     private final String nameCollectionAccessPlan;
     private final String nameCollectionUserPreferences;
@@ -23,6 +24,7 @@ public class DocumentNameConfig {
     public DocumentNameConfig(
             @Value("${br.com.muttley.security.server.owner-document:muttley-owners}") final String nameCollectionOwner,
             @Value("${br.com.muttley.security.server.user-document:muttley-users}") final String nameCollectionUser,
+            @Value("${br.com.muttley.security.server.user-document:muttley-users-password}") final String nameCollectionPassword,
             @Value("${br.com.muttley.security.server.user-document:muttley-users-base}") final String nameCollectionUserBase,
             @Value("${br.com.muttley.security.server.access-plan-document:muttley-access-plans}") final String nameCollectionAccessPlan,
             @Value("${br.com.muttley.security.server.user-preference-document:muttley-users-preferences}") final String nameCollectionUserPreferences,
@@ -31,6 +33,7 @@ public class DocumentNameConfig {
             @Value("${br.com.muttley.security.server.user-data-binding:muttley-users-databinding}") final String nameCollectionUserDataBinding) {
         this.nameCollectionOwner = nameCollectionOwner;
         this.nameCollectionUser = nameCollectionUser;
+        this.nameCollectionPassword = nameCollectionPassword;
         this.nameCollectionUserBase = nameCollectionUserBase;
         this.nameCollectionAccessPlan = nameCollectionAccessPlan;
         this.nameCollectionUserPreferences = nameCollectionUserPreferences;
@@ -45,6 +48,10 @@ public class DocumentNameConfig {
 
     public String getNameCollectionUser() {
         return nameCollectionUser;
+    }
+
+    public String getNameCollectionPassword() {
+        return nameCollectionPassword;
     }
 
     public String getNameCollectionUserBase() {
