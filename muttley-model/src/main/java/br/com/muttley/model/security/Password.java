@@ -24,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.validation.constraints.NotNull;
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -135,6 +136,10 @@ public class Password implements br.com.muttley.model.Document {
 
     private BCryptPasswordEncoder getPasswordEncoder() {
         return new BCryptPasswordEncoder(SALT, RANDOM);
+    }
+
+    public Date getLastPasswordResetDate() {
+        return this.getHistoric().getDtChange();
     }
 
 

@@ -1,5 +1,6 @@
 package br.com.muttley.security.server.service;
 
+import br.com.muttley.model.security.Password;
 import br.com.muttley.model.security.User;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,5 +31,5 @@ public interface JwtTokenUtilService {
 
     boolean validateToken(String token, UserDetails userDetails);
 
-    boolean validateToken(String token, User user);
+    boolean validateToken(String token, User user, final Password password);
 }

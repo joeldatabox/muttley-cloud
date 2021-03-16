@@ -4,9 +4,11 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestExc
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
 import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.Password;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserLoggedEvent;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
+import br.com.muttley.security.server.service.PasswordService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -43,13 +45,15 @@ public class AuthenticationRestController {
     protected final AuthenticationManager authenticationManager;
     protected final JwtTokenUtilService jwtTokenUtil;
     protected final UserService userService;
+    protected final PasswordService passwordService;
 
     @Autowired
-    public AuthenticationRestController(final AuthenticationManager authenticationManager, final JwtTokenUtilService jwtTokenUtil, final UserService userService, final ApplicationEventPublisher eventPublisher) {
+    public AuthenticationRestController(final AuthenticationManager authenticationManager, final JwtTokenUtilService jwtTokenUtil, final UserService userService, final ApplicationEventPublisher eventPublisher, PasswordService passwordService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;
         this.userService = userService;
         this.eventPublisher = eventPublisher;
+        this.passwordService = passwordService;
     }
 
     @RequestMapping(value = "/login", method = POST)
@@ -76,7 +80,8 @@ public class AuthenticationRestController {
     public ResponseEntity<?> refreshAndGetAuthenticationToken(@RequestBody JwtToken token) {
         String username = jwtTokenUtil.getUsernameFromToken(token.getToken());
         User user = userService.findByUserName(username);
-        if (jwtTokenUtil.canTokenBeRefreshed(token.getToken(), user.getLastPasswordResetDate())) {
+        final Password password = this.passwordService.findByUserId(user.getId());
+        if (jwtTokenUtil.canTokenBeRefreshed(token.getToken(), password.getLastPasswordResetDate())) {
             String refreshedToken = jwtTokenUtil.refreshToken(token.getToken());
             return ResponseEntity.ok(new JwtToken(refreshedToken));
         }

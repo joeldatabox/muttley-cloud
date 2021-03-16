@@ -141,7 +141,7 @@ public class UserServiceImpl implements UserService {
                 .setUserName(otherUser.getUserName())
                 .setNickUsers(otherUser.getNickUsers())
                 //.setPasswd(otherUser)
-                .setLastPasswordResetDate(otherUser.getLastPasswordResetDate())
+                //.setLastPasswordResetDate(otherUser.getLastPasswordResetDate())
                 .setEnable(otherUser.isEnable())
                 .setOdinUser(otherUser.isOdinUser());
 
@@ -160,7 +160,7 @@ public class UserServiceImpl implements UserService {
                 .setUserName(otherUser.getUserName())
                 //.setNickUsers(otherUser.getNickUsers())
                 //.setPasswd(otherUser)
-                .setLastPasswordResetDate(otherUser.getLastPasswordResetDate())
+                //.setLastPasswordResetDate(otherUser.getLastPasswordResetDate())
                 //.setEnable(otherUser.isEnable())
                 .setOdinUser(otherUser.isOdinUser());
 

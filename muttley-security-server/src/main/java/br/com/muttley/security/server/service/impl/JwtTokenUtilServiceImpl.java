@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.Password;
 import br.com.muttley.model.security.User;
 import br.com.muttley.security.server.service.SecretService;
 import io.jsonwebtoken.Claims;
@@ -194,13 +195,13 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
     }
 
     @Override
-    public boolean validateToken(final String token, final User user) {
+    public boolean validateToken(final String token, final User user, final Password password) {
         final String username = getUsernameFromToken(token);
         final Date created = getCreatedDateFromToken(token);
         //final Date expiration = getExpirationDateFromToken(token);
         return (
                 username.equals(user.getUserName())
                         && !isTokenExpired(token)
-                        && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate()));
+                        && !isCreatedBeforeLastPasswordReset(created, password.getHistoric().getDtChange()));
     }
 }

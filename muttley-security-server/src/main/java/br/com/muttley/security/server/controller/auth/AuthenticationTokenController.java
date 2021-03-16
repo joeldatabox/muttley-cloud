@@ -5,9 +5,11 @@ import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.security.server.events.CurrentOwnerResolverEvent;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
+import br.com.muttley.security.server.service.PasswordService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserPreferencesService;
 import br.com.muttley.security.server.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,13 +31,16 @@ public class AuthenticationTokenController {
     private final UserService userService;
     private final UserPreferencesService preferencesService;
     private final UserDataBindingService dataBindingService;
+    private final PasswordService passwordService;
     private final ApplicationEventPublisher eventPublisher;
 
-    public AuthenticationTokenController(final JwtTokenUtilService tokenUtil, final UserService userService, final UserPreferencesService preferencesService, final UserDataBindingService dataBindingService, final ApplicationEventPublisher eventPublisher) {
+    @Autowired
+    public AuthenticationTokenController(final JwtTokenUtilService tokenUtil, final UserService userService, final UserPreferencesService preferencesService, final UserDataBindingService dataBindingService, PasswordService passwordService, final ApplicationEventPublisher eventPublisher) {
         this.tokenUtil = tokenUtil;
         this.userService = userService;
         this.preferencesService = preferencesService;
         this.dataBindingService = dataBindingService;
+        this.passwordService = passwordService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -56,7 +61,7 @@ public class AuthenticationTokenController {
                 jwtUser.setDataBindings(this.dataBindingService.listBy(jwtUser));
 
                 //verificando a validade do token
-                if (tokenUtil.validateToken(token.getToken(), jwtUser)) {
+                if (tokenUtil.validateToken(token.getToken(), jwtUser, this.passwordService.findByUserId(jwtUser.getId()))) {
                     return ResponseEntity.ok(jwtUser.toJson());
                 }
             }

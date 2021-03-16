@@ -320,7 +320,7 @@ public class User implements Serializable, UserData {
         this.authorities.addAll(authorities);
         return this;
     }
-
+/*
     public Date getLastPasswordResetDate() {
         return lastPasswordResetDate;
     }
@@ -328,7 +328,7 @@ public class User implements Serializable, UserData {
     public User setLastPasswordResetDate(final Date lastPasswordResetDate) {
         this.lastPasswordResetDate = lastPasswordResetDate;
         return this;
-    }
+    }*/
 
     public final boolean inRole(final String role) {
         try {
