@@ -3,7 +3,6 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.domain.service.Validator;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
-import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.headers.components.MuttleyCurrentTimezone;
 import br.com.muttley.headers.components.MuttleyCurrentVersion;
 import br.com.muttley.headers.components.MuttleyUserAgentName;
@@ -18,6 +17,7 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.model.security.events.UserResolverEvent;
+import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.UserDataBindingRepository;
 import br.com.muttley.security.server.service.UserDataBindingService;
@@ -72,6 +72,9 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     private boolean checkRoles;
 
     @Autowired
+    private RedisService redisService;
+
+    @Autowired
     public UserDataBindingServiceImpl(final MongoTemplate mongoTemplate, final UserDataBindingRepository repository, final DocumentNameConfig documentNameConfig, final Validator validator, final ApplicationEventPublisher eventPublisher) {
         this.mongoTemplate = mongoTemplate;
         this.repository = repository;
@@ -91,7 +94,9 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionSave(user, dataBinding);
-        return repository.save(dataBinding);
+        final UserDataBinding dataBinding1 = repository.save(dataBinding);
+        this.cleanCacheDatabiding(user);
+        return dataBinding1;
     }
 
     public void checkPrecondictionSave(final User user, final UserDataBinding dataBinding) {
@@ -110,7 +115,9 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         this.checkPrecondictionUpdate(user, dataBinding);
-        return repository.save(dataBinding);
+        final UserDataBinding dataBinding1 = this.repository.save(dataBinding);
+        this.cleanCacheDatabiding(user);
+        return dataBinding1;
     }
 
     public void checkPrecondictionUpdate(final User user, final UserDataBinding dataBinding) {
@@ -188,7 +195,9 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionSaveByUserName(user, userName, dataBinding);
-        return repository.save(dataBinding);
+        final UserDataBinding dataBinding1 = this.repository.save(dataBinding);
+        this.cleanCacheDatabiding(user);
+        return dataBinding1;
     }
 
     public void checkPrecondictionSaveByUserName(final User user, final String userName, final UserDataBinding dataBinding) {
@@ -209,7 +218,10 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionUpdateByUserName(user, userName, dataBinding);
-        return repository.save(dataBinding);
+        //return repository.save(dataBinding);
+        final UserDataBinding dataBinding1 = this.repository.save(dataBinding);
+        this.cleanCacheDatabiding(user);
+        return dataBinding1;
     }
 
     public void checkPrecondictionUpdateByUserName(final User user, final String userName, final UserDataBinding dataBinding) {
@@ -388,7 +400,8 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
                 BasicAggregateResultCount.class
         );
         if (results == null || results.getUniqueMappedResult() == null) {
-            throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Nenhum registro encontrado para o usuário desejado");
+            //throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Nenhum registro encontrado para o usuário desejado");
+            return false;
         }
         return results.getUniqueMappedResult().getResult() > 0;
     }
@@ -415,7 +428,8 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
                 BasicAggregateResultCount.class
         );
         if (results == null || results.getUniqueMappedResult() == null) {
-            throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Erro na consulta");
+            //throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Erro na consulta");
+            return false;
         }
         return results.getUniqueMappedResult().getResult() > 0;
     }
@@ -711,5 +725,9 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         final UserResolverEvent event = new UserResolverEvent(userName);
         this.eventPublisher.publishEvent(event);
         return event.getUserResolver();
+    }
+
+    private void cleanCacheDatabiding(final User user) {
+        this.redisService.delete("DATABINDING-" + user.getUserName());
     }
 }

@@ -5,6 +5,7 @@ import br.com.muttley.model.Document;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
+import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.server.repository.UserPreferencesRepository;
 import br.com.muttley.security.server.service.UserPreferencesService;
 import com.mongodb.BasicDBObject;
@@ -32,11 +33,13 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class UserPreferencesImpl implements UserPreferencesService {
     private final UserPreferencesRepository repository;
     private final MongoTemplate template;
+    private RedisService redisService;
 
     @Autowired
     public UserPreferencesImpl(final UserPreferencesRepository repository, final MongoTemplate template) {
         this.repository = repository;
         this.template = template;
+        this.redisService = redisService;
     }
 
     @Override
@@ -45,7 +48,9 @@ public class UserPreferencesImpl implements UserPreferencesService {
         if (this.existsUserPreferencesFor(user)) {
             throw new MuttleyBadRequestException(UserPreferences.class, "user", "Já existe preferencias cadastradas para esse usuário");
         }
-        return this.repository.save(new UserPreferences().setUser(user));
+        final UserPreferences preferences = this.repository.save(new UserPreferences().setUser(user));
+        this.cleanCachePreferences(user);
+        return preferences;
     }
 
     @Override
@@ -61,6 +66,7 @@ public class UserPreferencesImpl implements UserPreferencesService {
         }
 
         this.repository.save(preferences);
+        this.cleanCachePreferences(user);
     }
 
     @Override
@@ -81,6 +87,7 @@ public class UserPreferencesImpl implements UserPreferencesService {
                     UserPreferences.class
             );
         }
+        this.cleanCachePreferences(user);
     }
 
     @Override
@@ -146,5 +153,9 @@ public class UserPreferencesImpl implements UserPreferencesService {
 
     private boolean existsUserPreferencesFor(final User user) {
         return repository.exists("user.$id", new ObjectId(user.getId()));
+    }
+
+    private void cleanCachePreferences(final User user) {
+        this.redisService.delete("PREFERENCES-" + user.getUserName());
     }
 }

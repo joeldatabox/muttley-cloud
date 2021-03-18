@@ -9,6 +9,7 @@ import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
+import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.UserDataBindingClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
@@ -34,6 +35,8 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
     private final UserDataBindingClient dataBindingService;
     private final OwnerServiceClient ownerService;
     private final WorkTeamServiceClient workTeamService;
+    @Autowired
+    private RedisService redisService;
 
     @Autowired
     public UserAfterCacheLoadListener(final UserPreferenceServiceClient preferenceService, final UserDataBindingClient dataBindingService, final OwnerServiceClient ownerService, final WorkTeamServiceClient workTeamService) {
@@ -47,8 +50,8 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
     public void onApplicationEvent(final UserAfterCacheLoadEvent event) {
         final User user = event.getSource();
         //carregando preferencias
-        final UserPreferences preferences = preferenceService.getUserPreferences();
-        final List<UserDataBinding> dataBindings = dataBindingService.list();
+        final UserPreferences preferences = this.loadPreferences(user);
+        final List<UserDataBinding> dataBindings = this.loadingDatabinding(user);
         try {
             if (!preferences.contains(OWNER_PREFERENCE)) {
                 final List<OwnerData> owners = this.ownerService.findByUser();
@@ -82,5 +85,33 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
             user.setAuthorities(this.workTeamService.loadCurrentRoles());
         } catch (final MuttleyNotFoundException ex) {
         }
+    }
+
+    private UserPreferences loadPreferences(final User user) {
+        if (!this.redisService.hasKey(this.getKeyPreferences(user))) {
+            final UserPreferences preferences = this.preferenceService.getUserPreferences();
+            redisService.set(this.getKeyPreferences(user), preferences);
+            return preferences;
+        } else {
+            return (UserPreferences) this.redisService.get(this.getKeyPreferences(user));
+        }
+    }
+
+    private List<UserDataBinding> loadingDatabinding(final User user) {
+        if (!this.redisService.hasKey(this.getKeyDatabinding(user))) {
+            final List<UserDataBinding> dataBindings = dataBindingService.list();
+            redisService.set(this.getKeyDatabinding(user), dataBindings);
+            return dataBindings;
+        } else {
+            return (List<UserDataBinding>) this.redisService.get(this.getKeyDatabinding(user));
+        }
+    }
+
+    private String getKeyPreferences(final User user) {
+        return "PREFERENCES-" + user.getUserName();
+    }
+
+    private String getKeyDatabinding(final User user) {
+        return "DATABINDING-" + user.getUserName();
     }
 }

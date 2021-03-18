@@ -6,8 +6,6 @@ import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
 import br.com.muttley.model.security.jackson.OwnerDeserializer;
-import br.com.muttley.model.security.jackson.UserDataDeserializer;
-import br.com.muttley.model.security.jackson.UserDataSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -20,10 +18,8 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira 12/01/2021
@@ -51,8 +47,7 @@ public class UserDataBinding implements Model {
     @DBRef
     private Owner owner;
     @NotNull(message = "Informe um usuário")
-    @JsonSerialize(using = UserDataSerializer.class)
-    @JsonDeserialize(using = UserDataDeserializer.class)
+    @JsonIgnore
     @DBRef
     private UserData user;
     private KeyUserDataBinding key;
