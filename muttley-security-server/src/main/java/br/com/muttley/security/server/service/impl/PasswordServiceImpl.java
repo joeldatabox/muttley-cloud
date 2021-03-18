@@ -16,6 +16,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Date;
+
 /**
  * @author Joel Rodrigues Moreira 12/03/2021
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -60,6 +62,9 @@ public class PasswordServiceImpl<T extends Password> implements PasswordService<
         //this.beforeSave(user, value);
         //verificando precondições
         this.checkPrecondictionSave(user, password);
+        if (password.getLastDatePasswordChanges() == null) {
+            password.setLastDatePasswordChanges(new Date());
+        }
         //validando dados do objeto
         this.validator.validate(password);
 

@@ -13,6 +13,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PasswordRepository extends DocumentMongoRepository<Password> {
-    @Query("{'user': {'$ref' : ?#{@documentNameConfig.getNameCollectionPassword()}, '$id' : ?#{[0].getObjectId()}} }")
+    @Query("{'user': {'$ref' : ?#{@documentNameConfig.getNameCollectionUser()}, '$id' : ?#{[0].getObjectId()}} }")
     Password findByUser(final User user);
 }

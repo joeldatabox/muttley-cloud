@@ -20,6 +20,6 @@ public class PasswordItem {
     }
 
     public PasswordItem(final Password password) {
-        this(password.getPassword(), password.getHistoric().getDtChange());
+        this(password.getPassword(), password.getLastDatePasswordChanges());
     }
 }

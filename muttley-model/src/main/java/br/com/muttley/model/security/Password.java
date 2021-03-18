@@ -6,7 +6,9 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
@@ -15,7 +17,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.PersistenceConstructor;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -28,6 +29,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import static br.com.muttley.model.security.Password.BuilderPasswordEncoder.getPasswordEncoder;
 import static io.jsonwebtoken.SignatureAlgorithm.HS512;
 import static io.jsonwebtoken.impl.crypto.MacProvider.generateKey;
 
@@ -45,10 +47,10 @@ import static io.jsonwebtoken.impl.crypto.MacProvider.generateKey;
 @Accessors(chain = true)
 @EqualsAndHashCode(of = "id")
 public class Password implements br.com.muttley.model.Document {
-    @Transient
+    /*@Transient
     @JsonIgnore
     private static final int SALT = 10;
-    private static final SecureRandom RANDOM = new SecureRandom(generateKey(HS512).getEncoded());
+    private static final SecureRandom RANDOM = new SecureRandom(generateKey(HS512).getEncoded());*/
 
 
     @JsonIgnore
@@ -59,9 +61,10 @@ public class Password implements br.com.muttley.model.Document {
     @JsonSerialize(using = UserSerializer.class)
     @JsonDeserialize(using = UserDeserializer.class)
     private User user;
-    @JsonIgnore
     @NotBlank(message = "Informe uma senha valida!")
     private String password;
+    @NotNull(message = "Informe uma senha valida!")
+    private Date lastDatePasswordChanges;
     @JsonIgnore
     private List<PasswordItem> oldPasswords;
     @JsonIgnore
@@ -74,10 +77,19 @@ public class Password implements br.com.muttley.model.Document {
     }
 
     @PersistenceConstructor
-    public Password(final String id, final User user, final String passwd, final List<PasswordItem> oldPasswords, final MetadataDocument metadata, final Historic historic) {
+    @JsonCreator
+    public Password(
+            @JsonProperty("id") final String id,
+            @JsonProperty("user") final User user,
+            @JsonProperty("password") final String password,
+            @JsonProperty("lastDatePasswordChanges") Date lastDatePasswordChanges,
+            @JsonProperty("oldPasswords") final List<PasswordItem> oldPasswords,
+            @JsonProperty("metadata") final MetadataDocument metadata,
+            @JsonProperty("historic") final Historic historic) {
         this.id = id;
         this.user = user;
-        this.password = passwd;
+        this.password = password;
+        this.lastDatePasswordChanges = lastDatePasswordChanges;
         this.oldPasswords = oldPasswords;
         this.metadata = metadata;
         this.historic = historic;
@@ -87,17 +99,18 @@ public class Password implements br.com.muttley.model.Document {
         if (password == null || password.trim().isEmpty()) {
             throw new MuttleySecurityBadRequestException(User.class, "passwd", "Informe uma senha valida!");
         }
-        this.password = this.getPasswordEncoder().encode(password);
+        this.password = getPasswordEncoder().encode(password);
         return this;
     }
 
     public Password setPassword(final PasswdPayload passwdPayload) {
         if (!checkPasswd(passwdPayload.getActualPasswd())) {
             throw new MuttleySecurityBadRequestException(User.class, "passwd", "A senha atual informada é invalida!").setStatus(HttpStatus.NOT_ACCEPTABLE);
-        }
-        //gerando historico das senhas
-        this.addOldPassword(new PasswordItem(this))
-                .password = this.getPasswordEncoder().encode(passwdPayload.getNewPasswd());
+        },
+        if ()
+            //gerando historico das senhas
+            this.addOldPassword(new PasswordItem(this))
+                    .password = getPasswordEncoder().encode(passwdPayload.getNewPasswd());
         return this;
     }
 
@@ -131,17 +144,8 @@ public class Password implements br.com.muttley.model.Document {
     }
 
     public boolean checkPasswd(final String passwd, String cryptedPasswd) {
-        return this.getPasswordEncoder().matches(passwd, cryptedPasswd);
+        return getPasswordEncoder().matches(passwd, cryptedPasswd);
     }
-
-    private BCryptPasswordEncoder getPasswordEncoder() {
-        return new BCryptPasswordEncoder(SALT, RANDOM);
-    }
-
-    public Date getLastPasswordResetDate() {
-        return this.getHistoric().getDtChange();
-    }
-
 
     public static class Builder {
         private User user;
@@ -162,12 +166,23 @@ public class Password implements br.com.muttley.model.Document {
 
         public Password builder() {
             return new Password()
+                    .setUser(this.user)
+                    .setLastDatePasswordChanges(new Date())
                     .setPassword(this.password);
         }
 
         public Builder setUser(final User user) {
             this.user = user;
             return this;
+        }
+    }
+
+    public static class BuilderPasswordEncoder {
+        private static final int SALT = 10;
+        private static final SecureRandom RANDOM = new SecureRandom(generateKey(HS512).getEncoded());
+
+        public static BCryptPasswordEncoder getPasswordEncoder() {
+            return new BCryptPasswordEncoder(SALT, RANDOM);
         }
     }
 }

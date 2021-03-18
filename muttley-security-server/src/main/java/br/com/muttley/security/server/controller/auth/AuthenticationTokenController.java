@@ -2,6 +2,8 @@ package br.com.muttley.security.server.controller.auth;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.Password;
 import br.com.muttley.model.security.User;
 import br.com.muttley.security.server.events.CurrentOwnerResolverEvent;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
@@ -50,19 +52,20 @@ public class AuthenticationTokenController {
             final String userName = this.tokenUtil.getUsernameFromToken(token.getToken());
             if (!isNullOrEmpty(userName)) {
                 //buscando o usuário  presente no token
-                final User jwtUser = this.userService.findByUserName(userName);
+                final User user = this.userService.findByUserName(userName);
                 //buscando as preferencias de usuário
 
-                jwtUser.setPreferences(this.preferencesService.getUserPreferences(jwtUser));
+                user.setPreferences(this.preferencesService.getUserPreferences(user));
                 //disparando evento para resolver o owner corrent
-                final CurrentOwnerResolverEvent event = new CurrentOwnerResolverEvent(jwtUser);
+                final CurrentOwnerResolverEvent event = new CurrentOwnerResolverEvent(user);
                 this.eventPublisher.publishEvent(event);
                 //buscando os databindinqs do usuário
-                jwtUser.setDataBindings(this.dataBindingService.listBy(jwtUser));
+                user.setDataBindings(this.dataBindingService.listBy(user));
+                final Password password = this.passwordService.findByUserId(user.getId());
 
                 //verificando a validade do token
-                if (tokenUtil.validateToken(token.getToken(), jwtUser, this.passwordService.findByUserId(jwtUser.getId()))) {
-                    return ResponseEntity.ok(jwtUser.toJson());
+                if (tokenUtil.validateToken(token.getToken(), user, password)) {
+                    return ResponseEntity.ok(JwtUser.Builder.newInstance().set(user).setPassword(password).build().toJson());
                 }
             }
         }
