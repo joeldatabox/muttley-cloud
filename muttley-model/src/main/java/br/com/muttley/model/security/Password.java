@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.security.SecureRandom;
@@ -99,18 +100,25 @@ public class Password implements br.com.muttley.model.Document {
         if (password == null || password.trim().isEmpty()) {
             throw new MuttleySecurityBadRequestException(User.class, "passwd", "Informe uma senha valida!");
         }
+        if (!StringUtils.isEmpty(this.password)) {
+            //gerando historico das senhas
+            this.addOldPassword(new PasswordItem(this));
+        }
         this.password = getPasswordEncoder().encode(password);
+        this.setLastDatePasswordChanges(new Date());
         return this;
     }
 
     public Password setPassword(final PasswdPayload passwdPayload) {
         if (!checkPasswd(passwdPayload.getActualPasswd())) {
             throw new MuttleySecurityBadRequestException(User.class, "passwd", "A senha atual informada é invalida!").setStatus(HttpStatus.NOT_ACCEPTABLE);
-        },
-        if ()
+        }
+        if (!StringUtils.isEmpty(this.password)) {
             //gerando historico das senhas
-            this.addOldPassword(new PasswordItem(this))
-                    .password = getPasswordEncoder().encode(passwdPayload.getNewPasswd());
+            this.addOldPassword(new PasswordItem(this));
+        }
+        this.password = getPasswordEncoder().encode(passwdPayload.getNewPasswd());
+        this.setLastDatePasswordChanges(new Date());
         return this;
     }
 
@@ -122,7 +130,7 @@ public class Password implements br.com.muttley.model.Document {
     }
 
     private Password addOldPassword(final PasswordItem passwordItem) {
-        this.oldPasswords.add(0, passwordItem);
+        this.getOldPasswords().add(0, passwordItem);
         if (this.oldPasswords.size() > 5) {
             this.setOldPasswords(this.oldPasswords.subList(0, 5));
         }
