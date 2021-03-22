@@ -14,10 +14,10 @@ public class PasswdPayload {
     private JwtToken token;
     @NotNull(message = "Informe a senha atual!")
     @NotEmpty(message = "Informe a senha atual!")
-    private String actualPasswd;
+    private String actualPassword;
     @NotNull(message = "Informe uma nova senha valida!")
     @NotEmpty(message = "Informe uma nova senha valida!")
-    private String newPasswd;
+    private String newPassword;
 
     public PasswdPayload() {
     }
@@ -25,11 +25,11 @@ public class PasswdPayload {
     @JsonCreator
     public PasswdPayload(
             @JsonProperty("token") final JwtToken token,
-            @JsonProperty("actualPasswd") final String actualPasswd,
-            @JsonProperty("newPasswd") final String newPasswd) {
+            @JsonProperty("actualPassword") final String actualPassword,
+            @JsonProperty("newPassword") final String newPassword) {
         this.token = token;
-        this.actualPasswd = actualPasswd;
-        this.newPasswd = newPasswd;
+        this.actualPassword = actualPassword;
+        this.newPassword = newPassword;
     }
 
     public JwtToken getToken() {
@@ -41,20 +41,20 @@ public class PasswdPayload {
         return this;
     }
 
-    public String getActualPasswd() {
-        return actualPasswd;
+    public String getActualPassword() {
+        return actualPassword;
     }
 
-    public void setActualPasswd(final String actualPasswd) {
-        this.actualPasswd = actualPasswd;
+    public void setActualPassword(final String actualPassword) {
+        this.actualPassword = actualPassword;
     }
 
-    public String getNewPasswd() {
-        return newPasswd;
+    public String getNewPassword() {
+        return newPassword;
     }
 
-    public void setNewPasswd(final String newPasswd) {
-        this.newPasswd = newPasswd;
+    public void setNewPassword(final String newPassword) {
+        this.newPassword = newPassword;
     }
 
 

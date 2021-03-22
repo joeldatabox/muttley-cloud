@@ -85,7 +85,7 @@ public class UserController {
         return ResponseEntity.ok(service.update(user, new JwtToken(token)));
     }
 
-    @RequestMapping(value = "/passwd", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/password", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity updatePasswd(@RequestBody final PasswdPayload passwdPayload) {
         passwordService.update(passwdPayload);

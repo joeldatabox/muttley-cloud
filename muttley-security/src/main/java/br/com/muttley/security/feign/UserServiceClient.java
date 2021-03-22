@@ -37,7 +37,7 @@ public interface UserServiceClient {
     @RequestMapping(value = "/{userName}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
     public User update(@PathVariable("userName") final String userName, @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") final String token, @RequestBody final User user);
 
-    @RequestMapping(value = "/passwd", method = PUT)
+    @RequestMapping(value = "/password", method = PUT)
     public void updatePasswd(@RequestBody final PasswdPayload passwdPayload);
 
     @RequestMapping(method = DELETE)

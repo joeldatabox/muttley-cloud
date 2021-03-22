@@ -102,7 +102,7 @@ public class PasswordServiceImpl<T extends Password> implements PasswordService<
 
     @Override
     public void createPasswordFor(final User user, final PasswdPayload password) {
-        this.createPasswordFor(user, password.getNewPasswd());
+        this.createPasswordFor(user, password.getNewPassword());
     }
 
     @Override

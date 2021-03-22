@@ -110,14 +110,14 @@ public class Password implements br.com.muttley.model.Document {
     }
 
     public Password setPassword(final PasswdPayload passwdPayload) {
-        if (!checkPasswd(passwdPayload.getActualPasswd())) {
+        if (!checkPasswd(passwdPayload.getActualPassword())) {
             throw new MuttleySecurityBadRequestException(User.class, "passwd", "A senha atual informada é invalida!").setStatus(HttpStatus.NOT_ACCEPTABLE);
         }
         if (!StringUtils.isEmpty(this.password)) {
             //gerando historico das senhas
             this.addOldPassword(new PasswordItem(this));
         }
-        this.password = getPasswordEncoder().encode(passwdPayload.getNewPasswd());
+        this.password = getPasswordEncoder().encode(passwdPayload.getNewPassword());
         this.setLastDatePasswordChanges(new Date());
         return this;
     }
@@ -169,7 +169,7 @@ public class Password implements br.com.muttley.model.Document {
         }
 
         public Builder setPassword(final PasswdPayload password) {
-            return this.setPassword(password.getNewPasswd());
+            return this.setPassword(password.getNewPassword());
         }
 
         public Password builder() {
