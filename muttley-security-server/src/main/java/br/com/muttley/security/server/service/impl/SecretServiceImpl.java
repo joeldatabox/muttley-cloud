@@ -1,10 +1,11 @@
 package br.com.muttley.security.server.service.impl;
 
+import br.com.muttley.redis.service.RedisService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.SigningKeyResolver;
 import io.jsonwebtoken.SigningKeyResolverAdapter;
-import io.jsonwebtoken.lang.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -19,16 +20,20 @@ import static io.jsonwebtoken.impl.crypto.MacProvider.generateKey;
 
 @Service
 public class SecretServiceImpl implements br.com.muttley.security.server.service.SecretService {
+    private static final String BASIC_KEY = "BASIC_SERVER_KEY";
 
     private Map<String, String> secrets;
     private final SigningKeyResolver signingKeyResolver;
+    private final RedisService redisService;
 
     @PostConstruct
     public void setup() {
         refreshSecrets();
     }
 
-    public SecretServiceImpl() {
+    @Autowired
+    public SecretServiceImpl(final RedisService redisService) {
+        this.redisService = redisService;
         this.secrets = new HashMap();
         this.signingKeyResolver = new SigningKeyResolverAdapter() {
             @Override
@@ -43,7 +48,7 @@ public class SecretServiceImpl implements br.com.muttley.security.server.service
         return signingKeyResolver;
     }
 
-    @Override
+    /*@Override
     public Map<String, String> getSecrets() {
         return secrets;
     }
@@ -56,7 +61,7 @@ public class SecretServiceImpl implements br.com.muttley.security.server.service
         Assert.hasText(secrets.get(HS512.getValue()));
 
         this.secrets = secrets;
-    }
+    }*/
 
     @Override
     public byte[] getHS256SecretBytes() {
@@ -74,10 +79,18 @@ public class SecretServiceImpl implements br.com.muttley.security.server.service
     }
 
 
-    public final Map<String, String> refreshSecrets() {
-        secrets.put(HS256.getValue(), BASE64.encode(generateKey(HS256).getEncoded()));
-        secrets.put(HS384.getValue(), BASE64.encode(generateKey(HS384).getEncoded()));
-        secrets.put(HS512.getValue(), BASE64.encode(generateKey(HS512).getEncoded()));
-        return secrets;
+    private final void refreshSecrets() {
+        //secrets.put(HS256.getValue(), BASE64.encode(generateKey(HS256).getEncoded()));
+        this.addSecret(HS256.getValue(), BASE64.encode(generateKey(HS256).getEncoded()));
+        //secrets.put(HS384.getValue(), BASE64.encode(generateKey(HS384).getEncoded()));
+        this.addSecret(HS384.getValue(), BASE64.encode(generateKey(HS384).getEncoded()));
+        //secrets.put(HS512.getValue(), BASE64.encode(generateKey(HS512).getEncoded()));
+        this.addSecret(HS512.getValue(), BASE64.encode(generateKey(HS512).getEncoded()));
+        //return secrets;
+    }
+
+    private final void addSecret(final String key, final String value) {
+        this.secrets.put(key, value);
+        this.redisService.set(BASIC_KEY + ":" + key, value);
     }
 }

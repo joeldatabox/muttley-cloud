@@ -64,7 +64,7 @@ public class AuthenticationTokenController {
                 final Password password = this.passwordService.findByUserId(user.getId());
 
                 //verificando a validade do token
-                if (tokenUtil.validateToken(token.getToken(), user, password)) {
+                if (tokenUtil.validateTokenWithUser(token.getToken(), user, password)) {
                     return ResponseEntity.ok(JwtUser.Builder.newInstance().set(user).setPassword(password).build().toJson());
                 }
             }

@@ -29,7 +29,13 @@ public interface JwtTokenUtilService {
 
     String refreshToken(String token);
 
-    boolean validateToken(String token, UserDetails userDetails);
+    boolean validateTokenWithUser(String token, UserDetails userDetails);
 
-    boolean validateToken(String token, User user, final Password password);
+    boolean validateTokenWithUser(String token, User user, final Password password);
+
+    /**
+     * Verifica se o token foi assinado pelo servidor e se o mesmo ainda não esta expirado
+     */
+    boolean isValidToken(final String token);
+
 }

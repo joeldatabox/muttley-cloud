@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -43,6 +44,7 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
     @Autowired
     public JwtTokenUtilServiceImpl(final SecretService secretService) {
         this.secretService = secretService;
+        System.out.println("#chaves => "+ this.secretService.getHS512SecretBytes());
     }
 
     @Override
@@ -112,7 +114,10 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
 
     private final boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
+        if (expiration != null) {
+            return expiration.before(new Date());
+        }
+        return true;
     }
 
     private boolean isCreatedBeforeLastPasswordReset(final Date created, final Date lastPasswordReset) {
@@ -183,7 +188,7 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
     }
 
     @Override
-    public final boolean validateToken(final String token, final UserDetails userDetails) {
+    public final boolean validateTokenWithUser(final String token, final UserDetails userDetails) {
         final JwtUser user = (JwtUser) userDetails;
         final String username = getUsernameFromToken(token);
         final Date created = getCreatedDateFromToken(token);
@@ -195,7 +200,7 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
     }
 
     @Override
-    public boolean validateToken(final String token, final User user, final Password password) {
+    public boolean validateTokenWithUser(final String token, final User user, final Password password) {
         final String username = getUsernameFromToken(token);
         final Date created = getCreatedDateFromToken(token);
         //final Date expiration = getExpirationDateFromToken(token);
@@ -203,5 +208,10 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
                 username.equals(user.getUserName())
                         && !isTokenExpired(token)
                         && !isCreatedBeforeLastPasswordReset(created, password.getHistoric().getDtChange()));
+    }
+
+    @Override
+    public boolean isValidToken(final String token) {
+        return !StringUtils.isEmpty(getUsernameFromToken(token)) && !this.isTokenExpired(token);
     }
 }
