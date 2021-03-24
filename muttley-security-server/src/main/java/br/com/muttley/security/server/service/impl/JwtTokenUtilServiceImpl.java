@@ -44,7 +44,6 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
     @Autowired
     public JwtTokenUtilServiceImpl(final SecretService secretService) {
         this.secretService = secretService;
-        System.out.println("#chaves => "+ this.secretService.getHS512SecretBytes());
     }
 
     @Override

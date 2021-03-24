@@ -104,7 +104,7 @@ public class RedisServiceImpl<T> implements RedisService<T> {
 
     @Override
     public RedisService clearAll() {
-        this.redisTemplate.delete(this.redisTemplate.keys(getBasicKey()));
+        this.redisTemplate.delete(this.redisTemplate.keys(getBasicKey() + "*"));
         return this;
     }
 
