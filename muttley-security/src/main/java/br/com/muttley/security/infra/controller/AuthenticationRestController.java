@@ -7,7 +7,7 @@ import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.UserPayLoadLogin;
 import br.com.muttley.model.security.events.UserLoggedEvent;
 import br.com.muttley.security.feign.auth.AuthenticationRestServiceClient;
-import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
+import br.com.muttley.security.infra.service.LocalUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -42,7 +42,7 @@ public class AuthenticationRestController {
     protected final ApplicationEventPublisher eventPublisher;
     protected final AuthenticationManager authenticationManager;
     protected final AuthenticationRestServiceClient authenticationRestService;
-    protected final CacheUserAuthenticationService cacheAuthService;
+    protected final LocalUserAuthenticationService localUserAuthenticationService;
 
     @Autowired
     public AuthenticationRestController(
@@ -50,12 +50,12 @@ public class AuthenticationRestController {
             final AuthenticationManager authenticationManager,
             final AuthenticationRestServiceClient authenticationRestService,
             final ApplicationEventPublisher eventPublisher,
-            final CacheUserAuthenticationService cacheAuthService) {
+            final LocalUserAuthenticationService localUserAuthenticationService) {
         this.tokenHeader = tokenHeader;
         this.authenticationManager = authenticationManager;
         this.authenticationRestService = authenticationRestService;
         this.eventPublisher = eventPublisher;
-        this.cacheAuthService = cacheAuthService;
+        this.localUserAuthenticationService = localUserAuthenticationService;
     }
 
     @RequestMapping(value = "${muttley.security.jwt.controller.loginEndPoint}", method = RequestMethod.POST)
@@ -99,7 +99,7 @@ public class AuthenticationRestController {
     public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
         final JwtToken currentToken = new JwtToken(request.getHeader(tokenHeader));
         final JwtToken newToken = this.authenticationRestService.refreshAndGetAuthenticationToken(currentToken);
-        cacheAuthService.refreshToken(currentToken, newToken);
+        this.localUserAuthenticationService.refreshToken(currentToken, newToken);
         return ResponseEntity.ok(newToken);
     }
 

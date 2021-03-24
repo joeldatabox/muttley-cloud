@@ -1,6 +1,7 @@
 package br.com.muttley.redis.service;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -38,9 +39,26 @@ public interface RedisService<T> {
      *
      * @param key   -> chave desejada
      * @param value -> valor a ser salvo
+     * @param date  -> data futura que irá expierar o registro
+     */
+    RedisService set(final String key, final T value, final Date date);
+
+    /**
+     * Salva um objeto qualquer de maneira temporaria
+     *
+     * @param key   -> chave desejada
+     * @param value -> valor a ser salvo
      * @param time  -> tempo em milisegundos para se expirar o registro
      */
     RedisService set(final String key, final T value, final long time);
+
+    /**
+     * Renomeia uma chave de acesso existente
+     *
+     * @param currentKey -> chave atual
+     * @param newKey     -> nova chave
+     */
+    RedisService changeKey(final String currentKey, final String newKey);
 
     /**
      * Recupera um determinado valor qualquer do banco

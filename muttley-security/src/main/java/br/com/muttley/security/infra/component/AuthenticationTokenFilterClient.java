@@ -1,7 +1,8 @@
 package br.com.muttley.security.infra.component;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
-import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
+import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.security.infra.service.LocalUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,13 +24,12 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public class AuthenticationTokenFilterClient extends OncePerRequestFilter {
 
     private final String tokenHeader;
-    private final CacheUserAuthenticationService cacheAuth;
+    private final LocalUserAuthenticationService localUserAuthentication;
 
-    public AuthenticationTokenFilterClient(
-            @Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader,
-            final CacheUserAuthenticationService cacheAuth) {
-        this.cacheAuth = cacheAuth;
+
+    public AuthenticationTokenFilterClient(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, final LocalUserAuthenticationService localUserAuthentication) {
         this.tokenHeader = tokenHeader;
+        this.localUserAuthentication = localUserAuthentication;
     }
 
     @Override
@@ -41,9 +41,7 @@ public class AuthenticationTokenFilterClient extends OncePerRequestFilter {
 
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 try {
-                    //buscando o usuário no cache
-                    final UserDetails userDetails = this.cacheAuth.get(authToken);
-
+                    final UserDetails userDetails = this.localUserAuthentication.getJwtUserFrom(new JwtToken(authToken));
                     //verificando a validade do token
                     if (userDetails != null) {
                         final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

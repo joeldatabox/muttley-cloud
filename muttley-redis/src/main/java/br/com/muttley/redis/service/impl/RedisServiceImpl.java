@@ -18,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -69,9 +70,28 @@ public class RedisServiceImpl<T> implements RedisService<T> {
     }
 
     @Override
+    public RedisService set(final String key, final T value, final Date date) {
+        //caculando o tempo para expiração
+        final long time = date.getTime() - new Date().getTime();
+        //se o tempo for menor que 1, logo não precisamos salvar nada pois é sinal que já foi expirado
+        if (time >= 1l) {
+            this.set(key, value, time);
+        }
+        return this;
+    }
+
+    @Override
     public RedisService set(final String key, final T value, final long time) {
         final String keyValue = createKey(key);
         this.redisTemplate.opsForValue().set(createKey(key), value, time, MILLISECONDS);
+        return this;
+    }
+
+    @Override
+    public RedisService changeKey(final String currentKey, final String newKey) {
+        if (!currentKey.equals(newKey) && this.hasKey(currentKey)) {
+            this.redisTemplate.rename(createKey(currentKey), createKey(newKey));
+        }
         return this;
     }
 

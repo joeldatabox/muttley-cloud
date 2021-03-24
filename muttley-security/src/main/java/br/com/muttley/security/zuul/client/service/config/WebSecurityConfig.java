@@ -5,13 +5,14 @@ import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.UserDataBindingClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.feign.WorkTeamServiceClient;
+import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.component.UserAfterCacheLoadListener;
 import br.com.muttley.security.infra.service.AuthService;
-import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
+import br.com.muttley.security.infra.service.LocalUserAuthenticationService;
 import br.com.muttley.security.infra.service.impl.AuthServiceImpl;
-import br.com.muttley.security.infra.service.impl.CacheUserAuthenticationServiceImpl;
+import br.com.muttley.security.infra.service.impl.LocalUserAuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -34,14 +35,16 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public AuthenticationTokenFilterClient createAuthenticationTokenFilterClient(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, final CacheUserAuthenticationService cacheAuth) {
-        return new AuthenticationTokenFilterClient(tokenHeader, cacheAuth);
+    public AuthenticationTokenFilterClient createAuthenticationTokenFilterClient(
+            @Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader,
+            final LocalUserAuthenticationService localUserAuthentication) {
+        return new AuthenticationTokenFilterClient(tokenHeader, localUserAuthentication);
     }
 
     @Bean
     @Autowired
-    public CacheUserAuthenticationService createCacheUserAuthenticationService(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration, final ApplicationEventPublisher eventPublisher) {
-        return new CacheUserAuthenticationServiceImpl(redisService, expiration, eventPublisher);
+    public LocalUserAuthenticationService createLocalUserAuthenticationService(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration, final AuthenticationTokenServiceClient authenticationTokenService, final ApplicationEventPublisher eventPublisher) {
+        return new LocalUserAuthenticationServiceImpl(redisService, authenticationTokenService, eventPublisher);
     }
 
     @Bean

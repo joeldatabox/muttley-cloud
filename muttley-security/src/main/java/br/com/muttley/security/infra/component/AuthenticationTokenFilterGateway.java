@@ -3,11 +3,9 @@ package br.com.muttley.security.infra.component;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
-import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
-import br.com.muttley.security.infra.service.CacheUserAuthenticationService;
+import br.com.muttley.security.infra.service.LocalUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -28,20 +26,14 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
 
     protected final String tokenHeader;
-    protected final AuthenticationTokenServiceClient tokenServiceClient;
-    protected final CacheUserAuthenticationService cacheAuth;
-    protected final ApplicationEventPublisher eventPublisher;
+    protected final LocalUserAuthenticationService localUserAuthentication;
 
     @Autowired
     public AuthenticationTokenFilterGateway(
             @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader,
-            final AuthenticationTokenServiceClient userServiceClient,
-            final CacheUserAuthenticationService cacheAuth,
-            final ApplicationEventPublisher eventPublisher) {
+            final LocalUserAuthenticationService localUserAuthentication) {
         this.tokenHeader = tokenHeader;
-        this.tokenServiceClient = userServiceClient;
-        this.cacheAuth = cacheAuth;
-        this.eventPublisher = eventPublisher;
+        this.localUserAuthentication = localUserAuthentication;
     }
 
     @Override
@@ -53,18 +45,14 @@ public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 try {
                     //buscando o usuário presente no token
-                    final JwtUser userDetails = this.tokenServiceClient.getUserFromToken(new JwtToken(authToken));
-
-
-                    final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    if (!this.cacheAuth.contains(authToken)) {
-                        //salvando no cache
-                        this.cacheAuth.set(authToken, userDetails);
+                    //final JwtUser userDetails = this.tokenServiceClient.getUserFromToken(new JwtToken(authToken));
+                    final JwtUser userDetails = this.localUserAuthentication.getJwtUserFrom(new JwtToken(authToken));
+                    if (userDetails != null) {
+                        final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 } catch (MuttleySecurityUnauthorizedException ex) {
-
                 }
             }
         }
