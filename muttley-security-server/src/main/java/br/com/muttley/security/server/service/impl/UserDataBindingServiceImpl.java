@@ -7,6 +7,7 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.headers.components.MuttleyCurrentTimezone;
 import br.com.muttley.headers.components.MuttleyCurrentVersion;
 import br.com.muttley.headers.components.MuttleyUserAgentName;
+import br.com.muttley.localcache.services.LocalDatabindingService;
 import br.com.muttley.model.BasicAggregateResult;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.Historic;
@@ -71,15 +72,16 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     @Value("${muttley.security.check-roles:false}")
     private boolean checkRoles;
 
-    private final LocalUserda
+    private final LocalDatabindingService localDatabindingService;
 
     @Autowired
-    public UserDataBindingServiceImpl(final MongoTemplate mongoTemplate, final UserDataBindingRepository repository, final DocumentNameConfig documentNameConfig, final Validator validator, final ApplicationEventPublisher eventPublisher) {
+    public UserDataBindingServiceImpl(final MongoTemplate mongoTemplate, final UserDataBindingRepository repository, final DocumentNameConfig documentNameConfig, final Validator validator, final ApplicationEventPublisher eventPublisher, final LocalDatabindingService localDatabindingService) {
         this.mongoTemplate = mongoTemplate;
         this.repository = repository;
         this.documentNameConfig = documentNameConfig;
         this.validator = validator;
         this.eventPublisher = eventPublisher;
+        this.localDatabindingService = localDatabindingService;
     }
 
     public boolean isCheckRole() {
@@ -93,7 +95,9 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionSave(user, dataBinding);
-        return repository.save(dataBinding);
+        final UserDataBinding salved = repository.save(dataBinding);
+        this.localDatabindingService.expireUserDataBindings(user);
+        return salved;
     }
 
     public void checkPrecondictionSave(final User user, final UserDataBinding dataBinding) {
@@ -112,7 +116,9 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         this.checkPrecondictionUpdate(user, dataBinding);
-        return repository.save(dataBinding);
+        final UserDataBinding salved = repository.save(dataBinding);
+        this.localDatabindingService.expireUserDataBindings(user);
+        return salved;
     }
 
     public void checkPrecondictionUpdate(final User user, final UserDataBinding dataBinding) {
@@ -190,7 +196,10 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionSaveByUserName(user, userName, dataBinding);
-        return repository.save(dataBinding);
+
+        final UserDataBinding salved = repository.save(dataBinding);
+        this.localDatabindingService.expireUserDataBindings(user);
+        return salved;
     }
 
     public void checkPrecondictionSaveByUserName(final User user, final String userName, final UserDataBinding dataBinding) {
@@ -211,7 +220,10 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
         }
         checkBasicInfos(user, dataBinding);
         checkPrecondictionUpdateByUserName(user, userName, dataBinding);
-        return repository.save(dataBinding);
+
+        final UserDataBinding salved = repository.save(dataBinding);
+        this.localDatabindingService.expireUserDataBindings(user);
+        return salved;
     }
 
     public void checkPrecondictionUpdateByUserName(final User user, final String userName, final UserDataBinding dataBinding) {

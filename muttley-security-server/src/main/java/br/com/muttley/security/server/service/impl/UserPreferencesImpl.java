@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.localcache.services.LocalUserPreferenceService;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.preference.Preference;
@@ -32,11 +33,13 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class UserPreferencesImpl implements UserPreferencesService {
     private final UserPreferencesRepository repository;
     private final MongoTemplate template;
+    private final LocalUserPreferenceService localUserPreferenceService;
 
     @Autowired
-    public UserPreferencesImpl(final UserPreferencesRepository repository, final MongoTemplate template) {
+    public UserPreferencesImpl(final UserPreferencesRepository repository, final MongoTemplate template, final LocalUserPreferenceService localUserPreferenceService) {
         this.repository = repository;
         this.template = template;
+        this.localUserPreferenceService = localUserPreferenceService;
     }
 
     @Override
@@ -45,7 +48,9 @@ public class UserPreferencesImpl implements UserPreferencesService {
         if (this.existsUserPreferencesFor(user)) {
             throw new MuttleyBadRequestException(UserPreferences.class, "user", "Já existe preferencias cadastradas para esse usuário");
         }
-        return this.repository.save(new UserPreferences().setUser(user));
+        final UserPreferences salved = this.repository.save(new UserPreferences().setUser(user));
+        this.localUserPreferenceService.expireUserPreferences(user);
+        return salved;
     }
 
     @Override
@@ -61,6 +66,7 @@ public class UserPreferencesImpl implements UserPreferencesService {
         }
 
         this.repository.save(preferences);
+        this.localUserPreferenceService.expireUserPreferences(user);
     }
 
     @Override
@@ -80,6 +86,7 @@ public class UserPreferencesImpl implements UserPreferencesService {
                     new Update().addToSet("preferences", preference),
                     UserPreferences.class
             );
+            this.localUserPreferenceService.expireUserPreferences(user);
         }
     }
 
@@ -132,6 +139,7 @@ public class UserPreferencesImpl implements UserPreferencesService {
                 new Update().pull("preferences", new BasicDBObject("key", key)),
                 UserPreferences.class
         );
+        this.localUserPreferenceService.expireUserPreferences(user);
     }
 
     @Override

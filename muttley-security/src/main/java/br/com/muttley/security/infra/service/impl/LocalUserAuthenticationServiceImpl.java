@@ -1,11 +1,11 @@
 package br.com.muttley.security.infra.service.impl;
 
+import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
-import br.com.muttley.security.infra.service.LocalUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

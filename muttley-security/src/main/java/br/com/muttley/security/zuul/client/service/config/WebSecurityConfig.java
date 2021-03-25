@@ -1,20 +1,26 @@
 package br.com.muttley.security.zuul.client.service.config;
 
+import br.com.muttley.localcache.services.LocalDatabindingService;
+import br.com.muttley.localcache.services.LocalOwnerService;
+import br.com.muttley.localcache.services.LocalRolesService;
+import br.com.muttley.localcache.services.LocalUserAuthenticationService;
+import br.com.muttley.localcache.services.LocalUserPreferenceService;
 import br.com.muttley.redis.service.RedisService;
+import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.UserDataBindingClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
+import br.com.muttley.security.feign.WorkTeamServiceClient;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.component.UserAfterCacheLoadListener;
 import br.com.muttley.security.infra.service.AuthService;
-import br.com.muttley.security.infra.service.LocalDatabindingService;
-import br.com.muttley.security.infra.service.LocalOwnerService;
-import br.com.muttley.security.infra.service.LocalRolesService;
-import br.com.muttley.security.infra.service.LocalUserAuthenticationService;
-import br.com.muttley.security.infra.service.LocalUserPreferenceService;
 import br.com.muttley.security.infra.service.impl.AuthServiceImpl;
+import br.com.muttley.security.infra.service.impl.LocalDatabindingServiceImpl;
+import br.com.muttley.security.infra.service.impl.LocalOwnerServiceImpl;
+import br.com.muttley.security.infra.service.impl.LocalRolesServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserAuthenticationServiceImpl;
+import br.com.muttley.security.infra.service.impl.LocalUserPrefenceServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -59,5 +65,29 @@ public class WebSecurityConfig {
     @Autowired
     public UserAfterCacheLoadListener creaUserAfterCacheLoadListener(final LocalUserPreferenceService userPreferenceService, final LocalOwnerService ownerService, final LocalRolesService rolesService, final LocalDatabindingService localDatabindingService) {
         return new UserAfterCacheLoadListener(userPreferenceService, ownerService, rolesService, localDatabindingService);
+    }
+
+    @Bean
+    @Autowired
+    public LocalUserPreferenceService createLocalUserPreferenceService(final RedisService redisService, final UserPreferenceServiceClient userPreferenceServiceClient, final OwnerServiceClient ownerServiceClient, final ApplicationEventPublisher publisher) {
+        return new LocalUserPrefenceServiceImpl(redisService, userPreferenceServiceClient, ownerServiceClient, publisher);
+    }
+
+    @Bean
+    @Autowired
+    public LocalOwnerService createLocalOwnerService(final RedisService redisService, final OwnerServiceClient ownerServiceClient) {
+        return new LocalOwnerServiceImpl(redisService, ownerServiceClient);
+    }
+
+    @Bean
+    @Autowired
+    public LocalRolesService createLocalRolesService(final RedisService redisService, final WorkTeamServiceClient workTeamServiceClient) {
+        return new LocalRolesServiceImpl(redisService, workTeamServiceClient);
+    }
+
+    @Bean
+    @Autowired
+    public LocalDatabindingService createLocalDatabindingService(final RedisService redisService, final UserDataBindingClient userDataBindingClient) {
+        return new LocalDatabindingServiceImpl(redisService, userDataBindingClient);
     }
 }

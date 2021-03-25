@@ -1,13 +1,13 @@
 package br.com.muttley.security.infra.component;
 
+import br.com.muttley.localcache.services.LocalDatabindingService;
+import br.com.muttley.localcache.services.LocalOwnerService;
+import br.com.muttley.localcache.services.LocalRolesService;
+import br.com.muttley.localcache.services.LocalUserPreferenceService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
-import br.com.muttley.security.infra.service.LocalDatabindingService;
-import br.com.muttley.security.infra.service.LocalOwnerService;
-import br.com.muttley.security.infra.service.LocalRolesService;
-import br.com.muttley.security.infra.service.LocalUserPreferenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;

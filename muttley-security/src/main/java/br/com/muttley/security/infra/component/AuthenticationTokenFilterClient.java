@@ -1,8 +1,8 @@
 package br.com.muttley.security.infra.component;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
+import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.security.infra.service.LocalUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

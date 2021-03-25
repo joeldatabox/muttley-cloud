@@ -1,11 +1,12 @@
 package br.com.muttley.security.infra.service.impl;
 
+import br.com.muttley.localcache.services.LocalDatabindingService;
+import br.com.muttley.localcache.services.impl.AbstractLocalDatabindingServiceImpl;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.UserDataBindingClient;
-import br.com.muttley.security.infra.service.LocalDatabindingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,12 @@ import java.util.List;
  * @project muttley-cloud
  */
 @Service
-public class LocalDatabindingServiceImpl implements LocalDatabindingService {
-
-    private final RedisService redisService;
+public class LocalDatabindingServiceImpl extends AbstractLocalDatabindingServiceImpl implements LocalDatabindingService {
     private final UserDataBindingClient dataBindingService;
 
     @Autowired
     public LocalDatabindingServiceImpl(final RedisService redisService, final UserDataBindingClient dataBindingService) {
-        this.redisService = redisService;
+        super(redisService);
         this.dataBindingService = dataBindingService;
     }
 
@@ -41,14 +40,5 @@ public class LocalDatabindingServiceImpl implements LocalDatabindingService {
             this.redisService.set(this.getBasicKey(user), dataBindings, jwtUser.getExpiration());
         }
         return dataBindings;
-    }
-
-    @Override
-    public void expireUserDataBindings(final User user) {
-        this.redisService.delete(this.getBasicKey(user));
-    }
-
-    private String getBasicKey(final User user) {
-        return BASIC_KEY + user.getId();
     }
 }

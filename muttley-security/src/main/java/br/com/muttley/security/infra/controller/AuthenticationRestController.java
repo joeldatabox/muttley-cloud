@@ -2,12 +2,12 @@ package br.com.muttley.security.infra.controller;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
+import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.UserPayLoadLogin;
 import br.com.muttley.model.security.events.UserLoggedEvent;
 import br.com.muttley.security.feign.auth.AuthenticationRestServiceClient;
-import br.com.muttley.security.infra.service.LocalUserAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;

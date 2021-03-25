@@ -1,11 +1,10 @@
-package br.com.muttley.security.infra.service;
+package br.com.muttley.localcache.services;
 
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserDataBinding;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira 24/03/2021

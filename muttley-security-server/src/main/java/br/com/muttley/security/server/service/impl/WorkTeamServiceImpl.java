@@ -3,6 +3,7 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.localcache.services.LocalRolesService;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
@@ -57,15 +58,17 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     private final DocumentNameConfig documentNameConfig;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final OwnerService ownerService;
+    private final LocalRolesService localRolesService;
 
     @Autowired
-    public WorkTeamServiceImpl(final WorkTeamRepository repository, final UserRolesView userRolesView, final MongoTemplate template, final DocumentNameConfig documentNameConfig, final ApplicationEventPublisher applicationEventPublisher, final OwnerService ownerService) {
+    public WorkTeamServiceImpl(final WorkTeamRepository repository, final UserRolesView userRolesView, final MongoTemplate template, final DocumentNameConfig documentNameConfig, final ApplicationEventPublisher applicationEventPublisher, final OwnerService ownerService, final LocalRolesService localRolesService) {
         super(repository, template, WorkTeam.class);
         this.repository = repository;
         this.userRolesView = userRolesView;
         this.documentNameConfig = documentNameConfig;
         this.applicationEventPublisher = applicationEventPublisher;
         this.ownerService = ownerService;
+        this.localRolesService = localRolesService;
     }
 
     @Override
@@ -117,6 +120,11 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     @Override
+    public void afterSave(final User user, final WorkTeam workTeam) {
+        this.expire(user, workTeam);
+    }
+
+    @Override
     public void beforeUpdate(final User user, final WorkTeam workTeam) {
         //garantindo que não será alterado informações cruciais
         workTeam.setOwner(user.getCurrentOwner());
@@ -145,10 +153,22 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     @Override
+    public void afterUpdate(final User user, final WorkTeam workTeam) {
+        this.expire(user, workTeam);
+    }
+
+    @Override
+    public void beforeDelete(final User user, final WorkTeam workTeam) {
+        this.expire(user, workTeam);
+    }
+
+    @Override
     public void checkPrecondictionDelete(final User user, final String id) {
-        if (this.findById(user, id).containsRole(ROLE_OWNER)) {
+        final WorkTeam workTeam = this.findById(user, id);
+        if (workTeam.containsRole(ROLE_OWNER)) {
             throw new MuttleyBadRequestException(WorkTeam.class, "roles", "Não se pode excluir o grupo principal");
         }
+        this.expire(user, workTeam);
         super.checkPrecondictionDelete(user, id);
     }
 
@@ -291,5 +311,12 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
             return result.getUniqueMappedResult().getCount() > 0;
         }
         return false;
+    }
+
+    private void expire(final User user, final WorkTeam workTeam) {
+        this.localRolesService.expireRoles(workTeam.getUserMaster());
+        workTeam.getMembers().forEach(m -> {
+            this.localRolesService.expireRoles(m);
+        });
     }
 }

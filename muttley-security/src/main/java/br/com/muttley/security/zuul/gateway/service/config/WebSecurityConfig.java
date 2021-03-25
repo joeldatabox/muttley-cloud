@@ -1,10 +1,10 @@
 package br.com.muttley.security.zuul.gateway.service.config;
 
+import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
-import br.com.muttley.security.infra.service.LocalUserAuthenticationService;
 import br.com.muttley.security.infra.service.impl.LocalUserAuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
