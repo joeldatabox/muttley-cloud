@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.Transient;
 
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -16,6 +17,8 @@ import static org.springframework.util.StringUtils.isEmpty;
 public class Preference {
     protected final String key;
     protected final Object value;
+    @Transient
+    protected Object resolved;
 
     @JsonCreator
     public Preference(
