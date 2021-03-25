@@ -1,24 +1,16 @@
 package br.com.muttley.security.infra.component;
 
-import br.com.muttley.exception.throwables.MuttleyNotFoundException;
-import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
-import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
-import br.com.muttley.model.security.preference.Preference;
-import br.com.muttley.model.security.preference.UserPreferences;
-import br.com.muttley.security.feign.OwnerServiceClient;
-import br.com.muttley.security.feign.UserDataBindingClient;
-import br.com.muttley.security.feign.UserPreferenceServiceClient;
-import br.com.muttley.security.feign.WorkTeamServiceClient;
-import org.bson.types.ObjectId;
+import br.com.muttley.security.infra.service.LocalDatabindingService;
+import br.com.muttley.security.infra.service.LocalOwnerService;
+import br.com.muttley.security.infra.service.LocalRolesService;
+import br.com.muttley.security.infra.service.LocalUserPreferenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PREFERENCE;
 
@@ -30,34 +22,40 @@ import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PRE
 @Component
 public class UserAfterCacheLoadListener implements ApplicationListener<UserAfterCacheLoadEvent> {
 
-    private final UserPreferenceServiceClient preferenceService;
-    private final UserDataBindingClient dataBindingService;
-    private final OwnerServiceClient ownerService;
-    private final WorkTeamServiceClient workTeamService;
+    private final LocalUserPreferenceService localUserPreferenceService;
+    private final LocalOwnerService ownerService;
+    private final LocalRolesService rolesService;
+    private final LocalDatabindingService databindingService;
 
     @Autowired
-    public UserAfterCacheLoadListener(final UserPreferenceServiceClient preferenceService, final UserDataBindingClient dataBindingService, final OwnerServiceClient ownerService, final WorkTeamServiceClient workTeamService) {
-        this.preferenceService = preferenceService;
-        this.dataBindingService = dataBindingService;
+    public UserAfterCacheLoadListener(final LocalUserPreferenceService localUserPreferenceService, final LocalOwnerService ownerService, final LocalRolesService rolesService, final LocalDatabindingService databindingService) {
+        this.localUserPreferenceService = localUserPreferenceService;
         this.ownerService = ownerService;
-        this.workTeamService = workTeamService;
+        this.rolesService = rolesService;
+        this.databindingService = databindingService;
     }
 
     @Override
     public void onApplicationEvent(final UserAfterCacheLoadEvent event) {
-        final User user = event.getSource();
+        final User user = event.getUser();
+        final JwtToken token = event.getJwtToken();
         //carregando preferencias
-        final UserPreferences preferences = preferenceService.getUserPreferences();
-        final List<UserDataBinding> dataBindings = dataBindingService.list();
+        user.setPreferences(this.localUserPreferenceService.getUserPreferences(token, user));
+        //setando o owner
+        user.setCurrentOwner((OwnerData) user.getPreferences().get(OWNER_PREFERENCE).getResolved());
+        user.setAuthorities(this.rolesService.loadCurrentRoles(event.getJwtToken(), event.getUser()));
+        user.setDataBindings(this.databindingService.getUserDataBindings(token, user));
+
+        /*final List<UserDataBinding> dataBindings = dataBindingService.list();
         try {
             if (!preferences.contains(OWNER_PREFERENCE)) {
-                final List<OwnerData> owners = this.ownerService.findByUser();
-                //final List<WorkTeam> itens = workteamService.findByUser();
-                final Preference preference = new Preference(OWNER_PREFERENCE, owners.get(0).getId());
+                final OwnerData owner = this.ownerService.loadOwnerAny();
+                //salvando o owner nas preferencias
+                final Preference preference = new Preference(OWNER_PREFERENCE, owner.getId()).setResolved(owner);
                 preferences.set(preference);
                 preferenceService.setPreference(preference);
-
-                user.setCurrentOwner(owners.get(0));
+                //setando o owner atual
+                user.setCurrentOwner(owner);
                 //carregando authorities
                 //user.setAuthorities(this.workTeamService.loadCurrentRoles());
                 this.loadRoles(user);
@@ -74,13 +72,13 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
             }
         } catch (MuttleyNotFoundException ex) {
             throw new MuttleySecurityCredentialException("Não foi possível recuperar informações do seu usuáiro");
-        }
+        }*/
     }
-
+/*
     private void loadRoles(final User user) {
         try {
             user.setAuthorities(this.workTeamService.loadCurrentRoles());
         } catch (final MuttleyNotFoundException ex) {
         }
-    }
+    }*/
 }

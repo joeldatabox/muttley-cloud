@@ -71,6 +71,8 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     @Value("${muttley.security.check-roles:false}")
     private boolean checkRoles;
 
+    private final LocalUserda
+
     @Autowired
     public UserDataBindingServiceImpl(final MongoTemplate mongoTemplate, final UserDataBindingRepository repository, final DocumentNameConfig documentNameConfig, final Validator validator, final ApplicationEventPublisher eventPublisher) {
         this.mongoTemplate = mongoTemplate;

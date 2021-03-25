@@ -49,7 +49,7 @@ public class LocalUserAuthenticationServiceImpl implements LocalUserAuthenticati
             }
             if (jwtUser != null) {
                 //Notificando que foi carregado um usuário do cache do sistema
-                this.eventPublisher.publishEvent(new UserAfterCacheLoadEvent(jwtUser.getOriginUser()));
+                this.eventPublisher.publishEvent(new UserAfterCacheLoadEvent(token, jwtUser.getOriginUser()));
             }
             return jwtUser;
         } else {

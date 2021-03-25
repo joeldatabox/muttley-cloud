@@ -1,16 +1,18 @@
 package br.com.muttley.security.zuul.client.service.config;
 
 import br.com.muttley.redis.service.RedisService;
-import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.UserDataBindingClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
-import br.com.muttley.security.feign.WorkTeamServiceClient;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.component.UserAfterCacheLoadListener;
 import br.com.muttley.security.infra.service.AuthService;
+import br.com.muttley.security.infra.service.LocalDatabindingService;
+import br.com.muttley.security.infra.service.LocalOwnerService;
+import br.com.muttley.security.infra.service.LocalRolesService;
 import br.com.muttley.security.infra.service.LocalUserAuthenticationService;
+import br.com.muttley.security.infra.service.LocalUserPreferenceService;
 import br.com.muttley.security.infra.service.impl.AuthServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserAuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +57,7 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public UserAfterCacheLoadListener creaUserAfterCacheLoadListener(final UserPreferenceServiceClient userPreferenceServiceClient, final UserDataBindingClient dataBindingService, final OwnerServiceClient ownerServiceClient, final WorkTeamServiceClient workTeamService) {
-        return new UserAfterCacheLoadListener(userPreferenceServiceClient, dataBindingService, ownerServiceClient, workTeamService);
+    public UserAfterCacheLoadListener creaUserAfterCacheLoadListener(final LocalUserPreferenceService userPreferenceService, final LocalOwnerService ownerService, final LocalRolesService rolesService, final LocalDatabindingService localDatabindingService) {
+        return new UserAfterCacheLoadListener(userPreferenceService, ownerService, rolesService, localDatabindingService);
     }
 }

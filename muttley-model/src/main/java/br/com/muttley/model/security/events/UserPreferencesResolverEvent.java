@@ -24,6 +24,14 @@ public class UserPreferencesResolverEvent extends ApplicationEvent {
         return (UserPreferencesResolverEventItem) super.getSource();
     }
 
+    public User getUser() {
+        return this.getSource().getUser();
+    }
+
+    public UserPreferences getPreferences() {
+        return this.getSource().getUserPreferences();
+    }
+
     @Getter
     public static class UserPreferencesResolverEventItem {
         private final User user;

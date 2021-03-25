@@ -1,6 +1,8 @@
 package br.com.muttley.model.security.events;
 
+import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
+import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -18,12 +20,31 @@ public class UserAfterCacheLoadEvent extends ApplicationEvent {
      *
      * @param source the object on which the event initially occurred (never {@code null})
      */
-    public UserAfterCacheLoadEvent(final User source) {
-        super(source);
+    public UserAfterCacheLoadEvent(final JwtToken token, final User user) {
+        super(new UserAfterCacheLoadEventSource(token, user));
     }
 
     @Override
-    public User getSource() {
-        return (User) super.getSource();
+    public UserAfterCacheLoadEventSource getSource() {
+        return (UserAfterCacheLoadEventSource) super.getSource();
+    }
+
+    public User getUser() {
+        return this.getSource().getUser();
+    }
+
+    public JwtToken getJwtToken() {
+        return this.getSource().getToken();
+    }
+
+    @Getter
+    private static class UserAfterCacheLoadEventSource {
+        private final JwtToken token;
+        private final User user;
+
+        public UserAfterCacheLoadEventSource(final JwtToken token, final User user) {
+            this.token = token;
+            this.user = user;
+        }
     }
 }
