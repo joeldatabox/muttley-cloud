@@ -23,34 +23,45 @@ import static io.jsonwebtoken.impl.TextCodec.BASE64;
 class LocalSecretService {
     private static final String BASIC_KEY = "BASIC_SERVER_KEY";
     private Map<String, String> secrets;
-    //private final RedisService redisService;
+    private final RedisService redisService;
+    private boolean initialized = false;
 
     public LocalSecretService(final RedisService redisService) {
         this.secrets = new HashMap(3);
-        this.refreshSecrets(redisService);
+        this.redisService = redisService;
     }
 
     public byte[] getHS256SecretBytes() {
+        this.init();
         return BASE64.decode(secrets.get(HS256.getValue()));
     }
 
     public byte[] getHS384SecretBytes() {
+        this.init();
         return BASE64.decode(secrets.get(HS384.getValue()));
     }
 
     public byte[] getHS512SecretBytes() {
+        this.init();
         return BASE64.decode(secrets.get(HS512.getValue()));
     }
 
+    private void init() {
+        if (!this.initialized) {
+            this.initialized = true;
+            this.refreshSecrets();
+        }
+    }
 
-    private final void refreshSecrets(final RedisService redisService) {
+
+    public final void refreshSecrets() {
         try {
             //secrets.put(HS256.getValue(), BASE64.encode(generateKey(HS256).getEncoded()));
-            this.addSecret(redisService, HS256.getValue());
+            this.addSecret(HS256.getValue());
             //secrets.put(HS384.getValue(), BASE64.encode(generateKey(HS384).getEncoded()));
-            this.addSecret(redisService, HS384.getValue());
+            this.addSecret(HS384.getValue());
             //secrets.put(HS512.getValue(), BASE64.encode(generateKey(HS512).getEncoded()));
-            this.addSecret(redisService, HS512.getValue());
+            this.addSecret(HS512.getValue());
         } catch (Exception exception) {
             LoggerFactory.getLogger(LocalSecretService.class).error("ATENÇÃO! NÃO FOI ENCONTRADO CHAVE GERADAS PELO SERVIDOR DE SERGURANÇA");
             exception.printStackTrace();
@@ -58,7 +69,7 @@ class LocalSecretService {
         //return secrets;
     }
 
-    private final void addSecret(final RedisService redisService, final String key) {
+    private final void addSecret(final String key) {
         if (redisService.hasKey(this.getBasicKey(key))) {
             this.secrets.put(key, (String) redisService.get(this.getBasicKey(key)));
         } else {

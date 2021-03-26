@@ -1,10 +1,14 @@
 package br.com.muttley.security.zuul.gateway.service.config;
 
+import br.com.muttley.localcache.services.LocalOwnerService;
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.redis.service.RedisService;
+import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
+import br.com.muttley.security.infra.component.UserPreferencesResolverEventListener;
+import br.com.muttley.security.infra.service.impl.LocalOwnerServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserAuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +40,18 @@ public class WebSecurityConfig {
     @Bean
     public UnauthorizedHandler createUnauthorizedHandler(@Value("${muttley.security.jwt.controller.loginEndPoint}") final String urlLogin) {
         return new UnauthorizedHandler(urlLogin);
+    }
+
+    @Bean
+    @Autowired
+    public LocalOwnerService createLocalOwnerService(final RedisService redisService, final OwnerServiceClient ownerServiceClient) {
+        return new LocalOwnerServiceImpl(redisService, ownerServiceClient);
+    }
+
+    @Bean
+    @Autowired
+    public UserPreferencesResolverEventListener createUserPreferencesResolverEventListener(final LocalOwnerService ownerService) {
+        return new UserPreferencesResolverEventListener(ownerService);
     }
 
 }

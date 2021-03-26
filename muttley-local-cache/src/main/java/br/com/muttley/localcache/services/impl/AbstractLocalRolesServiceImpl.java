@@ -40,7 +40,7 @@ public abstract class AbstractLocalRolesServiceImpl implements LocalRolesService
     }
 
     protected Set<Role> loadRolesInCache(final User user) {
-        return ((List<String>) this.redisService.get(this.getBasicKey(user)))
+        return ((Set<String>) this.redisService.get(this.getBasicKey(user)))
                 .parallelStream()
                 .map(it -> Role.valueOf(it))
                 .collect(Collectors.toSet());

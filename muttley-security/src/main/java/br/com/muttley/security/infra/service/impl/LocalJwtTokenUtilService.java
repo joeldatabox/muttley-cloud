@@ -19,11 +19,25 @@ class LocalJwtTokenUtilService {
         this.secretService = new LocalSecretService(redisService);
     }
 
+    private Claims getClaims(final boolean retry, final String token) {
+        try {
+            return Jwts.parser()
+                    .setSigningKey(secretService.getHS512SecretBytes())
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception ex) {
+            if (retry) {
+                //se deu pau é sinal que as chaves são inválidas.
+                //vamos tentar atualizar as mesmas e tentar novamente
+                this.secretService.refreshSecrets();
+                return this.getClaims(false, token);
+            }
+            throw ex;
+        }
+    }
+
     private Claims getClaims(final String token) {
-        return Jwts.parser()
-                .setSigningKey(secretService.getHS512SecretBytes())
-                .parseClaimsJws(token)
-                .getBody();
+        return this.getClaims(true, token);
     }
 
     public boolean isValidToken(final String token) {

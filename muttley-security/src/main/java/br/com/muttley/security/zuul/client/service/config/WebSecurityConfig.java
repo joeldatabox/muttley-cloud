@@ -14,6 +14,7 @@ import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.component.UserAfterCacheLoadListener;
+import br.com.muttley.security.infra.component.UserPreferencesResolverEventListener;
 import br.com.muttley.security.infra.service.AuthService;
 import br.com.muttley.security.infra.service.impl.AuthServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalDatabindingServiceImpl;
@@ -89,5 +90,11 @@ public class WebSecurityConfig {
     @Autowired
     public LocalDatabindingService createLocalDatabindingService(final RedisService redisService, final UserDataBindingClient userDataBindingClient) {
         return new LocalDatabindingServiceImpl(redisService, userDataBindingClient);
+    }
+
+    @Bean
+    @Autowired
+    public UserPreferencesResolverEventListener createUserPreferencesResolverEventListener(final LocalOwnerService ownerService) {
+        return new UserPreferencesResolverEventListener(ownerService);
     }
 }
