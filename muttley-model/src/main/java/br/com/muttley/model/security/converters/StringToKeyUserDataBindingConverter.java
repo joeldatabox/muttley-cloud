@@ -2,7 +2,6 @@ package br.com.muttley.model.security.converters;
 
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.model.security.KeyUserDataBinding;
-import br.com.muttley.model.security.KeyUserDataBindingAvaliable;
 import br.com.muttley.model.security.events.KeyUserDataBindingResolverEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,7 +28,7 @@ public class StringToKeyUserDataBindingConverter implements Converter<String, Ke
         final KeyUserDataBindingResolverEvent event = new KeyUserDataBindingResolverEvent(source);
         this.publisher.publishEvent(event);
         if (!event.isResolved()) {
-            final KeyUserDataBinding result = KeyUserDataBindingAvaliable.from(source);
+            final KeyUserDataBinding result = KeyUserDataBinding.from(source);
             if (result == null) {
                 throw new MuttleyException("Crie um listener pra resolver isso");
             }

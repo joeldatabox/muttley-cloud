@@ -2,7 +2,6 @@ package br.com.muttley.model.security.jackson;
 
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.model.security.KeyUserDataBinding;
-import br.com.muttley.model.security.KeyUserDataBindingAvaliable;
 import br.com.muttley.model.security.events.KeyUserDataBindingResolverEvent;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,7 +29,7 @@ public class KeyUserDataBindingDeserializer extends JsonDeserializer<KeyUserData
             return null;
         }
         if (eventPublisher == null) {
-            final KeyUserDataBinding result = KeyUserDataBindingAvaliable.from(node.asText());
+            final KeyUserDataBinding result = KeyUserDataBinding.from(node.asText());
             if (result == null) {
                 throw new MuttleyException("Não foi possivel resolver por falta do publisher e falta no cache");
             }
