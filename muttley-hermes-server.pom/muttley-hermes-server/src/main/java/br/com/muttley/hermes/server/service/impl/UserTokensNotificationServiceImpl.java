@@ -35,8 +35,8 @@ public class UserTokensNotificationServiceImpl extends ServiceImpl<UserTokensNot
             final UserTokensNotificationRepository repository,
             final MongoTemplate mongoTemplate,
             final RedisService redisService,
-            //tempo de validade do token 1000 * 60 * 60 * 24 * 10 = dias
-            @Value("${muttley.hermes.notification.cachetimeout:864000000}") final long cachetimeout) {
+            //tempo de validade do token 60 * 60 * 24 * 10 = dias
+            @Value("${muttley.hermes.notification.cachetimeout:864000}") final long cachetimeout) {
         super(repository, mongoTemplate, UserTokensNotification.class);
         this.repository = repository;
         this.redisService = redisService;

@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
     private static final String AUDIENCE_MOBILE = "mobile";
     private static final String AUDIENCE_TABLET = "tablet";
 
-    @Value("${muttley.security.jwt.token.expiration}")
+    @Value("${muttley.security.jwt.token.expiration.seconds}")
     private long expiration;
     private final SecretService secretService;
 
@@ -145,7 +146,7 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
         Map<String, Object> claims = new HashMap<>();
         claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
         claims.put(CLAIM_KEY_AUDIENCE, generateAudience(device));
-        claims.put(CLAIM_KEY_CREATED, new Date());
+        claims.put(CLAIM_KEY_CREATED, Instant.now().get(ChronoField.INSTANT_SECONDS));
         return generateToken(claims);
     }
 

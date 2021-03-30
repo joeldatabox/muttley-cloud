@@ -61,7 +61,7 @@ public abstract class AbstractLocalUserPrefenceServiceImpl implements LocalUserP
                             }).collect(Collectors.toList())
             );
         }
-        this.redisService.set(this.getBasicKey(user), userPreferencesMap, token.getExpiration());
+        this.redisService.set(this.getBasicKey(user), userPreferencesMap, token.getDtExpiration());
     }
 
     protected UserPreferences getPreferenceInCache(final JwtToken token, final User user) {

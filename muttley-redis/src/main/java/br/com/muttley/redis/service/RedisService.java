@@ -48,7 +48,7 @@ public interface RedisService<T> {
      *
      * @param key   -> chave desejada
      * @param value -> valor a ser salvo
-     * @param time  -> tempo em milisegundos para se expirar o registro
+     * @param time  -> tempo em segundos para se expirar o registro
      */
     RedisService set(final String key, final T value, final long time);
 

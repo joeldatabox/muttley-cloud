@@ -52,7 +52,7 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public LocalUserAuthenticationService createLocalUserAuthenticationService(final RedisService redisService, final @Value("${muttley.security.jwt.token.expiration}") int expiration, final AuthenticationTokenServiceClient authenticationTokenService, final ApplicationEventPublisher eventPublisher) {
+    public LocalUserAuthenticationService createLocalUserAuthenticationService(final RedisService redisService, final AuthenticationTokenServiceClient authenticationTokenService, final ApplicationEventPublisher eventPublisher) {
         return new LocalUserAuthenticationServiceImpl(redisService, authenticationTokenService, eventPublisher);
     }
 

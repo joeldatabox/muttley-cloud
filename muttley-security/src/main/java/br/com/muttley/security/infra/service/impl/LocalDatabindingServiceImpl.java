@@ -33,11 +33,11 @@ public class LocalDatabindingServiceImpl extends AbstractLocalDatabindingService
         //verificando se já existe no cache
         if (this.redisService.hasKey(this.getBasicKey(user))) {
             //recuperando dos itens
-            dataBindings = (List<UserDataBinding>) this.redisService.get(this.getBasicKey(user));
+            dataBindings = this.getDatabinDataBindingsInCache(jwtUser, user);
         } else {
             dataBindings = this.dataBindingService.list();
             //salvando no cache
-            this.redisService.set(this.getBasicKey(user), dataBindings, jwtUser.getExpiration());
+            this.saveDatabindingsInCache(jwtUser, user, dataBindings);
         }
         return dataBindings;
     }

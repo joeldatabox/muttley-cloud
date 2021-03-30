@@ -29,6 +29,14 @@ public abstract class AbstractLocalDatabindingServiceImpl implements LocalDatabi
         throw new NotImplementedException();
     }
 
+    protected void saveDatabindingsInCache(final JwtToken token, final User user, final List<UserDataBinding> dataBindings) {
+        this.redisService.set(this.getBasicKey(user), dataBindings, token.getDtExpiration());
+    }
+
+    protected List<UserDataBinding> getDatabinDataBindingsInCache(final JwtToken token, final User user) {
+        return (List<UserDataBinding>) this.redisService.get(this.getBasicKey(user));
+    }
+
     @Override
     public void expireUserDataBindings(final User user) {
         this.redisService.delete(this.getBasicKey(user));

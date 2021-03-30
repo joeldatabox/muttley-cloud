@@ -62,7 +62,7 @@ public class LocalUserAuthenticationServiceImpl implements LocalUserAuthenticati
     }
 
     private void set(final JwtToken token, final JwtUser user) {
-        this.redisService.set(this.getBasicKey(token), user, token.getExpiration());
+        this.redisService.set(this.getBasicKey(token), user, token.getDtExpiration());
     }
 
     @Override

@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -43,6 +45,15 @@ public class JwtToken implements Serializable {
     public long getExpiration() {
         decodeToken();
         return Long.valueOf(String.valueOf(payload.get("exp")));
+    }
+
+    public Date getDtCreated() {
+        decodeToken();
+        return Date.from(Instant.ofEpochSecond(Long.valueOf(String.valueOf(this.payload.get("created")))));
+    }
+
+    public Date getDtExpiration() {
+        return Date.from(Instant.ofEpochSecond(this.getExpiration()));
     }
 
     @JsonIgnore

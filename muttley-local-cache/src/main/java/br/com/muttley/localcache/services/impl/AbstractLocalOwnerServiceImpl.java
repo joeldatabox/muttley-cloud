@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public abstract class AbstractLocalOwnerServiceImpl implements LocalOwnerService {
     protected final RedisService redisService;
-    protected static final long timeout = 1000 * 60 * 60 * 24;//timeout de 24hr
+    protected static final long timeout = 60 * 60 * 24;//timeout de 24hr
 
     @Autowired
     public AbstractLocalOwnerServiceImpl(final RedisService redisService) {

@@ -36,7 +36,7 @@ public abstract class AbstractLocalRolesServiceImpl implements LocalRolesService
     }
 
     protected void saveRolesInCache(final JwtToken token, final User user, final Set<Role> roles) {
-        this.redisService.set(this.getBasicKey(user), roles.parallelStream().map(Role::getRoleName).collect(Collectors.toSet()), token.getExpiration());
+        this.redisService.set(this.getBasicKey(user), roles.parallelStream().map(Role::getRoleName).collect(Collectors.toSet()), token.getDtExpiration());
     }
 
     protected Set<Role> loadRolesInCache(final User user) {
