@@ -1,9 +1,17 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.localcache.services.impl.AbstractLocalDatabindingServiceImpl;
+import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.redis.service.RedisService;
+import br.com.muttley.security.server.events.CurrentDatabindingResolverEvent;
+import br.com.muttley.security.server.events.CurrentDatabindingResolverEvent.CurrentDatabindingEventItem;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author Joel Rodrigues Moreira 25/03/2021
@@ -12,8 +20,28 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class LocalDatabindingServiceImpl extends AbstractLocalDatabindingServiceImpl {
+    private final ApplicationEventPublisher publisher;
+
     @Autowired
-    public LocalDatabindingServiceImpl(final RedisService redisService) {
+    public LocalDatabindingServiceImpl(final RedisService redisService, final ApplicationEventPublisher publisher) {
         super(redisService);
+        this.publisher = publisher;
+    }
+
+    @Override
+    public List<UserDataBinding> getUserDataBindings(final JwtToken jwtUser, final User user) {
+        final List<UserDataBinding> dataBindings;
+        //verificando se já existe no cache
+        if (this.redisService.hasKey(this.getBasicKey(user))) {
+            //recuperando dos itens
+            dataBindings = (List<UserDataBinding>) this.redisService.get(this.getBasicKey(user));
+        } else {
+            final CurrentDatabindingResolverEvent event = new CurrentDatabindingResolverEvent(new CurrentDatabindingEventItem(jwtUser, user));
+            this.publisher.publishEvent(event);
+            dataBindings = event.getDataBindings();
+            //salvando no cache
+            this.redisService.set(this.getBasicKey(user), dataBindings, jwtUser.getExpiration());
+        }
+        return dataBindings;
     }
 }

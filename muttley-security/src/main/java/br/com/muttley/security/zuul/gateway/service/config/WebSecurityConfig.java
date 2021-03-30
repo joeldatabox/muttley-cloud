@@ -7,7 +7,7 @@ import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
-import br.com.muttley.security.infra.component.UserPreferencesResolverEventListener;
+import br.com.muttley.security.infra.component.DeserializeUserPreferencesEventListener;
 import br.com.muttley.security.infra.service.impl.LocalOwnerServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserAuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +50,8 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public UserPreferencesResolverEventListener createUserPreferencesResolverEventListener(final LocalOwnerService ownerService) {
-        return new UserPreferencesResolverEventListener(ownerService);
+    public DeserializeUserPreferencesEventListener createUserPreferencesResolverEventListener(final LocalOwnerService ownerService) {
+        return new DeserializeUserPreferencesEventListener(ownerService);
     }
 
 }

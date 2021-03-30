@@ -2,6 +2,7 @@ package br.com.muttley.security.server.listeners;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
+import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.security.server.events.CurrentOwnerResolverEvent;
@@ -56,6 +57,7 @@ public class CurrentOwnerResolverEventListener implements ApplicationListener<Cu
                     event.getSource().getPreferences().set(preference);
                     event.setOwnerResolved(owners.get(0));
                 } catch (MuttleyNoContentException exception) {
+                    throw new MuttleySecurityUnauthorizedException("O usuário não está presente em nenhuma base. Entre em contato com o administrador");
                     //se chegou aqui quer dizer que é uma requisição do odin
                 }
                 return;

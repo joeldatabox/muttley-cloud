@@ -13,6 +13,7 @@ import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserService;
+import br.com.muttley.security.server.service.WorkTeamService;
 import com.mongodb.BasicDBObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,6 +57,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     private final UserService userService;
     private final UserDataBindingService dataBindingService;
     private final DocumentNameConfig documentNameConfig;
+    private final WorkTeamService workTeamService;
 
     @Autowired
     public UserBaseServiceImpl(
@@ -63,12 +65,13 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
             @Value("${muttley.security.odin.user}") final String odinUser,
             final UserService userService,
             final UserDataBindingService dataBindingService,
-            final DocumentNameConfig documentNameConfig) {
+            final DocumentNameConfig documentNameConfig, final WorkTeamService workTeamService) {
         super(template, UserBase.class);
         this.ODIN_USER = odinUser;
         this.userService = userService;
         this.dataBindingService = dataBindingService;
         this.documentNameConfig = documentNameConfig;
+        this.workTeamService = workTeamService;
     }
 
     @Override
@@ -190,6 +193,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
                         .pull("users", new BasicDBObject("user.$id", new ObjectId(userLoaded.getId()))),
                 UserBase.class
         );
+        this.workTeamService.removeUserFromAllWorkTeam(user.getCurrentOwner(), userLoaded);
     }
 
     @Override

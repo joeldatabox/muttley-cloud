@@ -16,6 +16,8 @@ import br.com.muttley.security.server.repository.WorkTeamRepository;
 import br.com.muttley.security.server.service.OwnerService;
 import br.com.muttley.security.server.service.UserRolesView;
 import br.com.muttley.security.server.service.WorkTeamService;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBRef;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,6 +25,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -38,6 +42,7 @@ import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_READ;
 import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_UPDATE;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newAvaliableRoles;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newViewRoleDefinition;
+import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toSet;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
@@ -244,6 +249,19 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         this.applicationEventPublisher.publishEvent(event);
 
         return event.getSource();
+    }
+
+    @Override
+    public void removeUserFromAllWorkTeam(Owner owner, User user) {
+        this.mongoTemplate.updateMulti(
+                new Query(
+                        where("owner.$id").is(owner.getObjectId())
+                ),
+                new Update().pull("members", new BasicDBObject("$in", asList(
+                        new DBRef(this.documentNameConfig.getNameCollectionUser(), user.getObjectId())
+                ))),
+                WorkTeam.class
+        );
     }
 
     @Override

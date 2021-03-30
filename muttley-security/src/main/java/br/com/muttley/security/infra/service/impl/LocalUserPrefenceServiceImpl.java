@@ -5,8 +5,8 @@ import br.com.muttley.localcache.services.LocalUserPreferenceService;
 import br.com.muttley.localcache.services.impl.AbstractLocalUserPrefenceServiceImpl;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.events.UserPreferencesResolverEvent;
-import br.com.muttley.model.security.events.UserPreferencesResolverEvent.UserPreferencesResolverEventItem;
+import br.com.muttley.model.security.events.DeserializeUserPreferencesEvent;
+import br.com.muttley.model.security.events.DeserializeUserPreferencesEvent.UserPreferencesResolverEventItem;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.OwnerServiceClient;
@@ -48,7 +48,7 @@ public class LocalUserPrefenceServiceImpl extends AbstractLocalUserPrefenceServi
                 this.savePreferenceInCache(jwtUser, user, preferences);
                 if (preferences != null) {
                     //por comodidade vamo disparar o evento para resolução dos itens das preferencias
-                    final UserPreferencesResolverEvent event = new UserPreferencesResolverEvent(new UserPreferencesResolverEventItem(user, preferences));
+                    final DeserializeUserPreferencesEvent event = new DeserializeUserPreferencesEvent(new UserPreferencesResolverEventItem(user, preferences));
                     this.publisher.publishEvent(event);
                     //salvando no cache novamente para guardar as modificações
                     this.savePreferenceInCache(jwtUser, user, preferences);

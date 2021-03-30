@@ -14,8 +14,8 @@ import org.springframework.context.ApplicationEvent;
  * O ouvinte será responsável por carregar detalhes da mesma caso necessário como
  * por exemplo o owner e tudo mais
  */
-public class UserPreferencesResolverEvent extends ApplicationEvent {
-    public UserPreferencesResolverEvent(final UserPreferencesResolverEventItem preferences) {
+public class DeserializeUserPreferencesEvent extends ApplicationEvent {
+    public DeserializeUserPreferencesEvent(final UserPreferencesResolverEventItem preferences) {
         super(preferences);
     }
 

@@ -8,6 +8,7 @@ import io.jsonwebtoken.lang.Collections;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Date;
@@ -122,6 +123,7 @@ public class JwtUser implements UserDetails {
 
     private static final List<GrantedAuthority> mapToGrantedAuthorities(final Collection<Authority> authorities) {
         return authorities.parallelStream()
+                .filter(autority -> autority != null && !StringUtils.isEmpty(autority.getRole()))
                 .map(authority -> new SimpleGrantedAuthority(authority.getRole().toString()))
                 .collect(Collectors.toList());
     }

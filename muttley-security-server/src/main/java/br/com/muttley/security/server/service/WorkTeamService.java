@@ -26,6 +26,8 @@ public interface WorkTeamService extends Service<WorkTeam> {
 
     AvaliableRoles loadAvaliableRoles(final User user);
 
+    void removeUserFromAllWorkTeam(final Owner owner, final User user);
+
     /**
      * Método para
      */

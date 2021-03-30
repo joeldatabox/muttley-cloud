@@ -1,6 +1,8 @@
 package br.com.muttley.security.server.controller.auth;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
+import br.com.muttley.localcache.services.LocalDatabindingService;
+import br.com.muttley.localcache.services.LocalUserPreferenceService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.Password;
@@ -8,8 +10,6 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.security.server.events.CurrentOwnerResolverEvent;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.PasswordService;
-import br.com.muttley.security.server.service.UserDataBindingService;
-import br.com.muttley.security.server.service.UserPreferencesService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -31,13 +31,19 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AuthenticationTokenController {
     private final JwtTokenUtilService tokenUtil;
     private final UserService userService;
-    private final UserPreferencesService preferencesService;
-    private final UserDataBindingService dataBindingService;
+    private final LocalUserPreferenceService preferencesService;
+    private final LocalDatabindingService dataBindingService;
     private final PasswordService passwordService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public AuthenticationTokenController(final JwtTokenUtilService tokenUtil, final UserService userService, final UserPreferencesService preferencesService, final UserDataBindingService dataBindingService, PasswordService passwordService, final ApplicationEventPublisher eventPublisher) {
+    public AuthenticationTokenController(
+            final JwtTokenUtilService tokenUtil,
+            final UserService userService,
+            final LocalUserPreferenceService preferencesService,
+            final LocalDatabindingService dataBindingService,
+            final PasswordService passwordService,
+            final ApplicationEventPublisher eventPublisher) {
         this.tokenUtil = tokenUtil;
         this.userService = userService;
         this.preferencesService = preferencesService;
@@ -55,12 +61,12 @@ public class AuthenticationTokenController {
                 final User user = this.userService.findByUserName(userName);
                 //buscando as preferencias de usuário
 
-                user.setPreferences(this.preferencesService.getUserPreferences(user));
+                user.setPreferences(this.preferencesService.getUserPreferences(token, user));
                 //disparando evento para resolver o owner corrent
                 final CurrentOwnerResolverEvent event = new CurrentOwnerResolverEvent(user);
                 this.eventPublisher.publishEvent(event);
                 //buscando os databindinqs do usuário
-                user.setDataBindings(this.dataBindingService.listBy(user));
+                user.setDataBindings(this.dataBindingService.getUserDataBindings(token, user));
                 final Password password = this.passwordService.findByUserId(user.getId());
 
                 //verificando a validade do token

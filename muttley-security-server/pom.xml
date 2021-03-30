@@ -102,11 +102,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>br.com.muttley</groupId>
-            <artifactId>muttley-mongo</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
     <!--<build>
