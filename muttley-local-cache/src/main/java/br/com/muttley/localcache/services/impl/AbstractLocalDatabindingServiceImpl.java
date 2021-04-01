@@ -8,6 +8,7 @@ import br.com.muttley.redis.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,7 +31,7 @@ public abstract class AbstractLocalDatabindingServiceImpl implements LocalDatabi
     }
 
     protected void saveDatabindingsInCache(final JwtToken token, final User user, final List<UserDataBinding> dataBindings) {
-        this.redisService.set(this.getBasicKey(user), dataBindings, token.getDtExpiration());
+        this.redisService.set(this.getBasicKey(user), dataBindings != null ? new ArrayList<>(dataBindings) : dataBindings, token.getDtExpiration());
     }
 
     protected List<UserDataBinding> getDatabinDataBindingsInCache(final JwtToken token, final User user) {

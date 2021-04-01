@@ -109,7 +109,7 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
     }
 
     private final Date generateExpirationDate() {
-        return Date.from(Instant.now().plusMillis(expiration));
+        return Date.from(Instant.now().plusSeconds(expiration));
     }
 
     private final boolean isTokenExpired(String token) {

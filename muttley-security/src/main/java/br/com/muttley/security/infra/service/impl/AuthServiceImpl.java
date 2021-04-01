@@ -1,5 +1,6 @@
 package br.com.muttley.security.infra.service.impl;
 
+import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.User;
@@ -26,11 +27,13 @@ public class AuthServiceImpl implements AuthService {
     protected final String tokenHeader;
     protected final UserPreferenceServiceClient preferenceService;
     protected final UserDataBindingClient dataBindingService;
+    protected final LocalUserAuthenticationService localUserAuthenticationService;
 
-    public AuthServiceImpl(@Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader, final UserPreferenceServiceClient preferenceService, final UserDataBindingClient dataBindingService) {
+    public AuthServiceImpl(@Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader, final UserPreferenceServiceClient preferenceService, final UserDataBindingClient dataBindingService, final LocalUserAuthenticationService localUserAuthenticationService) {
         this.tokenHeader = tokenHeader;
         this.preferenceService = preferenceService;
         this.dataBindingService = dataBindingService;
+        this.localUserAuthenticationService = localUserAuthenticationService;
     }
 
     @Override
@@ -40,7 +43,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtUser getCurrentJwtUser() {
-        return (JwtUser) getCurrentAuthentication().getPrincipal();
+        final Authentication authentication = this.getCurrentAuthentication();
+        if (authentication != null) {
+            return (JwtUser) authentication.getPrincipal();
+        }
+        return this.localUserAuthenticationService.getJwtUserFrom(getCurrentToken());
     }
 
     @Override

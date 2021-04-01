@@ -12,6 +12,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.stream.Stream.of;
+
 /**
  * @author Joel Rodrigues Moreira on 15/08/19.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -52,11 +54,13 @@ public class PropagateHeadersInterceptor implements RequestInterceptor {
             while (headerNames.hasMoreElements()) {
                 //header atual
                 final String currentHeader = headerNames.nextElement().toString();
-                for (String prop : propagateHeaders) {
-                    if (prop.equalsIgnoreCase(currentHeader)) {
-                        headers.put(prop, request.getHeader(currentHeader));
-                    }
-                }
+                of(propagateHeaders)
+                        .parallel()
+                        .forEach(prop -> {
+                            if (prop.equalsIgnoreCase(currentHeader)) {
+                                headers.put(prop, request.getHeader(currentHeader));
+                            }
+                        });
             }
             return headers;
         }

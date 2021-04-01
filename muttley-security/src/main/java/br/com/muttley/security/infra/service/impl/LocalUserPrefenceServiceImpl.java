@@ -46,13 +46,13 @@ public class LocalUserPrefenceServiceImpl extends AbstractLocalUserPrefenceServi
                 preferences = userPreferenceService.getUserPreferences();
                 //salvando no cache para evitar loops desnecessários
                 this.savePreferenceInCache(jwtUser, user, preferences);
-                if (preferences != null) {
-                    //por comodidade vamo disparar o evento para resolução dos itens das preferencias
-                    final DeserializeUserPreferencesEvent event = new DeserializeUserPreferencesEvent(new UserPreferencesResolverEventItem(user, preferences));
-                    this.publisher.publishEvent(event);
-                    //salvando no cache novamente para guardar as modificações
-                    this.savePreferenceInCache(jwtUser, user, preferences);
-                }
+            }
+            if (preferences != null) {
+                //por comodidade vamo disparar o evento para resolução dos itens das preferencias
+                final DeserializeUserPreferencesEvent event = new DeserializeUserPreferencesEvent(new UserPreferencesResolverEventItem(user, preferences));
+                this.publisher.publishEvent(event);
+                //salvando no cache novamente para guardar as modificações
+                this.savePreferenceInCache(jwtUser, user, preferences);
             }
             return preferences;
         }

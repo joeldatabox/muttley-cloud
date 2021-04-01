@@ -12,9 +12,9 @@ import br.com.muttley.security.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.feign.WorkTeamServiceClient;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
+import br.com.muttley.security.infra.component.DeserializeUserPreferencesEventListener;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.component.UserAfterCacheLoadListener;
-import br.com.muttley.security.infra.component.DeserializeUserPreferencesEventListener;
 import br.com.muttley.security.infra.service.AuthService;
 import br.com.muttley.security.infra.service.impl.AuthServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalDatabindingServiceImpl;
@@ -58,8 +58,8 @@ public class WebSecurityConfig {
 
     @Bean
     @Primary
-    public AuthService createAuthService(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, @Autowired final UserPreferenceServiceClient userPreferenceServiceClient, final UserDataBindingClient dataBindingClient) {
-        return new AuthServiceImpl(tokenHeader, userPreferenceServiceClient, dataBindingClient);
+    public AuthService createAuthService(@Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader, @Autowired final UserPreferenceServiceClient userPreferenceServiceClient, final UserDataBindingClient dataBindingClient, final LocalUserAuthenticationService localUserAuthenticationService) {
+        return new AuthServiceImpl(tokenHeader, userPreferenceServiceClient, dataBindingClient, localUserAuthenticationService);
     }
 
     @Bean

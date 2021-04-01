@@ -47,11 +47,13 @@ public class JwtToken implements Serializable {
         return Long.valueOf(String.valueOf(payload.get("exp")));
     }
 
+    @JsonIgnore
     public Date getDtCreated() {
         decodeToken();
         return Date.from(Instant.ofEpochSecond(Long.valueOf(String.valueOf(this.payload.get("created")))));
     }
 
+    @JsonIgnore
     public Date getDtExpiration() {
         return Date.from(Instant.ofEpochSecond(this.getExpiration()));
     }
