@@ -26,8 +26,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class MuttleyConfigServerSecurityConfig extends WebSecurityConfigurerAdapter implements InitializingBean {
 
+    private final MuttleyConfigServerProperty property;
+
     @Autowired
-    private MuttleyConfigServerProperty property;
+    public MuttleyConfigServerSecurityConfig(MuttleyConfigServerProperty property) {
+        this.property = property;
+    }
 
     /**
      * Configurando usuário e senha necessário para autenticação no serviço
