@@ -1,9 +1,9 @@
 package br.com.muttley.muttleydiscoveryserver;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import br.com.muttley.muttleydiscoveryserver.config.MuttleyDiscoveryServerConfig;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -14,8 +14,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = MuttleyDiscoveryServerConfig.class)
 public class MuttleyDiscoveryServerApplicationTests {
     private static final String TIME24HOURS_PATTERN = "(([+-]|)([01]?[0-9]|2[0-3]):[0-5][0-9])|(([+-]|)([01]?[0-9]|2[0-3])([0-5][0-9]))";
 
