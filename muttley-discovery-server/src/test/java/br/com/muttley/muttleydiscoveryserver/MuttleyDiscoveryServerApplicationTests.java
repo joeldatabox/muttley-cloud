@@ -1,7 +1,7 @@
 package br.com.muttley.muttleydiscoveryserver;
 
 
-import br.com.muttley.muttleydiscoveryserver.config.MuttleyDiscoveryServerConfig;
+import br.com.muttley.muttleydiscoveryserver.autoconfig.MuttleyDiscoveryServerConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

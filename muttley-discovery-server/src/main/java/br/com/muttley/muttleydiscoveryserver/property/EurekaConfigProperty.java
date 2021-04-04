@@ -1,4 +1,4 @@
-package br.com.muttley.configserver.property;
+package br.com.muttley.muttleydiscoveryserver.property;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,13 +11,22 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@ConfigurationProperties(prefix = SeverConfigProperty.PREFIX)
+@ConfigurationProperties(prefix = EurekaConfigProperty.PREFIX)
 @Getter
 @Setter
 @Accessors(chain = true)
-public class SeverConfigProperty {
+public class EurekaConfigProperty {
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    protected static final String PREFIX = "server";
-    private int port = 5001;
+    protected static final String PREFIX = "eureka";
+    private Client client = new Client();
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    public static class Client {
+        private String region = "default";
+
+        public int registryFetchIntervalSeconds = 10;
+    }
 }

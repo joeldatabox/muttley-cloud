@@ -1,4 +1,4 @@
-package br.com.muttley.configserver.property;
+package br.com.muttley.muttleydiscoveryserver.property;
 
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -1,9 +1,6 @@
 package br.com.muttley.configserver.autoconfig;
 
-import br.com.muttley.configserver.property.EurekaConfigProperty;
 import br.com.muttley.configserver.property.MuttleyConfigServerProperty;
-import br.com.muttley.configserver.property.SeverConfigProperty;
-import br.com.muttley.configserver.property.SpringConfigProperty;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  */
 @Configuration
 @EnableConfigurationProperties(value = {
-        EurekaConfigProperty.class,
-        MuttleyConfigServerProperty.class,
-        SeverConfigProperty.class,
-        SpringConfigProperty.class
+        MuttleyConfigServerProperty.class
 })
 @EnableWebSecurity
 public class MuttleyConfigServerSecurityConfig extends WebSecurityConfigurerAdapter implements InitializingBean {

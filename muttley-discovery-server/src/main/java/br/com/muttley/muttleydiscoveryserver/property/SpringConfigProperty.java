@@ -1,4 +1,4 @@
-package br.com.muttley.configserver.property;
+package br.com.muttley.muttleydiscoveryserver.property;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,7 +24,7 @@ public class SpringConfigProperty {
     @Setter
     @Accessors(chain = true)
     public static class Application {
-        private String name = "muttley-config-server";
+        private String name = "muttley-discovery-server";
     }
 
 }
