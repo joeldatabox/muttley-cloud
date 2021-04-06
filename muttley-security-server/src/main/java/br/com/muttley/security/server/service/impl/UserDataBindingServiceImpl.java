@@ -402,7 +402,8 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
                 BasicAggregateResultCount.class
         );
         if (results == null || results.getUniqueMappedResult() == null) {
-            throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Nenhum registro encontrado para o usuário desejado");
+           return false;
+           //throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Nenhum registro encontrado para o usuário desejado");
         }
         return results.getUniqueMappedResult().getResult() > 0;
     }
@@ -429,7 +430,8 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
                 BasicAggregateResultCount.class
         );
         if (results == null || results.getUniqueMappedResult() == null) {
-            throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Erro na consulta");
+            return false;
+            //throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Erro na consulta");
         }
         return results.getUniqueMappedResult().getResult() > 0;
     }
