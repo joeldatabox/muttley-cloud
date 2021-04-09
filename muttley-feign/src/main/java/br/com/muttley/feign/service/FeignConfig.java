@@ -2,7 +2,6 @@ package br.com.muttley.feign.service;
 
 import br.com.muttley.feign.service.converters.BooleanHttpMessageConverter;
 import br.com.muttley.feign.service.converters.DateHttpMessageConverter;
-import br.com.muttley.feign.service.converters.ListOwnerDataHttpMessageConverter;
 import br.com.muttley.feign.service.converters.LongHttpMessageConverter;
 import br.com.muttley.feign.service.converters.OwnerDataHttpMessageConverter;
 import br.com.muttley.feign.service.interceptors.PropagateHeadersInterceptor;
@@ -24,6 +23,7 @@ import org.springframework.cloud.netflix.feign.support.SpringDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.PropertySource;
 import org.springframework.http.converter.HttpMessageConverter;
 
 import java.util.ArrayList;
@@ -39,7 +39,8 @@ import static org.springframework.util.StringUtils.isEmpty;
  */
 @Configuration
 public class FeignConfig extends FeignClientsConfiguration {
-    private final String PROPERTY_SOURCE = "applicationConfig: [classpath:/bootstrap.properties]";
+    private final String PROPERTY_SOURCE_PROP = "applicationConfig: [classpath:/bootstrap.properties]";
+    private final String PROPERTY_SOURCE_YAML = "applicationConfig: [classpath:/bootstrap.yaml]";
     @Autowired
     private ObjectFactory<HttpMessageConverters> messageConverters;
     @Autowired
@@ -54,7 +55,11 @@ public class FeignConfig extends FeignClientsConfiguration {
             final Retryer retryer,
             final @Autowired ConfigurableEnvironment env,
             final @Value("${muttley.feign.loggin.level:#{null}}") String logLevel) {
-        final Map<String, Object> map = (Map<String, Object>) env.getPropertySources().get(PROPERTY_SOURCE).getSource();
+        PropertySource propertySource = env.getPropertySources().get(PROPERTY_SOURCE_PROP);
+        if (propertySource == null) {
+            propertySource = env.getPropertySources().get(PROPERTY_SOURCE_YAML);
+        }
+        final Map<String, Object> map = (Map<String, Object>) propertySource.getSource();
         map.put("feign.okhttp.enabled", "true");
 
         final Feign.Builder builder = super.feignBuilder(retryer).client(new OkHttpClient());
