@@ -36,4 +36,28 @@ public class MetadataDocument {
     public boolean containsVersionDocument() {
         return this.getVersionDocument() != null;
     }
+
+    public static class Builder {
+        private TimeZoneDocument timeZone;
+        private VersionDocument version;
+
+        public static Builder getInstance() {
+            return new Builder();
+        }
+
+        public Builder setTimeZone(final TimeZoneDocument timeZone) {
+            this.timeZone = timeZone;
+            return this;
+        }
+
+        public Builder setVersion(final VersionDocument version) {
+            this.version = version;
+            return this;
+        }
+
+        public MetadataDocument build() {
+            return new MetadataDocument(this.timeZone, this.version);
+        }
+    }
+
 }
