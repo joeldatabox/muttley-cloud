@@ -17,11 +17,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class LocalUserAuthenticationServiceImpl implements LocalUserAuthenticationService {
-    private static final String BASIC_KEY = "JWT-TOKEN:";
-    private final RedisService redisService;
-    private final AuthenticationTokenServiceClient tokenServiceClient;
+    protected static final String BASIC_KEY = "JWT-TOKEN:";
+    protected final RedisService redisService;
+    protected final AuthenticationTokenServiceClient tokenServiceClient;
     private final LocalJwtTokenUtilService utilService;
-    private final ApplicationEventPublisher eventPublisher;
+    protected final ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public LocalUserAuthenticationServiceImpl(final RedisService redisService, final AuthenticationTokenServiceClient tokenServiceClient, final ApplicationEventPublisher eventPublisher) {
@@ -35,7 +35,7 @@ public class LocalUserAuthenticationServiceImpl implements LocalUserAuthenticati
     @Override
     public JwtUser getJwtUserFrom(final JwtToken token) {
         //verfificando se o token informado é válido
-        if (this.utilService.isValidToken(token.getToken())) {
+        if (this.isValidToken(token.getToken())) {
             final JwtUser jwtUser;
             //verificando se já existe esse token salvo no redis
             if (this.redisService.hasKey(this.getBasicKey(token))) {
@@ -61,7 +61,7 @@ public class LocalUserAuthenticationServiceImpl implements LocalUserAuthenticati
         return null;
     }
 
-    private void set(final JwtToken token, final JwtUser user) {
+    protected void set(final JwtToken token, final JwtUser user) {
         this.redisService.set(this.getBasicKey(token), user, token.getDtExpiration());
     }
 
@@ -76,15 +76,18 @@ public class LocalUserAuthenticationServiceImpl implements LocalUserAuthenticati
     @Override
     public void refreshToken(final JwtToken currentToken, final JwtToken newToken) {
         //verificando se o novo token é válido
-        if (this.utilService.isValidToken(newToken.getToken())) {
+        if (this.isValidToken(newToken.getToken())) {
             //ronomenando a chave de acesso caso existe em cache
             this.redisService.changeKey(this.getBasicKey(currentToken), this.getBasicKey(newToken));
         }
     }
 
-    private String getBasicKey(final JwtToken token) {
+    protected String getBasicKey(final JwtToken token) {
         return BASIC_KEY + token.getToken();
     }
 
 
+    protected boolean isValidToken(final String token) {
+        return this.utilService.isValidToken(token);
+    }
 }

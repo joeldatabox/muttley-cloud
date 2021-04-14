@@ -3,6 +3,7 @@ package br.com.muttley.localcache.services.impl;
 import br.com.muttley.localcache.services.LocalOwnerService;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.OwnerDataImpl;
+import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserDataImpl;
 import br.com.muttley.redis.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,17 @@ public abstract class AbstractLocalOwnerServiceImpl implements LocalOwnerService
     }
 
     @Override
+    public OwnerData loadOwnerAny(final User user) {
+        throw new NotImplementedException();
+    }
+
+    @Override
     public OwnerData loadOwnerById(final String id) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public OwnerData loadOwnerById(final User user, final String id) {
         throw new NotImplementedException();
     }
 

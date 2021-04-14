@@ -1,6 +1,7 @@
 package br.com.muttley.localcache.services;
 
 import br.com.muttley.model.security.OwnerData;
+import br.com.muttley.model.security.User;
 
 /**
  * @author Joel Rodrigues Moreira 25/03/2021
@@ -14,5 +15,9 @@ public interface LocalOwnerService {
 
     OwnerData loadOwnerAny();
 
+    OwnerData loadOwnerAny(final User user);
+
     OwnerData loadOwnerById(final String id);
+
+    OwnerData loadOwnerById(final User user, final String id);
 }
