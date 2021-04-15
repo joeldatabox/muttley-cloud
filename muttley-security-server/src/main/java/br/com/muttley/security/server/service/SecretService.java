@@ -12,10 +12,6 @@ import java.util.Map;
 public interface SecretService {
     SigningKeyResolver getSigningKeyResolver();
 
-    /*Map<String, String> getSecrets();
-
-    void setSecrets(Map<String, String> secrets);*/
-
     byte[] getHS256SecretBytes();
 
     byte[] getHS384SecretBytes();

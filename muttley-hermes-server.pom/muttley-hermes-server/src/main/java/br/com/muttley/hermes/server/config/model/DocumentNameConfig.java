@@ -23,7 +23,7 @@ public class DocumentNameConfig {
     public DocumentNameConfig(
             @Value("${br.com.muttley.security.server.owner-document:muttley-owners}") final String nameCollectionOwner,
             @Value("${br.com.muttley.security.server.user-document:muttley-users}") final String nameCollectionUser,
-            @Value("${br.com.muttley.security.server.user-document:muttley-users-base}") final String nameCollectionUserBase,
+            @Value("${br.com.muttley.security.server.user-base-document:muttley-users-base}") final String nameCollectionUserBase,
             @Value("${br.com.muttley.security.server.access-plan-document:muttley-access-plans}") final String nameCollectionAccessPlan,
             @Value("${br.com.muttley.security.server.user-preference-document:muttley-users-preferences}") final String nameCollectionUserPreferences,
             @Value("${br.com.muttley.security.server.user-tokens-notification-document:muttley-users-tokens-notification}") final String nameCollectionUserTokensNotification,

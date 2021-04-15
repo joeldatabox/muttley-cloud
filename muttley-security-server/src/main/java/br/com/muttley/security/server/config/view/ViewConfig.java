@@ -2,6 +2,7 @@ package br.com.muttley.security.server.config.view;
 
 import br.com.muttley.model.View;
 import br.com.muttley.mongo.service.config.source.ViewSource;
+import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.config.view.source.ViewMuttleyUsers;
 import br.com.muttley.security.server.config.view.source.ViewMuttleyWorkTeam;
 import br.com.muttley.security.server.config.view.source.ViewMuttleyWorkTeamRolesUser;
@@ -27,19 +28,21 @@ public class ViewConfig implements ApplicationListener<ContextRefreshedEvent> {
     private String dbName;
     private final MongoTemplate template;
     private final MongoClient client;
+    private final DocumentNameConfig documentNameConfig;
 
     @Autowired
-    public ViewConfig(final MongoTemplate template, final MongoClient client) {
+    public ViewConfig(final MongoTemplate template, final MongoClient client, final DocumentNameConfig documentNameConfig) {
         this.template = template;
         this.client = client;
+        this.documentNameConfig = documentNameConfig;
     }
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
-            createView(new ViewMuttleyWorkTeam());
-            createView(new ViewMuttleyUsers());
-            createView(new ViewMuttleyWorkTeamRolesUser());
+            //createView(new ViewMuttleyWorkTeam(this.documentNameConfig));
+            createView(new ViewMuttleyUsers(this.documentNameConfig));
+            //createView(new ViewMuttleyWorkTeamRolesUser(this.documentNameConfig));
         } catch (final Exception ex) {
             ex.printStackTrace();
             throw ex;

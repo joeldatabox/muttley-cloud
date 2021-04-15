@@ -7,6 +7,7 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserView;
+import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.service.UserViewService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +38,13 @@ import static org.springframework.data.mongodb.core.query.Query.query;
  */
 @Service
 public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserViewService {
-    private static final String VIEW = "view_muttley_users";
     private static final String[] basicRoles = new String[]{"user_view"};
+    private final DocumentNameConfig documentNameConfig;
 
     @Autowired
-    public UserViewServiceImpl(final MongoTemplate mongoTemplate) {
+    public UserViewServiceImpl(final MongoTemplate mongoTemplate, final DocumentNameConfig documentNameConfig) {
         super(null, mongoTemplate, UserView.class);
+        this.documentNameConfig = documentNameConfig;
     }
 
     @Override
@@ -67,7 +69,11 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
 
     @Override
     public UserView findById(final User user, final String id) {
-        final UserView view = this.mongoTemplate.findOne(query(where("_id").is(new ObjectId(id))), UserView.class, VIEW);
+        final UserView view = this.mongoTemplate.findOne(
+                query(where("_id").is(new ObjectId(id))),
+                UserView.class,
+                this.documentNameConfig.getNameViewCollectionUser()
+        );
         if (view == null) {
             throw new MuttleyNotFoundException(UserView.class, "id", "Registro não encontrado");
         }
@@ -79,7 +85,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
         final UserView view = this.mongoTemplate.aggregate(
                 newAggregation(
                         limit(1)
-                ), "view_muttley_users", UserView.class
+                ), this.documentNameConfig.getNameViewCollectionUser(), UserView.class
         ).getUniqueMappedResult();
         if (view == null) {
             throw new MuttleyNotFoundException(UserView.class, null, "Registro não encontrado");
@@ -117,7 +123,9 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
         if (operations.isEmpty()) {
             operations.add(project("_id", "name", "userName", "email", "nickUsers", "owner"));
         }
-        final List<UserView> views = this.mongoTemplate.aggregate(newAggregation(operations), "view_muttley_users", UserView.class).getMappedResults();
+        final List<UserView> views = this.mongoTemplate.aggregate(
+                newAggregation(operations), this.documentNameConfig.getNameViewCollectionUser(), UserView.class
+        ).getMappedResults();
         if (views == null || views.isEmpty()) {
             throw new MuttleyNoContentException(UserView.class, "", "nenhum registro encontrado");
         }
@@ -128,7 +136,11 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
     public long count(final String criterio, final String idOwner) {
         final List<AggregationOperation> operations = this.createQuery(criterio, idOwner);
         operations.add(Aggregation.count().as("count"));
-        final AggregationResults<ResultCount> result = this.mongoTemplate.aggregate(newAggregation(operations), "view_muttley_users", ResultCount.class);
+        final AggregationResults<ResultCount> result = this.mongoTemplate.aggregate(
+                newAggregation(operations),
+                this.documentNameConfig.getNameViewCollectionUser(),
+                ResultCount.class
+        );
         return result.getUniqueMappedResult() != null ? result.getUniqueMappedResult().getCount() : 0L;
     }
 

@@ -1,13 +1,13 @@
 package br.com.muttley.security.server.config.view.source;
 
 import br.com.muttley.mongo.service.config.source.ViewSource;
+import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import org.bson.BsonArray;
 import org.bson.BsonBoolean;
 import org.bson.BsonDocument;
 import org.bson.BsonElement;
 import org.bson.BsonInt32;
 import org.bson.BsonString;
-import org.bson.BsonValue;
 import org.bson.conversions.Bson;
 
 import java.util.List;
@@ -21,9 +21,14 @@ import static java.util.Arrays.asList;
  */
 public class ViewMuttleyUsers implements ViewSource {
     private final String VERSION = "1.0.7";
-    private final String NAME = "view_muttley_users";
-    private final String SOURCE = "muttley-users-base";
+    private final String NAME;//= "view_muttley_users";
+    private final String SOURCE;//= "muttley-users-base";
     private final String DESCRIPTION = "A view foi criada para facilitar a listagem de usuários e seus owners já linkados";
+
+    public ViewMuttleyUsers(final DocumentNameConfig documentNameConfig) {
+        this.NAME = documentNameConfig.getNameViewCollectionUser();
+        this.SOURCE = documentNameConfig.getNameCollectionUserBase();
+    }
 
     @Override
     public String getVersion() {
