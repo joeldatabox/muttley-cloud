@@ -82,6 +82,12 @@
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-admin-server</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-security-server</artifactId>
                 <version>0.0.2-SNAPSHOT</version>
             </dependency>
