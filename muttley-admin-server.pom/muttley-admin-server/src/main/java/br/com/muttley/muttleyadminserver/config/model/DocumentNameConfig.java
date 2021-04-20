@@ -1,4 +1,4 @@
-package br.com.muttley.security.server.config.model;
+package br.com.muttley.muttleyadminserver.config.model;
 
 
 import lombok.Getter;
@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author Joel Rodrigues Moreira on 17/04/18.
+ * @author Joel Rodrigues Moreira on 30/04/20.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
@@ -59,4 +59,3 @@ public class DocumentNameConfig {
         this.nameViewCollectionWorkTeamRolesUser = nameViewCollectionWorkTeamRolesUser;
     }
 }
-
