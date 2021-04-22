@@ -1,4 +1,4 @@
-package br.com.muttley.muttleyadminserver.service;
+package br.com.muttley.admin.server.service;
 
 import br.com.muttley.domain.service.Service;
 import br.com.muttley.model.Document;

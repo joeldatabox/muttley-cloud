@@ -1,6 +1,7 @@
 package br.com.muttley.security.feign;
 
 import br.com.muttley.feign.service.config.FeignTimeoutConfig;
+import br.com.muttley.feign.service.interceptors.HeadersMetadataInterceptor;
 import br.com.muttley.model.security.KeyUserDataBinding;
 import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserDataBinding;
@@ -25,7 +26,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/users-databinding", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
+@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/users-databinding", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class, HeadersMetadataInterceptor.class})
 public interface UserDataBindingClient {
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     UserDataBinding save(@RequestBody final UserDataBinding value, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final boolean returnEntity);

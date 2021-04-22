@@ -1,4 +1,4 @@
-package br.com.muttley.muttleyadminserver.service.impl;
+package br.com.muttley.admin.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
@@ -6,9 +6,9 @@ import br.com.muttley.model.admin.AdminOwner;
 import br.com.muttley.model.admin.AdminWorkTeam;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.WorkTeam;
-import br.com.muttley.muttleyadminserver.config.model.DocumentNameConfig;
-import br.com.muttley.muttleyadminserver.repository.AdminWorkTeamRepository;
-import br.com.muttley.muttleyadminserver.service.AdminWorkTeamService;
+import br.com.muttley.admin.server.config.model.DocumentNameConfig;
+import br.com.muttley.admin.server.repository.AdminWorkTeamRepository;
+import br.com.muttley.admin.server.service.AdminWorkTeamService;
 import org.bson.BsonDocument;
 import org.bson.BsonElement;
 import org.bson.BsonObjectId;

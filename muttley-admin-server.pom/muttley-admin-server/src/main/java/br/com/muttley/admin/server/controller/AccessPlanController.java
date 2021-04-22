@@ -1,12 +1,10 @@
-package br.com.muttley.muttleyadminserver.controller;
+package br.com.muttley.admin.server.controller;
 
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.security.Owner;
-import br.com.muttley.muttleyadminserver.events.OwnerCreatedEvent;
+import br.com.muttley.model.security.AccessPlan;
 import br.com.muttley.rest.RestController;
 import br.com.muttley.rest.RestResource;
-import br.com.muttley.security.feign.OwnerServiceClient;
-import br.com.muttley.security.feign.WorkTeamServiceClient;
+import br.com.muttley.security.feign.AccessPlanServiceClient;
 import br.com.muttley.security.infra.resource.PageableResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,7 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -34,44 +31,19 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@org.springframework.web.bind.annotation.RestController
-@RequestMapping(value = "/api/v1/owners", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-public class OwnerController implements RestController<Owner>, RestResource {
-    private final OwnerServiceClient client;
-    private final WorkTeamServiceClient workTeamService;
+public class AccessPlanController implements RestController<AccessPlan>, RestResource {
+    private final AccessPlanServiceClient client;
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public OwnerController(final OwnerServiceClient client, final WorkTeamServiceClient workTeamService, final ApplicationEventPublisher eventPublisher) {
+    public AccessPlanController(final AccessPlanServiceClient client, final ApplicationEventPublisher eventPublisher) {
         this.client = client;
-        this.workTeamService = workTeamService;
         this.eventPublisher = eventPublisher;
     }
-
     @Override
     @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE})
-    public ResponseEntity save(@RequestBody final Owner value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
-
-        final Owner record = client.save(value, "true");
-
-        //disparando evento para informar que foi cria o owner
-        this.eventPublisher.publishEvent(new OwnerCreatedEvent(record));
-        /*//criando o grupo de trabalho para vendedores
-        final WorkTeam vendedores = this.workTeamService.createWorkTeamFor(
-                record.getId(), new WorkTeam()
-                        .setName(WORK_TEAM_NAME)
-                        .setDescription("Grupo principal do sistema criado especificamente para dar autorização a vendedores mobile")
-                        .setUserMaster(record.getUserMaster())
-                        .setUserMaster(record.getUserMaster())
-                        .setOwner(record)
-                        .setRoles(
-                                Role.getValues()
-                                        .stream()
-                                        .filter(it -> it.getRoleName().contains("MOBILE"))
-                                        .collect(toSet())
-                        )
-        );*/
-
+    public ResponseEntity save(@RequestBody final AccessPlan value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
+        final AccessPlan record = client.save(value, returnEntity);
 
         publishCreateResourceEvent(this.eventPublisher, response, record);
 
@@ -84,7 +56,7 @@ public class OwnerController implements RestController<Owner>, RestResource {
 
     @Override
     @RequestMapping(value = "/{id}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final Owner model) {
+    public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final AccessPlan model) {
         return ResponseEntity.ok(client.update(id, model));
     }
 
@@ -98,7 +70,7 @@ public class OwnerController implements RestController<Owner>, RestResource {
     @Override
     @RequestMapping(value = "/{id}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response) {
-        final Owner value = client.findById(id);
+        final AccessPlan value = client.findById(id);
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
@@ -113,7 +85,7 @@ public class OwnerController implements RestController<Owner>, RestResource {
     @Override
     @RequestMapping(value = "/first", method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity first(final HttpServletResponse response) {
-        final Owner value = client.first();
+        final AccessPlan value = client.first();
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
     }
@@ -138,4 +110,5 @@ public class OwnerController implements RestController<Owner>, RestResource {
     public ResponseEntity count(@RequestParam final Map<String, String> allRequestParams) {
         return ResponseEntity.ok(String.valueOf(client.count(allRequestParams)));
     }
+
 }

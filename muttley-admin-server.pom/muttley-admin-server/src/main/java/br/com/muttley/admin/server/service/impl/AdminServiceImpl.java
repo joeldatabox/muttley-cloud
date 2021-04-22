@@ -1,9 +1,9 @@
-package br.com.muttley.muttleyadminserver.service.impl;
+package br.com.muttley.admin.server.service.impl;
 
 import br.com.muttley.domain.service.impl.ServiceImpl;
 import br.com.muttley.model.Document;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
-import br.com.muttley.muttleyadminserver.service.AdminService;
+import br.com.muttley.admin.server.service.AdminService;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 /**

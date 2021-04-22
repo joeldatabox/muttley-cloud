@@ -1,11 +1,11 @@
-package br.com.muttley.muttleyadminserver.service.impl;
+package br.com.muttley.admin.server.service.impl;
 
+import br.com.muttley.admin.server.repository.AdminOwnerRepository;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.admin.AdminOwner;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
-import br.com.muttley.muttleyadminserver.repository.AdminOwnerRepository;
-import br.com.muttley.muttleyadminserver.service.AdminOwnerService;
+import br.com.muttley.admin.server.service.AdminOwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;

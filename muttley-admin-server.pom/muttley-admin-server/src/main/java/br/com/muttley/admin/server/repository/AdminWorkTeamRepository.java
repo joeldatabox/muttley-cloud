@@ -1,4 +1,4 @@
-package br.com.muttley.muttleyadminserver.repository;
+package br.com.muttley.admin.server.repository;
 
 import br.com.muttley.model.admin.AdminWorkTeam;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;

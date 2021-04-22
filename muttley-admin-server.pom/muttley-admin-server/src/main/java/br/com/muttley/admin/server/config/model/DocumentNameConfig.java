@@ -1,4 +1,4 @@
-package br.com.muttley.muttleyadminserver.config.model;
+package br.com.muttley.admin.server.config.model;
 
 
 import lombok.Getter;
