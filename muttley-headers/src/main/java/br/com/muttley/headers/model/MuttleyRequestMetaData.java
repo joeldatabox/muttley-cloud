@@ -1,5 +1,9 @@
 package br.com.muttley.headers.model;
 
+import org.springframework.beans.factory.ObjectProvider;
+
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @author Joel Rodrigues Moreira on 29/07/19.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -7,15 +11,13 @@ package br.com.muttley.headers.model;
  */
 public class MuttleyRequestMetaData {
     protected final String key;
+    private final ObjectProvider<HttpServletRequest> requestObjectProvider;
     protected String currentValue;
+    private boolean resolved = false;
 
-    public MuttleyRequestMetaData(final String key) {
+    public MuttleyRequestMetaData(final String key, final ObjectProvider<HttpServletRequest> requestProvider) {
         this.key = key;
-    }
-
-    public MuttleyRequestMetaData(final String key, final String currentValue) {
-        this(key);
-        this.currentValue = currentValue;
+        this.requestObjectProvider = requestProvider;
     }
 
     public String getKey() {
@@ -23,7 +25,16 @@ public class MuttleyRequestMetaData {
     }
 
     public String getCurrentValue() {
-        return currentValue;
+        if (!this.resolved) {
+            this.resolved = true;
+            final HttpServletRequest request = this.requestObjectProvider.getIfAvailable();
+            if (request != null) {
+                this.currentValue = request.getHeader(this.key);
+            } else {
+                this.currentValue = null;
+            }
+        }
+        return this.currentValue;
     }
 
     public boolean containsValidValue() {

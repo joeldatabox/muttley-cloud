@@ -17,6 +17,7 @@ public class DocumentNameConfig {
     private final String nameCollectionOwner;
     private final String nameCollectionUser;
     private final String nameCollectionPassword;
+    private final String nameCollectionAdminUserBase;
     private final String nameCollectionUserBase;
     private final String nameCollectionAccessPlan;
     private final String nameCollectionUserPreferences;
@@ -33,6 +34,7 @@ public class DocumentNameConfig {
             @Value("${br.com.muttley.security.server.owner-document:muttley-owners}") final String nameCollectionOwner,
             @Value("${br.com.muttley.security.server.user-document:muttley-users}") final String nameCollectionUser,
             @Value("${br.com.muttley.security.server.user-password-document:muttley-users-password}") final String nameCollectionPassword,
+            @Value("${br.com.muttley.security.server.user-base-document:muttley-admin-users-base}") final String nameCollectionAdminUserBase,
             @Value("${br.com.muttley.security.server.user-base-document:muttley-users-base}") final String nameCollectionUserBase,
             @Value("${br.com.muttley.security.server.access-plan-document:muttley-access-plans}") final String nameCollectionAccessPlan,
             @Value("${br.com.muttley.security.server.user-preference-document:muttley-users-preferences}") final String nameCollectionUserPreferences,
@@ -47,6 +49,7 @@ public class DocumentNameConfig {
         this.nameCollectionOwner = nameCollectionOwner;
         this.nameCollectionUser = nameCollectionUser;
         this.nameCollectionPassword = nameCollectionPassword;
+        this.nameCollectionAdminUserBase = nameCollectionAdminUserBase;
         this.nameCollectionUserBase = nameCollectionUserBase;
         this.nameCollectionAccessPlan = nameCollectionAccessPlan;
         this.nameCollectionUserPreferences = nameCollectionUserPreferences;

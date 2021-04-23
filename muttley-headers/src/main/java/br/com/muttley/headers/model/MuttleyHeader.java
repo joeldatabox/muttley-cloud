@@ -1,5 +1,7 @@
 package br.com.muttley.headers.model;
 
+import org.springframework.beans.factory.ObjectProvider;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -8,7 +10,8 @@ import javax.servlet.http.HttpServletRequest;
  * @project muttley-cloud
  */
 public class MuttleyHeader extends MuttleyRequestMetaData {
-    public MuttleyHeader(final String key, final HttpServletRequest request) {
-        super(key, request.getHeader(key));
+    public static final String KEY_ADMIN_SERVER = "MuttleyAdminServe";
+    public MuttleyHeader(final String key, final ObjectProvider<HttpServletRequest> requestProvider) {
+        super(key, requestProvider);
     }
 }

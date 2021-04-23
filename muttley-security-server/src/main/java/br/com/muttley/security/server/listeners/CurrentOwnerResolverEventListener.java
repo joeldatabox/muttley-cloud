@@ -3,9 +3,11 @@ package br.com.muttley.security.server.listeners;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
+import br.com.muttley.headers.components.MuttleyRequestHeader;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.security.server.events.CurrentOwnerResolverEvent;
+import br.com.muttley.security.server.service.AdminOwnerService;
 import br.com.muttley.security.server.service.OwnerService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserPreferencesService;
@@ -28,12 +30,16 @@ public class CurrentOwnerResolverEventListener implements ApplicationListener<Cu
     private final UserPreferencesService preferencesService;
     private final UserDataBindingService dataBindingService;
     private final OwnerService ownerService;
+    private final AdminOwnerService adminOwnerService;
+    @Autowired
+    private MuttleyRequestHeader requestHeader;
 
     @Autowired
-    public CurrentOwnerResolverEventListener(final UserPreferencesService preferencesService, final UserDataBindingService dataBindingService, final OwnerService ownerService) {
+    public CurrentOwnerResolverEventListener(final UserPreferencesService preferencesService, final UserDataBindingService dataBindingService, final OwnerService ownerService, final AdminOwnerService adminOwnerService) {
         this.preferencesService = preferencesService;
         this.dataBindingService = dataBindingService;
         this.ownerService = ownerService;
+        this.adminOwnerService = adminOwnerService;
     }
 
     @Override
@@ -48,7 +54,14 @@ public class CurrentOwnerResolverEventListener implements ApplicationListener<Cu
                 try {
                     //se chegou até aqui é sinal que não tem nenhum owner para o usuário corrente
                     //logo vamo ver se conseguimos encontrar um owner
-                    final List<? extends OwnerData> owners = ownerService.loadOwnersOfUser(event.getSource());
+
+                    final List<? extends OwnerData> owners;
+                    //é uma requisição do serviço de admin?
+                    if (this.requestHeader.isRequestFromAdminServer()) {
+                        owners = adminOwnerService.loadOwnersOfUser(event.getSource());
+                    } else {
+                        owners = ownerService.loadOwnersOfUser(event.getSource());
+                    }
                     //pegando o primeiro owner e salvando o mesmo na preferencia
                     final Preference preference = new Preference(OWNER_PREFERENCE, owners.get(0).getId());
                     //salvando nas preferencias do usuario

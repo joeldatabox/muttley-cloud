@@ -2,6 +2,7 @@ package br.com.muttley.headers.components;
 
 import br.com.muttley.headers.model.MuttleyHeader;
 import br.com.muttley.model.TimeZoneDocument;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
@@ -22,8 +23,8 @@ import static org.springframework.util.StringUtils.isEmpty;
 public class MuttleyCurrentTimezone extends MuttleyHeader {
     public static final String CURRENT_TIMEZONE = "Current-Timezone";
 
-    public MuttleyCurrentTimezone(@Autowired final HttpServletRequest request) {
-        super(CURRENT_TIMEZONE, request);
+    public MuttleyCurrentTimezone(@Autowired final ObjectProvider<HttpServletRequest> requestProvider) {
+        super(CURRENT_TIMEZONE, requestProvider);
     }
 
     @Override
