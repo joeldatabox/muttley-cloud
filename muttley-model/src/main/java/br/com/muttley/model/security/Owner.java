@@ -1,6 +1,7 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.annotations.index.CompoundIndexes;
+import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
@@ -10,6 +11,7 @@ import br.com.muttley.model.security.jackson.UserSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -17,6 +19,8 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
+
+import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * @author Joel Rodrigues Moreira on 24/04/18.
@@ -130,5 +134,17 @@ public class Owner implements br.com.muttley.model.Document, OwnerData {
 
     public OwnerData toOwnerData() {
         return new OwnerDataImpl(this);
+    }
+
+    @Override
+    public ObjectId getObjectId() {
+        if (!isEmpty(getId())) {
+            try {
+                return new ObjectId(getId());
+            } catch (IllegalArgumentException ex) {
+                throw new MuttleyInvalidObjectIdException(this.getClass(), "id", "ObjectId inválido");
+            }
+        }
+        return null;
     }
 }

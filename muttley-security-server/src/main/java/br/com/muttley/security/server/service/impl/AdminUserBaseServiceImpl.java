@@ -5,6 +5,7 @@ import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.model.admin.AdminOwner;
 import br.com.muttley.model.admin.AdminUserBase;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.UserBaseItem;
@@ -14,17 +15,14 @@ import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.service.AdminUserBaseService;
 import br.com.muttley.security.server.service.AdminWorkTeamService;
-import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserService;
-import br.com.muttley.security.server.service.WorkTeamService;
 import com.mongodb.BasicDBObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -89,7 +87,7 @@ public class AdminUserBaseServiceImpl extends SecurityModelServiceImpl<AdminUser
     }
 
     @Override
-    public void checkPrecondictionSave(final User user, final AdminOwner owner, final UserBase value) {
+    public void checkPrecondictionSave(final User user, final OwnerData owner, final AdminUserBase value) {
         if (this.count(user, owner, null) == 1) {
             throw new MuttleyBadRequestException(UserBase.class, null, "Já existe uma base de usuário cadastrada no sistema");
         }
@@ -195,7 +193,7 @@ public class AdminUserBaseServiceImpl extends SecurityModelServiceImpl<AdminUser
                         .pull("users", new BasicDBObject("user.$id", new ObjectId(userLoaded.getId()))),
                 UserBase.class
         );
-        this.workTeamService.removeUserFromAllWorkTeam(user.getCurrentOwner(), userLoaded);
+        this.workTeamService.removeUserFromAllWorkTeam((AdminOwner) user.getCurrentOwner(), userLoaded);
     }
 
     @Override
@@ -359,7 +357,7 @@ public class AdminUserBaseServiceImpl extends SecurityModelServiceImpl<AdminUser
     @Getter
     @Setter
     @Accessors(chain = true)
-    private class UserItemForAdd {
+    private static class UserItemForAdd {
         @DBRef
         @NotNull(message = "Informe o usuário que está efetuando essa operação")
         private User addedBy;

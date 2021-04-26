@@ -35,7 +35,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 @CompoundIndexes({
         @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })
-public class WorkTeam implements Model {
+public class WorkTeam implements Model<Owner> {
     @Id
     protected String id;
     @NotBlank(message = "Informe um nome válido para o grupo")

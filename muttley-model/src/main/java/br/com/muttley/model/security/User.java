@@ -16,15 +16,11 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -97,8 +93,6 @@ public class User implements Serializable, UserData {
             @JsonProperty("userName") final String userName,
             @JsonProperty("email") final String email,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
-            /*@JsonProperty("passwd") final String passwd,*/
-            @JsonProperty("lastPasswordResetDate") final Date lastPasswordResetDate,
             @JsonProperty("enable") final Boolean enable,
             @JsonProperty("authorities") final Set<Authority> authorities,
             @JsonProperty("preferences") final UserPreferences preferences,
@@ -110,8 +104,6 @@ public class User implements Serializable, UserData {
         this.userName = userName;
         this.email = email;
         this.setNickUsers(nickUsers);
-        /*this.passwd = passwd;*/
-        //this.lastPasswordResetDate = lastPasswordResetDate;
         this.enable = enable;
         this.authorities = authorities;
         this.preferences = preferences;

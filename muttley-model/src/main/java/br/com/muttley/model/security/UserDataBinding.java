@@ -38,7 +38,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Accessors(chain = true)
 @EqualsAndHashCode(of = {"key"})
-public class UserDataBinding implements Model {
+public class UserDataBinding implements Model<Owner> {
     @Transient
     @JsonIgnore
     public static final String TYPE_ALIAS = "user-data-binding";

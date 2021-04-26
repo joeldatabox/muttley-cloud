@@ -4,6 +4,7 @@ import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.admin.AdminOwner;
+import br.com.muttley.model.admin.AdminUserBase;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.OwnerDataImpl;
@@ -13,6 +14,7 @@ import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.events.OwnerCreateEvent;
 import br.com.muttley.security.server.repository.AdminOwnerRepository;
 import br.com.muttley.security.server.repository.OwnerRepository;
+import br.com.muttley.security.server.service.AdminOwnerService;
 import br.com.muttley.security.server.service.OwnerService;
 import com.mongodb.BasicDBObject;
 import org.bson.types.ObjectId;
@@ -43,7 +45,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  * Service do owner do odin
  */
 @Service
-public class AdminOwnerServiceImpl extends SecurityServiceImpl<AdminOwner> implements OwnerService {
+public class AdminOwnerServiceImpl extends SecurityServiceImpl<AdminOwner> implements AdminOwnerService {
     private final AdminOwnerRepository repository;
     private final ApplicationEventPublisher eventPublisher;
     private final DocumentNameConfig documentNameConfig;

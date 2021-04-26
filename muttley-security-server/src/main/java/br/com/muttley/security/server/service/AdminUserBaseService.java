@@ -2,6 +2,7 @@ package br.com.muttley.security.server.service;
 
 import br.com.muttley.model.admin.AdminUserBase;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBaseItem;
 import br.com.muttley.model.security.UserData;
@@ -15,7 +16,7 @@ import java.util.Set;
  * @project muttley-cloud
  */
 public interface AdminUserBaseService extends SecurityService<AdminUserBase> {
-    AdminUserBase save(final User user, final Owner owner, final AdminUserBase userBase);
+    AdminUserBase save(final User user, final OwnerData owner, final AdminUserBase userBase);
 
     boolean userNameIsAvaliableForUserName(final User user, final String userName, final Set<String> userNames);
 
