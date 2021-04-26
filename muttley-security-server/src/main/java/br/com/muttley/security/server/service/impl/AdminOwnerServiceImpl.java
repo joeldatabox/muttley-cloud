@@ -132,7 +132,7 @@ public class AdminOwnerServiceImpl extends SecurityServiceImpl<AdminOwner> imple
                         match(where("users.user.$id").is(new ObjectId(user.getId()))),
                         project().and(context -> new BasicDBObject("$objectToArray", "$owner")).as("owner"),
                         project().and(context -> new BasicDBObject("$arrayElemAt", asList("$owner.v", 1))).as("owner"),
-                        lookup(this.documentNameConfig.getNameCollectionOwner(), "owner", "_id", "owner"),
+                        lookup(this.documentNameConfig.getNameCollectionAdminOwner(), "owner", "_id", "owner"),
                         unwind("$owner"),
                         project().and("$owner._id").as("_id")
                                 .and("$owner.name").as("name")
@@ -172,7 +172,7 @@ public class AdminOwnerServiceImpl extends SecurityServiceImpl<AdminOwner> imple
                         limit(1l),
                         project().and(context -> new BasicDBObject("$objectToArray", "$owner")).as("owner"),
                         project().and(context -> new BasicDBObject("$arrayElemAt", asList("$owner.v", 1))).as("owner"),
-                        lookup(this.documentNameConfig.getNameCollectionOwner(), "owner", "_id", "owner"),
+                        lookup(this.documentNameConfig.getNameCollectionAdminOwner(), "owner", "_id", "owner"),
                         unwind("$owner"),
                         replaceRoot("$owner")
                 ),
