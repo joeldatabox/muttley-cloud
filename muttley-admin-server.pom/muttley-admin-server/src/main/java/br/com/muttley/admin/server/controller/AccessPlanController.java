@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -31,6 +32,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
+@org.springframework.web.bind.annotation.RestController
+@RequestMapping(value = "/api/v1/access-plan", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
 public class AccessPlanController implements RestController<AccessPlan>, RestResource {
     private final AccessPlanServiceClient client;
     private final ApplicationEventPublisher eventPublisher;

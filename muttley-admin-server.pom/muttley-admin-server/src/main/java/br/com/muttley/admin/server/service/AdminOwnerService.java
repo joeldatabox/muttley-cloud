@@ -21,5 +21,7 @@ public interface AdminOwnerService extends Service<AdminOwner> {
                     "   true"
     )
     AdminOwner findByName(final User user, final String name);
+
+    AdminOwner findById1(final User user, final String id);
 }
 

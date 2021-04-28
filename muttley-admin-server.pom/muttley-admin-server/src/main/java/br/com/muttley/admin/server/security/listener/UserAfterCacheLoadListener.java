@@ -1,6 +1,6 @@
 package br.com.muttley.admin.server.security.listener;
 
-import br.com.muttley.admin.server.service.AdminWorkTeamService;
+import br.com.muttley.admin.server.service.AdminOwnerService;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserAfterCacheLoadEvent;
 import br.com.muttley.model.security.preference.UserPreferences;
@@ -18,12 +18,12 @@ import org.springframework.stereotype.Component;
 public class UserAfterCacheLoadListener implements ApplicationListener<UserAfterCacheLoadEvent> {
 
     private final UserPreferenceServiceClient preferenceServiceClient;
-    private final AdminWorkTeamService odinWorkTeamService;
+    private final AdminOwnerService adminOwnerService;
 
     @Autowired
-    public UserAfterCacheLoadListener(final UserPreferenceServiceClient preferenceServiceClient, final AdminWorkTeamService odinWorkTeamService) {
+    public UserAfterCacheLoadListener(final UserPreferenceServiceClient preferenceServiceClient, final AdminOwnerService adminOwnerService) {
         this.preferenceServiceClient = preferenceServiceClient;
-        this.odinWorkTeamService = odinWorkTeamService;
+        this.adminOwnerService = adminOwnerService;
     }
 
     @Override
@@ -33,6 +33,6 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
         final UserPreferences preferences = preferenceServiceClient.getUserPreferences();
         final String idWorkTeam = (String) preferences.get(UserPreferences.OWNER_PREFERENCE).getValue();
         user.setPreferences(preferences);
-        user.setCurrentOwner(odinWorkTeamService.findById(user, idWorkTeam).getOwner());
+        user.setCurrentOwner(adminOwnerService.findById1(user, idWorkTeam));
     }
 }

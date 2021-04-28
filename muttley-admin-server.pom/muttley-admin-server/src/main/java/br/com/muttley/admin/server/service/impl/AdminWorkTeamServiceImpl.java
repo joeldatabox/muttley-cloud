@@ -1,14 +1,15 @@
 package br.com.muttley.admin.server.service.impl;
 
+import br.com.muttley.admin.server.config.model.DocumentNameConfig;
+import br.com.muttley.admin.server.repository.AdminWorkTeamRepository;
+import br.com.muttley.admin.server.service.AdminWorkTeamService;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.admin.AdminOwner;
 import br.com.muttley.model.admin.AdminWorkTeam;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.WorkTeam;
-import br.com.muttley.admin.server.config.model.DocumentNameConfig;
-import br.com.muttley.admin.server.repository.AdminWorkTeamRepository;
-import br.com.muttley.admin.server.service.AdminWorkTeamService;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBRef;
 import org.bson.BsonDocument;
 import org.bson.BsonElement;
 import org.bson.BsonObjectId;
@@ -17,6 +18,8 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -41,6 +44,11 @@ public class AdminWorkTeamServiceImpl extends AdminServiceImpl<AdminWorkTeam> im
     public AdminWorkTeamServiceImpl(AdminWorkTeamRepository repository, final MongoTemplate mongoTemplate, final DocumentNameConfig documentNameConfig) {
         super(repository, mongoTemplate, AdminWorkTeam.class);
         this.documentNameConfig = documentNameConfig;
+    }
+
+    @Override
+    public AdminWorkTeam findById1(final User user, final String id) {
+        return super.findById(user, id);
     }
 
     @Override
@@ -86,8 +94,21 @@ public class AdminWorkTeamServiceImpl extends AdminServiceImpl<AdminWorkTeam> im
 
         final List<AdminWorkTeam> list = result.getMappedResults();
         if (CollectionUtils.isEmpty(list)) {
-            throw new MuttleyNoContentException(WorkTeam.class, null, "Nenhum grupo de trabalho encontrado");
+            throw new MuttleyNoContentException(AdminWorkTeam.class, null, "Nenhum grupo de trabalho encontrado");
         }
         return list;
+    }
+
+    @Override
+    public void removeUserFromAllWorkTeam(final AdminOwner owner, final User user) {
+        this.mongoTemplate.updateMulti(
+                new Query(
+                        where("owner.$id").is(owner.getObjectId())
+                ),
+                new Update().pull("members", new BasicDBObject("$in", asList(
+                        new DBRef(this.documentNameConfig.getNameCollectionUser(), user.getObjectId())
+                ))),
+                AdminWorkTeam.class
+        );
     }
 }

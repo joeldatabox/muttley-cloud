@@ -8,11 +8,14 @@ import br.com.muttley.model.jackson.converter.DocumentSerializer;
 import br.com.muttley.model.security.jackson.AccessPlanDeserializer;
 import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -20,6 +23,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 
+import static br.com.muttley.model.security.Owner.TYPE_ALIAS;
 import static org.springframework.util.StringUtils.isEmpty;
 
 /**
@@ -31,7 +35,12 @@ import static org.springframework.util.StringUtils.isEmpty;
 @CompoundIndexes({
         @CompoundIndex(name = "userMaster_index_unique", def = "{'userMaster': 1}", unique = true)
 })
+@TypeAlias(TYPE_ALIAS)
 public class Owner implements br.com.muttley.model.Document, OwnerData {
+    @Transient
+    @JsonIgnore
+    public static final String TYPE_ALIAS = "owner";
+
     @Id
     protected String id;
     @Indexed

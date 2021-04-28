@@ -14,6 +14,8 @@ import java.util.List;
  * @project muttley-cloud
  */
 public interface AdminWorkTeamService extends Service<AdminWorkTeam> {
+    AdminWorkTeam findById1(final User user, final String id);
+
     @PreAuthorize(
             "this.isCheckRole()? " +
                     "(" +
@@ -53,4 +55,6 @@ public interface AdminWorkTeamService extends Service<AdminWorkTeam> {
                     "   true"
     )
     List<AdminWorkTeam> loadAllWorkTeams(final User user);
+
+    void removeUserFromAllWorkTeam(AdminOwner owner, User user);
 }

@@ -139,7 +139,7 @@ public class AdminOwnerServiceImpl extends SecurityServiceImpl<AdminOwner> imple
                                 .and("$owner.description").as("description")
                                 .and("$owner.userMaster").as("userMaster")
                 ),
-                AdminUserBase.class,
+                this.documentNameConfig.getNameCollectionAdminUserBase(),
                 OwnerDataImpl.class
         );
         if (owners == null || CollectionUtils.isEmpty(owners.getMappedResults())) {

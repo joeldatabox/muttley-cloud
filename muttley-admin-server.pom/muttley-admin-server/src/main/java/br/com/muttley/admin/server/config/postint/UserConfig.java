@@ -1,16 +1,17 @@
 package br.com.muttley.admin.server.config.postint;
 
+import br.com.muttley.admin.server.service.AdminUserBaseService;
 import br.com.muttley.admin.server.service.NoSecurityAdminOwnerService;
 import br.com.muttley.admin.server.service.NoSecurityAdminWorkTeamService;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.admin.AdminOwner;
+import br.com.muttley.model.admin.AdminUserBase;
 import br.com.muttley.model.admin.AdminWorkTeam;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserBaseItem;
 import br.com.muttley.model.security.UserPayLoad;
-import br.com.muttley.model.security.preference.Preference;
-import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 /**
  * @author Joel Rodrigues Moreira 23/04/2021
@@ -30,6 +33,7 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
     private final String passwdDefaultUser;
     private final UserServiceClient service;
     private final UserPreferenceServiceClient preferenceServiceClient;
+    private final AdminUserBaseService adminUserBaseService;
 
     private final NoSecurityAdminOwnerService ownerService;
     private final NoSecurityAdminWorkTeamService workTeamService;
@@ -41,13 +45,14 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
             final NoSecurityAdminWorkTeamService workTeamService,
             final UserPreferenceServiceClient preferenceServiceClient,
             @Value("${agrifocus.odin-server.defaultUser}") final String defaultUser,
-            @Value("${agrifocus.odin-server.passwdDefaultUser}") final String passwdDefaultUser) {
+            @Value("${agrifocus.odin-server.passwdDefaultUser}") final String passwdDefaultUser, final AdminUserBaseService adminUserBaseService) {
         this.service = service;
         this.ownerService = ownerService;
         this.workTeamService = workTeamService;
         this.defaultUser = defaultUser;
         this.passwdDefaultUser = passwdDefaultUser;
         this.preferenceServiceClient = preferenceServiceClient;
+        this.adminUserBaseService = adminUserBaseService;
     }
 
     @Override
@@ -70,6 +75,8 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
                             .setDescription("Administrador unico do sistema")
                             .setUserMaster(user)
             );
+
+            this.adminUserBaseService.save(user, (AdminUserBase) new AdminUserBase().setOwner(owner).addUser(new UserBaseItem().setUser(user).setAddedBy(user).setStatus(true).setDtCreate(new Date())));
 
 
             //criando o grupo de trabalho
