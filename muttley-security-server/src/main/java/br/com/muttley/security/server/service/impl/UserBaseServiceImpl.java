@@ -157,17 +157,17 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void createNewUserAndAdd(final User user, final UserBaseItem item) {
-        final User userForSave = new User(item.getUserInfoForMerge());
+        //final User userForSave = new User(item.getUserInfoForMerge());
         if (!item.dataBindingsIsEmpty()) {
             item.getDataBindings().forEach(it -> {
                 if (it.getKey().isUnique()) {
-                    if (this.dataBindingService.containsByKeyAndValueAndUserNameNotEq(user, userForSave.getUserName(), it.getKey(), it.getValue())) {
+                    if (this.dataBindingService.containsByKeyAndValueAndUserNameNotEq(user, item.getUserInfoForMerge().getUserName(), it.getKey(), it.getValue())) {
                         throw new MuttleyBadRequestException(UserDataBinding.class, "key", "Já existe um usuário que possui ligação com " + it.getKey().getDisplayKey() + " informado(a)");
                     }
                 }
             });
         }
-        final User salvedUser = userService.save(userForSave);
+        final User salvedUser = userService.save(item.getUserInfoForMerge());
         if (!item.dataBindingsIsEmpty()) {
             this.dataBindingService.merge(user, salvedUser.getUserName(), item.getDataBindings());
         }
