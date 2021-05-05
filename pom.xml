@@ -50,6 +50,7 @@
         <module>muttley-zuul</module>
         <module>muttley-report</module>
         <module>muttley-local-cache</module>
+        <module>muttley-validators</module>
     </modules>
 
     <dependencies>
@@ -211,6 +212,13 @@
                 <artifactId>muttley-local-cache</artifactId>
                 <version>0.0.2-SNAPSHOT</version>
             </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-validators</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>commons-beanutils</groupId>

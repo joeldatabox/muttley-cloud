@@ -11,7 +11,12 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class MuttleyHeader extends MuttleyRequestMetaData {
     public static final String KEY_ADMIN_SERVER = "MuttleyAdminServe";
+
     public MuttleyHeader(final String key, final ObjectProvider<HttpServletRequest> requestProvider) {
         super(key, requestProvider);
+    }
+
+    public MuttleyHeader(final String key, final HttpServletRequest request) {
+        super(key, request);
     }
 }

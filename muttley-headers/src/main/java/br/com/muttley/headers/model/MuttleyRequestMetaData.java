@@ -11,13 +11,17 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class MuttleyRequestMetaData {
     protected final String key;
-    private final ObjectProvider<HttpServletRequest> requestObjectProvider;
+    private final HttpServletRequest request;
     protected String currentValue;
     private boolean resolved = false;
 
-    public MuttleyRequestMetaData(final String key, final ObjectProvider<HttpServletRequest> requestProvider) {
+    public MuttleyRequestMetaData(final String key, final HttpServletRequest request) {
         this.key = key;
-        this.requestObjectProvider = requestProvider;
+        this.request = request;
+    }
+
+    public MuttleyRequestMetaData(final String key, final ObjectProvider<HttpServletRequest> requestProvider) {
+        this(key, requestProvider.getIfAvailable());
     }
 
     public String getKey() {
@@ -27,7 +31,6 @@ public class MuttleyRequestMetaData {
     public String getCurrentValue() {
         if (!this.resolved) {
             this.resolved = true;
-            final HttpServletRequest request = this.requestObjectProvider.getIfAvailable();
             if (request != null) {
                 this.currentValue = request.getHeader(this.key);
             } else {

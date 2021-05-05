@@ -12,7 +12,6 @@ import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBaseItem;
 import br.com.muttley.model.security.UserPayLoad;
-import br.com.muttley.security.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,8 +30,8 @@ import java.util.Date;
 public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
     private final String defaultUser;
     private final String passwdDefaultUser;
+    private final String nameOrganization;
     private final UserServiceClient service;
-    private final UserPreferenceServiceClient preferenceServiceClient;
     private final AdminUserBaseService adminUserBaseService;
 
     private final NoSecurityAdminOwnerService ownerService;
@@ -40,30 +39,31 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
 
     @Autowired
     public UserConfig(
-            final UserServiceClient service,
-            final NoSecurityAdminOwnerService ownerService,
-            final NoSecurityAdminWorkTeamService workTeamService,
-            final UserPreferenceServiceClient preferenceServiceClient,
-            @Value("${agrifocus.odin-server.defaultUser}") final String defaultUser,
-            @Value("${agrifocus.odin-server.passwdDefaultUser}") final String passwdDefaultUser, final AdminUserBaseService adminUserBaseService) {
-        this.service = service;
-        this.ownerService = ownerService;
-        this.workTeamService = workTeamService;
+            @Value("${muttley.admin-server.default-user}") String defaultUser,
+            @Value("${muttley.admin-server.passwd-default-user}") String passwdDefaultUser,
+            @Value("${muttley.admin-server.name-organization}") String nameOrganization,
+            UserServiceClient service,
+            AdminUserBaseService adminUserBaseService,
+            NoSecurityAdminOwnerService ownerService,
+            NoSecurityAdminWorkTeamService workTeamService) {
         this.defaultUser = defaultUser;
         this.passwdDefaultUser = passwdDefaultUser;
-        this.preferenceServiceClient = preferenceServiceClient;
+        this.nameOrganization = nameOrganization;
+        this.service = service;
         this.adminUserBaseService = adminUserBaseService;
+        this.ownerService = ownerService;
+        this.workTeamService = workTeamService;
     }
 
     @Override
     public void onApplicationEvent(final ApplicationReadyEvent event) {
         try {
-            this.ownerService.findByName("MaxxSoftTecnologia");
+            this.ownerService.findByName(this.nameOrganization);
         } catch (MuttleyNotFoundException ex) {
             //criando usuário
             User user = null;
             try {
-                user = this.service.save(new UserPayLoad("Odin", "Usuário para administrar todo o ecossistema Agrifocus", this.defaultUser, null, null, this.passwdDefaultUser), "true");
+                user = this.service.save(new UserPayLoad("Admin", "Usuário para administrar todo o ecossistema", this.defaultUser, null, null, this.passwdDefaultUser), "true");
             } catch (MuttleyConflictException e) {
                 user = this.service.findByUserName(this.defaultUser);
             }
@@ -71,7 +71,7 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
             //criando o Owner principal;
             final AdminOwner owner = this.ownerService.save(
                     (AdminOwner) new AdminOwner()
-                            .setName("MaxxSoftTecnologia")
+                            .setName(this.nameOrganization)
                             .setDescription("Administrador unico do sistema")
                             .setUserMaster(user)
             );
