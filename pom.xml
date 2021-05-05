@@ -30,6 +30,7 @@
     </properties>
 
     <modules>
+        <module>muttley-admin-server.pom</module>
         <module>muttley-security-server</module>
         <module>muttley-config-server</module>
         <module>muttley-discovery-server</module>
@@ -49,6 +50,7 @@
         <module>muttley-zuul</module>
         <module>muttley-report</module>
         <module>muttley-local-cache</module>
+        <module>muttley-validators</module>
     </modules>
 
     <dependencies>
@@ -73,6 +75,18 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-admin-server.pom</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-admin-server</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-security-server</artifactId>
@@ -198,6 +212,13 @@
                 <artifactId>muttley-local-cache</artifactId>
                 <version>0.0.2-SNAPSHOT</version>
             </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-validators</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>commons-beanutils</groupId>

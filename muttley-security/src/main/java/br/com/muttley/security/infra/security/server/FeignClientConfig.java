@@ -1,6 +1,8 @@
 package br.com.muttley.security.infra.security.server;
 
+import br.com.muttley.feign.service.interceptors.HeadersMetadataInterceptor;
 import br.com.muttley.feign.service.interceptors.PropagateHeadersInterceptor;
+import br.com.muttley.feign.service.service.MuttleyHeadersMetadataService;
 import br.com.muttley.feign.service.service.MuttleyPropagateHeadersService;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +28,10 @@ public class FeignClientConfig {
     @Bean
     public PropagateHeadersInterceptor createPropagateHeadersInterceptor(@Autowired final ObjectProvider<MuttleyPropagateHeadersService> muttleyPropagateHeadersService) {
         return new PropagateHeadersInterceptor(muttleyPropagateHeadersService.getIfAvailable());
+    }
+
+    @Bean
+    public HeadersMetadataInterceptor createHeadersMetadataInterceptor(@Autowired final ObjectProvider<MuttleyHeadersMetadataService> headersMetadataService) {
+        return new HeadersMetadataInterceptor(headersMetadataService);
     }
 }

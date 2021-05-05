@@ -1,6 +1,7 @@
 package br.com.muttley.headers.components;
 
 import br.com.muttley.headers.model.MuttleyHeader;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Component;
@@ -22,8 +23,8 @@ public class MuttleyCurrentVersion extends MuttleyHeader {
     private final BuildProperties buildProperties;
 
     @Autowired
-    public MuttleyCurrentVersion(final HttpServletRequest request, final BuildProperties buildProperties) {
-        super(CURRENT_VERION, request);
+    public MuttleyCurrentVersion(final ObjectProvider<HttpServletRequest> requestProvider, final BuildProperties buildProperties) {
+        super(CURRENT_VERION, requestProvider);
         this.buildProperties = buildProperties;
     }
 

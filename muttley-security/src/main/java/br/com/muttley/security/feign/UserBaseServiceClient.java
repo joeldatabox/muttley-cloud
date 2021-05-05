@@ -1,6 +1,7 @@
 package br.com.muttley.security.feign;
 
 import br.com.muttley.feign.service.config.FeignTimeoutConfig;
+import br.com.muttley.feign.service.interceptors.HeadersMetadataInterceptor;
 import br.com.muttley.model.security.UserBaseItem;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
 import org.springframework.cloud.netflix.feign.FeignClient;
@@ -19,7 +20,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/users-base", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
+@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/users-base", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class, HeadersMetadataInterceptor.class})
 public interface UserBaseServiceClient {
 
     @RequestMapping(value = "/userNamesIsAvaliable", method = RequestMethod.GET, consumes = APPLICATION_JSON_UTF8_VALUE)

@@ -4,6 +4,7 @@ import br.com.muttley.feign.service.converters.BooleanHttpMessageConverter;
 import br.com.muttley.feign.service.converters.DateHttpMessageConverter;
 import br.com.muttley.feign.service.converters.LongHttpMessageConverter;
 import br.com.muttley.feign.service.converters.OwnerDataHttpMessageConverter;
+import br.com.muttley.feign.service.converters.UserHttpMessageConverter;
 import br.com.muttley.feign.service.interceptors.PropagateHeadersInterceptor;
 import br.com.muttley.feign.service.service.MuttleyDecodersService;
 import br.com.muttley.feign.service.service.MuttleyPropagateHeadersService;
@@ -83,6 +84,7 @@ public class FeignConfig extends FeignClientsConfiguration {
         decoderConverters.add(new BooleanHttpMessageConverter());
         decoderConverters.add(new DateHttpMessageConverter());
         decoderConverters.add(new OwnerDataHttpMessageConverter());
+        decoderConverters.add(new UserHttpMessageConverter());
         //decoderConverters.add(new ListOwnerDataHttpMessageConverter());
 
         //verificando se alguem implementou algum decoder

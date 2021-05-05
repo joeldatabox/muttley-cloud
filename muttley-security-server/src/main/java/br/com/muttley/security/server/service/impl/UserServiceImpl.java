@@ -10,7 +10,6 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundExcep
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.JwtUser;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.events.UserCreatedEvent;
@@ -34,7 +33,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;

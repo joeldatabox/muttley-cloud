@@ -1,6 +1,7 @@
 package br.com.muttley.security.feign;
 
 import br.com.muttley.feign.service.config.FeignTimeoutConfig;
+import br.com.muttley.feign.service.interceptors.HeadersMetadataInterceptor;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
@@ -21,7 +22,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/work-teams", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class})
+@FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/work-teams", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class, HeadersMetadataInterceptor.class})
 public interface WorkTeamServiceClient extends RestControllerClient<WorkTeam> {
 
     @RequestMapping(value = "/find-by-name", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)

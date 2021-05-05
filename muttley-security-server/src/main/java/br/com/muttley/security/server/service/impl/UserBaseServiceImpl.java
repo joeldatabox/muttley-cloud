@@ -3,6 +3,7 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.UserBaseItem;
@@ -87,7 +88,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     }
 
     @Override
-    public void checkPrecondictionSave(final User user, final Owner owner, final UserBase value) {
+    public void checkPrecondictionSave(final User user, final OwnerData owner, final UserBase value) {
         if (this.count(user, owner, null) == 1) {
             throw new MuttleyBadRequestException(UserBase.class, null, "Já existe uma base de usuário cadastrada no sistema");
         }
@@ -156,17 +157,17 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void createNewUserAndAdd(final User user, final UserBaseItem item) {
-        final User userForSave = new User(item.getUserInfoForMerge());
+        //final User userForSave = new User(item.getUserInfoForMerge());
         if (!item.dataBindingsIsEmpty()) {
             item.getDataBindings().forEach(it -> {
                 if (it.getKey().isUnique()) {
-                    if (this.dataBindingService.containsByKeyAndValueAndUserNameNotEq(user, userForSave.getUserName(), it.getKey(), it.getValue())) {
+                    if (this.dataBindingService.containsByKeyAndValueAndUserNameNotEq(user, item.getUserInfoForMerge().getUserName(), it.getKey(), it.getValue())) {
                         throw new MuttleyBadRequestException(UserDataBinding.class, "key", "Já existe um usuário que possui ligação com " + it.getKey().getDisplayKey() + " informado(a)");
                     }
                 }
             });
         }
-        final User salvedUser = userService.save(userForSave);
+        final User salvedUser = userService.save(item.getUserInfoForMerge());
         if (!item.dataBindingsIsEmpty()) {
             this.dataBindingService.merge(user, salvedUser.getUserName(), item.getDataBindings());
         }
@@ -357,7 +358,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     @Getter
     @Setter
     @Accessors(chain = true)
-    private class UserItemForAdd {
+    private static class UserItemForAdd {
         @DBRef
         @NotNull(message = "Informe o usuário que está efetuando essa operação")
         private User addedBy;

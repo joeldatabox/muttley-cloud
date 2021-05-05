@@ -34,7 +34,7 @@ import java.util.Set;
 @Setter
 @Accessors(chain = true)
 @TypeAlias(UserBase.TYPE_ALIAS)
-public class UserBase implements Model {
+public class UserBase implements Model<Owner> {
     @Transient
     @JsonIgnore
     public static final String TYPE_ALIAS = "user-base";

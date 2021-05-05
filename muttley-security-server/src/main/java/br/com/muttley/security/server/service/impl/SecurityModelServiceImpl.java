@@ -14,6 +14,7 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.infra.AggregationUtils;
 import br.com.muttley.mongo.service.infra.metadata.EntityMetaData;
@@ -97,7 +98,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
 
     }
 
-    public void checkPrecondictionSave(final User user, final Owner owner, final T value) {
+    public void checkPrecondictionSave(final User user, final OwnerData owner, final T value) {
 
     }
 
@@ -124,7 +125,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
     }
 
     //@PreAuthorize("hasAnyRole(T(br.com.muttley.model.security.Role).ROLE_ODIN_USER)")
-    public T save(final User user, final Owner owner, final T value) {
+    public T save(final User user, final OwnerData owner, final T value) {
         //somente usuario do serviço do odin podem fazer requisição para aqui
         this.checkIsUserOdin(user);
         //verificando se realmente está criando um novo registro
@@ -328,7 +329,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         return this.countByTemplate(user.getCurrentOwner(), allRequestParams);
     }
 
-    public Long count(final User user, final Owner owner, final Map<String, String> allRequestParams) {
+    public Long count(final User user, final OwnerData owner, final Map<String, String> allRequestParams) {
         //return this.repository.count(user.getCurrentOwner(), allRequestParams);
         //somente usuario do serviço do odin podem fazer requisição para aqui
         this.checkIsUserOdin(user);
@@ -362,7 +363,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         }
     }
 
-    private T saveByTemplate(final Owner owner, final T value) {
+    private T saveByTemplate(final OwnerData owner, final T value) {
         validateOwner(owner);
         value.setOwner(owner);
         //salvando o registro
@@ -417,19 +418,19 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         return results.getUniqueMappedResult();
     }*/
 
-    private Collection<T> saveByTemplate(final Owner owner, final Collection<T> value) {
+    private Collection<T> saveByTemplate(final OwnerData owner, final Collection<T> value) {
         return value.stream()
                 .map(it -> this.saveByTemplate(owner, it))
                 .collect(toList());
     }
 
-    private final void validateOwner(final Owner owner) {
+    private final void validateOwner(final OwnerData owner) {
         if (owner == null) {
             throw new MuttleyRepositoryOwnerNotInformedException(this.clazz);
         }
     }
 
-    private Historic loadHistoricByTemplate(final Owner owner, final String id) {
+    private Historic loadHistoricByTemplate(final OwnerData owner, final String id) {
         final AggregationResults result = this.mongoTemplate
                 .aggregate(
                         newAggregation(
@@ -444,7 +445,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
     }
 
 
-    private MetadataDocument loadMetaDataByTemplate(final Owner owner, final String id) {
+    private MetadataDocument loadMetaDataByTemplate(final OwnerData owner, final String id) {
         final AggregationResults result = this.mongoTemplate
                 .aggregate(
                         newAggregation(
@@ -457,7 +458,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         return result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;
     }
 
-    private Set<T> findMultByTemplate(final Owner owner, final String[] ids) {
+    private Set<T> findMultByTemplate(final OwnerData owner, final String[] ids) {
         //criando um array de ObjecIds
         final ObjectId[] objectIds = of(ids)
                 .parallel()
@@ -492,7 +493,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         return null;
     }
 
-    private final List<T> findAllByTemplate(final Owner owner, final Map<String, String> queryParams) {
+    private final List<T> findAllByTemplate(final OwnerData owner, final Map<String, String> queryParams) {
         validateOwner(owner);
         return this.mongoTemplate.aggregate(
                 newAggregation(
@@ -504,7 +505,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
                 .getMappedResults();
     }
 
-    private final long countByTemplate(final Owner owner, final Map<String, String> queryParams) {
+    private final long countByTemplate(final OwnerData owner, final Map<String, String> queryParams) {
         validateOwner(owner);
         final AggregationResults result = this.mongoTemplate.aggregate(
                 newAggregation(
@@ -524,11 +525,11 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         return this.mongoTemplate.exists(new Query(where("owner.$id").is(owner.getObjectId()).and("id").is(new ObjectId(id))), this.clazz);
     }*/
 
-    private boolean existsByTemplate(final Owner owner, final String id) {
+    private boolean existsByTemplate(final OwnerData owner, final String id) {
         return this.mongoTemplate.exists(new Query(where("owner.$id").is(owner.getObjectId()).and("_id").is(new ObjectId(id))), this.clazz);
     }
 
-    private boolean existsByTemplate(final Owner owner, final T value) {
+    private boolean existsByTemplate(final OwnerData owner, final T value) {
         return this.existsByTemplate(owner, value.getId());
     }
 
@@ -553,7 +554,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         }
     }
 
-    private final Map<String, String> addOwnerQueryParam(final Owner owner, final Map<String, String> queryParams) {
+    private final Map<String, String> addOwnerQueryParam(final OwnerData owner, final Map<String, String> queryParams) {
         final Map<String, String> query = new LinkedHashMap<>(1);
         query.put("owner.$id.$is", owner.getObjectId().toString());
         if (queryParams != null) {

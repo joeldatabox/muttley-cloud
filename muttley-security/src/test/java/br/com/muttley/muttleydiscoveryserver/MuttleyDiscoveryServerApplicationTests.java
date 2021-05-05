@@ -1,5 +1,6 @@
 package br.com.muttley.muttleydiscoveryserver;
 
+import br.com.muttley.model.security.Password;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.springframework.cache.interceptor.SimpleKeyGenerator;
@@ -28,6 +29,8 @@ public class MuttleyDiscoveryServerApplicationTests {
     @Test
     public void contextLoads() throws ParseException {
         System.out.println( BASE64.encode(generateKey(HS512).getEncoded()));
+        System.out.println( new Password(null, null, "12345", new Date(), null , null, null).
+                setPassword("12345").getPassword());
     }
 
 }
