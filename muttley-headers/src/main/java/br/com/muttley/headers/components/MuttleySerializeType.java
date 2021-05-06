@@ -1,12 +1,18 @@
 package br.com.muttley.headers.components;
 
 import br.com.muttley.headers.model.MuttleyHeader;
+import br.com.muttley.model.SerializeType;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static br.com.muttley.model.SerializeType.KEY_FROM_HEADER;
+import static br.com.muttley.model.SerializeType.OBJECT_ID_AND_SYNC_TYPE;
+import static br.com.muttley.model.SerializeType.OBJECT_ID_TYPE;
+import static br.com.muttley.model.SerializeType.SYNC_TYPE;
 
 /**
  * @author Joel Rodrigues Moreira on 29/07/19.
@@ -23,40 +29,31 @@ import javax.servlet.http.HttpServletRequest;
 @Component("serializeType")
 @RequestScope
 public class MuttleySerializeType extends MuttleyHeader {
-    public static final String key = "SerializeType";
-    public static final String keyInternal = "SerializeTypeInternal";
-    private static final String SYNC_TYPE = "sync";
-    private static final String OBJECT_ID_TYPE = "ObjectId";
-    private static final String OBJECT_ID_AND_SYNC_TYPE = "ObjectIdAndSync";
-    private final String currentValueInternal;
+    private final SerializeType type;
 
     public MuttleySerializeType(@Autowired final ObjectProvider<HttpServletRequest> request) {
         this(request.getIfAvailable());
     }
 
     public MuttleySerializeType(final HttpServletRequest request) {
-        super(key, request);
-        if (request != null) {
-            this.currentValueInternal = request.getHeader(keyInternal);
-        } else {
-            this.currentValueInternal = null;
-        }
+        super(KEY_FROM_HEADER, request);
+        this.type = SerializeType.Builder.build(request);
     }
 
     public boolean isSync() {
-        return SYNC_TYPE.equals(getCurrentValue());
+        return this.type.isSync();
     }
 
     public boolean isObjectId() {
-        return OBJECT_ID_TYPE.equals(getCurrentValue()) || getCurrentValue() == null;
+        return this.type.isObjectId();
     }
 
     public boolean isObjectIdAndSync() {
-        return OBJECT_ID_AND_SYNC_TYPE.equals(getCurrentValue());
+        return this.type.isObjectIdAndSync();
     }
 
     public boolean isInternal() {
-        return "true".equals(this.currentValueInternal);
+        return this.type.isInternal();
     }
 
     public boolean containsValidValue() {
