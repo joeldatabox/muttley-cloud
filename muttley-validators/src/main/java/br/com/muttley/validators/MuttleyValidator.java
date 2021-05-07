@@ -24,7 +24,7 @@ public abstract class MuttleyValidator<A extends Annotation, T> implements Const
 
     @Override
     public void initialize(final A constraintAnnotation) {
-        this.annotation = annotation;
+        this.annotation = constraintAnnotation;
     }
 
     @Override

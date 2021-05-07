@@ -2,6 +2,7 @@ package br.com.muttley.model.security;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -14,6 +15,7 @@ import java.util.Set;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
+@EqualsAndHashCode(of = {"email", "userName"})
 public class UserPayLoad implements Serializable {
 
     @NotBlank(message = "O campo nome não pode ser nulo!")

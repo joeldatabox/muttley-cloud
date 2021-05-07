@@ -184,6 +184,12 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     }
 
     @Override
+    public void mergeUserItem(User user, UserBaseItem item) {
+        if(this.userService.existUserByEmailOrUserNameOrNickUsers(item.get)
+
+    }
+
+    @Override
     public void removeByUserName(final User user, final String userName) {
         final User userLoaded = this.userService.findByUserName(userName);
         this.mongoTemplate.updateFirst(

@@ -1,6 +1,5 @@
 package br.com.muttley.security.server.service;
 
-import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
@@ -31,6 +30,8 @@ public interface UserBaseService extends SecurityService<UserBase> {
     void createNewUserAndAdd(final User user, final UserBaseItem item);
 
     void mergeUserItemIfExists(User user, final UserBaseItem item);
+
+    void mergeUserItem(final User user, final UserBaseItem item);
 
     void removeByUserName(User user, String userName);
 
