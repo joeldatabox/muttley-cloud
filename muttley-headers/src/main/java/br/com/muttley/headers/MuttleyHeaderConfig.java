@@ -3,6 +3,7 @@ package br.com.muttley.headers;
 import br.com.muttley.headers.components.MuttleyCurrentTimezone;
 import br.com.muttley.headers.components.MuttleyCurrentVersion;
 import br.com.muttley.headers.components.MuttleyRequestHeader;
+import br.com.muttley.headers.components.MuttleySerializeType;
 import br.com.muttley.headers.components.MuttleyUserAgent;
 import br.com.muttley.headers.components.MuttleyUserAgentName;
 import br.com.muttley.headers.services.MetadataService;
@@ -31,6 +32,12 @@ public class MuttleyHeaderConfig {
     @Scope(value = SCOPE_REQUEST, proxyMode = TARGET_CLASS)
     public MuttleyCurrentTimezone getCurrentTimezone(@Autowired final ObjectProvider<HttpServletRequest> requestProvider) {
         return new MuttleyCurrentTimezone(requestProvider);
+    }
+
+    @Bean(name = "serializeType")
+    @Scope(value = SCOPE_REQUEST, proxyMode = TARGET_CLASS)
+    public MuttleySerializeType getSerializeType(@Autowired final HttpServletRequest requestProvider) {
+        return new MuttleySerializeType(requestProvider);
     }
 
     @Bean(name = "currentVersion")

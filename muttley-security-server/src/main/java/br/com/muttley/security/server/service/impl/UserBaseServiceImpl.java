@@ -1,5 +1,6 @@
 package br.com.muttley.security.server.service.impl;
 
+import br.com.muttley.domain.service.Validator;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.model.security.Owner;
@@ -10,6 +11,9 @@ import br.com.muttley.model.security.UserBaseItem;
 import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.model.security.UserView;
+import br.com.muttley.model.security.merge.MergedUserBaseItemResponse;
+import br.com.muttley.model.security.merge.MergedUserBaseResponse;
+import br.com.muttley.model.security.merge.Status;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserDataBindingService;
@@ -30,12 +34,18 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import static br.com.muttley.model.security.Role.ROLE_USER_BASE_CREATE;
+import static br.com.muttley.model.security.merge.Status.CONFLICT;
+import static br.com.muttley.model.security.merge.Status.ERROR;
+import static br.com.muttley.model.security.merge.Status.OK;
 import static java.util.Arrays.asList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
@@ -59,6 +69,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     private final UserDataBindingService dataBindingService;
     private final DocumentNameConfig documentNameConfig;
     private final WorkTeamService workTeamService;
+    private final Validator validator;
 
     @Autowired
     public UserBaseServiceImpl(
@@ -66,13 +77,16 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
             @Value("${muttley.security.odin.user}") final String odinUser,
             final UserService userService,
             final UserDataBindingService dataBindingService,
-            final DocumentNameConfig documentNameConfig, final WorkTeamService workTeamService) {
+            final DocumentNameConfig documentNameConfig,
+            final WorkTeamService workTeamService,
+            final Validator validator) {
         super(template, UserBase.class);
         this.ODIN_USER = odinUser;
         this.userService = userService;
         this.dataBindingService = dataBindingService;
         this.documentNameConfig = documentNameConfig;
         this.workTeamService = workTeamService;
+        this.validator = validator;
     }
 
     @Override
@@ -185,8 +199,59 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void mergeUserItem(User user, UserBaseItem item) {
-        if(this.userService.existUserByEmailOrUserNameOrNickUsers(item.get)
+        if (this.userService.existUserByEmailOrUserNameOrNickUsers(item.getUser().getEmail(), user.getUserName(), user.getNickUsers())) {
+            this.mergeUserItemIfExists(user, item);
+        } else {
+            this.createNewUserAndAdd(user, item);
+        }
 
+    }
+
+    @Override
+    public MergedUserBaseResponse mergeUserItens(final User user, final List<UserBaseItem> itens) {
+        final MergedUserBaseResponse response = new MergedUserBaseResponse();
+        itens.forEach(item -> {
+            final MergedUserBaseItemResponse it = new MergedUserBaseItemResponse(item.getUser().getEmail(), OK);
+            response.add(it);
+            //validando item por si só
+            try {
+                this.validator.validate(item);
+
+                //verificando se o username informado está disponível
+                if (!StringUtils.isEmpty(item.getUser().getUserName()) && !this.userService.userNameIsAvaliable(item.getUser().getUserName())) {
+                    it.setStatus(CONFLICT);
+                    it.addDetails("userName", "Esse userName não está disponível");
+                }
+                //verificando o email
+                if (!StringUtils.isEmpty(item.getUser().getEmail()) && !this.userService.userNameIsAvaliable(item.getUser().getEmail())) {
+                    it.setStatus(CONFLICT);
+                    it.addDetails("email", "Esse email não está disponível");
+                }
+                //verificando os nickUsers
+                if (item.getUser().getNickUsers() != null) {
+                    item.getUser().getNickUsers().forEach(nick -> {
+                        if (!StringUtils.isEmpty(nick) && !this.userService.userNameIsAvaliable(nick)) {
+                            it.setStatus(CONFLICT);
+                            it.addDetails("nickUsers[" + nick + "]", "Esse nickUser não está disponível");
+                        }
+                    });
+                }
+            } catch (final ConstraintViolationException ex) {
+                it.setStatus(ERROR);
+            }
+        });
+        response.getItens()
+                .stream()
+                .filter(it -> Status.OK.equals(it.getStatus()))
+                .forEach(it -> {
+                    this.mergeUserItem(user,
+                            itens.stream().filter(item -> it.getEmail().equals(item.getUser().getEmail()))
+                                    .findFirst()
+                                    .get()
+                    );
+                });
+
+        return response;
     }
 
     @Override

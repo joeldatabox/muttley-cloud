@@ -96,6 +96,7 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
                     return subList;
                 }).forEach(subList -> {
             subList.parallelStream()
+                    .peek(it -> this.checkDtSync(user, it))
                     //agrupando os dados em registros que possui id ou não
                     .collect(Collectors.groupingBy(ModelSync::contaisObjectId))
                     //interando o agrupamento

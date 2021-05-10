@@ -29,14 +29,31 @@ public abstract class MuttleyValidator<A extends Annotation, T> implements Const
 
     @Override
     public final boolean isValid(final T value, final ConstraintValidatorContext context) {
-        //Devemos validar essa info nessa requisição?
+
+        //é uma anotação que está em uma classe e não em um campo?
+        /*if (isAnnotationForClass() || !(value instanceof Document)) {
+            return true;
+        }
+*/
+
+        //é para ignorar essa validação com base no userAgenteName?
+        if (this.isIgnoreValidation(value, context)) {
+            return true;
+        }
+        /*if (isAnnotationForClass() || !(value instanceof Document)) {
+            return true;
+        }
+*/
+        return this.isValidValue(value, context);
+
+        /*//Devemos validar essa info nessa requisição?
         if (!this.isIgnoreValidation(value, context)) {
             //é uma anotação que está em uma classe e não em um campo?
             if (isAnnotationForClass() || !(value instanceof Document)) {
                 return true;
             }
         }
-        return isValidValue(value, context);
+        return isValidValue(value, context);*/
     }
 
     /**

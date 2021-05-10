@@ -31,10 +31,11 @@ import static br.com.muttley.model.SerializeType.SYNC_TYPE;
 public class MuttleySerializeType extends MuttleyHeader {
     private final SerializeType type;
 
-    public MuttleySerializeType(@Autowired final ObjectProvider<HttpServletRequest> request) {
+    /*public MuttleySerializeType(@Autowired final ObjectProvider<HttpServletRequest> request) {
         this(request.getIfAvailable());
-    }
+    }*/
 
+    @Autowired
     public MuttleySerializeType(final HttpServletRequest request) {
         super(KEY_FROM_HEADER, request);
         this.type = SerializeType.Builder.build(request);

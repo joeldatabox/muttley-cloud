@@ -47,6 +47,8 @@ public interface UserService {
 
     boolean userNameIsAvaliable(final Set<String> userNames);
 
+    boolean userNameIsAvaliable(final String userName);
+
     User findById(final String id);
 
     Collection<User> findAll();

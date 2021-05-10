@@ -6,7 +6,9 @@ import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.UserBaseItem;
 import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserView;
+import br.com.muttley.model.security.merge.MergedUserBaseResponse;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -32,6 +34,8 @@ public interface UserBaseService extends SecurityService<UserBase> {
     void mergeUserItemIfExists(User user, final UserBaseItem item);
 
     void mergeUserItem(final User user, final UserBaseItem item);
+
+    MergedUserBaseResponse mergeUserItens(final User user, final List<UserBaseItem> itens);
 
     void removeByUserName(User user, String userName);
 

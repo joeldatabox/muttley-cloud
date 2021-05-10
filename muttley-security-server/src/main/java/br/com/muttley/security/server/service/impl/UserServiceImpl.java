@@ -26,6 +26,7 @@ import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserPreferencesService;
 import br.com.muttley.security.server.service.UserService;
 import org.bson.types.ObjectId;
+import org.hibernate.validator.internal.util.CollectionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -348,6 +349,11 @@ public class UserServiceImpl implements UserService {
             return true;
         }
         return resultCount.getCount() == 0;
+    }
+
+    @Override
+    public boolean userNameIsAvaliable(final String userName) {
+        return this.userNameIsAvaliable(CollectionHelper.asSet(userName));
     }
 
     private Set<String> createSetForNicks(final String email, final String userName, final Set<String> nickUsers) {
