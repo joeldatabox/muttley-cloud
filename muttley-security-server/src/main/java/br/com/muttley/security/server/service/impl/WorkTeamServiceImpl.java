@@ -7,6 +7,7 @@ import br.com.muttley.localcache.services.LocalRolesService;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.events.ValidateOwnerInWorkGroupEvent;
 import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
@@ -48,6 +49,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Update.Position.FIRST;
 
 /**
  * @author Joel Rodrigues Moreira on 26/02/18.
@@ -260,6 +262,37 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                 new Update().pull("members", new BasicDBObject("$in", asList(
                         new DBRef(this.documentNameConfig.getNameCollectionUser(), user.getObjectId())
                 ))),
+                WorkTeam.class
+        );
+    }
+
+    @Override
+    public void addUserForWorkTeamIfNotExists(final User user, final WorkTeam workTeam, final UserData userForAdd) {
+        if (!this.userIsPresentInWorkTeam(user, workTeam, userForAdd)) {
+            this.mongoTemplate.updateMulti(
+                    new Query(
+                            where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                    .and("id").is(workTeam.getObjectId())
+                    ),
+                    new Update().push("members").atPosition(FIRST).each(new DBRef(this.documentNameConfig.getNameCollectionUser(), new ObjectId(userForAdd.getId()))),
+                    WorkTeam.class
+            );
+        }
+    }
+
+    @Override
+    public boolean userIsPresentInWorkTeam(final User user, final WorkTeam workTeam, final UserData userForCheck) {
+        return this.userIsPresentInWorkTeam(user, workTeam.getId(), userForCheck);
+    }
+
+    @Override
+    public boolean userIsPresentInWorkTeam(final User user, final String idWorkTeam, final UserData userForCheck) {
+        return this.mongoTemplate.exists(
+                new Query(
+                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                .and("id").is(new ObjectId(idWorkTeam))
+                                .and("members").in(new DBRef(this.documentNameConfig.getNameCollectionUser(), new ObjectId(userForCheck.getId())))
+                ),
                 WorkTeam.class
         );
     }

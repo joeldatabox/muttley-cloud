@@ -4,6 +4,7 @@ import br.com.muttley.domain.service.Service;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
 
@@ -27,6 +28,12 @@ public interface WorkTeamService extends Service<WorkTeam> {
     AvaliableRoles loadAvaliableRoles(final User user);
 
     void removeUserFromAllWorkTeam(final Owner owner, final User user);
+
+    void addUserForWorkTeamIfNotExists(final User user, final WorkTeam workTeam, final UserData userForAdd);
+
+    boolean userIsPresentInWorkTeam(final User user, final WorkTeam workTeam, final UserData userForCheck);
+
+    boolean userIsPresentInWorkTeam(final User user, final String idWorkTeam, final UserData userForCheck);
 
     /**
      * Método para

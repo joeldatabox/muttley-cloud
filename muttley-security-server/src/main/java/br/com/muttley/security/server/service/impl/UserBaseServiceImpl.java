@@ -13,8 +13,8 @@ import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.model.security.merge.MergedUserBaseItemResponse;
 import br.com.muttley.model.security.merge.MergedUserBaseResponse;
-import br.com.muttley.model.security.merge.Status;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
+import br.com.muttley.security.server.events.NewUserHasBeenAddedInBaseEvent;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserService;
@@ -24,8 +24,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bson.types.ObjectId;
+import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -70,6 +72,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     private final DocumentNameConfig documentNameConfig;
     private final WorkTeamService workTeamService;
     private final Validator validator;
+    private final ApplicationEventPublisher publisher;
 
     @Autowired
     public UserBaseServiceImpl(
@@ -79,7 +82,8 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
             final UserDataBindingService dataBindingService,
             final DocumentNameConfig documentNameConfig,
             final WorkTeamService workTeamService,
-            final Validator validator) {
+            final Validator validator,
+            final ApplicationEventPublisher publisher) {
         super(template, UserBase.class);
         this.ODIN_USER = odinUser;
         this.userService = userService;
@@ -87,6 +91,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
         this.documentNameConfig = documentNameConfig;
         this.workTeamService = workTeamService;
         this.validator = validator;
+        this.publisher = publisher;
     }
 
     @Override
@@ -167,6 +172,8 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
                     UserBase.class
             );
         }
+
+        this.publisher.publishEvent(new NewUserHasBeenAddedInBaseEvent(new NewUserHasBeenAddedInBaseEvent.NewUserHasBeenAddedInBaseItemEvent(user, userForAdd.getUser())));
     }
 
     @Override
@@ -199,7 +206,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
 
     @Override
     public void mergeUserItem(User user, UserBaseItem item) {
-        if (this.userService.existUserByEmailOrUserNameOrNickUsers(item.getUser().getEmail(), user.getUserName(), user.getNickUsers())) {
+        if (this.userService.existUserByEmailOrUserNameOrNickUsers(item.getUserInfoForMerge().getEmail(), item.getUserInfoForMerge().getUserName(), item.getUserInfoForMerge().getNickUsers())) {
             this.mergeUserItemIfExists(user, item);
         } else {
             this.createNewUserAndAdd(user, item);
@@ -210,26 +217,31 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     @Override
     public MergedUserBaseResponse mergeUserItens(final User user, final List<UserBaseItem> itens) {
         final MergedUserBaseResponse response = new MergedUserBaseResponse();
-        itens.forEach(item -> {
-            final MergedUserBaseItemResponse it = new MergedUserBaseItemResponse(item.getUser().getEmail(), OK);
+        itens.stream().map(UserBaseItem::getUserInfoForMerge).forEach(item -> {
+            final MergedUserBaseItemResponse it = new MergedUserBaseItemResponse(item.getEmail(), OK);
+            if (item == null || item.getEmail() == null) {
+                it.setStatus(ERROR);
+                it.addDetails("email", "Informe um email válidp");
+            }
+
             response.add(it);
             //validando item por si só
             try {
                 this.validator.validate(item);
 
                 //verificando se o username informado está disponível
-                if (!StringUtils.isEmpty(item.getUser().getUserName()) && !this.userService.userNameIsAvaliable(item.getUser().getUserName())) {
+                if (!StringUtils.isEmpty(item.getUserName()) && !this.userService.userNameIsAvaliable(item.getUserName())) {
                     it.setStatus(CONFLICT);
                     it.addDetails("userName", "Esse userName não está disponível");
                 }
                 //verificando o email
-                if (!StringUtils.isEmpty(item.getUser().getEmail()) && !this.userService.userNameIsAvaliable(item.getUser().getEmail())) {
+                if (!StringUtils.isEmpty(item.getEmail()) && !this.userService.userNameIsAvaliable(item.getEmail())) {
                     it.setStatus(CONFLICT);
                     it.addDetails("email", "Esse email não está disponível");
                 }
                 //verificando os nickUsers
-                if (item.getUser().getNickUsers() != null) {
-                    item.getUser().getNickUsers().forEach(nick -> {
+                if (item.getNickUsers() != null) {
+                    item.getNickUsers().forEach(nick -> {
                         if (!StringUtils.isEmpty(nick) && !this.userService.userNameIsAvaliable(nick)) {
                             it.setStatus(CONFLICT);
                             it.addDetails("nickUsers[" + nick + "]", "Esse nickUser não está disponível");
@@ -237,15 +249,17 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
                     });
                 }
             } catch (final ConstraintViolationException ex) {
-                it.setStatus(ERROR);
+                final ConstraintViolationImpl violation = ((ConstraintViolationImpl) ex.getConstraintViolations().toArray()[0]);
+                it.setStatus(ERROR)
+                        .addDetails(violation.getPropertyPath().toString(), violation.getMessage());
             }
         });
         response.getItens()
                 .stream()
-                .filter(it -> Status.OK.equals(it.getStatus()))
+                .filter(it -> OK.equals(it.getStatus()))
                 .forEach(it -> {
                     this.mergeUserItem(user,
-                            itens.stream().filter(item -> it.getEmail().equals(item.getUser().getEmail()))
+                            itens.stream().filter(item -> it.getEmail().equals(item.getUserInfoForMerge().getEmail()))
                                     .findFirst()
                                     .get()
                     );
