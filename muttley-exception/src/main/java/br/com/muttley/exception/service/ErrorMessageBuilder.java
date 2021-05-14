@@ -173,7 +173,7 @@ public class ErrorMessageBuilder {
                 final String type = packageClazz[packageClazz.length - 1];
                 final String typeStr = type.equals("ArrayList") || type.equals("HashSet") ? "Array" : type;
                 final String typeSeted = messageStr.contains("START_OBJECT") ? "Object" : messageStr.contains("START_ARRAY") ? "Array" : "Unknown";
-                message.setMessage("Era esperado um " + typeStr + " porem foi passado um " + typeSeted);
+                message.setMessage("Era esperado um " + typeStr + "(a) porem foi passado um " + typeSeted);
                 if (location != null) {
                     message.addDetails("info", "Illegal character in line:" + location.getLineNr() + " column:" + location.getColumnNr());
                 }
