@@ -2,6 +2,7 @@ package br.com.muttley.model;
 
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -17,6 +18,7 @@ public interface Model<T extends OwnerData> extends Document {
     @JsonProperty("owner")
     Model setOwner(final T owner);
 
+    @JsonIgnore
     OwnerData getOwner();
 
 }
