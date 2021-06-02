@@ -3,7 +3,6 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.domain.service.Validator;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
-import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.headers.components.MuttleyCurrentTimezone;
 import br.com.muttley.headers.components.MuttleyCurrentVersion;
 import br.com.muttley.headers.components.MuttleyUserAgentName;
@@ -402,8 +401,8 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
                 BasicAggregateResultCount.class
         );
         if (results == null || results.getUniqueMappedResult() == null) {
-           return false;
-           //throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Nenhum registro encontrado para o usuário desejado");
+            return false;
+            //throw new MuttleyNoContentException(UserDataBinding.class, "userName", "Nenhum registro encontrado para o usuário desejado");
         }
         return results.getUniqueMappedResult().getResult() > 0;
     }

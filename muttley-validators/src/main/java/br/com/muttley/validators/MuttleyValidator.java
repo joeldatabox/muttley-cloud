@@ -1,7 +1,6 @@
 package br.com.muttley.validators;
 
 import br.com.muttley.headers.components.MuttleyUserAgent;
-import br.com.muttley.model.Document;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 

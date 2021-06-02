@@ -4,6 +4,10 @@ import br.com.muttley.headers.components.MuttleyCurrentTimezone;
 import br.com.muttley.headers.components.MuttleyCurrentVersion;
 import br.com.muttley.headers.components.MuttleyUserAgent;
 import br.com.muttley.headers.components.MuttleyUserAgentName;
+import br.com.muttley.headers.components.impl.MuttleyCurrentTimezoneImpl;
+import br.com.muttley.headers.components.impl.MuttleyCurrentVersionImpl;
+import br.com.muttley.headers.components.impl.MuttleyUserAgentImpl;
+import br.com.muttley.headers.components.impl.MuttleyUserAgentNameImpl;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
@@ -27,25 +31,25 @@ public class ConfigRequestMetaDataAgrifocus {
     @Bean(name = "userAgent")
     @Scope(value = SCOPE_REQUEST, proxyMode = TARGET_CLASS)
     public MuttleyUserAgent getUserAgent(@Autowired final ObjectProvider<HttpServletRequest> requestProvider) {
-        return new MuttleyUserAgent(requestProvider);
+        return new MuttleyUserAgentImpl(requestProvider);
     }
 
     @Bean(name = "currentTimezone")
     @Scope(value = SCOPE_REQUEST, proxyMode = TARGET_CLASS)
     public MuttleyCurrentTimezone getCurrentTimezone(@Autowired final ObjectProvider<HttpServletRequest> requestProvider) {
-        return new MuttleyCurrentTimezone(requestProvider);
+        return new MuttleyCurrentTimezoneImpl(requestProvider);
     }
 
     @Bean(name = "currentVersion")
     @Scope(value = SCOPE_REQUEST, proxyMode = TARGET_CLASS)
     @Autowired
     public MuttleyCurrentVersion getCurrentVersion(final ObjectProvider<HttpServletRequest> requestProvider, final BuildProperties buildProperties) {
-        return new MuttleyCurrentVersion(requestProvider, buildProperties);
+        return new MuttleyCurrentVersionImpl(requestProvider, buildProperties);
     }
 
     @Bean(name = "userAgentName")
     @Scope(value = SCOPE_REQUEST, proxyMode = TARGET_CLASS)
     public MuttleyUserAgentName getUserAgentName(@Autowired final ObjectProvider<HttpServletRequest> requestProvider) {
-        return new MuttleyUserAgentName(requestProvider);
+        return new MuttleyUserAgentNameImpl(requestProvider);
     }
 }
