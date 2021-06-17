@@ -1,9 +1,11 @@
 package br.com.muttley.model.util;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
@@ -15,8 +17,15 @@ import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
  * @project muttley-cloud
  */
 public class DateUtils {
+    public static final DateTimeFormatter DEFAULT_ISO_ZONED_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    public static final DateTimeFormatter DEFAULT_ISO_LOCAL_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     public static LocalDateTime toLocalDateTime(final Date date) {
         return toLocalDateTime(date, ZoneId.systemDefault());
+    }
+
+    public static LocalDateTime toLocalDateTime(final LocalDate local) {
+        return local.atTime(0, 0);
     }
 
     public static LocalDateTime toLocalDateTime(final Date date, final ZoneId zoneId) {
@@ -131,6 +140,12 @@ public class DateUtils {
     public static Date toDate(final LocalDateTime date) {
         return Date.from(
                 date.atZone(ZoneId.systemDefault()).toInstant()
+        );
+    }
+
+    public static Date toDate(final LocalDateTime date, final ZoneOffset zoneOffset) {
+        return Date.from(
+                date.atZone(zoneOffset).toInstant()
         );
     }
 

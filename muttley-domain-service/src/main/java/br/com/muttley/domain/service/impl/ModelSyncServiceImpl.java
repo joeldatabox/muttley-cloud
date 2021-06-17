@@ -1,6 +1,7 @@
 package br.com.muttley.domain.service.impl;
 
 import br.com.muttley.domain.service.ModelSyncService;
+import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.Historic;
@@ -77,6 +78,9 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
 
     @Override
     public void synchronize(final User user, final Collection<T> records) {
+        if (records.size() > 100) {
+            throw new MuttleyBadRequestException(this.clazz, null, "Cada requisiçao pode ter no maximo 100 registros");
+        }
         //quebrando em pacotes de 50 registros
         Lists.partition(records instanceof List ? (List<T>) records : new ArrayList<>(records), 50)
                 .stream()

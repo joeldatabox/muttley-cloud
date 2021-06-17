@@ -11,6 +11,7 @@ import sun.util.calendar.ZoneInfo;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.time.ZoneOffset;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -166,5 +167,9 @@ public class TimeZoneDocument {
         }
         return null;
 
+    }
+
+    public static String TimezoneFromId(ZoneOffset offset) {
+        return getTimezoneFromId(offset.toString());
     }
 }

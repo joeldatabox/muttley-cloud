@@ -3,8 +3,10 @@ package br.com.muttley.jackson.service;
 import br.com.muttley.jackson.service.infra.MuttleyJacksonDeserialize;
 import br.com.muttley.jackson.service.infra.MuttleyJacksonSerialize;
 import br.com.muttley.jackson.service.infra.deserializer.BigDecimalDeserializer;
+import br.com.muttley.jackson.service.infra.deserializer.LocalDateDeserializer;
 import br.com.muttley.jackson.service.infra.deserializer.ObjectIdDeserializer;
 import br.com.muttley.jackson.service.infra.deserializer.ZonedDateTimeDeserializer;
+import br.com.muttley.jackson.service.infra.serializer.LocalDateSerializer;
 import br.com.muttley.jackson.service.infra.serializer.ObjectIdSerializer;
 import br.com.muttley.jackson.service.infra.serializer.ZonedDateTimeSerializer;
 import br.com.muttley.model.jackson.DefaultDateFormatConfig;
@@ -18,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 
@@ -50,6 +53,9 @@ public class JacksonConfig {
 
                 mapperBuilder.deserializerByType(ZonedDateTime.class, new ZonedDateTimeDeserializer(datePattern));
                 mapperBuilder.serializerByType(ZonedDateTime.class, new ZonedDateTimeSerializer(datePattern));
+
+                mapperBuilder.deserializerByType(LocalDate.class, new LocalDateDeserializer());
+                mapperBuilder.serializerByType(LocalDate.class, new LocalDateSerializer());
 
                 //mapperBuilder.deserializers(new OwnerDataDeserializer());
                 //mapperBuilder.deserializerByType((Class<List<OwnerData>>) (Class) List.class, new OwnerDataDeserializer());
