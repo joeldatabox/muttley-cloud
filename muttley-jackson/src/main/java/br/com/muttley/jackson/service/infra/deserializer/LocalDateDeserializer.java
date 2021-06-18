@@ -38,6 +38,7 @@ public class LocalDateDeserializer extends JsonDeserializer<LocalDate> {
             return LocalDate.parse(value, DEFAULT_ISO_LOCAL_DATE);
         } catch (DateTimeParseException e) {
             throw new MuttleyBadRequestException(null, parser.getCurrentName(), "Informe uma data válida ")
+                    .addDetails("informado", value)
                     .addDetails("exemplo", LocalDate.now().format(DEFAULT_ISO_LOCAL_DATE));
         }
     }

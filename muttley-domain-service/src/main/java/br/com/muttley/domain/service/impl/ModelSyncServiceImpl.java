@@ -15,6 +15,7 @@ import br.com.muttley.mongo.service.repository.CustomMongoRepository;
 import com.google.common.collect.Lists;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
@@ -78,6 +79,7 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
 
     @Override
     public void synchronize(final User user, final Collection<T> records) {
+        //this.mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, clazz).execute();
         if (records.size() > 100) {
             throw new MuttleyBadRequestException(this.clazz, null, "Cada requisiçao pode ter no maximo 100 registros");
         }
@@ -95,7 +97,9 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
                     ).parallelStream()
                             //com base no syncs carregado, vamos interar a lista e preencher nos objtos que não tem sync
                             .forEach((final SyncObjectId syncId) -> {
-                                subList.parallelStream().filter(it -> syncId.getSync().equals(it.getSync())).forEach(it -> it.setId(syncId.getId()));
+                                subList.parallelStream()
+                                        .filter(it -> syncId.getSync().equals(it.getSync()))
+                                        .forEach(it -> it.setId(syncId.getId()));
                             });
                     return subList;
                 }).forEach(subList -> {

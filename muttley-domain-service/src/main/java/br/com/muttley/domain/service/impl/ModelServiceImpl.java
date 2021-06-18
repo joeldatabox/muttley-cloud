@@ -1,6 +1,7 @@
 package br.com.muttley.domain.service.impl;
 
 import br.com.muttley.domain.service.ModelService;
+import br.com.muttley.domain.service.impl.utils.MetadataAndHistoricIdModel;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
@@ -9,8 +10,13 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
+import com.mongodb.BasicDBObject;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -18,11 +24,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.springframework.data.mongodb.core.BulkOperations.BulkMode.UNORDERED;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * @author Joel Rodrigues Moreira on 30/01/18.
@@ -122,31 +136,79 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         this.checkIdForUpdate(values);
         //verificando se o registro realmente existe
 
+        final List<MetadataAndHistoricIdModel> metadatasAndHistorics = this.loadIdsAndMetadatasAndHisotricsFor(user, values);
         final Map<Boolean, List<T>> agroupedValues = values.stream()
-                .collect(groupingBy(it -> this.repository.exists(it.getId())));
+                .collect(groupingBy(it -> {
+                    final Optional<MetadataAndHistoricIdModel> itemOpt = metadatasAndHistorics
+                            .parallelStream()
+                            .filter(itMeta -> Objects.equals(it.getId(), itMeta.getId()))
+                            .findFirst();
+                    if (itemOpt.isPresent()) {
+                        final MetadataAndHistoricIdModel metadataAndHistoricIdModel = itemOpt.get();
+                        this.generateMetaDataUpdate(user, metadataAndHistoricIdModel.getMetadata(), it);
+                        it.setHistoric(this.generateHistoricUpdate(user, metadataAndHistoricIdModel.getHistoric()));
+                        return true;
+                    }
+                    return false;
+                }));
 
         final List<T> valuesForSave = agroupedValues.get(Boolean.TRUE);
 
         if (!CollectionUtils.isEmpty(valuesForSave)) {
             //gerando metadata de alteração
-            valuesForSave.forEach(it -> generateMetaDataUpdate(user, it));
+            //valuesForSave.forEach(it -> generateMetaDataUpdate(user, it));
             //gerando histórico de alteração
-            valuesForSave.forEach(it -> it.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(it))));
+            //valuesForSave.forEach(it -> it.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(it))));
             //processa regra de negocio antes de qualquer validação
             beforeUpdate(user, valuesForSave);
             //verificando precondições
             checkPrecondictionUpdate(user, valuesForSave);
             //validando dados
             this.validator.validateCollection(valuesForSave);
-            final Collection<T> otherValue = repository.save(user.getCurrentOwner(), valuesForSave);
+            //criando o bulk para atualização em massa
+            final BulkOperations operations = this.mongoTemplate.bulkOps(UNORDERED, clazz);
+            valuesForSave                    .forEach(it -> {
+                        operations.updateOne(
+                                new Query(
+                                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                                .and("_id").is(new ObjectId(it.getId()))
+                                ),
+
+                                Update.fromDBObject(new BasicDBObject("$set", it))
+                        );
+                    });
+            operations.execute();
+            //final Collection<T> otherValue = repository.save(user.getCurrentOwner(), valuesForSave);
             //realizando regras de enegocio depois do objeto ter sido alterado
-            afterUpdate(user, otherValue);
+            afterUpdate(user, valuesForSave);
         }
         final List<T> valuesNotSaved = agroupedValues.get(Boolean.FALSE);
         if (!CollectionUtils.isEmpty(valuesNotSaved)) {
             throw new MuttleyNotFoundException(clazz, "id", "Registros não encontrados")
                     .addDetails("ids", valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));
         }
+    }
+
+    private List<MetadataAndHistoricIdModel> loadIdsAndMetadatasAndHisotricsFor(final User user, final Collection<T> values) {
+        /**
+         * db.getCollection("contas-pagar").aggregate([
+         *     {$match:{"owner.$id":ObjectId("60cc8953279e841c0974da56"), _id:{$in:[ObjectId("60cca012279e8437442bc81c"), ObjectId("60cca012279e8437442bc81d")]}}},
+         *     {$project:{_id:1, metadata:1, historic:1}}
+         * ])
+         */
+        final AggregationResults<MetadataAndHistoricIdModel> ids = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                .and("id").in(
+                                        values.parallelStream().map(it -> it.getObjectId()).collect(toSet())
+                                )),
+                        project("id", "metadata", "historic")
+                ),
+                clazz, MetadataAndHistoricIdModel.class);
+        if (ids == null || CollectionUtils.isEmpty(ids.getMappedResults())) {
+            return Collections.emptyList();
+        }
+        return ids.getMappedResults();
     }
 
     @Override
