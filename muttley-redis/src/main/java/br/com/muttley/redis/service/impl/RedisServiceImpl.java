@@ -20,7 +20,10 @@ import java.util.List;
 import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
+import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import static com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
@@ -153,6 +156,7 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
     private static ObjectMapper getObjectMapper() {
         return new ObjectMapper()
                 .enableDefaultTyping()
+                .enableDefaultTyping(JAVA_LANG_OBJECT, PROPERTY)
                 .registerModule(
                         new SimpleModule("ObjectId",
                                 new Version(1, 0, 0, null, null, null)
@@ -163,6 +167,7 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
                         ).addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer())
                                 .addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer())
                 )
+                .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setVisibility(FIELD, ANY);
     }
 }
