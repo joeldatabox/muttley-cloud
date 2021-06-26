@@ -24,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -111,6 +112,47 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
 
     @Override
     public void afterSave(final User user, final T value) {
+    }
+
+    @Override
+    public void checkPrecondictionSave(final User user, final Collection<T> values) {
+        values.forEach(it -> this.checkPrecondictionSave(user, it));
+    }
+
+    @Override
+    public void beforeSave(final User user, final Collection<T> values) {
+        values.forEach(it -> this.beforeSave(user, it));
+    }
+
+    @Override
+    public Collection<T> save(final User user, final Collection<T> values) {
+        //verificando se realmente está criando um novo registro
+        checkIdForSave(values);
+        //garantindo que o metadata ta preenchido
+        this.createMetaData(user, values);
+        //garantindo que o históriconão ficará nulo
+        values.forEach(it -> it.setHistoric(this.createHistoric(user)));
+        //processa regra de negocio antes de qualquer validação
+        this.beforeSave(user, values);
+        //verificando precondições
+        this.checkPrecondictionSave(user, values);
+        //validando dados do objeto
+        this.validator.validate(values);
+        final Collection<T> otherValues = repository.saveAll(values);
+        //realizando regras de enegocio depois do objeto ter sido salvo
+        this.afterSave(user, otherValues);
+        //valor salvo
+        return otherValues;
+    }
+
+    @Override
+    public void saveOnly(final User user, final Collection<T> values) {
+        this.save(user, values);
+    }
+
+    @Override
+    public void afterSave(final User user, final Collection<T> values) {
+        values.forEach(it -> this.afterSave(user, it));
     }
 
     @Override
@@ -287,6 +329,12 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
                 .setDtChange(now);
     }
 
+    protected void createMetaData(final User user, final Collection<T> values) {
+        values.forEach(it -> {
+            this.createMetaData(user, it);
+        });
+    }
+
     protected void createMetaData(final User user, final T value) {
         //se não tiver nenhum metadata criado, vamos criar um
         if (!value.containsMetadata()) {
@@ -420,5 +468,15 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
                                 limit(1l)
                         ), clazz, clazz
                 );
+    }
+
+    private void checkIdForSave(final Collection<T> values) {
+        values.parallelStream().forEach(it -> this.checkIdForSave(it));
+    }
+
+    private void checkIdForSave(final T value) {
+        if (value.getId() != null) {
+            throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
+        }
     }
 }

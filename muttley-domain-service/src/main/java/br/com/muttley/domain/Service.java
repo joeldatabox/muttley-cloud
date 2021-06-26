@@ -6,6 +6,7 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,6 +85,110 @@ public interface Service<T extends Document> {
      * @param value -> registro a ser salvo
      */
     void afterSave(final User user, final T value);
+
+    /**
+     * Este método é sempre chamado antes de persistir algum registro no banco de dados,
+     * e também antes de se chamar o metodo {@link #beforeSave(User, Collection<Document>)}.
+     * Caso queira realizar algum tipo de validação antes de salvar algo, sobrescreva esse método
+     * com sua regra de negócio jutamente com suas exceptions.
+     * <p>
+     * Por padrao esse metodo faz uma interação item por item chamando o methodo {@link #checkPrecondictionSave(User, Document)}.
+     *
+     * @param user   -> usuário da requisição corrente
+     * @param values -> registro a ser salvo
+     */
+    void checkPrecondictionSave(final User user, final Collection<T> values);
+
+    /**
+     * Este método é chamado toda vez antes de se salvar algum registro e depois de se chamar o metodo
+     * {@link #checkPrecondictionSave(User, Collection<Document>)}.
+     * Este método não deve ser utilizado para executar válidações mas sim para log's, pequenos ajuste
+     * e ou regras de négocio antes de se salvar um registro
+     * <p>
+     * Por padrao esse metodo faz uma interação item por item chamando o methodo {@link #beforeSave(User, Document)}.
+     *
+     * @param user   -> usuário da requisição corrente
+     * @param values -> registro a ser salvo
+     */
+    void beforeSave(final User user, final Collection<T> values);
+
+    /**
+     * Salva um novo registro no banco de dados,
+     * garantindo sempre que ele esteja relacionado a um usuário/owner.
+     * <p>
+     * Antes de ser salvo qualquer registro, primeiramente é executado a regra
+     * de negócio presente no metodo <b>{@link #checkPrecondictionSave(User, Document)}<b/>
+     *
+     * @param user   -> usuário da requisição corrente
+     * @param values -> registro a ser salvo
+     */
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "( " +
+                    "   hasAnyRole( " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString() " +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole( " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('create', this.getBasicRoles()) " +
+                    "   ) " +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('create', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
+    Collection<T> save(final User user, final Collection<T> values);
+
+    /**
+     * Salva um novo registro no banco de dados,
+     * garantindo sempre que ele esteja relacionado a um usuário/owner.
+     * <p>
+     * Antes de ser salvo qualquer registro, primeiramente é executado a regra
+     * de negócio presente no metodo <b>{@link #checkPrecondictionSave(User, Collection<Document>)}<b/>
+     *
+     * @param user   -> usuário da requisição corrente
+     * @param values -> registro a ser salvo
+     */
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "( " +
+                    "   hasAnyRole( " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString() " +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole( " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('create', this.getBasicRoles()) " +
+                    "   ) " +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('create', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
+    void saveOnly(final User user, final Collection<T> values);
+
+    /**
+     * Este metodo é chamado toda vez em que é salvo um registro no banco de dados
+     * <p>
+     * Por padrao esse metodo faz uma interação item por item chamando o methodo {@link #afterSave(User, Document)}.
+     *
+     * @param user   -> usuário da requisição corrente
+     * @param values -> registro a ser salvo
+     */
+    void afterSave(final User user, final Collection<T> values);
 
     /**
      * Este método é sempre chamado antes de persistir a atualização de algum registro no banco de dados.
@@ -518,7 +623,7 @@ public interface Service<T extends Document> {
      * Realiza o processo de listagem com base nos critérios
      * recebidos como parâmetros;
      *
-     * @param user             -> usuário da requisição corrente
+     * @param user   -> usuário da requisição corrente
      * @param params -> Todos os parametros passado na query de requisição
      */
     @PreAuthorize(
