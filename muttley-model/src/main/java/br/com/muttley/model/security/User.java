@@ -342,9 +342,11 @@ public class User implements Serializable {
     }
 
     public final boolean inAnyRole(final String... roles) {
-        return inAnyRole(
-                Stream.of(roles).map(r -> new AuthorityImpl(r))
-        );
+        return inAnyRole(Stream.of(roles).map(AuthorityImpl::new));
+    }
+
+    public final boolean inAnyRole(final Role... roles) {
+        return this.inAnyRole(Stream.of(roles).map(AuthorityImpl::new));
     }
 
     public final boolean inAnyRole(final Authority... roles) {
@@ -352,8 +354,7 @@ public class User implements Serializable {
     }
 
     public final boolean inAnyRole(final Stream<Authority> roles) {
-        return roles
-                .anyMatch(getAuthorities()::contains);
+        return roles.filter(it -> it != null).anyMatch(getAuthorities()::contains);
     }
 
     public UserPreferences getPreferences() {

@@ -357,7 +357,7 @@ public class UserServiceImpl implements UserService {
                         project("preferences"),
                         unwind("$preferences"),
                         match(where("preferences.key").is(keyPreference)),
-                        Aggregation.count().as("resul")
+                        Aggregation.count().as("result")
                 ),
                 UserPreferences.class,
                 BasicAggregateResultCount.class
