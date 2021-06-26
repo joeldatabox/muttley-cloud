@@ -16,6 +16,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
@@ -24,6 +30,12 @@
         <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-headers</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.muttley</groupId>
+            <artifactId>muttley-security-infra</artifactId>
             <scope>provided</scope>
         </dependency>
 
