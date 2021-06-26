@@ -6,6 +6,7 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import org.springframework.data.repository.NoRepositoryBean;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +28,14 @@ public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoReposi
      * @param value -> objeto a ser salvo
      */
     T save(final Owner owner, final T value);
+
+    /**
+     * Sava um colleção de registro registro
+     *
+     * @param owner  -> dono do registro
+     * @param values -> collection de objetos a serem salvos
+     */
+    Collection<T> saveAll(final Owner owner, final Collection<T> values);
 
     /**
      * Busca um simples registro
@@ -70,8 +79,8 @@ public interface MultiTenancyMongoRepository<T> extends SimpleTenancyMongoReposi
     /**
      * Lista registros de uma determinada collection
      *
-     * @param owner      -> dono do registro
-     * * @param params -> parametros da url para criterios
+     * @param owner -> dono do registro
+     *              * @param params -> parametros da url para criterios
      */
     List<T> findAll(final Owner owner, final List<QueryParam> params);
 

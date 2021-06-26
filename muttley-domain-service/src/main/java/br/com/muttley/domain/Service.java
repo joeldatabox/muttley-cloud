@@ -255,6 +255,70 @@ public interface Service<T extends Document> {
     void afterUpdate(final User user, final T value);
 
     /**
+     * Este método é sempre chamado antes de persistir a atualização de algum registro no banco de dados.
+     * Caso queira realizar algum tipo de validação antes de atualizar algo, sobrescreva esse método
+     * com sua regra de negócio jutamente com suas exceptions.
+     *
+     * @param user   -> usuário da requisição corrente
+     * @param values -> registros a ser atualizado
+     */
+    void checkPrecondictionUpdate(final User user, final Collection<T> values);
+
+    /**
+     * Este método é chamado toda vez antes de se atualizar algum registro e depois de se chamar o metodo
+     * {@link #checkPrecondictionUpdate(User, Document)}.
+     * Este método não deve ser utilizado para executar válidações mas sim para log's, pequenos ajuste
+     * e ou regras de négocio antes de se salvar a alteração em algum registro
+     *
+     * @param user   -> usuário da requisição corrente
+     * @param values -> registro a ser salvo
+     */
+    void beforeUpdate(final User user, final Collection<T> values);
+
+    /**
+     * Atualiza um novo registro no banco de dados,
+     * garantindo sempre que ele esteja relacionado a um usuário/owner.
+     * <p>
+     * Antes de ser atualizado qualquer registro, primeiramente é executado a regra
+     * de negócio presente no metodo <b>checkPrecondictionUpdate<b/>
+     *
+     * @param user   -> usuário da requisição corrente
+     * @param values -> registro a ser atualizado
+     */
+    @PreAuthorize(
+            "this.isCheckRole()? " +
+                    "(" +
+                    "   hasAnyRole(" +
+                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
+                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString() " +
+                    "   ) " +
+                    "or " +
+                    "   hasAnyRole( " +
+                    "       T(br.com.muttley.model.security.Role).toPatternRole('update', this.getBasicRoles()) " +
+                    "   )" +
+                    "or (" +
+                    "   @userAgent.isMobile()? " +
+                    "       ( " +
+                    "           hasAnyRole( " +
+                    "               T(br.com.muttley.model.security.Role).toPatternRole('update', 'MOBILE_' + this.getBasicRoles()) " +
+                    "           ) " +
+                    "       ):false " +
+                    "   )" +
+                    "): " +
+                    "   true "
+    )
+    void update(final User user, final Collection<T> values);
+
+    /**
+     * Este metodo é chamado toda vez em que é atualizado um registro no banco de dados
+     *
+     * @param user  -> usuário da requisição corrente
+     * @param value -> registro a ser salvo
+     */
+
+    void afterUpdate(final User user, final Collection<T> value);
+
+    /**
      * Busca um registro pelo id
      *
      * @param user -> usuário da requisição corrente

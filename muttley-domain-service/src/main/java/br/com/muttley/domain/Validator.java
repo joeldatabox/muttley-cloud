@@ -6,6 +6,7 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.util.Collection;
 import java.util.Set;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -28,5 +29,9 @@ public class Validator {
         if (!isEmpty(violations)) {
             throw new ConstraintViolationException("test", violations);
         }
+    }
+
+    public final void validateCollection(final Collection<?> value) {
+        value.stream().forEach(this::validate);
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,16 @@ public class MultiTenancyMongoRepositoryImpl<T extends MultiTenancyModel> extend
         validateOwner(owner);
         value.setOwner(owner);
         return super.save(value);
+    }
+
+    @Override
+    public Collection<T> saveAll(Owner owner, Collection<T> values) {
+        if (!CollectionUtils.isEmpty(values)) {
+            validateOwner(owner);
+            values.parallelStream().forEach(it -> it.setOwner(owner));
+            return super.saveAll(values);
+        }
+        return values;
     }
 
     @Override
