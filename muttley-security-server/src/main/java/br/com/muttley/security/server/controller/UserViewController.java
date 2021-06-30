@@ -2,6 +2,7 @@ package br.com.muttley.security.server.controller;
 
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.mongo.infra.newagregation.operators.Operator;
@@ -13,7 +14,6 @@ import br.com.muttley.security.server.service.UserViewService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,9 +63,11 @@ public class UserViewController extends AbstractRestController<UserView> {
         if (total == 0) {
             throw new MuttleyNoContentException(null, null, "registros não encontrados!");
         }
-        final long totalAll = service.count(currentUser, null);
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        final Owner owner = user.getCurrentOwner();
+        final long totalAll = service.count(null, owner != null ? owner.getId() : null);
         final String q = this.getQ(params);
-        final List records = service.list(q, null);
+        final List records = service.list(q, owner != null ? owner.getId() : null);
 
         final Long recordSize = Long.valueOf(records.size());
 
@@ -88,12 +90,16 @@ public class UserViewController extends AbstractRestController<UserView> {
         return ResponseEntity.ok(new PageableResource(records, metadataPageable));
     }
 
-    @RequestMapping(value = "/userName/{userName}", method = GET, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/userName", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity findById(@PathVariable("userName") final String userName, final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
+    public ResponseEntity findById(@RequestParam(value = "userName", required = false, defaultValue = "null") final String userName, final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams,
                                    @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
 
-        final UserView value = service.findByUserName(userName, allRequestParams.get("owner"));
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        final Owner owner = user.getCurrentOwner();
+
+        final UserView value = service.findByUserName(userName, owner != null ? owner.getId() : null);
+
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
     }
@@ -102,8 +108,9 @@ public class UserViewController extends AbstractRestController<UserView> {
     @ResponseStatus(OK)
     public ResponseEntity count(final HttpServletRequest request, @RequestHeader(value = "${muttley.security.jwt.controller.token-header-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        final Owner owner = user.getCurrentOwner();
         final List<QueryParam> params = validPageable(QueryParam.BuilderFromURL.newInstance().fromURL(this.getCurrentUrl(request)).build());
-        return ResponseEntity.ok(String.valueOf(service.count(this.getQ(params), null)));
+        return ResponseEntity.ok(String.valueOf(service.count(this.getQ(params), owner != null ? owner.getId() : null)));
     }
 
     private String getQ(final List<QueryParam> params) {
