@@ -523,6 +523,9 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     }
 
     protected void checkIdForSave(final T value) {
+        if (StringUtils.isEmpty(value.getId())) {
+            value.setId(null);
+        }
         if (value.getId() != null) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível criar um registro com um id existente");
         }
