@@ -21,7 +21,7 @@ public class OneSignalNotificationServiceImpl implements OneSignalNotificationSe
     private final String APP_ID;
 
     @Autowired
-    public OneSignalNotificationServiceImpl(final Validator validator, final OneSignalNotificationServiceClient oneSignalNotificationServiceClient, @Value("${muttley.notification.onesignal.appId}") final String APP_ID) {
+    public OneSignalNotificationServiceImpl(final Validator validator, final OneSignalNotificationServiceClient oneSignalNotificationServiceClient, @Value("${muttley.notification.onesignal.appId:#null}") final String APP_ID) {
         this.validator = new SpringValidatorAdapter(validator);
         this.oneSignalNotificationServiceClient = oneSignalNotificationServiceClient;
         this.APP_ID = APP_ID;

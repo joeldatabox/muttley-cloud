@@ -10,7 +10,7 @@ public class OneSignalBasicAuthorizationJWTRequestInterceptor implements Request
 
     public OneSignalBasicAuthorizationJWTRequestInterceptor(
             @Value("${muttley.notification.onesignal.tokenHeader:Authorization}") final String tokenHeader,
-            @Value("${muttley.notification.onesignal.tokenValue}") final String tokenValue) {
+            @Value("${muttley.notification.onesignal.tokenValue:#null}") final String tokenValue) {
         this.tokenHeader = tokenHeader;
         this.tokenValue = tokenValue;
     }
