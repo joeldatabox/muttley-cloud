@@ -1,15 +1,16 @@
 package br.com.muttley.mongo.service.repository.impl;
 
+import br.com.muttley.annotations.index.CompoundIndexes;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
-import br.com.muttley.annotations.index.CompoundIndexes;
 import br.com.muttley.mongo.service.infra.AggregationUtils;
 import br.com.muttley.mongo.service.infra.metadata.EntityMetaData;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,11 +30,14 @@ import org.springframework.util.StringUtils;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Stream.of;
 import static org.bson.types.ObjectId.isValid;
@@ -248,44 +252,159 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     private void createIndexes(final MongoEntityInformation<T, String> metadata) {
         final CompoundIndexes compoundIndexes = metadata.getJavaType().getAnnotation(CompoundIndexes.class);
         if (compoundIndexes != null) {
-            final List<String> indexies = this.operations.getCollection(metadata.getCollectionName())
-                    .getIndexInfo()
+            Supplier<Stream<CompoundIndex>> compoundIndexesStream = () -> Stream.of(compoundIndexes.value());
+            //verificando se tem algum indices nas anotações com nome ou definições iguais
+            final List<CompoundIndex> duplicateds = compoundIndexesStream.get()
+                    .parallel()
+                    .filter(it -> compoundIndexesStream.get().parallel().filter(itt -> itt.name().equals(it.name()) || this.isEqualDefinitionIndex(BasicDBObject.parse(itt.def()), BasicDBObject.parse(it.def()))).count() > 1)
+                    .collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(duplicateds)) {
+                throw new MuttleyException("Existe definições de indices duplicados na classe -> " + this.CLASS.getCanonicalName())
+                        .addDetails("duplicateds", duplicateds);
+            }
+
+            final List<DBObject> currentIdexies = this.operations.getCollection(metadata.getCollectionName()).getIndexInfo();
+            final List<String> currentIndexiesName = currentIdexies
                     .parallelStream()
                     .map(index -> index.get("name"))
                     .map(Object::toString)
                     .collect(Collectors.toList());
+            final DBCollection collection = this.operations.getCollection(metadata.getCollectionName());
+            compoundIndexesStream.get()
+                    .forEach(compoundIndex -> {
+                        //verificando se já existe o indice pelo nome
+                        if (currentIndexiesName.contains(compoundIndex.name())) {
+                            //se chegou até aqui é sinal que existe,
+                            //logo devemos verificar se a definição de ambos são equivalente
+                            //caso contrario devemos atualizar o indice
+                            if (!this.isEqualDefinitionIndex(
+                                    BasicDBObject.parse(compoundIndex.def()),
+                                    currentIdexies.parallelStream()
+                                            .filter(it -> it.get("name").equals(compoundIndex.name()))
+                                            .map(it -> (DBObject) it.get("key"))
+                                            .findFirst()
+                                            .orElse(null)
+                            )) {
+                                //se chegou até aqui logo o indice existe no banco, porem com parametros diferente
+                                // por conta disso devemos dropar esse indice e criar um novo
+                                this.dropIndex(collection, compoundIndex.name());
+                                this.createIndex(collection, compoundIndex);
+                            } else {
+                                log.info("The index \"" + compoundIndex.name() + "\" already exists for collection \"" + COLLECTION + "\"");
+                            }
+                        } else {
+                            //se chegou até aqui é sinal que não existe um indice com o mesmo nome,
+                            //logo devemos verificar se exite algum indice com nome diferente, porem com a definição igual
+                            //se existir definição igual, logo devemos renomear o mesmo
+                            //se não existir devemos criar o mesmo
+                            final DBObject existingItem = currentIdexies
+                                    .parallelStream()
+                                    //.map(it -> (DBObject) it.get("key"))
+                                    .filter(it -> this.isEqualDefinitionIndex(BasicDBObject.parse(compoundIndex.def()), (DBObject) it.get("key")))
+                                    .findFirst()
+                                    .orElse(null);
 
+                            if (existingItem != null) {
+                                this.dropIndex(collection, existingItem.get("name").toString());
+                            }
+                            this.createIndex(collection, compoundIndex);
+                        }
 
-            for (final CompoundIndex compoundIndex : compoundIndexes.value()) {
+                    });
 
-                if (!indexies.contains(compoundIndex.name())) {
-                    final DBObject indexDefinition = BasicDBObject.parse(compoundIndex.def());
-                    final DBObject options = new BasicDBObject();
-
-                    if (compoundIndex.background()) {
-                        options.put("background", 1);
-                    }
-
-                    if (compoundIndex.unique()) {
-                        options.put("unique", 1);
-                    }
-
-                    if (!StringUtils.isEmpty(compoundIndex.name())) {
-                        options.put("name", compoundIndex.name());
-                    }
-
-                    if (compoundIndex.sparse()) {
-                        options.put("sparse", compoundIndex.sparse());
-                    }
-
-                    this.operations.getCollection(metadata.getCollectionName())
-                            .createIndex(indexDefinition, options);
-
-                    log.info("Created index \"" + compoundIndex.name() + "\" for collection \"" + COLLECTION + "\"");
-                } else {
-                    log.info("The index \"" + compoundIndex.name() + "\" already exists for collection \"" + COLLECTION + "\"");
-                }
-            }
+            //dropando indices que exista somente no banco de dados
+            //pegando todos os indices
+            final List<DBObject> currentIndexies = collection.getIndexInfo();
+            //interando todos os indices e pegando somente os que não deveria existir
+            currentIndexies.parallelStream()
+                    .map(it -> it.get("name").toString())
+                    .filter(name -> !name.equals("_id_"))
+                    .filter(name -> compoundIndexesStream.get()
+                            .parallel()
+                            .map(CompoundIndex::name)
+                            .filter(it -> it.equals(name))
+                            .count() == 0
+                    ).forEach(name -> {
+                this.dropIndex(collection, name);
+            });
         }
     }
+
+    private boolean existsIndexByName(final CompoundIndex newIndex, final List<DBObject> currentsIndexies) {
+        if (CollectionUtils.isEmpty(currentsIndexies)) {
+            return false;
+        }
+        return currentsIndexies.parallelStream()
+                .map(it -> it.get("name"))
+                .map(Object::toString)
+                .filter(it -> newIndex.name().equals(it))
+                .count() > 0;
+    }
+
+    private boolean existsIndexByDefinition(final CompoundIndex newIndex, final List<DBObject> currentsIndexies) {
+        if (CollectionUtils.isEmpty(currentsIndexies)) {
+            return false;
+        }
+        //fazendo parse da definição do indice
+        final DBObject newIndexDefinition = BasicDBObject.parse(newIndex.def());
+        //verificando se essa nova definição já existe nos indices atuais
+        return currentsIndexies.parallelStream()
+                .filter(it -> this.isEqualDefinitionIndex(newIndexDefinition, (DBObject) it.get("key")))
+                .count() > 0;
+    }
+
+    /**
+     * Checa se uma nova definição de um indice é equivalente a um indice já existente
+     */
+    private boolean isEqualDefinitionIndex(final DBObject newIndex, final DBObject currentIndex) {
+        if ((newIndex != null && currentIndex == null) || (newIndex == null && currentIndex != null)) {
+            return false;
+        }
+        final List<String> keySetNewIndex = new LinkedList<>(newIndex.keySet());
+        final List<String> keySetCurrentIndex = new LinkedList<>(currentIndex.keySet());
+        if (keySetNewIndex.size() != keySetCurrentIndex.size()) {
+            return false;
+        }
+        for (int i = 0; i < keySetNewIndex.size(); i++) {
+            keySetNewIndex.get(i).equals(keySetCurrentIndex.get(i));
+            if ((!keySetNewIndex.get(i).equals(keySetCurrentIndex.get(i))) || (!(Double.valueOf(newIndex.get(keySetNewIndex.get(i)).toString()).intValue() == Double.valueOf(currentIndex.get(keySetCurrentIndex.get(i)).toString()).intValue()))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void dropIndex(final DBCollection collection, final String name) {
+        if (!"_id_".equals(name)) {
+            collection.dropIndexes(name);
+            log.info("The index \"" + name + "\" has been removed from collection \"" + COLLECTION + "\"");
+        }
+    }
+
+    private void createIndex(final DBCollection collection, final CompoundIndex compoundIndex) {
+        final DBObject indexDefinition = BasicDBObject.parse(compoundIndex.def());
+        final DBObject options = new BasicDBObject();
+
+        if (compoundIndex.background()) {
+            options.put("background", 1);
+        }
+
+        if (compoundIndex.unique()) {
+            options.put("unique", 1);
+        }
+
+        if (!StringUtils.isEmpty(compoundIndex.name())) {
+            options.put("name", compoundIndex.name());
+        }
+
+        if (compoundIndex.sparse()) {
+            options.put("sparse", compoundIndex.sparse());
+        }
+
+        collection.createIndex(indexDefinition, options);
+
+        log.info("Created index \"" + compoundIndex.name() + "\" for collection \"" + COLLECTION + "\"");
+    }
+
+
 }
