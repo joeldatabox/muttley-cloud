@@ -25,8 +25,22 @@ public abstract class AbstractMuttleyReport implements MuttleyReport {
     }
 
     @Override
+    public String getFileForSubReport() {
+        return null;
+    }
+
+    @Override
     public InputStream getSourceReport() {
         return this.getClass().getResourceAsStream(this.getFileReport());
+    }
+
+    @Override
+    public JasperReport loadReport() {
+        try {
+            return (JasperReport) loadObject(getSourceReport());
+        } catch (final JRException ex) {
+            throw new MuttleyException(ex);
+        }
     }
 
     @Override
@@ -39,7 +53,7 @@ public abstract class AbstractMuttleyReport implements MuttleyReport {
         try {
             exportReportToPdfStream(
                     fillReport(
-                            (JasperReport) loadObject(getSourceReport()),
+                            this.loadReport(),
                             this.getParams(),
                             this.getDataSource()
                     ),

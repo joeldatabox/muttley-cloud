@@ -31,6 +31,12 @@
 
         <dependency>
             <groupId>br.com.muttley</groupId>
+            <artifactId>muttley-headers</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>br.com.muttley</groupId>
             <artifactId>muttley-exception</artifactId>
             <scope>provided</scope>
         </dependency>
