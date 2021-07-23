@@ -1,5 +1,8 @@
 package br.com.muttley.security.server.service.impl;
 
+import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.security.server.repository.UserBaseRepository;
 import br.com.muttley.security.server.service.UserBaseService;
@@ -26,5 +29,10 @@ public class UserBaseServiceImpl extends SecurityServiceImpl<UserBase> implement
     @Override
     public String[] getBasicRoles() {
         return basicRoles;
+    }
+
+    @Override
+    public void checkPrecondictionDelete(final User user, final String id) {
+        throw new MuttleyBadRequestException(Owner.class, "id", "Não é possível deletar a base de usuário");
     }
 }

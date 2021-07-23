@@ -1,7 +1,7 @@
-package br.com.muttley.validators.checkIndex;
+package br.com.muttley.annotations.validators.checkIndex;
 
 import br.com.muttley.exception.throwables.MuttleyConflictException;
-import br.com.muttley.validators.MuttleyConstraintValidator;
+import br.com.muttley.annotations.validators.MuttleyConstraintValidator;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;

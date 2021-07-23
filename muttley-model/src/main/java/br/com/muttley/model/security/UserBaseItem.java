@@ -21,7 +21,7 @@ import java.util.Date;
 public class UserBaseItem {
     @DBRef
     @NotNull(message = "Informe o usuário que está efetuando essa operação")
-    private User createBy;
+    private User addedBy;
 
     @DBRef
     @NotNull(message = "Informe o usuário participante da base")
@@ -37,9 +37,9 @@ public class UserBaseItem {
     }
 
     @JsonCreator
-    public UserBaseItem(@JsonProperty("createBy") final User createBy, @JsonProperty("user") final User user, @JsonProperty("dtCreate") final Date dtCreate, @JsonProperty("status") final boolean status) {
+    public UserBaseItem(@JsonProperty("addedBy") final User addedBy, @JsonProperty("user") final User user, @JsonProperty("dtCreate") final Date dtCreate, @JsonProperty("status") final boolean status) {
         this();
-        this.createBy = createBy;
+        this.addedBy = addedBy;
         this.user = user;
         this.dtCreate = dtCreate;
         this.status = status;

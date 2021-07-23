@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.repository;
 
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,6 @@ import org.springframework.stereotype.Repository;
 public interface OwnerRepository extends SimpleTenancyMongoRepository<Owner> {
 
     Owner findByName(final String nome);
+
+    boolean existsByUserMaster(final User userMaster);
 }

@@ -1,7 +1,7 @@
 package br.com.muttley.mongo.query.modelother;
 
 import br.com.muttley.model.security.Owner;
-import br.com.muttley.mongo.service.annotations.CompoundIndexes;
+import br.com.muttley.annotations.CompoundIndexes;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

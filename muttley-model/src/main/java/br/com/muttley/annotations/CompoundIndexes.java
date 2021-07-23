@@ -1,4 +1,4 @@
-package br.com.muttley.mongo.service.annotations;
+package br.com.muttley.annotations;
 
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 

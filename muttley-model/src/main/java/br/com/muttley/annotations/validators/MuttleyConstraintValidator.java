@@ -1,4 +1,4 @@
-package br.com.muttley.validators;
+package br.com.muttley.annotations.validators;
 
 
 import br.com.muttley.exception.throwables.MuttleyException;

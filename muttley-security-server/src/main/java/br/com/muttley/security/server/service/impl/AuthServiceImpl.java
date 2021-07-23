@@ -10,8 +10,7 @@ import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -20,7 +19,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-//@Service
+@Service
 public class AuthServiceImpl implements AuthService {
 
     protected final String tokenHeader;
@@ -71,9 +70,9 @@ public class AuthServiceImpl implements AuthService {
     public Preference getPreference(final String key) {
         return this.getUserPreferences().get(key);
     }
-
+/*
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         return new JwtUser(new User());
-    }
+    }*/
 }

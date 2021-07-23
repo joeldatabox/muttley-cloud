@@ -259,15 +259,16 @@ public final class ErrorMessage {
     @JsonIgnore
     public ResponseEntity toResponseEntity(final HttpServletRequest request) {
         //verificando se tem algum Media type que possa retornar json
-        if (((LinkedHashSet<MediaType>) request.getAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE)).parallelStream()
+        final LinkedHashSet<MediaType> headers = (LinkedHashSet<MediaType>) request.getAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
+        if (headers != null && headers.parallelStream()
                 .filter(it -> APPLICATION_JSON.equals(it) || ALL_VALUE.equals(it))
                 .count() > 0) {
             //se chegou aqui quer dizer que podemo retornar um json,
             //vamos remover qualquer coisa que possa dar outra exception relacionada a media type
             request.removeAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
-            return this.toResponseEntity(true, new HttpHeaders());
+            return this.toResponseEntity(true, null);
         }
-        return this.toResponseEntity(false, new HttpHeaders());
+        return this.toResponseEntity(false, null);
     }
 
 }

@@ -10,7 +10,7 @@ import br.com.muttley.mongo.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.infra.newagregation.paramvalue.QueryParam;
 import br.com.muttley.mongo.infra.newagregation.projections.Projection;
 import br.com.muttley.mongo.repository.SimpleTenancyMongoRepository;
-import br.com.muttley.mongo.service.annotations.CompoundIndexes;
+import br.com.muttley.annotations.CompoundIndexes;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.IndexOptions;

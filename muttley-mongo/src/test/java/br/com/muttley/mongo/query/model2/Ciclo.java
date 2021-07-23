@@ -5,7 +5,7 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.jackson.converter.DateDeserializer;
 import br.com.muttley.model.jackson.converter.DateSerializer;
 import br.com.muttley.model.security.Owner;
-import br.com.muttley.mongo.service.annotations.CompoundIndexes;
+import br.com.muttley.annotations.CompoundIndexes;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
