@@ -17,17 +17,17 @@ import static org.springframework.util.StringUtils.isEmpty;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface Document extends Serializable {
+public interface Document<T extends Document> extends Serializable {
 
     String getId();
 
-    Document setId(final String id);
+    T setId(final String id);
 
     MetadataDocument getMetadata();
 
-    Document setMetadata(final MetadataDocument metaData);
+    T setMetadata(final MetadataDocument metaData);
 
-    Document setHistoric(final Historic historic);
+    T setHistoric(final Historic historic);
 
     @JsonIgnore
     default ObjectId getObjectId() {
