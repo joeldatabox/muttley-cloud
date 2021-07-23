@@ -17,7 +17,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -33,7 +32,8 @@ import static org.springframework.util.StringUtils.isEmpty;
  */
 @Document(collection = "#{documentNameConfig.getNameCollectionOwner()}")
 @CompoundIndexes({
-        @CompoundIndex(name = "userMaster_index_unique", def = "{'userMaster': 1}", unique = true)
+        @CompoundIndex(name = "userMaster_index_unique", def = "{'userMaster': 1}", unique = true),
+        @CompoundIndex(name = "name_index", def = "{'name': 1}")
 })
 @TypeAlias(TYPE_ALIAS)
 public class Owner implements br.com.muttley.model.Document, OwnerData {
@@ -43,7 +43,6 @@ public class Owner implements br.com.muttley.model.Document, OwnerData {
 
     @Id
     protected String id;
-    @Indexed
     protected String name;
     protected String description;
     @NotNull(message = "Informe o usuário master")

@@ -252,12 +252,18 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     private void createIndexes(final MongoEntityInformation<T, String> metadata) {
         final CompoundIndexes compoundIndexes = metadata.getJavaType().getAnnotation(CompoundIndexes.class);
         if (compoundIndexes != null) {
-            Supplier<Stream<CompoundIndex>> compoundIndexesStream = () -> Stream.of(compoundIndexes.value());
+            final Supplier<Stream<CompoundIndex>> compoundIndexesValues = () -> Stream.of(compoundIndexes.value());
             //verificando se tem algum indices nas anotações com nome ou definições iguais
-            final List<CompoundIndex> duplicateds = compoundIndexesStream.get()
+            final List<CompoundIndex> duplicateds = compoundIndexesValues.get()
                     .parallel()
-                    .filter(it -> compoundIndexesStream.get().parallel().filter(itt -> itt.name().equals(it.name()) || this.isEqualDefinitionIndex(BasicDBObject.parse(itt.def()), BasicDBObject.parse(it.def()))).count() > 1)
-                    .collect(Collectors.toList());
+                    .filter(it ->
+                            compoundIndexesValues
+                                    .get()
+                                    .parallel()
+                                    .filter(itt ->
+                                            itt.name().equals(it.name()) || this.isEqualDefinitionIndex(BasicDBObject.parse(itt.def()), BasicDBObject.parse(it.def()))
+                                    ).count() > 1
+                    ).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(duplicateds)) {
                 throw new MuttleyException("Existe definições de indices duplicados na classe -> " + this.CLASS.getCanonicalName())
                         .addDetails("duplicateds", duplicateds);
@@ -270,7 +276,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                     .map(Object::toString)
                     .collect(Collectors.toList());
             final DBCollection collection = this.operations.getCollection(metadata.getCollectionName());
-            compoundIndexesStream.get()
+            compoundIndexesValues.get()
                     .forEach(compoundIndex -> {
                         //verificando se já existe o indice pelo nome
                         if (currentIndexiesName.contains(compoundIndex.name())) {
@@ -319,7 +325,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
             currentIndexies.parallelStream()
                     .map(it -> it.get("name").toString())
                     .filter(name -> !name.equals("_id_"))
-                    .filter(name -> compoundIndexesStream.get()
+                    .filter(name -> compoundIndexesValues.get()
                             .parallel()
                             .map(CompoundIndex::name)
                             .filter(it -> it.equals(name))
@@ -328,29 +334,6 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                 this.dropIndex(collection, name);
             });
         }
-    }
-
-    private boolean existsIndexByName(final CompoundIndex newIndex, final List<DBObject> currentsIndexies) {
-        if (CollectionUtils.isEmpty(currentsIndexies)) {
-            return false;
-        }
-        return currentsIndexies.parallelStream()
-                .map(it -> it.get("name"))
-                .map(Object::toString)
-                .filter(it -> newIndex.name().equals(it))
-                .count() > 0;
-    }
-
-    private boolean existsIndexByDefinition(final CompoundIndex newIndex, final List<DBObject> currentsIndexies) {
-        if (CollectionUtils.isEmpty(currentsIndexies)) {
-            return false;
-        }
-        //fazendo parse da definição do indice
-        final DBObject newIndexDefinition = BasicDBObject.parse(newIndex.def());
-        //verificando se essa nova definição já existe nos indices atuais
-        return currentsIndexies.parallelStream()
-                .filter(it -> this.isEqualDefinitionIndex(newIndexDefinition, (DBObject) it.get("key")))
-                .count() > 0;
     }
 
     /**
@@ -366,8 +349,8 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
             return false;
         }
         for (int i = 0; i < keySetNewIndex.size(); i++) {
-            keySetNewIndex.get(i).equals(keySetCurrentIndex.get(i));
-            if ((!keySetNewIndex.get(i).equals(keySetCurrentIndex.get(i))) || (!(Double.valueOf(newIndex.get(keySetNewIndex.get(i)).toString()).intValue() == Double.valueOf(currentIndex.get(keySetCurrentIndex.get(i)).toString()).intValue()))) {
+            if ((!keySetNewIndex.get(i).equals(keySetCurrentIndex.get(i))) ||
+                    (!(Double.valueOf(newIndex.get(keySetNewIndex.get(i)).toString()).intValue() == Double.valueOf(currentIndex.get(keySetCurrentIndex.get(i)).toString()).intValue()))) {
                 return false;
             }
         }
