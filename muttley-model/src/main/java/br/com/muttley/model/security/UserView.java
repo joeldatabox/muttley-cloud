@@ -60,7 +60,7 @@ public class UserView implements Document {
     public UserView setOwners(final Collection<WorkTeam> workTeams) {
         if (!CollectionUtils.isEmpty(workTeams)) {
             this.setOwners(
-                    workTeams.stream()
+                    workTeams.parallelStream()
                             .map(WorkTeam::getOwner)
                             .collect(toSet())
             );

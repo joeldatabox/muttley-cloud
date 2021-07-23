@@ -204,7 +204,7 @@ public class MuttleyException extends RuntimeException {
         if (events != null) {
             this.getEvents().addAll(
                     asList(events)
-                            .stream()
+                            .parallelStream()
                             .filter(e -> e != null)
                             .collect(
                                     Collectors.toSet()

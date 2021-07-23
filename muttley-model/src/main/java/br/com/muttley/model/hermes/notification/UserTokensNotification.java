@@ -52,6 +52,6 @@ public class UserTokensNotification implements br.com.muttley.model.Document {
     }
 
     public Set<TokenId> getTokensMobile() {
-        return this.tokens.stream().filter(TokenId::isMobile).collect(toSet());
+        return this.tokens.parallelStream().filter(TokenId::isMobile).collect(toSet());
     }
 }

@@ -107,7 +107,10 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
         //validando usuário
         workTeam.setMembers(
-                workTeam.getMembers().stream().filter(it -> it.getId() != null && !"".equals(it.getUserName())).collect(toSet())
+                workTeam.getMembers()
+                        .parallelStream()
+                        .filter(it -> it.getId() != null && !"".equals(it.getUserName()))
+                        .collect(toSet())
         );
     }
 
@@ -133,7 +136,10 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
         //validando usuário
         workTeam.setMembers(
-                workTeam.getMembers().stream().filter(it -> it.getId() != null && !"".equals(it.getUserName())).collect(toSet())
+                workTeam.getMembers()
+                        .parallelStream()
+                        .filter(it -> it.getId() != null && !"".equals(it.getUserName()))
+                        .collect(toSet())
         );
     }
 

@@ -26,6 +26,10 @@ public class DocumentNameConfig {
         return properties.getUserDocument();
     }
 
+    public String getNameCollectionUserBase() {
+        return properties.getUserBaseDocument();
+    }
+
     public String getNameCollectionAccessPlan() {
         return properties.getAccessPlanDocument();
     }

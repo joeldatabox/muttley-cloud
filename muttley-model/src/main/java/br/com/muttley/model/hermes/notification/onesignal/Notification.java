@@ -71,7 +71,7 @@ public class Notification implements Cloneable {
 
     public Notification addContents(final Collection<Content> contents) {
         if (!CollectionUtils.isEmpty(contents)) {
-            this.contents.addAll(contents.stream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
+            this.contents.addAll(contents.parallelStream().filter(it -> !isEmpty(it)).collect(Collectors.toSet()));
         }
         return this;
     }

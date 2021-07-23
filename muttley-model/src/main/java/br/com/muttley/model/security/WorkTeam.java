@@ -110,14 +110,14 @@ public class WorkTeam implements Document {
 
     public WorkTeam addRoles(final Role... roles) {
         if (roles != null) {
-            of(roles).filter(java.util.Objects::nonNull).forEach(it -> this.roles.add(it));
+            of(roles).parallel().filter(java.util.Objects::nonNull).forEach(it -> this.roles.add(it));
         }
         return this;
     }
 
     public WorkTeam addRoles(final Collection<Role> roles) {
         if (roles != null) {
-            roles.stream().filter(java.util.Objects::nonNull).forEach(it -> this.roles.add(it));
+            roles.parallelStream().filter(java.util.Objects::nonNull).forEach(it -> this.roles.add(it));
         }
         return this;
     }

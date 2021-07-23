@@ -19,6 +19,7 @@ public class MuttleyModelProperty {
     protected final static String PREFIX = "muttley.model.name-collection";
     private String ownerDocument = "muttley-owners";
     private String userDocument = "muttley-users";
+    private String userBaseDocument = "muttley-users-base";
     private String accessPlanDocument = "muttley-access-plans";
     private String userPreferenceDocument = "muttley-users-preferences";
     private String usersTokensNotification = "muttley-users-tokens-notification";

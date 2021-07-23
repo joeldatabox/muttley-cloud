@@ -33,7 +33,7 @@ public class AvaliableRoles {
     }
 
     public Set<Role> getDependenciesRolesFrom(final Set<Role> currentRoles) {
-        return currentRoles.stream().map(it -> getDependenciesRolesFrom(it))
+        return currentRoles.parallelStream().map(it -> getDependenciesRolesFrom(it))
                 .reduce((acc, roles) -> {
                     acc.addAll(roles);
                     return acc;
@@ -43,7 +43,7 @@ public class AvaliableRoles {
     }
 
     public Set<Role> getDependenciesRolesFrom(final Role role) {
-        return this.viewRoleDefinitions.stream()
+        return this.viewRoleDefinitions.parallelStream()
                 .filter(it -> it.contains(role))
                 .map(it -> it.getDependencies())
                 .reduce((acc, roles) -> {

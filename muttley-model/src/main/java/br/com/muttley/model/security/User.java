@@ -226,7 +226,7 @@ public class User implements Serializable {
 
     public User setNickUsers(final Set<String> nickUsers) {
         if (nickUsers != null) {
-            this.nickUsers = nickUsers.stream().map(String::toLowerCase).collect(toSet());
+            this.nickUsers = nickUsers.parallelStream().map(String::toLowerCase).collect(toSet());
         }
         return this;
     }
@@ -239,7 +239,7 @@ public class User implements Serializable {
     }
 
     public User addNickUsers(final String... nick) {
-        this.nickUsers.addAll(Stream.of(nick).filter(it -> it != null).map(String::toLowerCase).collect(toSet()));
+        this.nickUsers.addAll(Stream.of(nick).parallel().filter(it -> it != null).map(String::toLowerCase).collect(toSet()));
         return this;
     }
 
@@ -304,7 +304,7 @@ public class User implements Serializable {
     }
 
     public User setAuthorities(final Collection<Role> roles) {
-        this.authorities = roles.stream().map(it -> new AuthorityImpl(it)).collect(toSet());
+        this.authorities = roles.parallelStream().map(it -> new AuthorityImpl(it)).collect(toSet());
         return this;
     }
 
@@ -342,11 +342,11 @@ public class User implements Serializable {
     }
 
     public final boolean inAnyRole(final String... roles) {
-        return inAnyRole(Stream.of(roles).map(AuthorityImpl::new));
+        return inAnyRole(Stream.of(roles).parallel().map(AuthorityImpl::new));
     }
 
     public final boolean inAnyRole(final Role... roles) {
-        return this.inAnyRole(Stream.of(roles).map(AuthorityImpl::new));
+        return this.inAnyRole(Stream.of(roles).parallel().map(AuthorityImpl::new));
     }
 
     public final boolean inAnyRole(final Authority... roles) {

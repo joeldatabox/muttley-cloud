@@ -61,6 +61,7 @@ public class UserPreferences implements Document {
         notNull(preferences, "preferences is null");
         this.preferences = new HashSet<>();
         Stream.of(preferences)
+                .parallel()
                 .map(p -> {
                     if (!p.isValid()) {
                         throw new IllegalArgumentException("key não pode ser nulla ou vazia");
@@ -90,7 +91,7 @@ public class UserPreferences implements Document {
 
 
     public Preference get(final String key) {
-        return this.preferences.stream()
+        return this.preferences.parallelStream()
                 .filter(p -> p.key.equals(key))
                 .findAny()
                 .orElse(null);
