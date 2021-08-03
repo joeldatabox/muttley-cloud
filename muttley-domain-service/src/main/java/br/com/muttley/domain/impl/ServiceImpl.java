@@ -437,7 +437,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
                 .setDtChange(new Date());
     }
 
-    protected void generateMetaDataUpdate(final User user, final T value) {
+    protected void generateMetaDataUpdate(final User user, final MetadataDocument currentMetadata, final T value) {
         //recuperando o registro do banco
         final MetadataDocument currentMetadata = this.repository.loadMetadata(value);
 
@@ -467,6 +467,11 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
                 .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
 
         value.setMetadata(currentMetadata);
+    }
+
+    protected void generateMetaDataUpdate(final User user, final T value) {
+        //recuperando o registro do banco
+        this.generateMetaDataUpdate(user, this.repository.loadMetadata(value), value);
     }
 
     @Override

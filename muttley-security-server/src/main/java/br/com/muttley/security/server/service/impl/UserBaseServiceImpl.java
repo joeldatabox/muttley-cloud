@@ -18,12 +18,12 @@ import static br.com.muttley.model.security.Role.ROLE_USER_BASE_CREATE;
  * @project muttley-cloud
  */
 @Service
-public class UserBaseServiceImpl extends SecurityServiceImpl<UserBase> implements UserBaseService {
+public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> implements UserBaseService {
     private static final String[] basicRoles = new String[]{ROLE_USER_BASE_CREATE.getSimpleName()};
 
     @Autowired
-    public UserBaseServiceImpl(final UserBaseRepository repository, final MongoTemplate template) {
-        super(repository, template, UserBase.class);
+    public UserBaseServiceImpl(final MongoTemplate template) {
+        super(template, UserBase.class);
     }
 
     @Override

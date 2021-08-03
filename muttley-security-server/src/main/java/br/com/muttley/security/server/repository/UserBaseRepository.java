@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@Repository
+//@Repository
 public interface UserBaseRepository extends SimpleTenancyMongoRepository<UserBase> {
 }
 
