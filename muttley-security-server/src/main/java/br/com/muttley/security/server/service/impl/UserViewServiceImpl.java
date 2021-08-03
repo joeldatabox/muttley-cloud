@@ -108,7 +108,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
         try {
             return this.list(userName, idOwner).get(0);
         } catch (MuttleyNoContentException ex) {
-            throw new MuttleyNotFoundException(UserView.class, "userName", "Usuário não encontrad");
+            throw new MuttleyNotFoundException(UserView.class, "userName", "Usuário não encontrado");
         }
     }
 
@@ -116,7 +116,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
     public List<UserView> list(final String criterio, final String idOwner) {
         final List<AggregationOperation> operations = this.createQuery(criterio, idOwner);
         if (operations.isEmpty()) {
-            operations.add(project("_id", "name", "userName", "email", "nickUsers", "owners"));
+            operations.add(project("_id", "name", "userName", "email", "nickUsers", "owner"));
         }
         final List<UserView> views = this.mongoTemplate.aggregate(newAggregation(operations), "view_muttley_users", UserView.class).getMappedResults();
         if (views == null || views.isEmpty()) {
@@ -150,7 +150,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
         if (!StringUtils.isEmpty(idOwner)) {
             operations.add(
                     match(
-                            where("owner").elemMatch(new Criteria().is(new ObjectId(idOwner)))
+                            where("owner.$id").is(new ObjectId(idOwner))
                     )
             );
         }

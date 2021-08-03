@@ -3,6 +3,7 @@ package br.com.muttley.security.server.listeners;
 import br.com.muttley.model.events.OwnerCreateEvent;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
+import br.com.muttley.model.security.UserView;
 import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.service.AuthService;
@@ -68,7 +69,7 @@ public class OwnerCreateEventListener implements ApplicationListener<OwnerCreate
         // Adicinando a base de usuário para esse novo owner cadastradao
         final UserBase userBase = new UserBase();
         userBase.setOwner(ownerCreateEvent.getSource())
-                .addUser(this.userService.getUserFromToken(this.authService.getCurrentToken()), userMaster);
+                .addUser(new UserView(this.userService.getUserFromToken(this.authService.getCurrentToken())), new UserView(userMaster));
 
         this.userBaseService.save(this.userService.getUserFromToken(this.authService.getCurrentToken()), userBase);
     }

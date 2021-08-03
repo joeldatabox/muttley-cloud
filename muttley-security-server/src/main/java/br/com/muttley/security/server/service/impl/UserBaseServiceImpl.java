@@ -32,6 +32,13 @@ public class UserBaseServiceImpl extends SecurityServiceImpl<UserBase> implement
     }
 
     @Override
+    public void checkPrecondictionSave(final User user, final UserBase value) {
+        if (this.count(user, null) == 1) {
+            throw new MuttleyBadRequestException(UserBase.class, null, "Já existe uma base de usuário cadastrada no sistema");
+        }
+    }
+
+    @Override
     public void checkPrecondictionDelete(final User user, final String id) {
         throw new MuttleyBadRequestException(Owner.class, "id", "Não é possível deletar a base de usuário");
     }
