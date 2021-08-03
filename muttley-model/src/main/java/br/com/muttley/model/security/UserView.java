@@ -3,19 +3,14 @@ package br.com.muttley.model.security;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
-import br.com.muttley.model.jackson.converter.ListDocumentSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.util.CollectionUtils;
 
-import java.util.Collection;
 import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Joel Rodrigues Moreira on 15/07/19.
@@ -33,9 +28,10 @@ public class UserView implements Document {
     private String userName;
     private String email;
     private Set<String> nickUsers;
+    private boolean status;
     @DBRef
-    @JsonSerialize(using = ListDocumentSerializer.class)
-    private Set<Owner> owners;
+    @JsonIgnore
+    private Owner owner;
     private Historic historic;
     private MetadataDocument metadata;
 
@@ -49,23 +45,6 @@ public class UserView implements Document {
                 .setUserName(user.getUserName())
                 .setEmail(user.getEmail())
                 .setNickUsers(user.getNickUsers())
-                .setOwners(user.getWorkTeams());
-    }
-
-    public UserView setOwners(final Set<Owner> owners) {
-        this.owners = owners;
-        return this;
-    }
-
-    public UserView setOwners(final Collection<WorkTeam> workTeams) {
-        if (!CollectionUtils.isEmpty(workTeams)) {
-            this.setOwners(
-                    workTeams.parallelStream()
-                            .map(WorkTeam::getOwner)
-                            .collect(toSet())
-            );
-        }
-        return this;
+                .setOwner(user.getCurrentWorkTeam().getOwner());
     }
 }
-
