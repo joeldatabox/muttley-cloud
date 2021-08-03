@@ -1,6 +1,5 @@
 package br.com.muttley.security.server.service;
 
-import br.com.muttley.domain.service.ModelService;
 import br.com.muttley.model.security.UserBase;
 
 /**
