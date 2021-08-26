@@ -15,7 +15,6 @@ import br.com.muttley.mongo.service.repository.CustomMongoRepository;
 import com.google.common.collect.Lists;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
@@ -50,12 +49,18 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
 
     protected final MongoTemplate mongoTemplate;
     protected final CustomMongoRepository<T> repository;
+    protected final Integer MAX_RECORD_SYNC;
 
     @Autowired
     public ModelSyncServiceImpl(final CustomMongoRepository<T> repository, final Class<T> clazz, final MongoTemplate mongoTemplate) {
+        this(repository, clazz, mongoTemplate, 100);
+    }
+
+    public ModelSyncServiceImpl(final CustomMongoRepository<T> repository, final Class<T> clazz, final MongoTemplate mongoTemplate, final Integer maxRecordSync) {
         super(repository, mongoTemplate, clazz);
         this.mongoTemplate = mongoTemplate;
         this.repository = repository;
+        this.MAX_RECORD_SYNC = maxRecordSync;
     }
 
 
@@ -80,7 +85,7 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
     @Override
     public void synchronize(final User user, final Collection<T> records) {
         //this.mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, clazz).execute();
-        if (records.size() > 100) {
+        if (MAX_RECORD_SYNC != null && records.size() > MAX_RECORD_SYNC) {
             throw new MuttleyBadRequestException(this.clazz, null, "Cada requisiçao pode ter no maximo 100 registros");
         }
         //quebrando em pacotes de 50 registros

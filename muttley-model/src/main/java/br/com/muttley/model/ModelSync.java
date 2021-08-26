@@ -29,6 +29,6 @@ public interface ModelSync extends Model<Owner> {
 
     @JsonIgnore
     default boolean containsSync() {
-        return isEmpty(this.getSync());
+        return !isEmpty(this.getSync());
     }
 }
