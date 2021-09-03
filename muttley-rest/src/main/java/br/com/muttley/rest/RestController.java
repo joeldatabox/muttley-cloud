@@ -42,6 +42,10 @@ public interface RestController<T> {
     @ResponseStatus(OK)
     ResponseEntity findById(@PathVariable("id") String id, HttpServletResponse response);
 
+    @RequestMapping(value = "/reference/{id}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
+    ResponseEntity findReferenceById(@PathVariable("id") String id, HttpServletResponse response);
+
     @RequestMapping(value = "/ids", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     ResponseEntity findByIds(@RequestParam(required = false, value = "ids") String[] ids, HttpServletResponse response);

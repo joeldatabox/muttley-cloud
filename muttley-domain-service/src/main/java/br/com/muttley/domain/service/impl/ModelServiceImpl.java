@@ -167,16 +167,16 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
             this.validator.validateCollection(valuesForSave);
             //criando o bulk para atualização em massa
             final BulkOperations operations = this.mongoTemplate.bulkOps(UNORDERED, clazz);
-            valuesForSave                    .forEach(it -> {
-                        operations.updateOne(
-                                new Query(
-                                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                                .and("_id").is(new ObjectId(it.getId()))
-                                ),
+            valuesForSave.forEach(it -> {
+                operations.updateOne(
+                        new Query(
+                                where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                        .and("_id").is(new ObjectId(it.getId()))
+                        ),
 
-                                Update.fromDBObject(new BasicDBObject("$set", it))
-                        );
-                    });
+                        Update.fromDBObject(new BasicDBObject("$set", it))
+                );
+            });
             operations.execute();
             //final Collection<T> otherValue = repository.save(user.getCurrentOwner(), valuesForSave);
             //realizando regras de enegocio depois do objeto ter sido alterado
@@ -213,7 +213,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
 
     @Override
     public T findById(final User user, final String id) {
-        if (isNull(id)) {
+        if (ObjectId.isValid(id)) {
             throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
         }
 
@@ -222,6 +222,24 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return result;
+    }
+
+    @Override
+    public T findReferenceById(User user, String id) {
+        if (!ObjectId.isValid(id)) {
+            throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
+        }
+
+        final AggregationResults<T> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("id").is(new ObjectId(id))),
+                        project("id", "owner")
+                )
+                , clazz, clazz);
+        if (results == null || results.getUniqueMappedResult() == null) {
+            throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+        }
+        return results.getUniqueMappedResult();
     }
 
     @Override
@@ -335,4 +353,5 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
             throw new MuttleyBadRequestException(clazz, "user", "não é possível fazer a alteração do usuário dono do registro");
         }
     }
+
 }

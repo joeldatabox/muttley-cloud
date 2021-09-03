@@ -36,6 +36,9 @@ public interface RestControllerClient<T extends Serializable> {
     @RequestMapping(value = "/{id}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     T findById(@PathVariable("id") String id);
 
+    @RequestMapping(value = "/reference/{id}", method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    T findReferenceById(@PathVariable("id") String id);
+
     @RequestMapping(value = "/ids", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     Set<T> findByIds(@RequestParam(required = false, value = "ids") String[] ids);
 

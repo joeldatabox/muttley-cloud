@@ -4,8 +4,10 @@ import br.com.muttley.domain.service.ModelSyncService;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.localcache.services.LocalModelService;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
+import br.com.muttley.model.Model;
 import br.com.muttley.model.ModelSync;
 import br.com.muttley.model.SyncObjectId;
 import br.com.muttley.model.TimeZoneDocument;
@@ -50,8 +52,10 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
     protected final MongoTemplate mongoTemplate;
     protected final CustomMongoRepository<T> repository;
     protected final Integer MAX_RECORD_SYNC;
-
     @Autowired
+    protected LocalModelService localModelService;
+
+
     public ModelSyncServiceImpl(final CustomMongoRepository<T> repository, final Class<T> clazz, final MongoTemplate mongoTemplate) {
         this(repository, clazz, mongoTemplate, 100);
     }
@@ -79,8 +83,76 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
         //garantindo o sync do registro
         value.setSync(other.getSync());
         this.checkDtSync(user, value);
-        return super.update(user, value);
+        final T updatedValue = super.update(user, value);
+        //removendo do cache temporario caso exista
+        this.localModelService.expire(user, clazz, updatedValue.getId());
+        this.localModelService.expire(user, clazz, updatedValue.getSync());
+        return updatedValue;
     }
+
+    @Override
+    public void update(User user, Collection<T> values) {
+        //devemos garantir que ninguem alterou o sync do registro
+        final Set<SyncObjectId> syncObjectIds = this.getSyncsOfIds(user, values.parallelStream()
+                .map(T::getId)
+                .collect(Collectors.toSet()));
+        values.parallelStream()
+                .forEach(it -> {
+                    it.setSync(
+                            syncObjectIds
+                                    .parallelStream()
+                                    .filter(itt -> itt.getId().equals(it.getId()))
+                                    .findFirst()
+                                    .orElseThrow(MuttleyBadRequestException::new)
+                                    .getSync()
+                    ).setDtSync(new Date());
+                });
+        super.update(user, values);
+        values.forEach(it -> {
+            this.localModelService.expire(user, clazz, it.getId());
+            this.localModelService.expire(user, clazz, it.getSync());
+        });
+    }
+
+    @Override
+    public T findById(User user, String id) {
+        final T result;
+        if (this.localModelService.containsInCahce(user, clazz, id)) {
+            result = (T) this.localModelService.loadModel(user, clazz, id);
+        } else {
+            result = super.findById(user, id);
+            this.localModelService.addCache(user, result, id);
+        }
+        return result;
+    }
+
+    @Override
+    public T findReferenceById(User user, String id) {
+        final T result;
+        if (this.localModelService.containsInCahce(user, clazz, id)) {
+            result = (T) this.localModelService.loadModel(user, clazz, id);
+        } else {
+            if (!ObjectId.isValid(id)) {
+                throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
+            }
+
+            final AggregationResults<T> results = this.mongoTemplate.aggregate(
+                    newAggregation(
+                            match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("id").is(new ObjectId(id))),
+                            project("id", "owner", "sync")
+                    )
+                    , clazz, clazz);
+            if (results == null || results.getUniqueMappedResult() == null) {
+                throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+            }
+            result = results.getUniqueMappedResult();
+            this.localModelService.addReferenceCache(user, result, id);
+        }
+
+
+        return result;
+    }
+
 
     @Override
     public void synchronize(final User user, final Collection<T> records) {
@@ -117,7 +189,12 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
                     .forEach((key) -> {
                         if (key.getKey()) {
                             //update em cascata
-                            update(user, key.getValue());
+                            super.update(user, key.getValue());
+                            //removendo do cache temporario caso exista
+                            key.getValue().forEach(it -> {
+                                this.localModelService.expire(user, clazz, it.getId());
+                                this.localModelService.expire(user, clazz, it.getSync());
+                            });
                         } else {
                             //insere em cascata
                             saveOnly(user, key.getValue());
@@ -171,22 +248,58 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
         final T other = findBySync(user, value.getSync());
         //garantindo o id do registro
         value.setId(other.getId());
-        return update(user, value);
+        final T updatedValue = update(user, value);
+        this.localModelService.expire(user, clazz, updatedValue.getId());
+        this.localModelService.expire(user, clazz, updatedValue.getSync());
+        return updatedValue;
     }
 
     @Override
     public T findBySync(final User user, final String sync) {
-        T value = this.mongoTemplate
-                .findOne(
-                        new Query(
-                                where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                        .and("sync").is(sync)
-                        ), clazz);
-        if (value == null) {
-            throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
-                    .addDetails("syncInformado", sync);
+
+        final T value;
+        if (this.localModelService.containsInCahce(user, clazz, sync)) {
+            value = (T) this.localModelService.loadModel(user, clazz, sync);
+        } else {
+
+            value = this.mongoTemplate
+                    .findOne(
+                            new Query(
+                                    where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                            .and("sync").is(sync)
+                            ), clazz);
+            if (value == null) {
+                throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
+                        .addDetails("syncInformado", sync);
+            }
+            this.localModelService.addCache(user, (Model) value, sync);
         }
         return value;
+    }
+
+    @Override
+    public T findReferenceBySync(User user, String sync) {
+        final T result;
+        if (this.localModelService.containsInCahce(user, clazz, sync)) {
+            result = (T) this.localModelService.loadModel(user, clazz, sync);
+        } else {
+
+            final AggregationResults<T> results = this.mongoTemplate.aggregate(
+                    newAggregation(
+                            match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("sync").is(sync)),
+                            project("id", "owner", "sync")
+                    )
+                    , clazz, clazz);
+            if (results == null || results.getUniqueMappedResult() == null) {
+                throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
+                        .addDetails("syncInformado", sync);
+            }
+            result = results.getUniqueMappedResult();
+            this.localModelService.addReferenceCache(user, result, sync);
+        }
+
+
+        return result;
     }
 
     @Override
@@ -215,11 +328,14 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
     @Override
     public void deleteById(final User user, final String id) {
         super.deleteById(user, id);
+        this.localModelService.expire(user, clazz, id);
     }
 
     @Override
     public void delete(final User user, final T value) {
         super.delete(user, value);
+        this.localModelService.expire(user, clazz, value.getId());
+        this.localModelService.expire(user, clazz, value.getSync());
     }
 
     @Override
@@ -337,6 +453,8 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
     public void deleteBySync(final User user, final String sync) {
         final T value = findBySync(user, sync);
         this.delete(user, value);
+        this.localModelService.expire(user, clazz, value.getId());
+        this.localModelService.expire(user, clazz, value.getSync());
     }
 
     @Override
@@ -368,6 +486,13 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
     }
 
     @Override
+    public String getSyncOfId(User user, String id) {
+        final Map<String, Object> map = new HashMap<>();
+        map.put("_id", new ObjectId(id));
+        return (String) this.getPropertyValueFrom(user, map, "sync");
+    }
+
+    @Override
     public Set<SyncObjectId> getIdsOfSyncs(final User user, final Set<String> syncs) {
         if (CollectionUtils.isEmpty(syncs)) {
             return Collections.emptySet();
@@ -376,6 +501,25 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
         final AggregationResults<SyncObjectId> results = this.mongoTemplate.aggregate(
                 newAggregation(
                         match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("sync").in(syncs)),
+                        project("id", "sync")
+                )
+                , clazz, SyncObjectId.class);
+
+        if (results == null || CollectionUtils.isEmpty(results.getMappedResults())) {
+            return Collections.emptySet();
+        }
+        return new HashSet<>(results.getMappedResults());
+    }
+
+    @Override
+    public Set<SyncObjectId> getSyncsOfIds(User user, Set<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Collections.emptySet();
+        }
+
+        final AggregationResults<SyncObjectId> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("_id").in(ids.parallelStream().map(ObjectId::new).collect(Collectors.toList()))),
                         project("id", "sync")
                 )
                 , clazz, SyncObjectId.class);

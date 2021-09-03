@@ -261,7 +261,12 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                                     .get()
                                     .parallel()
                                     .filter(itt ->
-                                            itt.name().equals(it.name()) || this.isEqualDefinitionIndex(BasicDBObject.parse(itt.def()), BasicDBObject.parse(it.def()))
+                                            itt.name().equals(it.name()) ||
+                                                    (
+                                                            this.isEqualDefinitionIndex(BasicDBObject.parse(itt.def()), BasicDBObject.parse(it.def())) &&
+                                                                    itt.unique() &&
+                                                                    it.unique()
+                                                    )
                                     ).count() > 1
                     ).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(duplicateds)) {
@@ -306,7 +311,10 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                             final DBObject existingItem = currentIdexies
                                     .parallelStream()
                                     //.map(it -> (DBObject) it.get("key"))
-                                    .filter(it -> this.isEqualDefinitionIndex(BasicDBObject.parse(compoundIndex.def()), (DBObject) it.get("key")))
+                                    .filter(it ->
+                                            this.isEqualDefinitionIndex(BasicDBObject.parse(compoundIndex.def()), (DBObject) it.get("key")) &&
+                                                    Objects.equals(compoundIndex.unique(), it.get("unique"))
+                                    )
                                     .findFirst()
                                     .orElse(null);
 

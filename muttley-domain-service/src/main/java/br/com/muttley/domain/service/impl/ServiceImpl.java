@@ -14,6 +14,7 @@ import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -39,6 +40,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.limi
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * @author Joel Rodrigues Moreira on 30/01/18.
@@ -241,15 +243,34 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
 
     @Override
     public T findById(final User user, final String id) {
-        if (isNull(id)) {
+        if (ObjectId.isValid(id)) {
             throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
         }
 
         final T result = this.repository.findOne(id);
-        if (isNull(id)) {
+        if (isNull(result)) {
             throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return result;
+    }
+
+    @Override
+    public T findReferenceById(User user, String id) {
+        if (!ObjectId.isValid(id)) {
+            throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
+        }
+
+        final AggregationResults<T> results = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(where("id").is(new ObjectId(id))),
+                        project("id")
+                )
+                , clazz, clazz);
+
+        if (results == null || results.getUniqueMappedResult() == null) {
+            throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+        }
+        return results.getUniqueMappedResult();
     }
 
     @Override

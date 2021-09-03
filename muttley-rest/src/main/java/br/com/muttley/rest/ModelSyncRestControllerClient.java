@@ -49,8 +49,14 @@ public interface ModelSyncRestControllerClient<T> {
     @RequestMapping(value = "/{id}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     T findById(@PathVariable("id") String id);
 
+    @RequestMapping(value = "/reference/{id}", method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    T findReferenceById(@PathVariable("id") String id);
+
     @RequestMapping(value = "/sync/{sync}", method = RequestMethod.GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     T findBySync(@PathVariable("sync") final String sync);
+
+    @RequestMapping(value = "/reference/sync/{sync}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    T findReferenceBySync(@PathVariable("sync") final String sync);
 
     @RequestMapping(value = "/syncOrId/{syncOrId}", method = RequestMethod.GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     T findBySyncOrId(@PathVariable("syncOrId") final String syncOrId);

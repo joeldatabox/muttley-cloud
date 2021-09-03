@@ -76,6 +76,15 @@ public abstract class AbstractModelSyncRestController<T extends ModelSync> exten
         return ResponseEntity.ok(value);
     }
 
+    @Override
+    @RequestMapping(value = "/reference/sync/{sync}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
+    public ResponseEntity findReferenceBySync(@PathVariable("sync") final String sync, final HttpServletResponse response) {
+        final T value = (T) this.service.findReferenceBySync(this.userService.getCurrentUser(), sync);
+        this.publishSingleResourceRetrievedEvent(this.eventPublisher, response);
+        return ResponseEntity.ok(value);
+    }
+
     @RequestMapping(value = "/syncOrId/{syncOrId}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE})
     @ResponseStatus(OK)
     @Override
@@ -88,7 +97,7 @@ public abstract class AbstractModelSyncRestController<T extends ModelSync> exten
     @RequestMapping(value = "/syncs", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     @Override
-    public ResponseEntity findBySyncs(@RequestParam(required = false,value = "syncs")final String[] syncs, final HttpServletResponse response) {
+    public ResponseEntity findBySyncs(@RequestParam(required = false, value = "syncs") final String[] syncs, final HttpServletResponse response) {
         final Set<T> values = service.getIdsOfSyncs(this.userService.getCurrentUser(), new HashSet<>(asList(syncs)));
 
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);

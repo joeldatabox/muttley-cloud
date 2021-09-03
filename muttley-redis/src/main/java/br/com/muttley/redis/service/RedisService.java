@@ -53,6 +53,22 @@ public interface RedisService<T> {
     RedisService set(final String key, final T value, final long time);
 
     /**
+     * Set a expiração a uma chave existente
+     *
+     * @param key  -> chave desejada
+     * @param date -> data futura que irá expierar o registro
+     */
+    RedisService setExpire(final String key, final Date date);
+
+    /**
+     * Set a expiração a uma chave existente
+     *
+     * @param key  -> chave desejada
+     * @param time -> tempo em segundos para se expirar o registro
+     */
+    RedisService setExpire(final String key, final long time);
+
+    /**
      * Renomeia uma chave de acesso existente
      *
      * @param currentKey -> chave atual

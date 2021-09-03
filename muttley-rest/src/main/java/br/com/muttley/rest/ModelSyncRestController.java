@@ -39,6 +39,10 @@ public interface ModelSyncRestController<T extends ModelSync> extends RestResour
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity findBySync(@PathVariable("sync") final String sync, final HttpServletResponse response);
 
+    @RequestMapping(value = "/reference/sync/{sync}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
+    ResponseEntity findReferenceBySync(@PathVariable("sync") final String sync, final HttpServletResponse response);
+
     @RequestMapping(value = "/syncOrId/{syncOrId}", method = RequestMethod.GET, consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE}, produces = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity findBySyncOrId(@PathVariable("syncOrId") final String syncOrId, final HttpServletResponse response);

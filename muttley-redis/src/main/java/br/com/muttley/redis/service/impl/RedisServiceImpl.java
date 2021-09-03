@@ -18,6 +18,8 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
@@ -26,7 +28,6 @@ import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -85,8 +86,24 @@ public class RedisServiceImpl<T> implements RedisService<T> {
 
     @Override
     public RedisService set(final String key, final T value, final long time) {
-        final String keyValue = createKey(key);
         this.redisTemplate.opsForValue().set(createKey(key), value, time, SECONDS);
+        return this;
+    }
+
+    @Override
+    public RedisService setExpire(String key, Date date) {
+        //caculando o tempo para expiração
+        final long time = Duration.between(Instant.now(), date.toInstant()).getSeconds();
+        //se o tempo for menor que 1, logo não precisamos salvar nada pois é sinal que já foi expirado
+        if (time >= 1l) {
+            this.setExpire(key, time);
+        }
+        return this;
+    }
+
+    @Override
+    public RedisService setExpire(String key, long time) {
+        this.redisTemplate.opsForValue().getOperations().expire(createKey(key), time, SECONDS);
         return this;
     }
 
@@ -182,6 +199,16 @@ class JsonRedisSerializer implements RedisSerializer<Object> {
                                 new Version(1, 0, 0, null, null, null)
                         ).addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer())
                                 .addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer())
+                ).registerModule(
+                        new SimpleModule("LocalDateTime",
+                                new Version(1, 0, 0, null, null, null)
+                        ).addSerializer(LocalDateTime.class, new LocalDateTimeSerializer())
+                                .addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer())
+                ).registerModule(
+                        new SimpleModule("LocaDate",
+                                new Version(1, 0, 0, null, null, null)
+                        ).addSerializer(LocalDate.class, new LocalDateSerializer())
+                                .addDeserializer(LocalDate.class, new LocalDateDeserializer())
                 )
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setVisibility(FIELD, ANY);

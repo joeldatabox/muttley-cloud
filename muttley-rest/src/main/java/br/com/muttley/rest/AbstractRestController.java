@@ -84,6 +84,17 @@ public abstract class AbstractRestController<T extends Document> implements Rest
     }
 
     @Override
+    @RequestMapping(value = "/reference/{id}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
+    public ResponseEntity findReferenceById(@PathVariable("id") String id, HttpServletResponse response) {
+        final T value = service.findReferenceById(this.userService.getCurrentUser(), id);
+
+        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
+
+        return ResponseEntity.ok(value);
+    }
+
+    @Override
     @RequestMapping(value = "/ids", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity findByIds(@RequestParam(required = false, value = "ids") String[] ids, HttpServletResponse response) {
