@@ -243,7 +243,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
 
     @Override
     public T findById(final User user, final String id) {
-        if (ObjectId.isValid(id)) {
+        if (!ObjectId.isValid(id)) {
             throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
         }
 
