@@ -1,7 +1,6 @@
 package br.com.muttley.admin.server.config.postint;
 
 
-import br.com.muttley.model.admin.event.DataBaseHasBeenMigrateEvent;
 import br.com.muttley.model.security.AccessPlan;
 import br.com.muttley.security.feign.AccessPlanServiceClient;
 import br.com.muttley.security.feign.OwnerServiceClient;
@@ -23,7 +22,7 @@ import static java.util.Arrays.asList;
  * Realiza a criação dos planos basico de utilização do sistema.
  */
 @Component
-public class AccessPlanConfig implements ApplicationListener<DataBaseHasBeenMigrateEvent> {
+public class AccessPlanConfig implements ApplicationListener<ApplicationReadyEvent> {
     private final AccessPlanServiceClient accessplanService;
     private final OwnerServiceClient ownerService;
     private final UserServiceClient userService;
@@ -38,7 +37,7 @@ public class AccessPlanConfig implements ApplicationListener<DataBaseHasBeenMigr
     }
 
     @Override
-    public void onApplicationEvent(final DataBaseHasBeenMigrateEvent event) {
+    public void onApplicationEvent(final ApplicationReadyEvent event) {
         /*new Thread(new Runnable() {
             @Override
             public void run() {

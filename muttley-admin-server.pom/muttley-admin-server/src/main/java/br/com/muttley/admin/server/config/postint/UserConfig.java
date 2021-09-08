@@ -8,7 +8,6 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.admin.AdminOwner;
 import br.com.muttley.model.admin.AdminUserBase;
 import br.com.muttley.model.admin.AdminWorkTeam;
-import br.com.muttley.model.admin.event.DataBaseHasBeenMigrateEvent;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBaseItem;
@@ -16,6 +15,7 @@ import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.security.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +27,7 @@ import java.util.Date;
  * @project muttley-cloud
  */
 @Component
-public class UserConfig implements ApplicationListener<DataBaseHasBeenMigrateEvent> {
+public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
     private final String defaultUser;
     private final String passwdDefaultUser;
     private final String nameOrganization;
@@ -56,7 +56,7 @@ public class UserConfig implements ApplicationListener<DataBaseHasBeenMigrateEve
     }
 
     @Override
-    public void onApplicationEvent(final DataBaseHasBeenMigrateEvent event) {
+    public void onApplicationEvent(final ApplicationReadyEvent event) {
         try {
             this.ownerService.findByName(this.nameOrganization);
         } catch (MuttleyNotFoundException ex) {
