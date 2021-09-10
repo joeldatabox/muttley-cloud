@@ -82,11 +82,6 @@ public abstract class AbstractLocalModelServiceImpl<T extends Model> implements 
     @Override
     public LocalModelService<T> expire(final User user, final Class<T> clazz, final String key) {
         this.redisService.delete(this.getBasicKey(user, clazz, key));
-        return this;
-    }
-
-    @Override
-    public LocalModelService<T> expireReference(User user, Class<T> clazz, String key) {
         this.redisService.delete(this.getBasicKeyReference(user, clazz, key));
         return this;
     }

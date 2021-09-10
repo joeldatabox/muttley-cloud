@@ -129,8 +129,8 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
     @Override
     public T findReferenceById(User user, String id) {
         final T result;
-        if (this.localModelService.containsInCahce(user, clazz, id)) {
-            result = (T) this.localModelService.loadModel(user, clazz, id);
+        if (this.localModelService.containsReferenceInCahce(user, clazz, id)) {
+            result = (T) this.localModelService.loadReference(user, clazz, id);
         } else {
             if (!ObjectId.isValid(id)) {
                 throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
@@ -280,8 +280,8 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
     @Override
     public T findReferenceBySync(User user, String sync) {
         final T result;
-        if (this.localModelService.containsInCahce(user, clazz, sync)) {
-            result = (T) this.localModelService.loadModel(user, clazz, sync);
+        if (this.localModelService.containsReferenceInCahce(user, clazz, sync)) {
+            result = (T) this.localModelService.loadReference(user, clazz, sync);
         } else {
 
             final AggregationResults<T> results = this.mongoTemplate.aggregate(

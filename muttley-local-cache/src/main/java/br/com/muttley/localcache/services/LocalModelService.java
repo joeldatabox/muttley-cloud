@@ -28,8 +28,6 @@ public interface LocalModelService<T extends Model> {
 
     LocalModelService<T> expire(final User user, final Class<T> clazz, final String key);
 
-    LocalModelService<T> expireReference(final User user, final Class<T> clazz, final String key);
-
     LocalModelService<T> refreshExpire(final User user, Class<T> clazz, final String key);
 
     LocalModelService<T> refreshExpireReference(final User user, Class<T> clazz, final String key);
