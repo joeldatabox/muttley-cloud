@@ -26,7 +26,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface ModelSyncRestControllerClient<T> {
+@Deprecated
+public interface ModelSyncRestControllerClientDeprecated<T> {
 
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     T save(@RequestBody T value, @RequestParam(required = false, value = "returnEntity", defaultValue = "") String returnEntity);
@@ -34,8 +35,8 @@ public interface ModelSyncRestControllerClient<T> {
     @RequestMapping(value = "/{id}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
     T update(@PathVariable("id") String id, @RequestBody T model);
 
-    @RequestMapping(value = "/sync", method = RequestMethod.PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
-    T updateBySync(@RequestParam(value = "sync", required = false) String sync, @RequestBody T model);
+    @RequestMapping(value = "/sync/{sync}", method = RequestMethod.PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
+    T updateBySync(@PathVariable("sync") String sync, @RequestBody T model);
 
     @RequestMapping(value = "/synchronization", method = RequestMethod.PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
     void synchronization(@RequestBody final List<T> values);
@@ -43,8 +44,8 @@ public interface ModelSyncRestControllerClient<T> {
     @RequestMapping(value = "/{id}", method = DELETE)
     void deleteById(@PathVariable("id") String id);
 
-    @RequestMapping(value = "/sync", method = RequestMethod.DELETE, consumes = APPLICATION_JSON_UTF8_VALUE)
-    void delteBySync(@RequestParam(value = "sync", required = false) String sync);
+    @RequestMapping(value = "/sync/{sync}", method = RequestMethod.DELETE, consumes = APPLICATION_JSON_UTF8_VALUE)
+    void delteBySync(@PathVariable("sync") String sync);
 
     @RequestMapping(value = "/{id}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     T findById(@PathVariable("id") String id);
@@ -52,14 +53,14 @@ public interface ModelSyncRestControllerClient<T> {
     @RequestMapping(value = "/reference/{id}", method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
     T findReferenceById(@PathVariable("id") String id);
 
-    @RequestMapping(value = "/sync", method = RequestMethod.GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    T findBySync(@RequestParam(value = "sync", required = false) final String sync);
+    @RequestMapping(value = "/sync/{sync}", method = RequestMethod.GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    T findBySync(@PathVariable("sync") final String sync);
 
-    @RequestMapping(value = "/reference/sync", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    T findReferenceBySync(@RequestParam(value = "sync", required = false) final String sync);
+    @RequestMapping(value = "/reference/sync/{sync}", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    T findReferenceBySync(@PathVariable("sync") final String sync);
 
-    @RequestMapping(value = "/syncOrId", method = RequestMethod.GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    T findBySyncOrId(@RequestParam(value = "syncOrId", required = false) final String syncOrId);
+    @RequestMapping(value = "/syncOrId/{syncOrId}", method = RequestMethod.GET, consumes = APPLICATION_JSON_UTF8_VALUE)
+    T findBySyncOrId(@PathVariable("syncOrId") final String syncOrId);
 
     @RequestMapping(value = "/syncs", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     public Set<SyncObjectId> findBySyncs(@RequestParam(required = false, value = "syncs") String[] syncs);
@@ -85,7 +86,7 @@ public interface ModelSyncRestControllerClient<T> {
     @RequestMapping(value = "/lastModify", method = RequestMethod.GET, consumes = TEXT_PLAIN_VALUE)
     Date getLastModify();
 
-    @RequestMapping(value = "/sync/id", method = RequestMethod.GET, consumes = TEXT_PLAIN_VALUE)
-    String getIdOfsync(@RequestParam(value = "sync", required = false) final String sync);
+    @RequestMapping(value = "/sync/{sync}/id", method = RequestMethod.GET, consumes = TEXT_PLAIN_VALUE)
+    String getIdOfsync(@PathVariable("sync") final String sync);
 }
 

@@ -41,10 +41,11 @@ import static org.springframework.web.servlet.HandlerMapping.URI_TEMPLATE_VARIAB
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public abstract class AbstractModelSyncRestController<T extends ModelSync> extends AbstractRestController<T> implements RestResource<T>, ModelSyncRestController<T> {
+@Deprecated
+public abstract class AbstractModelSyncRestControllerDeprecated<T extends ModelSync> extends AbstractRestController<T> implements RestResource<T>, ModelSyncRestController<T> {
     protected final ModelSyncService service;
 
-    public AbstractModelSyncRestController(final ModelSyncService service, final AuthService userService, final ApplicationEventPublisher eventPublisher) {
+    public AbstractModelSyncRestControllerDeprecated(final ModelSyncService service, final AuthService userService, final ApplicationEventPublisher eventPublisher) {
         super(service, userService, eventPublisher);
         this.service = service;
     }
@@ -54,41 +55,41 @@ public abstract class AbstractModelSyncRestController<T extends ModelSync> exten
         eventPublisher.publishEvent(new ModelSyncResourceCreatedEvent((ModelSync) model, response));
     }
 
-    @RequestMapping(value = "/sync", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/sync/{sync}", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity updateBySync(@RequestParam(value = "sync", required = false) String sync, @RequestBody T model) {
+    public ResponseEntity updateBySync(@PathVariable("sync") String sync, @RequestBody T model) {
         model.setSync(sync);
         return ResponseEntity.ok(this.service.updateBySync(this.userService.getCurrentUser(), model));
     }
 
-    @RequestMapping(value = "/sync", method = RequestMethod.DELETE, consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE}, produces = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
+    @RequestMapping(value = "/sync/{sync}", method = RequestMethod.DELETE, consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE}, produces = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity delteBySync(@RequestParam(value = "sync", required = false) String sync) {
+    public ResponseEntity delteBySync(@PathVariable("sync") String sync) {
         service.deleteBySync(this.userService.getCurrentUser(), sync);
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/sync", method = GET, produces = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
+    @RequestMapping(value = "/sync/{sync}", method = GET, produces = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity findBySync(@RequestParam(value = "sync", required = false) final String sync, final HttpServletResponse response) {
+    public ResponseEntity findBySync(@PathVariable("sync") final String sync, final HttpServletResponse response) {
         final T value = (T) this.service.findBySync(this.userService.getCurrentUser(), sync);
         this.publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
     }
 
     @Override
-    @RequestMapping(value = "/reference/sync", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/reference/sync/{sync}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity findReferenceBySync(@RequestParam(value = "sync", required = false) final String sync, final HttpServletResponse response) {
+    public ResponseEntity findReferenceBySync(@PathVariable("sync") final String sync, final HttpServletResponse response) {
         final T value = (T) this.service.findReferenceBySync(this.userService.getCurrentUser(), sync);
         this.publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
     }
 
-    @RequestMapping(value = "/syncOrId", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE})
+    @RequestMapping(value = "/syncOrId/{syncOrId}", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE})
     @ResponseStatus(OK)
     @Override
-    public ResponseEntity findBySyncOrId(@RequestParam(value = "syncOrId", required = false) final String syncOrId, final HttpServletResponse response) {
+    public ResponseEntity findBySyncOrId(@PathVariable("syncOrId") final String syncOrId, final HttpServletResponse response) {
         final T value = (T) this.service.findByIdOrSync(this.userService.getCurrentUser(), syncOrId);
         this.publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
@@ -119,9 +120,9 @@ public abstract class AbstractModelSyncRestController<T extends ModelSync> exten
         return ResponseEntity.ok(result == null ? null : dateFormat.format(result));
     }
 
-    @RequestMapping(value = "/sync/id", method = GET, produces = TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "/sync/{sync}/id", method = GET, produces = TEXT_PLAIN_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity getIdOfSync(@RequestParam(value = "sync", required = false) final String sync) {
+    public ResponseEntity getIdOfSync(@PathVariable("sync") final String sync) {
         final String objectId = this.service.getIdOfSync(this.userService.getCurrentUser(), sync);
         return ResponseEntity.ok(objectId);
     }

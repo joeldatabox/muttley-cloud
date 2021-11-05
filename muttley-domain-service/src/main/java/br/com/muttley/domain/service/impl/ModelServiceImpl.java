@@ -213,7 +213,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
 
     @Override
     public T findById(final User user, final String id) {
-        if (ObjectId.isValid(id)) {
+        if (!ObjectId.isValid(id)) {
             throw new MuttleyBadRequestException(clazz, "id", "informe um id válido");
         }
 

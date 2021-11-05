@@ -72,6 +72,7 @@ public class FeignConfig extends FeignClientsConfiguration {
             //adicionando o interceptor
             builder.requestInterceptor(new PropagateHeadersInterceptor(service));
         }
+        builder.requestInterceptor(template -> template.decodeSlash(false));
 
 
         return includeLogger(logLevel, super.feignBuilder(retryer).client(new OkHttpClient()));

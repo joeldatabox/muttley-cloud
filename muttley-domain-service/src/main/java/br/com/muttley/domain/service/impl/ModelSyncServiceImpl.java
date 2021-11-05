@@ -166,12 +166,12 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
                 //processando para carregar os respectivos ids caso os registros não tenha id
                 .map(subList -> {
                     this.getIdsOfSyncs(user, subList.parallelStream()
-                            //removendo os itens que já tem id
-                            .filter(it -> StringUtils.isEmpty(it.getId()))
-                            //pegando apenas os ids para busca
-                            .map(ModelSync::getSync)
-                            .collect(Collectors.toSet())
-                    ).parallelStream()
+                                    //removendo os itens que já tem id
+                                    .filter(it -> StringUtils.isEmpty(it.getId()))
+                                    //pegando apenas os ids para busca
+                                    .map(ModelSync::getSync)
+                                    .collect(Collectors.toSet())
+                            ).parallelStream()
                             //com base no syncs carregado, vamos interar a lista e preencher nos objtos que não tem sync
                             .forEach((final SyncObjectId syncId) -> {
                                 subList.parallelStream()
@@ -180,28 +180,28 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
                             });
                     return subList;
                 }).forEach(subList -> {
-            subList.parallelStream()
-                    .peek(it -> this.checkDtSync(user, it))
-                    //agrupando os dados em registros que possui id ou não
-                    .collect(Collectors.groupingBy(ModelSync::contaisObjectId))
-                    //interando o agrupamento
-                    .entrySet()
-                    .forEach((key) -> {
-                        if (key.getKey()) {
-                            //update em cascata
-                            super.update(user, key.getValue());
-                            //removendo do cache temporario caso exista
-                            key.getValue().forEach(it -> {
-                                this.localModelService.expire(user, clazz, it.getId());
-                                this.localModelService.expire(user, clazz, it.getSync());
+                    subList.parallelStream()
+                            .peek(it -> this.checkDtSync(user, it))
+                            //agrupando os dados em registros que possui id ou não
+                            .collect(Collectors.groupingBy(ModelSync::contaisObjectId))
+                            //interando o agrupamento
+                            .entrySet()
+                            .forEach((key) -> {
+                                if (key.getKey()) {
+                                    //update em cascata
+                                    super.update(user, key.getValue());
+                                    //removendo do cache temporario caso exista
+                                    key.getValue().forEach(it -> {
+                                        this.localModelService.expire(user, clazz, it.getId());
+                                        this.localModelService.expire(user, clazz, it.getSync());
+                                    });
+                                } else {
+                                    //insere em cascata
+                                    saveOnly(user, key.getValue());
+                                }
                             });
-                        } else {
-                            //insere em cascata
-                            saveOnly(user, key.getValue());
-                        }
-                    });
-            ;
-        });/*
+                    ;
+                });/*
 
 
         Lists.partition(records instanceof List ? (List<T>) records : new ArrayList<>(records), 50);
@@ -244,6 +244,7 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
 
     @Override
     public T updateBySync(final User user, final T value) {
+        this.validadeSyncParam(value.getSync());
         //devemos garantir que ninguem irá altera o ObjectId do registro
         final T other = findBySync(user, value.getSync());
         //garantindo o id do registro
@@ -256,7 +257,7 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
 
     @Override
     public T findBySync(final User user, final String sync) {
-
+        this.validadeSyncParam(sync);
         final T value;
         if (this.localModelService.containsInCahce(user, clazz, sync)) {
             value = (T) this.localModelService.loadModel(user, clazz, sync);
@@ -279,6 +280,7 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
 
     @Override
     public T findReferenceBySync(User user, String sync) {
+        this.validadeSyncParam(sync);
         final T result;
         if (this.localModelService.containsReferenceInCahce(user, clazz, sync)) {
             result = (T) this.localModelService.loadReference(user, clazz, sync);
@@ -304,6 +306,7 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
 
     @Override
     public T findByIdOrSync(final User user, final String idSync) {
+        this.validadeIdOrSync(idSync);
         if (ObjectId.isValid(idSync)) {
             return findById(user, idSync);
         } else {
@@ -451,6 +454,7 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
 
     @Override
     public void deleteBySync(final User user, final String sync) {
+        this.validadeSyncParam(sync);
         final T value = findBySync(user, sync);
         this.delete(user, value);
         this.localModelService.expire(user, clazz, value.getId());
@@ -468,6 +472,7 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
 
     @Override
     public String getIdOfSync(final User user, final String sync) {
+        this.validadeSyncParam(sync);
         final Map<String, Object> map = new HashMap<>();
         map.put("sync", sync);
         return (String) this.getPropertyValueFrom(user, map, "id");
@@ -534,5 +539,15 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
         if (value.getDtSync() == null) {
             value.setDtSync(new Date());
         }
+    }
+
+    protected void validadeSyncParam(final String sync) {
+        if (StringUtils.isEmpty(sync)) {
+            throw new MuttleyBadRequestException(this.clazz, "sync", "Informe um sync válido");
+        }
+    }
+
+    protected void validadeIdOrSync(final String idSync) {
+        this.validadeSyncParam(idSync);
     }
 }
