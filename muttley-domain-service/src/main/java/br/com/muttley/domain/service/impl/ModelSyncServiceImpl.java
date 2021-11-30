@@ -117,12 +117,14 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
     @Override
     public T findById(User user, String id) {
         final T result;
-        if (this.localModelService.containsInCahce(user, clazz, id)) {
+        /*if (this.localModelService.containsInCahce(user, clazz, id)) {
             result = (T) this.localModelService.loadModel(user, clazz, id);
-        } else {
+        } else {*/
             result = super.findById(user, id);
+/*
             this.localModelService.addCache(user, result, id);
         }
+*/
         return result;
     }
 
@@ -259,9 +261,9 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
     public T findBySync(final User user, final String sync) {
         this.validadeSyncParam(sync);
         final T value;
-        if (this.localModelService.containsInCahce(user, clazz, sync)) {
+        /*if (this.localModelService.containsInCahce(user, clazz, sync)) {
             value = (T) this.localModelService.loadModel(user, clazz, sync);
-        } else {
+        } else {*/
 
             value = this.mongoTemplate
                     .findOne(
@@ -273,8 +275,8 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
                 throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
                         .addDetails("syncInformado", sync);
             }
-            this.localModelService.addCache(user, (Model) value, sync);
-        }
+            /*this.localModelService.addCache(user, (Model) value, sync);
+        }*/
         return value;
     }
 
