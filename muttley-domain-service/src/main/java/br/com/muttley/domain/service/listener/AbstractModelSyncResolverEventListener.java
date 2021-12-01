@@ -1,5 +1,6 @@
 package br.com.muttley.domain.service.listener;
 
+import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.headers.components.MuttleySerializeType;
 import br.com.muttley.model.ModelSync;
 import br.com.muttley.model.jackson.converter.event.ModelSyncResolverEvent;
@@ -21,17 +22,22 @@ public abstract class AbstractModelSyncResolverEventListener<T extends ModelSync
 
     @Override
     public void onApplicationEvent(final M event) {
-        //se for um objectId devemos passar a responsábilidade para a AbstractModelResolverEventListener
-        if (serializerType.isInternal() || serializerType.isObjectId()) {
+        if (serializerType.isInternal()) {
             if (ObjectId.isValid(event.getSource())) {
                 super.onApplicationEvent(event);
             } else {
                 event.setValueResolved(this.loadValueBySync(event.getSource()));
             }
-        } else if (ObjectId.isValid(event.getSource())) {
-            super.onApplicationEvent(event);
-        } else {
+        } else if (serializerType.isObjectId()) {
+            if (ObjectId.isValid(event.getSource())) {
+                super.onApplicationEvent(event);
+            } else {
+                event.setValueResolved(this.loadValueBySync(event.getSource()));
+            }
+        } else if (serializerType.isSync()) {
             event.setValueResolved(this.loadValueBySync(event.getSource()));
+        } else {
+            throw new MuttleyException("deu asdfasdfasdf");
         }
     }
 
