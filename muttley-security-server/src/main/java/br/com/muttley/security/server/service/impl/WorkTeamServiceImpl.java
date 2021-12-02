@@ -302,8 +302,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         final Owner owner = this.ownerService.findById(user, ownerId);
         workTeam.setOwner(owner);
         workTeam.setUserMaster(owner.getUserMaster());
-        //this.checkPrecondictionSave(owner.getUserMaster(), workTeam);
-        return workTeam;
+        return this.save(owner.getUserMaster().setCurrentOwner(owner), workTeam);
     }
 
     @Override

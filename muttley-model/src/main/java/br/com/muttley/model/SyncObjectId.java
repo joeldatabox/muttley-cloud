@@ -1,5 +1,7 @@
 package br.com.muttley.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +20,9 @@ public class SyncObjectId {
     private String sync;
     private String id;
 
-    public SyncObjectId(final String sync, final String id) {
+    @JsonCreator
+    public SyncObjectId(
+            @JsonProperty("sync") final String sync, @JsonProperty("id") final String id) {
         this.sync = sync;
         this.id = id;
     }
