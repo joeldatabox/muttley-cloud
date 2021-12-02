@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
@@ -122,11 +123,15 @@ public class UserDataBindingController implements RestResource {
     @RequestMapping(value = "/merge/{userName}", method = PUT, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     public ResponseEntity merger(
             @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader,
-            @PathVariable("userName") final String userName,
-            @RequestBody final UserDataBinding model) {
+            @RequestBody final UserDataBinding model, final HttpServletRequest request) {
+        final String uri = request.getRequestURI();
+        //gato para pegar o parametro devido do usuário
+        //em alguns casos o path variable não estava funcionando corretamente
+        final String userName = uri.substring(uri.indexOf("/merge/")).substring(7);
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
         service.merge(user, userName, model);
         return ResponseEntity.ok().build();
+
     }
 
     @RequestMapping(value = "/key/{key}", method = RequestMethod.GET)

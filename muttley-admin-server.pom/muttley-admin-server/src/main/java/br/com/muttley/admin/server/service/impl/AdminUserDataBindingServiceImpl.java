@@ -202,7 +202,9 @@ public class AdminUserDataBindingServiceImpl implements AdminUserDataBindingServ
 
     public void checkPrecondictionSaveByUserName(final User user, final String userName, final AdminUserDataBinding dataBinding) {
         if (!userName.equals(dataBinding.getUser().getUserName())) {
-            throw new MuttleyBadRequestException(AdminUserDataBinding.class, "user", "O usuário informado é diferente do da requisição!");
+            throw new MuttleyBadRequestException(AdminUserDataBinding.class, "user", "O usuário informado é diferente do da requisição!")
+                    .addDetails("useName", userName)
+                    .addDetails("dataBinding", dataBinding);
         }
         this.checkIndex(user, userName, dataBinding);
         this.validator.validate(dataBinding);
