@@ -312,10 +312,11 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                                     .parallelStream()
                                     //.map(it -> (DBObject) it.get("key"))
                                     .filter(it ->
+
                                             this.isEqualDefinitionIndex(BasicDBObject.parse(compoundIndex.def()), (DBObject) it.get("key")) &&
-                                                    Objects.equals(compoundIndex.unique(), it.get("unique"))
-                                    )
-                                    .findFirst()
+                                                    Objects.equals(compoundIndex.unique(), (it.get("unique") == null ? false : it.get("unique")))
+
+                                    ).findAny()
                                     .orElse(null);
 
                             if (existingItem != null) {
@@ -339,8 +340,8 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                             .filter(it -> it.equals(name))
                             .count() == 0
                     ).forEach(name -> {
-                this.dropIndex(collection, name);
-            });
+                        this.dropIndex(collection, name);
+                    });
         }
     }
 

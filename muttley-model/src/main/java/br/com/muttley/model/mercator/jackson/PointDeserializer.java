@@ -18,6 +18,15 @@ import java.time.ZonedDateTime;
  */
 public class PointDeserializer extends JsonDeserializer<Point> {
 
+    protected static Point pointDeserializerByLatitudeAndLongitude(final JsonParser parser, final JsonNode node) throws IOException, JsonProcessingException {
+
+        if (node.isNull() || ((!node.has("latitude") || !node.has("longitude")) || (node.get("latitude").isNull() || node.get("longitude").isNull()))) {
+            return null;
+        } else {
+            return new Point(node.get("longitude").asDouble(), node.get("latitude").asDouble());
+        }
+    }
+
     protected static Point defaultPointDeserializer(final JsonParser parser, final JsonNode node) throws IOException, JsonProcessingException {
 
         if (node.isNull() || node.size() == 0) {
