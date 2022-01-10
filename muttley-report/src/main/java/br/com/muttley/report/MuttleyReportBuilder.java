@@ -24,7 +24,11 @@ public interface MuttleyReportBuilder<T extends MuttleyReportBuilder> {
 
     T addParam(final String key, final Object value);
 
+    T addSubReport(final MuttleyReportBuilder report);
+
     Map<String, Object> getParams();
 
     MuttleyReport build();
+
+    Map<String,Object> getParamsForSubReport();
 }

@@ -1,5 +1,6 @@
 package br.com.muttley.report;
 
+import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.headers.components.MuttleyCurrentTimezone;
 import br.com.muttley.headers.components.MuttleyCurrentVersion;
 import br.com.muttley.model.security.User;
@@ -46,6 +47,17 @@ public abstract class AbstractMuttleyReportBuilder<T extends MuttleyReportBuilde
     public T addParam(final String key, final Object value) {
         this.params.put(key, value);
         return this.INSTANCE;
+    }
+
+    @Override
+    public T addSubReport(MuttleyReportBuilder report) {
+        this.getParams().putAll(report.getParamsForSubReport());
+        return this.INSTANCE;
+    }
+
+    @Override
+    public Map<String, Object> getParamsForSubReport() {
+        throw new MuttleyException("CONFIGURE OS PARAMENTROS NECESSÁRIOS");
     }
 
     public T removeParam(final String key) {
