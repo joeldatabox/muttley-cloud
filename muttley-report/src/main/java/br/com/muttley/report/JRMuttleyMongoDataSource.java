@@ -1,6 +1,7 @@
 package br.com.muttley.report;
 
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
+import br.com.muttley.model.util.MapUtils;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRField;
@@ -15,7 +16,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import static br.com.muttley.model.util.MapUtils.getValueByNavigation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.skip;
@@ -84,7 +87,7 @@ public class JRMuttleyMongoDataSource implements JRDataSource {
     public Object getFieldValue(final JRField jrField) throws JRException {
         //se o campo buscado tiver algum ponto
         //devemos navegar em níveis para recuperar o valor
-        if (jrField.getName().contains(".")) {
+        /*if (jrField.getName().contains(".")) {
             //pegando a cascata de nivél a ser percorrida
             final String[] fields = jrField.getName().split("\\.");
             //objeto de auxilio para os níveis
@@ -104,9 +107,10 @@ public class JRMuttleyMongoDataSource implements JRDataSource {
                     return null;
                 }
             }
-        }
+        }*/
         //retornando o valor de maneira simples
-        return this.currentValue.get(jrField.getName());
+        //return this.currentValue.get(jrField.getName());
+        return getValueByNavigation(jrField.getName(), this.currentValue);
     }
 
     public JRMuttleyMongoDataSource throwsExceptionsIsEmpty(final boolean throwsExceptionsIsEmpty) {
