@@ -1,4 +1,4 @@
-package br.com.muttley.jackson.service.util;
+package br.com.muttley.model.util;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
