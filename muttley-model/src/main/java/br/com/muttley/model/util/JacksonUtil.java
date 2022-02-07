@@ -57,6 +57,20 @@ public class JacksonUtil {
         return extractInteger(node.get(path));
     }
 
+    public static Double extractDouble(final JsonNode node) {
+        if (node == null || node.isNull()) {
+            return null;
+        }
+        return node.asDouble();
+    }
+
+    public static Double extractDouble(final String path, final JsonNode node) {
+        if (node == null || node.isNull()) {
+            return null;
+        }
+        return extractDouble(node.get(path));
+    }
+
     public static boolean extractBoolean(final JsonNode node) {
         if (node == null || node.isNull()) {
             return false;
