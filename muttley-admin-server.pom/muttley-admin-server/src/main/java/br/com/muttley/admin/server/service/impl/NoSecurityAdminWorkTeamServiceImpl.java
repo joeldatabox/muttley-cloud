@@ -3,8 +3,8 @@ package br.com.muttley.admin.server.service.impl;
 import br.com.muttley.admin.server.repository.AdminWorkTeamRepository;
 import br.com.muttley.admin.server.service.NoSecurityAdminWorkTeamService;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
-import br.com.muttley.model.admin.AdminWorkTeam;
-import br.com.muttley.model.security.WorkTeam;
+import br.com.muttley.model.admin.AdminPassaport;
+import br.com.muttley.model.security.Passaport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +23,12 @@ public class NoSecurityAdminWorkTeamServiceImpl extends AbstractNoSecurityServic
     }
 
     @Override
-    public AdminWorkTeam save(final AdminWorkTeam workTeam) {
+    public AdminPassaport save(final AdminPassaport workTeam) {
         //validando contexto de execução
         this.validateContext();
         //verificando se realmente está criando um novo registro
         if (workTeam.getId() != null) {
-            throw new MuttleyBadRequestException(WorkTeam.class, "id", "Não é possível criar um registro com um id existente");
+            throw new MuttleyBadRequestException(Passaport.class, "id", "Não é possível criar um registro com um id existente");
         }
         //validando dados
         this.validator.validate(workTeam);

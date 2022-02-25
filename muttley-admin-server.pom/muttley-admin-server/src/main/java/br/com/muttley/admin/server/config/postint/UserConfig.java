@@ -7,7 +7,7 @@ import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.admin.AdminOwner;
 import br.com.muttley.model.admin.AdminUserBase;
-import br.com.muttley.model.admin.AdminWorkTeam;
+import br.com.muttley.model.admin.AdminPassaport;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBaseItem;
@@ -80,9 +80,9 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
 
 
             //criando o grupo de trabalho
-            final AdminWorkTeam workTeam =
+            final AdminPassaport workTeam =
                     this.workTeamService.save(
-                            (AdminWorkTeam) new AdminWorkTeam()
+                            (AdminPassaport) new AdminPassaport()
                                     .setName("Grupo principal")
                                     .setUserMaster(user)
                                     .setOwner(owner)

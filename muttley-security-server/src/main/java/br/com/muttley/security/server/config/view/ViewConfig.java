@@ -4,8 +4,6 @@ import br.com.muttley.model.View;
 import br.com.muttley.mongo.service.config.source.ViewSource;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.config.view.source.ViewMuttleyUsers;
-import br.com.muttley.security.server.config.view.source.ViewMuttleyWorkTeam;
-import br.com.muttley.security.server.config.view.source.ViewMuttleyWorkTeamRolesUser;
 import com.mongodb.MongoClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

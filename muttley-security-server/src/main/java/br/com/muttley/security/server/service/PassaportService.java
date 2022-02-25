@@ -5,7 +5,7 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserData;
-import br.com.muttley.model.security.WorkTeam;
+import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
 
 import java.util.List;
@@ -16,12 +16,12 @@ import java.util.Set;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface WorkTeamService extends Service<WorkTeam> {
-    WorkTeam findByName(final User user, final String name);
+public interface PassaportService extends Service<Passaport> {
+    Passaport findByName(final User user, final String name);
 
-    List<WorkTeam> findByUserMaster(final Owner owner, final User user);
+    List<Passaport> findByUserMaster(final Owner owner, final User user);
 
-    List<WorkTeam> findByUser(final User user);
+    List<Passaport> findByUser(final User user);
 
     Set<Role> loadCurrentRoles(final User user);
 
@@ -29,16 +29,16 @@ public interface WorkTeamService extends Service<WorkTeam> {
 
     void removeUserFromAllWorkTeam(final Owner owner, final User user);
 
-    void addUserForWorkTeamIfNotExists(final User user, final WorkTeam workTeam, final UserData userForAdd);
+    void addUserForWorkTeamIfNotExists(final User user, final Passaport passaport, final UserData userForAdd);
 
-    boolean userIsPresentInWorkTeam(final User user, final WorkTeam workTeam, final UserData userForCheck);
+    boolean userIsPresentInWorkTeam(final User user, final Passaport passaport, final UserData userForCheck);
 
     boolean userIsPresentInWorkTeam(final User user, final String idWorkTeam, final UserData userForCheck);
 
     /**
      * Método para
      */
-    WorkTeam createWorkTeamFor(final User user, final String ownerId, final WorkTeam workTeam);
+    Passaport createWorkTeamFor(final User user, final String ownerId, final Passaport passaport);
 
     /**
      * Realiza as configurações

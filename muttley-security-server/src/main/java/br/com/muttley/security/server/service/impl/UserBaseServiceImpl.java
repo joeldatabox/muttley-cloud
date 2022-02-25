@@ -18,7 +18,7 @@ import br.com.muttley.security.server.events.NewUserHasBeenAddedInBaseEvent;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserService;
-import br.com.muttley.security.server.service.WorkTeamService;
+import br.com.muttley.security.server.service.PassaportService;
 import com.mongodb.BasicDBObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -70,7 +70,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
     private final UserService userService;
     private final UserDataBindingService dataBindingService;
     private final DocumentNameConfig documentNameConfig;
-    private final WorkTeamService workTeamService;
+    private final PassaportService passaportService;
     private final Validator validator;
     private final ApplicationEventPublisher publisher;
 
@@ -81,7 +81,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
             final UserService userService,
             final UserDataBindingService dataBindingService,
             final DocumentNameConfig documentNameConfig,
-            final WorkTeamService workTeamService,
+            final PassaportService passaportService,
             final Validator validator,
             final ApplicationEventPublisher publisher) {
         super(template, UserBase.class);
@@ -89,7 +89,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
         this.userService = userService;
         this.dataBindingService = dataBindingService;
         this.documentNameConfig = documentNameConfig;
-        this.workTeamService = workTeamService;
+        this.passaportService = passaportService;
         this.validator = validator;
         this.publisher = publisher;
     }
@@ -279,7 +279,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
                         .pull("users", new BasicDBObject("user.$id", new ObjectId(userLoaded.getId()))),
                 UserBase.class
         );
-        this.workTeamService.removeUserFromAllWorkTeam(user.getCurrentOwner(), userLoaded);
+        this.passaportService.removeUserFromAllWorkTeam(user.getCurrentOwner(), userLoaded);
     }
 
     @Override

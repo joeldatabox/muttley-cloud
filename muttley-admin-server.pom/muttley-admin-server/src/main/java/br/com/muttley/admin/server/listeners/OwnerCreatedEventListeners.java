@@ -2,13 +2,11 @@ package br.com.muttley.admin.server.listeners;
 
 import br.com.muttley.admin.server.events.OwnerCreatedEvent;
 import br.com.muttley.admin.server.service.AdminWorkTeamService;
-import br.com.muttley.model.admin.AdminUserBase;
-import br.com.muttley.model.admin.AdminWorkTeam;
+import br.com.muttley.model.admin.AdminPassaport;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
 
 import static br.com.muttley.model.security.Role.ROLE_OWNER;
 
@@ -40,7 +38,7 @@ public class OwnerCreatedEventListeners implements ApplicationListener<OwnerCrea
 
 
 
-        AdminWorkTeam workTeam = (AdminWorkTeam) new AdminWorkTeam()
+        AdminPassaport workTeam = (AdminPassaport) new AdminPassaport()
                 .setName("Master")
                 .setDescription("Esse é o grupo principal")
                 .setOwner(event.getSource())

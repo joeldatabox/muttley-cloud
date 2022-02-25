@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.repository;
 
-import br.com.muttley.model.admin.AdminWorkTeam;
+import br.com.muttley.model.admin.AdminPassaport;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
@@ -15,15 +15,15 @@ import java.util.List;
  * @project muttley-cloud
  */
 @Repository
-public interface AdminWorkTeamRepository extends DocumentMongoRepository<AdminWorkTeam> {
+public interface AdminPassaportRepository extends DocumentMongoRepository<AdminPassaport> {
     @Query("{'owner': {'$ref' : ?#{@documentNameConfig.getNameCollectionAdminOwner()}, '$id' : ?#{[0].getId()}}, 'name': '?1' }")
-    AdminWorkTeam findByName(final Owner owner, final String name);
+    AdminPassaport findByName(final Owner owner, final String name);
 
     @Query("{'owner': {'$ref' : ?#{@documentNameConfig.getNameCollectionAdminOwner()}, '$id' : ?#{[0].getId()}}, 'userMaster': {'$ref' : ?#{@documentNameConfig.getNameCollectionUser()}, '$id' : ?#{[1].getId()}}}")
-    List<AdminWorkTeam> findByUserMaster(final Owner owner, final User user);
+    List<AdminPassaport> findByUserMaster(final Owner owner, final User user);
 
     @Query("{'owner': {'$ref' : ?#{@documentNameConfig.getNameCollectionAdminOwner()}, '$id' : ?#{[0].getId()}}}")
-    List<AdminWorkTeam> findAll(final Owner owner);
+    List<AdminPassaport> findAll(final Owner owner);
 
     @Query(value = "{'owner': {'$ref' : ?#{@documentNameConfig.getNameCollectionAdminOwner()}, '$id' : ?#{[0].getId()}}}", count = true)
     Long count(final Owner owner);

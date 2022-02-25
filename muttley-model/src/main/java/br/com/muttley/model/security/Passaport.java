@@ -27,7 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static br.com.muttley.model.security.WorkTeam.TYPE_ALIAS;
+import static br.com.muttley.model.security.Passaport.TYPE_ALIAS;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
@@ -35,12 +35,12 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@org.springframework.data.mongodb.core.mapping.Document(collection = "#{documentNameConfig.getNameCollectionWorkTeam()}")
+@org.springframework.data.mongodb.core.mapping.Document(collection = "#{documentNameConfig.getNameCollectionPassaport()}")
 @CompoundIndexes({
         @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })
 @TypeAlias(TYPE_ALIAS)
-public class WorkTeam implements Model<Owner> {
+public class Passaport implements Model<Owner> {
     @Transient
     @JsonIgnore
     public static final String TYPE_ALIAS = "work-team";
@@ -69,7 +69,7 @@ public class WorkTeam implements Model<Owner> {
     protected MetadataDocument metadata;
     protected Set<Role> roles;
 
-    public WorkTeam() {
+    public Passaport() {
         this.members = new LinkedHashSet<>();
         this.roles = new LinkedHashSet<>();
     }
@@ -80,7 +80,7 @@ public class WorkTeam implements Model<Owner> {
     }
 
     @Override
-    public WorkTeam setId(final String id) {
+    public Passaport setId(final String id) {
         this.id = id;
         return this;
     }
@@ -89,7 +89,7 @@ public class WorkTeam implements Model<Owner> {
         return name;
     }
 
-    public WorkTeam setName(final String name) {
+    public Passaport setName(final String name) {
         this.name = name;
         return this;
     }
@@ -99,7 +99,7 @@ public class WorkTeam implements Model<Owner> {
         return description;
     }
 
-    public WorkTeam setDescription(final String description) {
+    public Passaport setDescription(final String description) {
         this.description = description;
         return this;
     }
@@ -109,7 +109,7 @@ public class WorkTeam implements Model<Owner> {
         return userMaster;
     }
 
-    public WorkTeam setUserMaster(final User userMaster) {
+    public Passaport setUserMaster(final User userMaster) {
         this.userMaster = userMaster;
         this.addMember(this.userMaster);
         return this;
@@ -120,7 +120,7 @@ public class WorkTeam implements Model<Owner> {
         return owner;
     }
 
-    public WorkTeam setOwner(final Owner owner) {
+    public Passaport setOwner(final Owner owner) {
         this.owner = owner;
         return this;
     }
@@ -130,12 +130,12 @@ public class WorkTeam implements Model<Owner> {
         return members;
     }
 
-    public WorkTeam setMembers(final Set<User> members) {
+    public Passaport setMembers(final Set<User> members) {
         this.members = members;
         return this;
     }
 
-    public WorkTeam addMember(final User user) {
+    public Passaport addMember(final User user) {
         this.members.add(user);
         return this;
     }
@@ -146,7 +146,7 @@ public class WorkTeam implements Model<Owner> {
     }
 
     @Override
-    public WorkTeam setHistoric(final Historic historic) {
+    public Passaport setHistoric(final Historic historic) {
         this.historic = historic;
         return this;
     }
@@ -157,7 +157,7 @@ public class WorkTeam implements Model<Owner> {
     }
 
     @Override
-    public WorkTeam setMetadata(final MetadataDocument metaData) {
+    public Passaport setMetadata(final MetadataDocument metaData) {
         this.metadata = metaData;
         return this;
     }
@@ -166,33 +166,33 @@ public class WorkTeam implements Model<Owner> {
         return roles;
     }
 
-    public WorkTeam setRoles(final Set<Role> roles) {
+    public Passaport setRoles(final Set<Role> roles) {
         this.roles = roles;
         return this;
     }
 
-    public WorkTeam addRole(final Authority authority) {
+    public Passaport addRole(final Authority authority) {
         if (authority != null) {
             this.roles.add(authority.getRole());
         }
         return this;
     }
 
-    public WorkTeam addRole(final Role role) {
+    public Passaport addRole(final Role role) {
         if (role != null) {
             this.roles.add(role);
         }
         return this;
     }
 
-    public WorkTeam addRoles(final Role... roles) {
+    public Passaport addRoles(final Role... roles) {
         if (roles != null) {
             Stream.of(roles).filter(java.util.Objects::nonNull).forEach(it -> this.roles.add(it));
         }
         return this;
     }
 
-    public WorkTeam addRoles(final Collection<Role> roles) {
+    public Passaport addRoles(final Collection<Role> roles) {
         if (roles != null) {
             roles.parallelStream().filter(java.util.Objects::nonNull).forEach(it -> this.roles.add(it));
         }
@@ -202,9 +202,9 @@ public class WorkTeam implements Model<Owner> {
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof WorkTeam)) return false;
-        final WorkTeam workTeam = (WorkTeam) o;
-        return Objects.equal(id, workTeam.id);
+        if (!(o instanceof Passaport)) return false;
+        final Passaport passaport = (Passaport) o;
+        return Objects.equal(id, passaport.id);
     }
 
     @Override

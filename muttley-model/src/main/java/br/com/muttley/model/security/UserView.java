@@ -48,9 +48,9 @@ public class UserView implements UserData, Document {
                 .setOwner(user.getCurrentOwner());
     }
 
-    private UserView setOwner(final WorkTeam workTeam) {
-        if (workTeam != null) {
-            this.setOwner(workTeam.getOwner());
+    private UserView setOwner(final Passaport passaport) {
+        if (passaport != null) {
+            this.setOwner(passaport.getOwner());
         }
         return this;
     }

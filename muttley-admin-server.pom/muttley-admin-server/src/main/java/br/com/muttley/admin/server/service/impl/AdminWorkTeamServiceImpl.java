@@ -6,7 +6,7 @@ import br.com.muttley.admin.server.service.AdminWorkTeamService;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.admin.AdminOwner;
-import br.com.muttley.model.admin.AdminWorkTeam;
+import br.com.muttley.model.admin.AdminPassaport;
 import br.com.muttley.model.security.User;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBRef;
@@ -37,35 +37,35 @@ import static org.springframework.data.mongodb.core.query.Query.query;
  * @project muttley-cloud
  */
 @Service
-public class AdminWorkTeamServiceImpl extends AdminServiceImpl<AdminWorkTeam> implements AdminWorkTeamService {
+public class AdminWorkTeamServiceImpl extends AdminServiceImpl<AdminPassaport> implements AdminWorkTeamService {
     private final DocumentNameConfig documentNameConfig;
 
     @Autowired
     public AdminWorkTeamServiceImpl(AdminWorkTeamRepository repository, final MongoTemplate mongoTemplate, final DocumentNameConfig documentNameConfig) {
-        super(repository, mongoTemplate, AdminWorkTeam.class);
+        super(repository, mongoTemplate, AdminPassaport.class);
         this.documentNameConfig = documentNameConfig;
     }
 
     @Override
-    public AdminWorkTeam findById1(final User user, final String id) {
+    public AdminPassaport findById1(final User user, final String id) {
         return super.findById(user, id);
     }
 
     @Override
-    public AdminWorkTeam findByName(final AdminOwner owner, final String name) {
-        final AdminWorkTeam owt = this.mongoTemplate.findOne(
+    public AdminPassaport findByName(final AdminOwner owner, final String name) {
+        final AdminPassaport owt = this.mongoTemplate.findOne(
                 query(
                         where("owner.$id").is(owner.getId()).and("name").is(name)
-                ), AdminWorkTeam.class
+                ), AdminPassaport.class
         );
         if (owt == null) {
-            throw new MuttleyNotFoundException(AdminWorkTeam.class, "name", "Registro não encontrado");
+            throw new MuttleyNotFoundException(AdminPassaport.class, "name", "Registro não encontrado");
         }
         return owt;
     }
 
     @Override
-    public List<AdminWorkTeam> loadAllWorkTeams(final User user) {
+    public List<AdminPassaport> loadAllWorkTeams(final User user) {
         /*
         db['odin-work-teams'].aggregate(
             {
@@ -76,7 +76,7 @@ public class AdminWorkTeamServiceImpl extends AdminServiceImpl<AdminWorkTeam> im
             }
         )
         */
-        AggregationResults<AdminWorkTeam> result = this.mongoTemplate.aggregate(
+        AggregationResults<AdminPassaport> result = this.mongoTemplate.aggregate(
                 newAggregation(
                         match(
                                 where("members")
@@ -89,12 +89,12 @@ public class AdminWorkTeamServiceImpl extends AdminServiceImpl<AdminWorkTeam> im
                                         )
                         )
                 ),
-                this.documentNameConfig.getNameCollectionAdminWorkTeam(),
-                AdminWorkTeam.class);
+                this.documentNameConfig.getNameCollectionAdminPassaport(),
+                AdminPassaport.class);
 
-        final List<AdminWorkTeam> list = result.getMappedResults();
+        final List<AdminPassaport> list = result.getMappedResults();
         if (CollectionUtils.isEmpty(list)) {
-            throw new MuttleyNoContentException(AdminWorkTeam.class, null, "Nenhum grupo de trabalho encontrado");
+            throw new MuttleyNoContentException(AdminPassaport.class, null, "Nenhum grupo de trabalho encontrado");
         }
         return list;
     }
@@ -108,7 +108,7 @@ public class AdminWorkTeamServiceImpl extends AdminServiceImpl<AdminWorkTeam> im
                 new Update().pull("members", new BasicDBObject("$in", asList(
                         new DBRef(this.documentNameConfig.getNameCollectionUser(), user.getObjectId())
                 ))),
-                AdminWorkTeam.class
+                AdminPassaport.class
         );
     }
 }
