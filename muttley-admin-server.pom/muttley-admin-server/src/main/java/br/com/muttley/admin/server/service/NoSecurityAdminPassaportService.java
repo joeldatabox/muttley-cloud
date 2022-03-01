@@ -10,6 +10,6 @@ import br.com.muttley.model.admin.AdminPassaport;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface NoSecurityAdminWorkTeamService {
-    AdminPassaport save(final AdminPassaport workTeam);
+public interface NoSecurityAdminPassaportService {
+    AdminPassaport save(final AdminPassaport passaport);
 }

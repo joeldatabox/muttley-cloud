@@ -13,7 +13,7 @@ import java.util.List;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface AdminWorkTeamService extends Service<AdminPassaport> {
+public interface AdminPassaportService extends Service<AdminPassaport> {
     AdminPassaport findById1(final User user, final String id);
 
     @PreAuthorize(
@@ -54,7 +54,7 @@ public interface AdminWorkTeamService extends Service<AdminPassaport> {
                     "): " +
                     "   true"
     )
-    List<AdminPassaport> loadAllWorkTeams(final User user);
+    List<AdminPassaport> loadAllPassaports(final User user);
 
-    void removeUserFromAllWorkTeam(AdminOwner owner, User user);
+    void removeUserFromAllPassaport(AdminOwner owner, User user);
 }

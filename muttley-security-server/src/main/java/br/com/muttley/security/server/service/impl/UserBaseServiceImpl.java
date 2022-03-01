@@ -279,7 +279,7 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
                         .pull("users", new BasicDBObject("user.$id", new ObjectId(userLoaded.getId()))),
                 UserBase.class
         );
-        this.passaportService.removeUserFromAllWorkTeam(user.getCurrentOwner(), userLoaded);
+        this.passaportService.removeUserFromAllPassaport(user.getCurrentOwner(), userLoaded);
     }
 
     @Override

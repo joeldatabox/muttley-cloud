@@ -45,8 +45,8 @@ public class DocumentNameConfig {
             @Value("${br.com.muttley.security.server.user-data-binding:muttley-admin-users-databinding}") final String nameCollectionAdminUserDataBinding,
             @Value("${br.com.muttley.security.server.user-data-binding:muttley-users-databinding}") final String nameCollectionUserDataBinding,
             @Value("${br.com.muttley.security.server.user-document-view:view-muttley-users}") final String nameViewCollectionUser,
-            @Value("${br.com.muttley.security.server.passaport-document-view:view-muttley-work-teams}") final String nameViewCollectionPassaport,
-            @Value("${br.com.muttley.security.server.passaport-document-view:view-muttley-work-teams-roles-user}") final String nameViewCollectionPassaportRolesUser) {
+            @Value("${br.com.muttley.security.server.passaport-document-view:view-muttley-passaports}") final String nameViewCollectionPassaport,
+            @Value("${br.com.muttley.security.server.passaport-role-document-view:view-muttley-passaports-roles-user}") final String nameViewCollectionPassaportRolesUser) {
         this.nameCollectionAdminOwner = nameCollectionAdminOwner;
         this.nameCollectionOwner = nameCollectionOwner;
         this.nameCollectionUser = nameCollectionUser;

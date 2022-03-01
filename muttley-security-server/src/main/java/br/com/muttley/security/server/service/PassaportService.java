@@ -27,21 +27,21 @@ public interface PassaportService extends Service<Passaport> {
 
     AvaliableRoles loadAvaliableRoles(final User user);
 
-    void removeUserFromAllWorkTeam(final Owner owner, final User user);
+    void removeUserFromAllPassaport(final Owner owner, final User user);
 
-    void addUserForWorkTeamIfNotExists(final User user, final Passaport passaport, final UserData userForAdd);
+    void addUserForPassaportIfNotExists(final User user, final Passaport passaport, final UserData userForAdd);
 
-    boolean userIsPresentInWorkTeam(final User user, final Passaport passaport, final UserData userForCheck);
+    boolean userIsPresentInPassaport(final User user, final Passaport passaport, final UserData userForCheck);
 
-    boolean userIsPresentInWorkTeam(final User user, final String idWorkTeam, final UserData userForCheck);
+    boolean userIsPresentInPassaport(final User user, final String idPassaport, final UserData userForCheck);
 
     /**
      * Método para
      */
-    Passaport createWorkTeamFor(final User user, final String ownerId, final Passaport passaport);
+    Passaport createPassaportFor(final User user, final String ownerId, final Passaport passaport);
 
     /**
      * Realiza as configurações
      */
-    void configWorkTeams(final User user);
+    void configPassaports(final User user);
 }

@@ -26,15 +26,15 @@ public interface AdminPassaportService extends Service<AdminPassaport> {
 
     AvaliableRoles loadAvaliableRoles(final User user);
 
-    void removeUserFromAllWorkTeam(final AdminOwner owner, final User user);
+    void removeUserFromAllPassaport(final AdminOwner owner, final User user);
 
     /**
      * Método para
      */
-    AdminPassaport createWorkTeamFor(final User user, final String ownerId, final AdminPassaport workTeam);
+    AdminPassaport createPassaportFor(final User user, final String ownerId, final AdminPassaport passaport);
 
     /**
      * Realiza as configurações
      */
-    void configWorkTeams(final User user);
+    void configPassaports(final User user);
 }

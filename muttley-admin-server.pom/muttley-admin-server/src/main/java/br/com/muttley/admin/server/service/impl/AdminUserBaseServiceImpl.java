@@ -3,7 +3,7 @@ package br.com.muttley.admin.server.service.impl;
 import br.com.muttley.admin.server.config.model.DocumentNameConfig;
 import br.com.muttley.admin.server.service.AdminUserBaseService;
 import br.com.muttley.admin.server.service.AdminUserDataBindingService;
-import br.com.muttley.admin.server.service.AdminWorkTeamService;
+import br.com.muttley.admin.server.service.AdminPassaportService;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.model.BasicAggregateResultCount;
@@ -64,7 +64,7 @@ public class AdminUserBaseServiceImpl extends AdminServiceImpl<AdminUserBase> im
     private final UserServiceClient userService;
     //private final AdminUserDataBindingService dataBindingService;
     private final DocumentNameConfig documentNameConfig;
-    private final AdminWorkTeamService workTeamService;
+    private final AdminPassaportService passaportService;
 
     @Autowired
     public AdminUserBaseServiceImpl(
@@ -72,12 +72,12 @@ public class AdminUserBaseServiceImpl extends AdminServiceImpl<AdminUserBase> im
             final UserServiceClient userService,
             final AdminUserDataBindingService dataBindingService,
             final DocumentNameConfig documentNameConfig,
-            final AdminWorkTeamService workTeamService) {
+            final AdminPassaportService passaportService) {
         super(null, template, AdminUserBase.class);
         this.userService = userService;
         //  this.dataBindingService = dataBindingService;
         this.documentNameConfig = documentNameConfig;
-        this.workTeamService = workTeamService;
+        this.passaportService = passaportService;
     }
 
     @Override
@@ -260,7 +260,7 @@ public class AdminUserBaseServiceImpl extends AdminServiceImpl<AdminUserBase> im
                         .pull("users", new BasicDBObject("user.$id", new ObjectId(userLoaded.getId()))),
                 UserBase.class
         );
-        this.workTeamService.removeUserFromAllWorkTeam((AdminOwner) user.getCurrentOwner(), userLoaded);
+        this.passaportService.removeUserFromAllPassaport((AdminOwner) user.getCurrentOwner(), userLoaded);
     }
 
     @Override

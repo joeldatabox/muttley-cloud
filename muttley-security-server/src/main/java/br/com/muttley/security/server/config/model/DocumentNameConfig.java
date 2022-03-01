@@ -22,7 +22,7 @@ public class DocumentNameConfig {
     private final String nameCollectionAccessPlan;
     private final String nameCollectionUserPreferences;
     private final String nameCollectionUserTokensNotification;
-    private final String nameCollectionAdminWorkTeam;
+    private final String nameCollectionAdminPassaport;
     private final String nameCollectionPassaport;
     private final String nameCollectionUserDataBinding;
     private final String nameViewCollectionUser;
@@ -39,12 +39,12 @@ public class DocumentNameConfig {
             @Value("${br.com.muttley.security.server.access-plan-document:muttley-access-plans}") final String nameCollectionAccessPlan,
             @Value("${br.com.muttley.security.server.user-preference-document:muttley-users-preferences}") final String nameCollectionUserPreferences,
             @Value("${br.com.muttley.security.server.user-tokens-notification-document:muttley-users-tokens-notification}") final String nameCollectionUserTokensNotification,
-            @Value("${br.com.muttley.security.server.work-team-document:muttley-admin-work-teams}") final String nameCollectionAdminWorkTeam,
+            @Value("${br.com.muttley.security.server.admin-passaport-document:muttley-admin-passaports}") final String nameCollectionAdminPassaport,
             @Value("${br.com.muttley.security.server.passaport-document:muttley-passaports}") final String nameCollectionPassaport,
             @Value("${br.com.muttley.security.server.user-data-binding:muttley-users-databinding}") final String nameCollectionUserDataBinding,
             @Value("${br.com.muttley.security.server.user-document-view:view-muttley-users}") final String nameViewCollectionUser,
             @Value("${br.com.muttley.security.server.passaport-document-view:view-muttley-passaports}") final String nameViewCollectionPassaport,
-            @Value("${br.com.muttley.security.server.passaport-document-view:view-muttley-passaports-roles-user}") final String nameViewCollectionPassaportRolesUser) {
+            @Value("${br.com.muttley.security.server.passaport-role-document-view:view-muttley-passaports-roles-user}") final String nameViewCollectionPassaportRolesUser) {
         this.nameCollectionAdminOwner = nameCollectionAdminOwner;
         this.nameCollectionOwner = nameCollectionOwner;
         this.nameCollectionUser = nameCollectionUser;
@@ -54,7 +54,7 @@ public class DocumentNameConfig {
         this.nameCollectionAccessPlan = nameCollectionAccessPlan;
         this.nameCollectionUserPreferences = nameCollectionUserPreferences;
         this.nameCollectionUserTokensNotification = nameCollectionUserTokensNotification;
-        this.nameCollectionAdminWorkTeam = nameCollectionAdminWorkTeam;
+        this.nameCollectionAdminPassaport = nameCollectionAdminPassaport;
         this.nameCollectionPassaport = nameCollectionPassaport;
         this.nameCollectionUserDataBinding = nameCollectionUserDataBinding;
         this.nameViewCollectionUser = nameViewCollectionUser;

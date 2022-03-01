@@ -1,8 +1,8 @@
 package br.com.muttley.admin.server.service.impl;
 
 import br.com.muttley.admin.server.config.model.DocumentNameConfig;
-import br.com.muttley.admin.server.repository.AdminWorkTeamRepository;
-import br.com.muttley.admin.server.service.AdminWorkTeamService;
+import br.com.muttley.admin.server.repository.AdminPassaportRepository;
+import br.com.muttley.admin.server.service.AdminPassaportService;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.admin.AdminOwner;
@@ -37,11 +37,11 @@ import static org.springframework.data.mongodb.core.query.Query.query;
  * @project muttley-cloud
  */
 @Service
-public class AdminWorkTeamServiceImpl extends AdminServiceImpl<AdminPassaport> implements AdminWorkTeamService {
+public class AdminPassaportServiceImpl extends AdminServiceImpl<AdminPassaport> implements AdminPassaportService {
     private final DocumentNameConfig documentNameConfig;
 
     @Autowired
-    public AdminWorkTeamServiceImpl(AdminWorkTeamRepository repository, final MongoTemplate mongoTemplate, final DocumentNameConfig documentNameConfig) {
+    public AdminPassaportServiceImpl(AdminPassaportRepository repository, final MongoTemplate mongoTemplate, final DocumentNameConfig documentNameConfig) {
         super(repository, mongoTemplate, AdminPassaport.class);
         this.documentNameConfig = documentNameConfig;
     }
@@ -65,7 +65,7 @@ public class AdminWorkTeamServiceImpl extends AdminServiceImpl<AdminPassaport> i
     }
 
     @Override
-    public List<AdminPassaport> loadAllWorkTeams(final User user) {
+    public List<AdminPassaport> loadAllPassaports(final User user) {
         /*
         db['odin-work-teams'].aggregate(
             {
@@ -100,7 +100,7 @@ public class AdminWorkTeamServiceImpl extends AdminServiceImpl<AdminPassaport> i
     }
 
     @Override
-    public void removeUserFromAllWorkTeam(final AdminOwner owner, final User user) {
+    public void removeUserFromAllPassaport(final AdminOwner owner, final User user) {
         this.mongoTemplate.updateMulti(
                 new Query(
                         where("owner.$id").is(owner.getObjectId())

@@ -1,7 +1,7 @@
 package br.com.muttley.admin.server.service.impl;
 
-import br.com.muttley.admin.server.repository.AdminWorkTeamRepository;
-import br.com.muttley.admin.server.service.NoSecurityAdminWorkTeamService;
+import br.com.muttley.admin.server.repository.AdminPassaportRepository;
+import br.com.muttley.admin.server.service.NoSecurityAdminPassaportService;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.model.admin.AdminPassaport;
 import br.com.muttley.model.security.Passaport;
@@ -14,27 +14,27 @@ import org.springframework.stereotype.Service;
  * @project muttley-cloud
  */
 @Service
-public class NoSecurityAdminWorkTeamServiceImpl extends AbstractNoSecurityService implements NoSecurityAdminWorkTeamService {
-    private final AdminWorkTeamRepository repository;
+public class NoSecurityAdminPassaportServiceImpl extends AbstractNoSecurityService implements NoSecurityAdminPassaportService {
+    private final AdminPassaportRepository repository;
 
     @Autowired
-    public NoSecurityAdminWorkTeamServiceImpl(final AdminWorkTeamRepository repository) {
+    public NoSecurityAdminPassaportServiceImpl(final AdminPassaportRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    public AdminPassaport save(final AdminPassaport workTeam) {
+    public AdminPassaport save(final AdminPassaport passaport) {
         //validando contexto de execução
         this.validateContext();
         //verificando se realmente está criando um novo registro
-        if (workTeam.getId() != null) {
+        if (passaport.getId() != null) {
             throw new MuttleyBadRequestException(Passaport.class, "id", "Não é possível criar um registro com um id existente");
         }
         //validando dados
-        this.validator.validate(workTeam);
+        this.validator.validate(passaport);
         /*//verificando precondições
         this.checkPrecondictionSave(user, value);
         this.beforeSave(user, value);*/
-        return this.repository.save(workTeam);
+        return this.repository.save(passaport);
     }
 }

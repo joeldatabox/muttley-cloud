@@ -58,7 +58,7 @@ public class AdminUserBaseServiceImpl extends SecurityModelServiceImpl<AdminUser
     private final UserService userService;
     private final UserDataBindingService dataBindingService;
     private final DocumentNameConfig documentNameConfig;
-    private final AdminPassaportService workTeamService;
+    private final AdminPassaportService passaportService;
 
     @Autowired
     public AdminUserBaseServiceImpl(
@@ -66,12 +66,12 @@ public class AdminUserBaseServiceImpl extends SecurityModelServiceImpl<AdminUser
             final UserService userService,
             final UserDataBindingService dataBindingService,
             final DocumentNameConfig documentNameConfig,
-            final AdminPassaportService workTeamService) {
+            final AdminPassaportService passaportService) {
         super(template, AdminUserBase.class);
         this.userService = userService;
         this.dataBindingService = dataBindingService;
         this.documentNameConfig = documentNameConfig;
-        this.workTeamService = workTeamService;
+        this.passaportService = passaportService;
     }
 
     @Override
@@ -193,7 +193,7 @@ public class AdminUserBaseServiceImpl extends SecurityModelServiceImpl<AdminUser
                         .pull("users", new BasicDBObject("user.$id", new ObjectId(userLoaded.getId()))),
                 UserBase.class
         );
-        this.workTeamService.removeUserFromAllWorkTeam((AdminOwner) user.getCurrentOwner(), userLoaded);
+        this.passaportService.removeUserFromAllPassaport((AdminOwner) user.getCurrentOwner(), userLoaded);
     }
 
     @Override

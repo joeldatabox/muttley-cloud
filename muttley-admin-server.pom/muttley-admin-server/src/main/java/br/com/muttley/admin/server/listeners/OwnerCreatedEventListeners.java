@@ -1,7 +1,7 @@
 package br.com.muttley.admin.server.listeners;
 
 import br.com.muttley.admin.server.events.OwnerCreatedEvent;
-import br.com.muttley.admin.server.service.AdminWorkTeamService;
+import br.com.muttley.admin.server.service.AdminPassaportService;
 import br.com.muttley.model.admin.AdminPassaport;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
@@ -17,12 +17,12 @@ import static br.com.muttley.model.security.Role.ROLE_OWNER;
  */
 //@Component
 public class OwnerCreatedEventListeners implements ApplicationListener<OwnerCreatedEvent> {
-    final AdminWorkTeamService workTeamService;
+    final AdminPassaportService passaportService;
     //final br.com.muttley.security.server.service.AdminUserBaseService
 
     @Autowired
-    public OwnerCreatedEventListeners(final AdminWorkTeamService workTeamService) {
-        this.workTeamService = workTeamService;
+    public OwnerCreatedEventListeners(final AdminPassaportService passaportService) {
+        this.passaportService = passaportService;
     }
 
     @Override
@@ -37,17 +37,16 @@ public class OwnerCreatedEventListeners implements ApplicationListener<OwnerCrea
         //this.userBaseService.save(currentUser, event.getSource(), userBase);
 
 
-
-        AdminPassaport workTeam = (AdminPassaport) new AdminPassaport()
+        AdminPassaport passaport = (AdminPassaport) new AdminPassaport()
                 .setName("Master")
                 .setDescription("Esse é o grupo principal")
                 .setOwner(event.getSource())
                 .setUserMaster(userMaster)
                 .addMember(userMaster)
                 .addRole(ROLE_OWNER);
-        userMaster.setCurrentOwner(workTeam.getOwner());
+        userMaster.setCurrentOwner(passaport.getOwner());
 
-        workTeam = this.workTeamService.save(userMaster, workTeam);
+        passaport = this.passaportService.save(userMaster, passaport);
 
         /*Já que acabamos de criar um Owner, devemos verificar se o usuário master já tem algumas preferencias básicas
          * tudo isso para evitar erros

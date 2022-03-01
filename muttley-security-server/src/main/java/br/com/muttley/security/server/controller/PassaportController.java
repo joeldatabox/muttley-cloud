@@ -62,10 +62,10 @@ public class PassaportController extends AbstractRestController<Passaport> {
         return ResponseEntity.ok(service.findByUser(userService.getUserFromToken(new JwtToken(tokenHeader))));
     }
 
-    @RequestMapping(value = "/create-work-team-for", method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/create-passaport-for", method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity createWorkTeamFor(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestParam(required = false, value = "ownerId", defaultValue = "") final String ownerId, @RequestBody final Passaport passaport) {
-        return ResponseEntity.ok(service.createWorkTeamFor(userService.getUserFromToken(new JwtToken(tokenHeader)), ownerId, passaport));
+    public ResponseEntity createPassaportFor(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestParam(required = false, value = "ownerId", defaultValue = "") final String ownerId, @RequestBody final Passaport passaport) {
+        return ResponseEntity.ok(service.createPassaportFor(userService.getUserFromToken(new JwtToken(tokenHeader)), ownerId, passaport));
     }
 
 }

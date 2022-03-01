@@ -8,5 +8,5 @@ import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface AdminWorkTeamRepository extends DocumentMongoRepository<AdminPassaport> {
+public interface AdminPassaportRepository extends DocumentMongoRepository<AdminPassaport> {
 }

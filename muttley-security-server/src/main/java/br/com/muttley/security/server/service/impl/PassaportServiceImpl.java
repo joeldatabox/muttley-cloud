@@ -104,7 +104,7 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
         this.applicationEventPublisher.publishEvent(new ValidateOwnerInWorkGroupEvent(user, passaport));
 
         //só podemo aceitar salvar um grupo pro owner caso ainda não exista um
-        if (this.existWorkTeamForOwner(passaport) && passaport.containsRole(ROLE_OWNER)) {
+        if (this.existPassaportForOwner(passaport) && passaport.containsRole(ROLE_OWNER)) {
             if (!this.isEmpty(user)) {
                 throw new MuttleyBadRequestException(Passaport.class, "roles", "Não se pode existir mais de um grupo principal");
             }
@@ -142,7 +142,7 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
     @Override
     public void checkPrecondictionUpdate(final User user, final Passaport passaport) {
         //não se pode alterar workteam que seja do owner
-        if (this.existWorkTeamForOwner(passaport) && passaport.containsRole(ROLE_OWNER)) {
+        if (this.existPassaportForOwner(passaport) && passaport.containsRole(ROLE_OWNER)) {
             throw new MuttleyBadRequestException(Passaport.class, "roles", "Não se pode editar o grupo principal");
         }
         //verificando se o workteam é do owner ou não
@@ -215,7 +215,7 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
          *    {$match:{$or:[{"userMaster.$id": ObjectId("5d49cca5a1d16f19595be983")}, {"members.$id":ObjectId("5d49cca5a1d16f19595be983")}]}},
          * ])
          */
-        final AggregationResults<Passaport> workTeamsResult = this.mongoTemplate.aggregate(
+        final AggregationResults<Passaport> passaportsResult = this.mongoTemplate.aggregate(
                 newAggregation(
                         match(
                                 new Criteria().orOperator(
@@ -225,12 +225,12 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
                         )
                 )
                 , Passaport.class, Passaport.class);
-        if (workTeamsResult == null) {
-            throw new MuttleyNotFoundException(Passaport.class, "members", "Nenhum workteam encontrado para o usuário informado");
+        if (passaportsResult == null) {
+            throw new MuttleyNotFoundException(Passaport.class, "members", "Nenhum passaport encontrado para o usuário informado");
         }
-        final List<Passaport> passaports = workTeamsResult.getMappedResults();
+        final List<Passaport> passaports = passaportsResult.getMappedResults();
         if (CollectionUtils.isEmpty(passaports)) {
-            throw new MuttleyNotFoundException(Passaport.class, "members", "Nenhum workteam encontrado para o usuário informado");
+            throw new MuttleyNotFoundException(Passaport.class, "members", "Nenhum passaport encontrado para o usuário informado");
         }
         return passaports;
     }
@@ -254,7 +254,7 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
     }
 
     @Override
-    public void removeUserFromAllWorkTeam(Owner owner, User user) {
+    public void removeUserFromAllPassaport(Owner owner, User user) {
         this.mongoTemplate.updateMulti(
                 new Query(
                         where("owner.$id").is(owner.getObjectId())
@@ -267,8 +267,8 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
     }
 
     @Override
-    public void addUserForWorkTeamIfNotExists(final User user, final Passaport passaport, final UserData userForAdd) {
-        if (!this.userIsPresentInWorkTeam(user, passaport, userForAdd)) {
+    public void addUserForPassaportIfNotExists(final User user, final Passaport passaport, final UserData userForAdd) {
+        if (!this.userIsPresentInPassaport(user, passaport, userForAdd)) {
             this.mongoTemplate.updateMulti(
                     new Query(
                             where("owner.$id").is(user.getCurrentOwner().getObjectId())
@@ -281,16 +281,16 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
     }
 
     @Override
-    public boolean userIsPresentInWorkTeam(final User user, final Passaport passaport, final UserData userForCheck) {
-        return this.userIsPresentInWorkTeam(user, passaport.getId(), userForCheck);
+    public boolean userIsPresentInPassaport(final User user, final Passaport passaport, final UserData userForCheck) {
+        return this.userIsPresentInPassaport(user, passaport.getId(), userForCheck);
     }
 
     @Override
-    public boolean userIsPresentInWorkTeam(final User user, final String idWorkTeam, final UserData userForCheck) {
+    public boolean userIsPresentInPassaport(final User user, final String idPassaport, final UserData userForCheck) {
         return this.mongoTemplate.exists(
                 new Query(
                         where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                .and("id").is(new ObjectId(idWorkTeam))
+                                .and("id").is(new ObjectId(idPassaport))
                                 .and("members").in(new DBRef(this.documentNameConfig.getNameCollectionUser(), new ObjectId(userForCheck.getId())))
                 ),
                 Passaport.class
@@ -298,7 +298,7 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
     }
 
     @Override
-    public Passaport createWorkTeamFor(final User user, final String ownerId, final Passaport passaport) {
+    public Passaport createPassaportFor(final User user, final String ownerId, final Passaport passaport) {
         final Owner owner = this.ownerService.findById(user, ownerId);
         passaport.setOwner(owner);
         passaport.setUserMaster(owner.getUserMaster());
@@ -306,7 +306,7 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
     }
 
     @Override
-    public void configWorkTeams(final User user) {
+    public void configPassaports(final User user) {
         //criando grupo principal
         final Passaport passaport = new Passaport()
                 .setName("Grupo principal")
@@ -315,7 +315,7 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
                 .addRole(ROLE_OWNER);
 
         //verificando se não existe workTeam para o Owner
-        if (!existWorkTeamForOwner(passaport)) {
+        if (!existPassaportForOwner(passaport)) {
 
 
             passaport.setUserMaster(user);
@@ -329,9 +329,9 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
     /**
      * Checando se existe grupo de trabalho para o Owner
      */
-    private boolean existWorkTeamForOwner(final Passaport passaport) {
+    private boolean existPassaportForOwner(final Passaport passaport) {
         /**
-         * db.getCollection("muttley-work-teams").aggregate([
+         * db.getCollection("muttley-passaports").aggregate([
          *     {$match:{
          *         owner: {'$ref' : 'muttley-owners', '$id' : ObjectId('5d07cece444c5b2ceb5e0942')},
          *         userMaster:{'$ref' : 'muttley-users', '$id' : ObjectId('5d07cada444c5b2ceb5e0940')},

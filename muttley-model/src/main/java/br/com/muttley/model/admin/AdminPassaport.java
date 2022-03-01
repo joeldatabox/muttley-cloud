@@ -14,7 +14,7 @@ import static br.com.muttley.model.admin.AdminPassaport.TYPE_ALIAS;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@org.springframework.data.mongodb.core.mapping.Document(collection = "#{documentNameConfig.getNameCollectionAdminWorkTeam()}")
+@org.springframework.data.mongodb.core.mapping.Document(collection = "#{documentNameConfig.this.getNameCollectionAdminPassaport()}")
 @CompoundIndexes({
         @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })

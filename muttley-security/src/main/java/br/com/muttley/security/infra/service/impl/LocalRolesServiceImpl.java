@@ -6,7 +6,7 @@ import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.redis.service.RedisService;
-import br.com.muttley.security.feign.WorkTeamServiceClient;
+import br.com.muttley.security.feign.PassaportServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
@@ -17,12 +17,12 @@ import java.util.Set;
  * @project muttley-cloud
  */
 public class LocalRolesServiceImpl extends AbstractLocalRolesServiceImpl implements LocalRolesService {
-    private final WorkTeamServiceClient workTeamService;
+    private final PassaportServiceClient passaportService;
 
     @Autowired
-    public LocalRolesServiceImpl(final RedisService redisService, final WorkTeamServiceClient workTeamService) {
+    public LocalRolesServiceImpl(final RedisService redisService, final PassaportServiceClient passaportService) {
         super(redisService);
-        this.workTeamService = workTeamService;
+        this.passaportService = passaportService;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class LocalRolesServiceImpl extends AbstractLocalRolesServiceImpl impleme
             roles = this.loadRolesInCache(user);
         } else {
             //se chegou até aqui precisaremos buscar as roles do server
-            roles = this.workTeamService.loadCurrentRoles();
+            roles = this.passaportService.loadCurrentRoles();
             //salvando as roles no cache
             this.saveRolesInCache(token, user, roles);
         }

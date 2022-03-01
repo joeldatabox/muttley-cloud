@@ -71,7 +71,7 @@ public class User implements Serializable, UserData {
     //private Date lastPasswordResetDate;
     private Boolean enable;
     @Transient
-    private Set<Authority> authorities;//Os authorities devem ser repassado pelo workteam corrente
+    private Set<Authority> authorities;//Os authorities devem ser repassado pelo passaport corrente
     @Transient
     private UserPreferences preferences;
     private List<UserDataBinding> dataBindings;
