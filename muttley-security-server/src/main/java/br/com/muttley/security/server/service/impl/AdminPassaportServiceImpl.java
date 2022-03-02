@@ -6,9 +6,9 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.localcache.services.LocalRolesService;
 import br.com.muttley.model.admin.AdminOwner;
 import br.com.muttley.model.admin.AdminPassaport;
+import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.events.ValidateOwnerInWorkGroupEvent;
 import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
 import br.com.muttley.model.security.rolesconfig.event.AvaliableRolesEvent;
@@ -36,10 +36,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static br.com.muttley.model.security.Role.ROLE_OWNER;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_CREATE;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_DELETE;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_READ;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_UPDATE;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_CREATE;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_DELETE;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_READ;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_UPDATE;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newAvaliableRoles;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newViewRoleDefinition;
 import static java.util.Arrays.asList;
@@ -58,7 +58,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class AdminPassaportServiceImpl extends SecurityServiceImpl<AdminPassaport> implements AdminPassaportService {
     private final AdminPassaportRepository repository;
     private final UserRolesView userRolesView;
-    private static final String[] basicRoles = new String[]{"work_team"};
+    private static final String[] basicRoles = new String[]{"passaport"};
     private final DocumentNameConfig documentNameConfig;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final AdminOwnerService ownerService;
@@ -249,7 +249,7 @@ public class AdminPassaportServiceImpl extends SecurityServiceImpl<AdminPassapor
     public AvaliableRoles loadAvaliableRoles(final User user) {
         final AvaliableRolesEvent event = new AvaliableRolesEvent(user,
                 newAvaliableRoles(
-                        newViewRoleDefinition("Times de trabalho", "Ações relacionada a times de trabalho", ROLE_WORK_TEAM_CREATE, ROLE_WORK_TEAM_READ, ROLE_WORK_TEAM_UPDATE, ROLE_WORK_TEAM_DELETE)
+                        newViewRoleDefinition("Times de trabalho", "Ações relacionada a times de trabalho", ROLE_PASSAPORT_CREATE, ROLE_PASSAPORT_READ, ROLE_PASSAPORT_UPDATE, ROLE_PASSAPORT_DELETE)
                 )
         );
 
@@ -326,8 +326,8 @@ public class AdminPassaportServiceImpl extends SecurityServiceImpl<AdminPassapor
                                         .and("userMaster.$id").is(new ObjectId(passaport.getUserMaster().getId()))
                                         //filtrando as roles
                                         .and("roles").elemMatch(
-                                        new Criteria().is(ROLE_OWNER)
-                                )
+                                                new Criteria().is(ROLE_OWNER)
+                                        )
                         ),
                         Aggregation.count().as("count")
                 ), AdminPassaport.class, UserViewServiceImpl.ResultCount.class

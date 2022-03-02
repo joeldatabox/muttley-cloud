@@ -5,18 +5,18 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.localcache.services.LocalRolesService;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserData;
-import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.events.ValidateOwnerInWorkGroupEvent;
 import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
 import br.com.muttley.model.security.rolesconfig.event.AvaliableRolesEvent;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.PassaportRepository;
 import br.com.muttley.security.server.service.OwnerService;
-import br.com.muttley.security.server.service.UserRolesView;
 import br.com.muttley.security.server.service.PassaportService;
+import br.com.muttley.security.server.service.UserRolesView;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBRef;
 import org.bson.types.ObjectId;
@@ -37,10 +37,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static br.com.muttley.model.security.Role.ROLE_OWNER;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_CREATE;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_DELETE;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_READ;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_UPDATE;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_CREATE;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_DELETE;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_READ;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_UPDATE;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newAvaliableRoles;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newViewRoleDefinition;
 import static java.util.Arrays.asList;
@@ -61,7 +61,7 @@ import static org.springframework.data.mongodb.core.query.Update.Position.FIRST;
 public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> implements PassaportService {
     private final PassaportRepository repository;
     private final UserRolesView userRolesView;
-    private static final String[] basicRoles = new String[]{"work_team"};
+    private static final String[] basicRoles = new String[]{"passaport"};
     private final DocumentNameConfig documentNameConfig;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final OwnerService ownerService;
@@ -244,7 +244,7 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
     public AvaliableRoles loadAvaliableRoles(final User user) {
         final AvaliableRolesEvent event = new AvaliableRolesEvent(user,
                 newAvaliableRoles(
-                        newViewRoleDefinition("Times de trabalho", "Ações relacionada a times de trabalho", ROLE_WORK_TEAM_CREATE, ROLE_WORK_TEAM_READ, ROLE_WORK_TEAM_UPDATE, ROLE_WORK_TEAM_DELETE)
+                        newViewRoleDefinition("Times de trabalho", "Ações relacionada a times de trabalho", ROLE_PASSAPORT_CREATE, ROLE_PASSAPORT_READ, ROLE_PASSAPORT_UPDATE, ROLE_PASSAPORT_DELETE)
                 )
         );
 
@@ -351,8 +351,8 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
                                         .and("userMaster.$id").is(new ObjectId(passaport.getUserMaster().getId()))
                                         //filtrando as roles
                                         .and("roles").elemMatch(
-                                        new Criteria().is(ROLE_OWNER)
-                                )
+                                                new Criteria().is(ROLE_OWNER)
+                                        )
                         ),
                         Aggregation.count().as("count")
                 ), Passaport.class, UserViewServiceImpl.ResultCount.class
