@@ -43,7 +43,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 public class Passaport implements Model<Owner> {
     @Transient
     @JsonIgnore
-    public static final String TYPE_ALIAS = "work-team";
+    public static final String TYPE_ALIAS = "passaport";
 
     @Id
     protected String id;
