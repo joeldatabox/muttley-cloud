@@ -1,7 +1,7 @@
 package br.com.muttley.model.security.events;
 
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.WorkTeam;
+import br.com.muttley.model.security.Passaport;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
@@ -17,18 +17,18 @@ import org.springframework.context.ApplicationEvent;
  * @project muttley-cloud
  */
 public class ValidateOwnerInWorkGroupEvent extends ApplicationEvent {
-    private final WorkTeam workTeam;
+    private final Passaport passaport;
     @Getter
     private final User currenteUserFromRequest;
 
-    public ValidateOwnerInWorkGroupEvent(final User currenteUserFromRequest, final WorkTeam workTeam) {
-        super(workTeam);
+    public ValidateOwnerInWorkGroupEvent(final User currenteUserFromRequest, final Passaport passaport) {
+        super(passaport);
         this.currenteUserFromRequest = currenteUserFromRequest;
-        this.workTeam = workTeam;
+        this.passaport = passaport;
     }
 
     @Override
-    public WorkTeam getSource() {
-        return this.workTeam;
+    public Passaport getSource() {
+        return this.passaport;
     }
 }

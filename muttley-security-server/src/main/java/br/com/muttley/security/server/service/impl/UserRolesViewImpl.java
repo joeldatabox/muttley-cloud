@@ -3,7 +3,7 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.WorkTeam;
+import br.com.muttley.model.security.Passaport;
 import br.com.muttley.security.server.events.ConfigFirstOwnerPreferenceEvent;
 import br.com.muttley.security.server.service.UserRolesView;
 import com.mongodb.BasicDBObject;
@@ -101,7 +101,7 @@ public class UserRolesViewImpl implements UserRolesView {
                         unwind("$roles"),
                         group("$aux").addToSet("roles").as("roles")
                 ),
-                WorkTeam.class,
+                Passaport.class,
                 UserRolesResult.class
         );
         if (result == null || result.getUniqueMappedResult() == null) {

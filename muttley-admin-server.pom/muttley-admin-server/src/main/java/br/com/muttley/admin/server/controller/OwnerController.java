@@ -6,7 +6,7 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.rest.RestController;
 import br.com.muttley.rest.RestResource;
 import br.com.muttley.security.feign.OwnerServiceClient;
-import br.com.muttley.security.feign.WorkTeamServiceClient;
+import br.com.muttley.security.feign.PassaportServiceClient;
 import br.com.muttley.security.infra.resource.PageableResource;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +40,13 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 @RequestMapping(value = "/api/v1/owners", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
 public class OwnerController implements RestController<Owner>, RestResource {
     private final OwnerServiceClient client;
-    private final WorkTeamServiceClient workTeamService;
+    private final PassaportServiceClient passaportService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public OwnerController(final OwnerServiceClient client, final WorkTeamServiceClient workTeamService, final ApplicationEventPublisher eventPublisher) {
+    public OwnerController(final OwnerServiceClient client, final PassaportServiceClient passaportService, final ApplicationEventPublisher eventPublisher) {
         this.client = client;
-        this.workTeamService = workTeamService;
+        this.passaportService = passaportService;
         this.eventPublisher = eventPublisher;
     }
 

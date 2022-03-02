@@ -85,24 +85,24 @@ public class Role {
     public static final Role ROLE_USER_SIMPLE_USE = new Role("ROLE_USER_SIMPLE_USE");
 
     @JsonIgnore
-    public static final Role ROLE_WORK_TEAM_CREATE = new Role("ROLE_WORK_TEAM_CREATE");
+    public static final Role ROLE_PASSAPORT_CREATE = new Role("ROLE_PASSAPORT_CREATE");
     @JsonIgnore
-    public static final Role ROLE_WORK_TEAM_READ = new Role("ROLE_WORK_TEAM_READ");
+    public static final Role ROLE_PASSAPORT_READ = new Role("ROLE_PASSAPORT_READ");
     @JsonIgnore
-    public static final Role ROLE_WORK_TEAM_UPDATE = new Role("ROLE_WORK_TEAM_UPDATE");
+    public static final Role ROLE_PASSAPORT_UPDATE = new Role("ROLE_PASSAPORT_UPDATE");
     @JsonIgnore
-    public static final Role ROLE_WORK_TEAM_DELETE = new Role("ROLE_WORK_TEAM_DELETE");
+    public static final Role ROLE_PASSAPORT_DELETE = new Role("ROLE_PASSAPORT_DELETE");
     @JsonIgnore
-    public static final Role ROLE_WORK_TEAM_SIMPLE_USE = new Role("ROLE_WORK_TEAM_SIMPLE_USE");
+    public static final Role ROLE_PASSAPORT_SIMPLE_USE = new Role("ROLE_PASSAPORT_SIMPLE_USE");
 
     @JsonIgnore
-    public static final Role ROLE_MOBILE_WORK_TEAM_CREATE = new Role("ROLE_MOBILE_WORK_TEAM_CREATE");
+    public static final Role ROLE_MOBILE_PASSAPORT_CREATE = new Role("ROLE_MOBILE_PASSAPORT_CREATE");
     @JsonIgnore
-    public static final Role ROLE_MOBILE_WORK_TEAM_READ = new Role("ROLE_MOBILE_WORK_TEAM_READ");
+    public static final Role ROLE_MOBILE_PASSAPORT_READ = new Role("ROLE_MOBILE_PASSAPORT_READ");
     @JsonIgnore
-    public static final Role ROLE_MOBILE_WORK_TEAM_UPDATE = new Role("ROLE_MOBILE_WORK_TEAM_UPDATE");
+    public static final Role ROLE_MOBILE_PASSAPORT_UPDATE = new Role("ROLE_MOBILE_PASSAPORT_UPDATE");
     @JsonIgnore
-    public static final Role ROLE_MOBILE_WORK_TEAM_DELETE = new Role("ROLE_MOBILE_WORK_TEAM_DELETE");
+    public static final Role ROLE_MOBILE_PASSAPORT_DELETE = new Role("ROLE_MOBILE_PASSAPORT_DELETE");
 
     @JsonIgnore
     public static final Role ROLE_USER_DATA_BINDING_CREATE = new Role("ROLE_USER_DATA_BINDING_CREATE");

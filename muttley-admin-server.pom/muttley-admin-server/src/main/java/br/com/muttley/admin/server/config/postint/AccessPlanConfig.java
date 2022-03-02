@@ -5,7 +5,7 @@ import br.com.muttley.model.security.AccessPlan;
 import br.com.muttley.security.feign.AccessPlanServiceClient;
 import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.UserServiceClient;
-import br.com.muttley.security.feign.WorkTeamServiceClient;
+import br.com.muttley.security.feign.PassaportServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -26,14 +26,14 @@ public class AccessPlanConfig implements ApplicationListener<ApplicationReadyEve
     private final AccessPlanServiceClient accessplanService;
     private final OwnerServiceClient ownerService;
     private final UserServiceClient userService;
-    private final WorkTeamServiceClient workTeamService;
+    private final PassaportServiceClient passaportService;
 
     @Autowired
-    public AccessPlanConfig(final AccessPlanServiceClient accessplanService, final OwnerServiceClient ownerService, final UserServiceClient userService, final WorkTeamServiceClient workTeamService) {
+    public AccessPlanConfig(final AccessPlanServiceClient accessplanService, final OwnerServiceClient ownerService, final UserServiceClient userService, final PassaportServiceClient passaportService) {
         this.accessplanService = accessplanService;
         this.ownerService = ownerService;
         this.userService = userService;
-        this.workTeamService = workTeamService;
+        this.passaportService = passaportService;
     }
 
     @Override

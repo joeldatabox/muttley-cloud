@@ -2,8 +2,8 @@ package br.com.muttley.security.server.listeners;
 
 import br.com.muttley.headers.components.MuttleyRequestHeader;
 import br.com.muttley.security.server.events.CurrentRolesResolverEvent;
-import br.com.muttley.security.server.service.AdminWorkTeamService;
-import br.com.muttley.security.server.service.WorkTeamService;
+import br.com.muttley.security.server.service.AdminPassaportService;
+import br.com.muttley.security.server.service.PassaportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class CurrentRolesResolverEventListener implements ApplicationListener<CurrentRolesResolverEvent> {
-    private final WorkTeamService service;
-    private final AdminWorkTeamService adminService;
+    private final PassaportService service;
+    private final AdminPassaportService adminService;
     @Autowired
     private MuttleyRequestHeader requestHeader;
 
     @Autowired
-    public CurrentRolesResolverEventListener(final WorkTeamService service, final AdminWorkTeamService adminService) {
+    public CurrentRolesResolverEventListener(final PassaportService service, final AdminPassaportService adminService) {
         this.service = service;
         this.adminService = adminService;
     }

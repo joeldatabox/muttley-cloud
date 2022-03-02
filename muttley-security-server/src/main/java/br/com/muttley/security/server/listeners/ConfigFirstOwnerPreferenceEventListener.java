@@ -1,11 +1,11 @@
 package br.com.muttley.security.server.listeners;
 
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.WorkTeam;
+import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.events.ConfigFirstOwnerPreferenceEvent;
 import br.com.muttley.security.server.service.UserService;
-import br.com.muttley.security.server.service.WorkTeamService;
+import br.com.muttley.security.server.service.PassaportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -24,12 +24,12 @@ import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PRE
 @Component
 public class ConfigFirstOwnerPreferenceEventListener implements ApplicationListener<ConfigFirstOwnerPreferenceEvent> {
     private final UserService service;
-    private final WorkTeamService workTeamService;
+    private final PassaportService passaportService;
 
     @Autowired
-    public ConfigFirstOwnerPreferenceEventListener(final UserService service, final WorkTeamService workTeamService) {
+    public ConfigFirstOwnerPreferenceEventListener(final UserService service, final PassaportService passaportService) {
         this.service = service;
-        this.workTeamService = workTeamService;
+        this.passaportService = passaportService;
     }
 
     @Override
@@ -39,12 +39,12 @@ public class ConfigFirstOwnerPreferenceEventListener implements ApplicationListe
         final UserPreferences preference = this.service.loadPreference(user);
         if (!preference.contains(OWNER_PREFERENCE)) {
             //setando o owner do primeiro workteam que encontrar
-            final WorkTeam workTeam = this.workTeamService.findByUser(user).get(0);
-            preference.set(OWNER_PREFERENCE, workTeam.getOwner());
+            final Passaport passaport = this.passaportService.findByUser(user).get(0);
+            preference.set(OWNER_PREFERENCE, passaport.getOwner());
             //salvando as alterções das preferencias
             this.service.save(user, preference);
             user.setPreferences(preference);
-            user.setCurrentOwner(workTeam.getOwner());
+            user.setCurrentOwner(passaport.getOwner());
         }
     }
 }

@@ -1,6 +1,6 @@
 package br.com.muttley.admin.server.repository;
 
-import br.com.muttley.model.admin.AdminWorkTeam;
+import br.com.muttley.model.admin.AdminPassaport;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 
 /**
@@ -8,5 +8,5 @@ import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface AdminWorkTeamRepository extends DocumentMongoRepository<AdminWorkTeam> {
+public interface AdminPassaportRepository extends DocumentMongoRepository<AdminPassaport> {
 }

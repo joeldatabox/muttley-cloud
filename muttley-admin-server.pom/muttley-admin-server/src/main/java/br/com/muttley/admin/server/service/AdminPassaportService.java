@@ -2,7 +2,7 @@ package br.com.muttley.admin.server.service;
 
 import br.com.muttley.domain.service.Service;
 import br.com.muttley.model.admin.AdminOwner;
-import br.com.muttley.model.admin.AdminWorkTeam;
+import br.com.muttley.model.admin.AdminPassaport;
 import br.com.muttley.model.security.User;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -13,8 +13,8 @@ import java.util.List;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface AdminWorkTeamService extends Service<AdminWorkTeam> {
-    AdminWorkTeam findById1(final User user, final String id);
+public interface AdminPassaportService extends Service<AdminPassaport> {
+    AdminPassaport findById1(final User user, final String id);
 
     @PreAuthorize(
             "this.isCheckRole()? " +
@@ -30,7 +30,7 @@ public interface AdminWorkTeamService extends Service<AdminWorkTeam> {
                     "): " +
                     "   true"
     )
-    AdminWorkTeam findByName(final AdminOwner owner, final String nome);
+    AdminPassaport findByName(final AdminOwner owner, final String nome);
 
     @PreAuthorize(
             "this.isCheckRole()? " +
@@ -54,7 +54,7 @@ public interface AdminWorkTeamService extends Service<AdminWorkTeam> {
                     "): " +
                     "   true"
     )
-    List<AdminWorkTeam> loadAllWorkTeams(final User user);
+    List<AdminPassaport> loadAllPassaports(final User user);
 
-    void removeUserFromAllWorkTeam(AdminOwner owner, User user);
+    void removeUserFromAllPassaport(AdminOwner owner, User user);
 }

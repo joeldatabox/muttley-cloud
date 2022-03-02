@@ -17,7 +17,7 @@ public class DocumentNameConfig {
     private final String nameCollectionAccessPlan;
     private final String nameCollectionUserPreferences;
     private final String nameCollectionUserTokensNotification;
-    private final String nameCollectionWorkTeam;
+    private final String nameCollectionPassaport;
     private final String nameCollectionUserDataBinding;
 
     public DocumentNameConfig(
@@ -27,7 +27,7 @@ public class DocumentNameConfig {
             @Value("${br.com.muttley.security.server.access-plan-document:muttley-access-plans}") final String nameCollectionAccessPlan,
             @Value("${br.com.muttley.security.server.user-preference-document:muttley-users-preferences}") final String nameCollectionUserPreferences,
             @Value("${br.com.muttley.security.server.user-tokens-notification-document:muttley-users-tokens-notification}") final String nameCollectionUserTokensNotification,
-            @Value("${br.com.muttley.security.server.work-team-document:muttley-work-teams}") final String nameCollectionWorkTeam,
+            @Value("${br.com.muttley.security.server.passaport-document:muttley-passaports}") final String nameCollectionPassaport,
             @Value("${br.com.muttley.security.server.user-data-binding:muttley-users-databinding}") final String nameCollectionUserDataBinding) {
         this.nameCollectionOwner = nameCollectionOwner;
         this.nameCollectionUser = nameCollectionUser;
@@ -35,7 +35,7 @@ public class DocumentNameConfig {
         this.nameCollectionAccessPlan = nameCollectionAccessPlan;
         this.nameCollectionUserPreferences = nameCollectionUserPreferences;
         this.nameCollectionUserTokensNotification = nameCollectionUserTokensNotification;
-        this.nameCollectionWorkTeam = nameCollectionWorkTeam;
+        this.nameCollectionPassaport = nameCollectionPassaport;
         this.nameCollectionUserDataBinding = nameCollectionUserDataBinding;
     }
 
@@ -63,8 +63,8 @@ public class DocumentNameConfig {
         return this.nameCollectionUserTokensNotification;
     }
 
-    public String getNameCollectionWorkTeam() {
-        return nameCollectionWorkTeam;
+    public String getNameCollectionPassaport() {
+        return nameCollectionPassaport;
     }
 
     public String getNameCollectionUserDataBinding() {

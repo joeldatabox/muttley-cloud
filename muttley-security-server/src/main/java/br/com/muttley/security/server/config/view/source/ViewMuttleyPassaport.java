@@ -17,15 +17,15 @@ import static java.util.Arrays.asList;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class ViewMuttleyWorkTeam implements ViewSource {
+public class ViewMuttleyPassaport implements ViewSource {
     private final String VERSION = "2.0.10";
     private final String NAME;//= "view_muttley_work_teams";
     private final String SOURCE;//= "muttley-work-teams";
     private final String DESCRIPTION = "A view foi criada para facilitar a listagem de usuário por owners";
 
-    public ViewMuttleyWorkTeam(final DocumentNameConfig documentNameConfig) {
-        this.NAME = documentNameConfig.getNameViewCollectionWorkTeam();
-        this.SOURCE = documentNameConfig.getNameCollectionWorkTeam();
+    public ViewMuttleyPassaport(final DocumentNameConfig documentNameConfig) {
+        this.NAME = documentNameConfig.getNameViewCollectionPassaport();
+        this.SOURCE = documentNameConfig.getNameCollectionPassaport();
     }
 
     @Override

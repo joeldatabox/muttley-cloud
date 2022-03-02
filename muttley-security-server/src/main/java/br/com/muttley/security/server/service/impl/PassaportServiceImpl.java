@@ -5,18 +5,18 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.localcache.services.LocalRolesService;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserData;
-import br.com.muttley.model.security.WorkTeam;
 import br.com.muttley.model.security.events.ValidateOwnerInWorkGroupEvent;
 import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
 import br.com.muttley.model.security.rolesconfig.event.AvaliableRolesEvent;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
-import br.com.muttley.security.server.repository.WorkTeamRepository;
+import br.com.muttley.security.server.repository.PassaportRepository;
 import br.com.muttley.security.server.service.OwnerService;
+import br.com.muttley.security.server.service.PassaportService;
 import br.com.muttley.security.server.service.UserRolesView;
-import br.com.muttley.security.server.service.WorkTeamService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBRef;
 import org.bson.types.ObjectId;
@@ -37,10 +37,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static br.com.muttley.model.security.Role.ROLE_OWNER;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_CREATE;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_DELETE;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_READ;
-import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_UPDATE;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_CREATE;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_DELETE;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_READ;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_UPDATE;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newAvaliableRoles;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newViewRoleDefinition;
 import static java.util.Arrays.asList;
@@ -58,18 +58,18 @@ import static org.springframework.data.mongodb.core.query.Update.Position.FIRST;
  * Service do owner do odin
  */
 @Service
-public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implements WorkTeamService {
-    private final WorkTeamRepository repository;
+public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> implements PassaportService {
+    private final PassaportRepository repository;
     private final UserRolesView userRolesView;
-    private static final String[] basicRoles = new String[]{"work_team"};
+    private static final String[] basicRoles = new String[]{"passaport"};
     private final DocumentNameConfig documentNameConfig;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final OwnerService ownerService;
     private final LocalRolesService localRolesService;
 
     @Autowired
-    public WorkTeamServiceImpl(final WorkTeamRepository repository, final UserRolesView userRolesView, final MongoTemplate template, final DocumentNameConfig documentNameConfig, final ApplicationEventPublisher applicationEventPublisher, final OwnerService ownerService, final LocalRolesService localRolesService) {
-        super(repository, template, WorkTeam.class);
+    public PassaportServiceImpl(final PassaportRepository repository, final UserRolesView userRolesView, final MongoTemplate template, final DocumentNameConfig documentNameConfig, final ApplicationEventPublisher applicationEventPublisher, final OwnerService ownerService, final LocalRolesService localRolesService) {
+        super(repository, template, Passaport.class);
         this.repository = repository;
         this.userRolesView = userRolesView;
         this.documentNameConfig = documentNameConfig;
@@ -84,42 +84,42 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     @Override
-    public void beforeSave(final User user, final WorkTeam workTeam) {
+    public void beforeSave(final User user, final Passaport passaport) {
         //garantindo que não será alterado informações cruciais
-        if (!(user.getCurrentOwner() == null && workTeam.getOwner() != null)) {
-            workTeam.setOwner(user.getCurrentOwner());
+        if (!(user.getCurrentOwner() == null && passaport.getOwner() != null)) {
+            passaport.setOwner(user.getCurrentOwner());
         }
         //adicionando as roles de dependencias
-        workTeam.addRoles(this.loadAvaliableRoles(user).getDependenciesRolesFrom(workTeam.getRoles()));
-        super.beforeSave(user, workTeam);
+        passaport.addRoles(this.loadAvaliableRoles(user).getDependenciesRolesFrom(passaport.getRoles()));
+        super.beforeSave(user, passaport);
     }
 
     @Override
-    public void checkPrecondictionSave(final User user, final WorkTeam workTeam) {
+    public void checkPrecondictionSave(final User user, final Passaport passaport) {
 
         //verificando validando o owner
         //o evento irá verificar se foi informado o owner corretamente
         //pegando o owner da requisição atual, ou o owner já vindo no json caso seja uma requisição
         //do servidor odin
-        this.applicationEventPublisher.publishEvent(new ValidateOwnerInWorkGroupEvent(user, workTeam));
+        this.applicationEventPublisher.publishEvent(new ValidateOwnerInWorkGroupEvent(user, passaport));
 
         //só podemo aceitar salvar um grupo pro owner caso ainda não exista um
-        if (this.existWorkTeamForOwner(workTeam) && workTeam.containsRole(ROLE_OWNER)) {
+        if (this.existPassaportForOwner(passaport) && passaport.containsRole(ROLE_OWNER)) {
             if (!this.isEmpty(user)) {
-                throw new MuttleyBadRequestException(WorkTeam.class, "roles", "Não se pode existir mais de um grupo principal");
+                throw new MuttleyBadRequestException(Passaport.class, "roles", "Não se pode existir mais de um grupo principal");
             }
         }
         final Map<String, Object> filter = new HashMap(2);
-        filter.put("owner.$id", user.getCurrentOwner() == null ? workTeam.getOwner().getObjectId() : user.getCurrentOwner().getObjectId());
-        filter.put("userMaster", workTeam.getUserMaster() == null ? user : workTeam.getUserMaster());
-        filter.put("name", workTeam.getName());
+        filter.put("owner.$id", user.getCurrentOwner() == null ? passaport.getOwner().getObjectId() : user.getCurrentOwner().getObjectId());
+        filter.put("userMaster", passaport.getUserMaster() == null ? user : passaport.getUserMaster());
+        filter.put("name", passaport.getName());
         if (this.repository.exists(filter)) {
-            throw new MuttleyBadRequestException(WorkTeam.class, "name", "Já existe um grupo de trabalho com este nome");
+            throw new MuttleyBadRequestException(Passaport.class, "name", "Já existe um grupo de trabalho com este nome");
         }
 
         //validando usuário
-        workTeam.setMembers(
-                workTeam.getMembers()
+        passaport.setMembers(
+                passaport.getMembers()
                         .parallelStream()
                         .filter(it -> it.getId() != null && !"".equals(it.getUserName()))
                         .collect(toSet())
@@ -127,32 +127,32 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     @Override
-    public void afterSave(final User user, final WorkTeam workTeam) {
-        this.expire(user, workTeam);
+    public void afterSave(final User user, final Passaport passaport) {
+        this.expire(user, passaport);
     }
 
     @Override
-    public void beforeUpdate(final User user, final WorkTeam workTeam) {
+    public void beforeUpdate(final User user, final Passaport passaport) {
         //garantindo que não será alterado informações cruciais
-        workTeam.setOwner(user.getCurrentOwner());
-        workTeam.addRoles(this.loadAvaliableRoles(user).getDependenciesRolesFrom(workTeam.getRoles()));
-        super.beforeUpdate(user, workTeam);
+        passaport.setOwner(user.getCurrentOwner());
+        passaport.addRoles(this.loadAvaliableRoles(user).getDependenciesRolesFrom(passaport.getRoles()));
+        super.beforeUpdate(user, passaport);
     }
 
     @Override
-    public void checkPrecondictionUpdate(final User user, final WorkTeam workTeam) {
+    public void checkPrecondictionUpdate(final User user, final Passaport passaport) {
         //não se pode alterar workteam que seja do owner
-        if (this.existWorkTeamForOwner(workTeam) && workTeam.containsRole(ROLE_OWNER)) {
-            throw new MuttleyBadRequestException(WorkTeam.class, "roles", "Não se pode editar o grupo principal");
+        if (this.existPassaportForOwner(passaport) && passaport.containsRole(ROLE_OWNER)) {
+            throw new MuttleyBadRequestException(Passaport.class, "roles", "Não se pode editar o grupo principal");
         }
         //verificando se o workteam é do owner ou não
-        final WorkTeam other = this.findById(user, workTeam.getId());
+        final Passaport other = this.findById(user, passaport.getId());
         if (other.containsRole(ROLE_OWNER)) {
-            throw new MuttleyBadRequestException(WorkTeam.class, "roles", "Não se pode editar o grupo principal");
+            throw new MuttleyBadRequestException(Passaport.class, "roles", "Não se pode editar o grupo principal");
         }
         //validando usuário
-        workTeam.setMembers(
-                workTeam.getMembers()
+        passaport.setMembers(
+                passaport.getMembers()
                         .parallelStream()
                         .filter(it -> it.getId() != null && !"".equals(it.getUserName()))
                         .collect(toSet())
@@ -160,22 +160,22 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     @Override
-    public void afterUpdate(final User user, final WorkTeam workTeam) {
-        this.expire(user, workTeam);
+    public void afterUpdate(final User user, final Passaport passaport) {
+        this.expire(user, passaport);
     }
 
     @Override
-    public void beforeDelete(final User user, final WorkTeam workTeam) {
-        this.expire(user, workTeam);
+    public void beforeDelete(final User user, final Passaport passaport) {
+        this.expire(user, passaport);
     }
 
     @Override
     public void checkPrecondictionDelete(final User user, final String id) {
-        final WorkTeam workTeam = this.findById(user, id);
-        if (workTeam.containsRole(ROLE_OWNER)) {
-            throw new MuttleyBadRequestException(WorkTeam.class, "roles", "Não se pode excluir o grupo principal");
+        final Passaport passaport = this.findById(user, id);
+        if (passaport.containsRole(ROLE_OWNER)) {
+            throw new MuttleyBadRequestException(Passaport.class, "roles", "Não se pode excluir o grupo principal");
         }
-        this.expire(user, workTeam);
+        this.expire(user, passaport);
         super.checkPrecondictionDelete(user, id);
     }
 
@@ -185,37 +185,37 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }*/
 
     @Override
-    public List<WorkTeam> findAll(final User user, final Map<String, String> allRequestParams) {
+    public List<Passaport> findAll(final User user, final Map<String, String> allRequestParams) {
         return this.findByUser(user);
     }
 
     @Override
-    public WorkTeam findByName(final User user, final String name) {
-        final WorkTeam cwt = repository.findByName(user.getCurrentOwner(), name);
+    public Passaport findByName(final User user, final String name) {
+        final Passaport cwt = repository.findByName(user.getCurrentOwner(), name);
         if (isNull(cwt)) {
-            throw new MuttleyNotFoundException(WorkTeam.class, "name", "Registro não encontrado")
+            throw new MuttleyNotFoundException(Passaport.class, "name", "Registro não encontrado")
                     .addDetails("name", name);
         }
         return cwt;
     }
 
     @Override
-    public List<WorkTeam> findByUserMaster(final Owner owner, final User user) {
-        final List<WorkTeam> itens = repository.findByUserMaster(owner, user);
+    public List<Passaport> findByUserMaster(final Owner owner, final User user) {
+        final List<Passaport> itens = repository.findByUserMaster(owner, user);
         if (CollectionUtils.isEmpty(itens)) {
-            throw new MuttleyNoContentException(WorkTeam.class, "name", "Nenhum time de trabalho encontrado");
+            throw new MuttleyNoContentException(Passaport.class, "name", "Nenhum time de trabalho encontrado");
         }
         return itens;
     }
 
     @Override
-    public List<WorkTeam> findByUser(final User user) {
+    public List<Passaport> findByUser(final User user) {
         /**
          *db.getCollection("muttley-work-teams").aggregate([
          *    {$match:{$or:[{"userMaster.$id": ObjectId("5d49cca5a1d16f19595be983")}, {"members.$id":ObjectId("5d49cca5a1d16f19595be983")}]}},
          * ])
          */
-        final AggregationResults<WorkTeam> workTeamsResult = this.mongoTemplate.aggregate(
+        final AggregationResults<Passaport> passaportsResult = this.mongoTemplate.aggregate(
                 newAggregation(
                         match(
                                 new Criteria().orOperator(
@@ -224,15 +224,15 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                                 )
                         )
                 )
-                , WorkTeam.class, WorkTeam.class);
-        if (workTeamsResult == null) {
-            throw new MuttleyNotFoundException(WorkTeam.class, "members", "Nenhum workteam encontrado para o usuário informado");
+                , Passaport.class, Passaport.class);
+        if (passaportsResult == null) {
+            throw new MuttleyNotFoundException(Passaport.class, "members", "Nenhum passaport encontrado para o usuário informado");
         }
-        final List<WorkTeam> workTeams = workTeamsResult.getMappedResults();
-        if (CollectionUtils.isEmpty(workTeams)) {
-            throw new MuttleyNotFoundException(WorkTeam.class, "members", "Nenhum workteam encontrado para o usuário informado");
+        final List<Passaport> passaports = passaportsResult.getMappedResults();
+        if (CollectionUtils.isEmpty(passaports)) {
+            throw new MuttleyNotFoundException(Passaport.class, "members", "Nenhum passaport encontrado para o usuário informado");
         }
-        return workTeams;
+        return passaports;
     }
 
     @Override
@@ -244,7 +244,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     public AvaliableRoles loadAvaliableRoles(final User user) {
         final AvaliableRolesEvent event = new AvaliableRolesEvent(user,
                 newAvaliableRoles(
-                        newViewRoleDefinition("Times de trabalho", "Ações relacionada a times de trabalho", ROLE_WORK_TEAM_CREATE, ROLE_WORK_TEAM_READ, ROLE_WORK_TEAM_UPDATE, ROLE_WORK_TEAM_DELETE)
+                        newViewRoleDefinition("Times de trabalho", "Ações relacionada a times de trabalho", ROLE_PASSAPORT_CREATE, ROLE_PASSAPORT_READ, ROLE_PASSAPORT_UPDATE, ROLE_PASSAPORT_DELETE)
                 )
         );
 
@@ -254,7 +254,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     @Override
-    public void removeUserFromAllWorkTeam(Owner owner, User user) {
+    public void removeUserFromAllPassaport(Owner owner, User user) {
         this.mongoTemplate.updateMulti(
                 new Query(
                         where("owner.$id").is(owner.getObjectId())
@@ -262,63 +262,63 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                 new Update().pull("members", new BasicDBObject("$in", asList(
                         new DBRef(this.documentNameConfig.getNameCollectionUser(), user.getObjectId())
                 ))),
-                WorkTeam.class
+                Passaport.class
         );
     }
 
     @Override
-    public void addUserForWorkTeamIfNotExists(final User user, final WorkTeam workTeam, final UserData userForAdd) {
-        if (!this.userIsPresentInWorkTeam(user, workTeam, userForAdd)) {
+    public void addUserForPassaportIfNotExists(final User user, final Passaport passaport, final UserData userForAdd) {
+        if (!this.userIsPresentInPassaport(user, passaport, userForAdd)) {
             this.mongoTemplate.updateMulti(
                     new Query(
                             where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                    .and("id").is(workTeam.getObjectId())
+                                    .and("id").is(passaport.getObjectId())
                     ),
                     new Update().push("members").atPosition(FIRST).each(new DBRef(this.documentNameConfig.getNameCollectionUser(), new ObjectId(userForAdd.getId()))),
-                    WorkTeam.class
+                    Passaport.class
             );
         }
     }
 
     @Override
-    public boolean userIsPresentInWorkTeam(final User user, final WorkTeam workTeam, final UserData userForCheck) {
-        return this.userIsPresentInWorkTeam(user, workTeam.getId(), userForCheck);
+    public boolean userIsPresentInPassaport(final User user, final Passaport passaport, final UserData userForCheck) {
+        return this.userIsPresentInPassaport(user, passaport.getId(), userForCheck);
     }
 
     @Override
-    public boolean userIsPresentInWorkTeam(final User user, final String idWorkTeam, final UserData userForCheck) {
+    public boolean userIsPresentInPassaport(final User user, final String idPassaport, final UserData userForCheck) {
         return this.mongoTemplate.exists(
                 new Query(
                         where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                .and("id").is(new ObjectId(idWorkTeam))
+                                .and("id").is(new ObjectId(idPassaport))
                                 .and("members").in(new DBRef(this.documentNameConfig.getNameCollectionUser(), new ObjectId(userForCheck.getId())))
                 ),
-                WorkTeam.class
+                Passaport.class
         );
     }
 
     @Override
-    public WorkTeam createWorkTeamFor(final User user, final String ownerId, final WorkTeam workTeam) {
+    public Passaport createPassaportFor(final User user, final String ownerId, final Passaport passaport) {
         final Owner owner = this.ownerService.findById(user, ownerId);
-        workTeam.setOwner(owner);
-        workTeam.setUserMaster(owner.getUserMaster());
-        return this.save(owner.getUserMaster().setCurrentOwner(owner), workTeam);
+        passaport.setOwner(owner);
+        passaport.setUserMaster(owner.getUserMaster());
+        return this.save(owner.getUserMaster().setCurrentOwner(owner), passaport);
     }
 
     @Override
-    public void configWorkTeams(final User user) {
+    public void configPassaports(final User user) {
         //criando grupo principal
-        final WorkTeam workTeam = new WorkTeam()
+        final Passaport passaport = new Passaport()
                 .setName("Grupo principal")
                 .setDescription("Grupo principal do sistema criado específicamente para dar autorizações de uso do usuário principal do sistema (Owner)")
                 .setUserMaster(user)
                 .addRole(ROLE_OWNER);
 
         //verificando se não existe workTeam para o Owner
-        if (!existWorkTeamForOwner(workTeam)) {
+        if (!existPassaportForOwner(passaport)) {
 
 
-            workTeam.setUserMaster(user);
+            passaport.setUserMaster(user);
 
             //criando grupo
         }
@@ -329,9 +329,9 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     /**
      * Checando se existe grupo de trabalho para o Owner
      */
-    private boolean existWorkTeamForOwner(final WorkTeam workTeam) {
+    private boolean existPassaportForOwner(final Passaport passaport) {
         /**
-         * db.getCollection("muttley-work-teams").aggregate([
+         * db.getCollection("muttley-passaports").aggregate([
          *     {$match:{
          *         owner: {'$ref' : 'muttley-owners', '$id' : ObjectId('5d07cece444c5b2ceb5e0942')},
          *         userMaster:{'$ref' : 'muttley-users', '$id' : ObjectId('5d07cada444c5b2ceb5e0940')},
@@ -346,16 +346,16 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                 newAggregation(
                         match(
                                 //filtrando o owner
-                                where("owner.$id").is(workTeam.getOwner().getObjectId())
+                                where("owner.$id").is(passaport.getOwner().getObjectId())
                                         //filtrando o usuário principal
-                                        .and("userMaster.$id").is(new ObjectId(workTeam.getUserMaster().getId()))
+                                        .and("userMaster.$id").is(new ObjectId(passaport.getUserMaster().getId()))
                                         //filtrando as roles
                                         .and("roles").elemMatch(
-                                        new Criteria().is(ROLE_OWNER)
-                                )
+                                                new Criteria().is(ROLE_OWNER)
+                                        )
                         ),
                         Aggregation.count().as("count")
-                ), WorkTeam.class, UserViewServiceImpl.ResultCount.class
+                ), Passaport.class, UserViewServiceImpl.ResultCount.class
         );
         if (result == null || result.getUniqueMappedResult() != null) {
             return result.getUniqueMappedResult().getCount() > 0;
@@ -363,9 +363,9 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         return false;
     }
 
-    private void expire(final User user, final WorkTeam workTeam) {
-        this.localRolesService.expireRoles(workTeam.getUserMaster());
-        workTeam.getMembers().forEach(m -> {
+    private void expire(final User user, final Passaport passaport) {
+        this.localRolesService.expireRoles(passaport.getUserMaster());
+        passaport.getMembers().forEach(m -> {
             this.localRolesService.expireRoles(m);
         });
     }

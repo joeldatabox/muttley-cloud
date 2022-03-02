@@ -17,10 +17,10 @@ import static java.util.Arrays.asList;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class ViewMuttleyWorkTeamRolesUser implements ViewSource {
+public class ViewMuttleyPassaportRolesUser implements ViewSource {
     private final String VERSION = "1.0.0";
-    private final String NAME = "view_muttley_work_teams_roles_user";
-    private final String SOURCE = "muttley-work-teams";
+    private final String NAME = "view_muttley_passaports_roles_user";
+    private final String SOURCE = "muttley-passaports";
     private final String DESCRIPTION = "A view foi criada para facilitar a listagem de usuário por owners juntamente com sua respectivas autorizações";
 
     @Override

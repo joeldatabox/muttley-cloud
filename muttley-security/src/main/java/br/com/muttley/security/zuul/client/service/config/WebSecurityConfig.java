@@ -9,7 +9,7 @@ import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.UserDataBindingClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
-import br.com.muttley.security.feign.WorkTeamServiceClient;
+import br.com.muttley.security.feign.PassaportServiceClient;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.DeserializeUserPreferencesEventListener;
@@ -82,8 +82,8 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public LocalRolesService createLocalRolesService(final RedisService redisService, final WorkTeamServiceClient workTeamServiceClient) {
-        return new LocalRolesServiceImpl(redisService, workTeamServiceClient);
+    public LocalRolesService createLocalRolesService(final RedisService redisService, final PassaportServiceClient passaportServiceClient) {
+        return new LocalRolesServiceImpl(redisService, passaportServiceClient);
     }
 
     @Bean

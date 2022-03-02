@@ -1,6 +1,6 @@
 package br.com.muttley.admin.server.service;
 
-import br.com.muttley.model.admin.AdminWorkTeam;
+import br.com.muttley.model.admin.AdminPassaport;
 
 /**
  * Essa classe deve ser utilizada apenas para configuração automatica do sistema,
@@ -10,6 +10,6 @@ import br.com.muttley.model.admin.AdminWorkTeam;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface NoSecurityAdminWorkTeamService {
-    AdminWorkTeam save(final AdminWorkTeam workTeam);
+public interface NoSecurityAdminPassaportService {
+    AdminPassaport save(final AdminPassaport passaport);
 }

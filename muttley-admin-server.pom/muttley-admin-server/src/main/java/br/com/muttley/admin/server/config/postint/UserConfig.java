@@ -2,12 +2,12 @@ package br.com.muttley.admin.server.config.postint;
 
 import br.com.muttley.admin.server.service.AdminUserBaseService;
 import br.com.muttley.admin.server.service.NoSecurityAdminOwnerService;
-import br.com.muttley.admin.server.service.NoSecurityAdminWorkTeamService;
+import br.com.muttley.admin.server.service.NoSecurityAdminPassaportService;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.admin.AdminOwner;
 import br.com.muttley.model.admin.AdminUserBase;
-import br.com.muttley.model.admin.AdminWorkTeam;
+import br.com.muttley.model.admin.AdminPassaport;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBaseItem;
@@ -35,7 +35,7 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
     private final AdminUserBaseService adminUserBaseService;
 
     private final NoSecurityAdminOwnerService ownerService;
-    private final NoSecurityAdminWorkTeamService workTeamService;
+    private final NoSecurityAdminPassaportService passaportService;
 
     @Autowired
     public UserConfig(
@@ -45,14 +45,14 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
             UserServiceClient service,
             AdminUserBaseService adminUserBaseService,
             NoSecurityAdminOwnerService ownerService,
-            NoSecurityAdminWorkTeamService workTeamService) {
+            NoSecurityAdminPassaportService passaportService) {
         this.defaultUser = defaultUser;
         this.passwdDefaultUser = passwdDefaultUser;
         this.nameOrganization = nameOrganization;
         this.service = service;
         this.adminUserBaseService = adminUserBaseService;
         this.ownerService = ownerService;
-        this.workTeamService = workTeamService;
+        this.passaportService = passaportService;
     }
 
     @Override
@@ -80,9 +80,9 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
 
 
             //criando o grupo de trabalho
-            final AdminWorkTeam workTeam =
-                    this.workTeamService.save(
-                            (AdminWorkTeam) new AdminWorkTeam()
+            final AdminPassaport passaport =
+                    this.passaportService.save(
+                            (AdminPassaport) new AdminPassaport()
                                     .setName("Grupo principal")
                                     .setUserMaster(user)
                                     .setOwner(owner)

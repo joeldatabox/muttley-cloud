@@ -6,7 +6,7 @@ import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.admin.AdminOwner;
 import br.com.muttley.model.security.Owner;
-import br.com.muttley.model.security.WorkTeam;
+import br.com.muttley.model.security.Passaport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ public class NoSecurityAdminOwnerServiceImpl extends AbstractNoSecurityService i
         this.validateContext();
         //verificando se realmente está criando um novo registro
         if (owner.getId() != null) {
-            throw new MuttleyBadRequestException(WorkTeam.class, "id", "Não é possível criar um registro com um id existente");
+            throw new MuttleyBadRequestException(Passaport.class, "id", "Não é possível criar um registro com um id existente");
         }
         //validando dados
         this.validator.validate(owner);
