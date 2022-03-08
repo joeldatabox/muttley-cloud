@@ -1,5 +1,8 @@
-package br.com.muttley.model;
+package br.com.muttley.model.workteam;
 
+import br.com.muttley.model.Historic;
+import br.com.muttley.model.MetadataDocument;
+import br.com.muttley.model.Model;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
@@ -18,13 +21,14 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
-import static br.com.muttley.model.WorkTeam.TYPE_ALIAS;
+import static br.com.muttley.model.workteam.WorkTeam.TYPE_ALIAS;
 
 
 /**
@@ -34,7 +38,12 @@ import static br.com.muttley.model.WorkTeam.TYPE_ALIAS;
  */
 @org.springframework.data.mongodb.core.mapping.Document(collection = "#{documentNameConfig.getNameCollectionWorkTeam()}")
 @CompoundIndexes({
-        //@CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
+        @CompoundIndex(name = "owner_index", def = "{'owner' : 1}"),
+        @CompoundIndex(name = "owner.id_index", def = "{'owner.$id' : 1}"),
+        @CompoundIndex(name = "userMaster.id_index", def = "{'userMaster.$id' : 1}"),
+        @CompoundIndex(name = "owner_userMaster_index", def = "{'owner' : 1, 'userMaster' : 1}"),
+        @CompoundIndex(name = "owner.id_userMaster.id_index", def = "{'owner.$id' : 1, 'userMaster.$id' : 1}"),
+        @CompoundIndex(name = "name_userMaster_index_unique", def = "{'name' : 1, 'userMaster': 1}", unique = true)
 })
 @TypeAlias(TYPE_ALIAS)
 @Getter

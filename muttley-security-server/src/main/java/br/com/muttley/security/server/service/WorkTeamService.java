@@ -1,7 +1,10 @@
 package br.com.muttley.security.server.service;
 
 import br.com.muttley.domain.service.Service;
-import br.com.muttley.model.WorkTeam;
+import br.com.muttley.model.workteam.WorkTeam;
+import br.com.muttley.model.workteam.WorkTeamDomain;
+
+import java.util.Set;
 
 /**
  * @author Joel Rodrigues Moreira on 03/03/2022.
@@ -9,4 +12,5 @@ import br.com.muttley.model.WorkTeam;
  * @project muttley-cloud
  */
 public interface WorkTeamService extends Service<WorkTeam> {
+    Set<WorkTeamDomain> loadDomain(final )
 }

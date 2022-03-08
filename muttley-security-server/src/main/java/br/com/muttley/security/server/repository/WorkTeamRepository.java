@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.repository;
 
-import br.com.muttley.model.WorkTeam;
+import br.com.muttley.model.workteam.WorkTeam;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;

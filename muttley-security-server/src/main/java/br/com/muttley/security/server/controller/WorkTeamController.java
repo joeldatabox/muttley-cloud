@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.controller;
 
-import br.com.muttley.model.WorkTeam;
+import br.com.muttley.model.workteam.WorkTeam;
 import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;

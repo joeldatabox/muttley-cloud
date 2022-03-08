@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.service.impl;
 
-import br.com.muttley.model.WorkTeam;
+import br.com.muttley.model.security.User;
+import br.com.muttley.model.workteam.WorkTeam;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
 import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,4 +23,22 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         this.repository = repository;
     }
 
+    @Override
+    public void beforeSave(User user, WorkTeam workTeam) {
+        //garantindo informações cruciais
+        workTeam.setOwner(user);
+        super.beforeSave(user, workTeam);
+    }
+
+    @Override
+    public void checkPrecondictionSave(User user, WorkTeam value) {
+        super.checkPrecondictionSave(user, value);
+    }
+
+    @Override
+    public void beforeUpdate(User user, WorkTeam workTeam) {
+        //garantindo que não será alterado informações cruciais
+        workTeam.setOwner(user.getCurrentOwner());
+        super.beforeUpdate(user, workTeam);
+    }
 }
