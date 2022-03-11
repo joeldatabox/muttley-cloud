@@ -24,6 +24,7 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
@@ -76,4 +77,18 @@ public class WorkTeam implements Model<Owner> {
     protected Set<User> members;
     protected Historic historic;
     protected MetadataDocument metadata;
+
+    public boolean containsMember(final User userMaster) {
+        if (this.membersIsEmpty()) {
+            return false;
+        }
+        return this.getMembers()
+                .parallelStream()
+                .filter(user -> user.equals(userMaster))
+                .count() > 0;
+    }
+
+    public boolean membersIsEmpty() {
+        return CollectionUtils.isEmpty(this.members);
+    }
 }

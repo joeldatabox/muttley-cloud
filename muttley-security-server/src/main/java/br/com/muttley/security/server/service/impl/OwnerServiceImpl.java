@@ -180,4 +180,9 @@ public class OwnerServiceImpl extends SecurityServiceImpl<Owner> implements Owne
         }
         return owners.getUniqueMappedResult();
     }
+
+    @Override
+    public Owner loadCurrentOwner(User user) {
+        return this.findById(user, user.getCurrentOwner().getId());
+    }
 }

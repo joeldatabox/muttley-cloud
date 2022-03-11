@@ -8,6 +8,7 @@ import br.com.muttley.model.security.UserData;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.model.security.merge.MergedUserBaseResponse;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -46,4 +47,6 @@ public interface UserBaseService extends SecurityService<UserBase> {
     boolean hasBeenIncludedAnyGroup(final User user, final String userNameForCheck);
 
     boolean hasBeenIncludedAnyGroup(final String userNameForCheck);
+
+    boolean allHasBeenIncludedGroup(final User user, final Collection<User> users);
 }

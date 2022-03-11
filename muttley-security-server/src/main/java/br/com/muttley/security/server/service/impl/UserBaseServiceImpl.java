@@ -40,6 +40,7 @@ import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -420,6 +421,17 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
         }
 
         return true;
+    }
+
+    @Override
+    public boolean allHasBeenIncludedGroup(User user, Collection<User> users) {
+        return this.mongoTemplate.exists(
+                new Query(
+                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                .and()
+                                .and("users.user.$id").is(new ObjectId(userForCheck.getId()))
+                ), UserBase.class
+        );
     }
 
     /* */
