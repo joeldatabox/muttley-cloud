@@ -8,11 +8,15 @@ import br.com.muttley.model.workteam.WorkTeamDomain;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
 import br.com.muttley.security.server.service.OwnerService;
+import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static br.com.muttley.mongo.service.infra.util.ListReduceBuilder.reduce;
 import static br.com.muttley.mongo.service.infra.util.SetUnionBuilder.setUnion;
@@ -35,13 +39,15 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     private final WorkTeamRepository repository;
     private final OwnerService ownerService;
     private final DocumentNameConfig documentNameConfig;
+    private final UserBaseService userBaseService;
 
     @Autowired
-    public WorkTeamServiceImpl(final WorkTeamRepository repository, final MongoTemplate mongoTemplate, OwnerService ownerService, final DocumentNameConfig documentNameConfig) {
+    public WorkTeamServiceImpl(final WorkTeamRepository repository, final MongoTemplate mongoTemplate, OwnerService ownerService, final DocumentNameConfig documentNameConfig, UserBaseService userBaseService) {
         super(repository, mongoTemplate, WorkTeam.class);
         this.repository = repository;
         this.ownerService = ownerService;
         this.documentNameConfig = documentNameConfig;
+        this.userBaseService = userBaseService;
     }
 
     @Override
@@ -56,6 +62,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     @Override
     public void checkPrecondictionSave(User user, WorkTeam workTeam) {
         this.checkOwnerIsPresent(user, workTeam);
+        this.checkUsersHasBeenPresent(user, workTeam);
         super.checkPrecondictionSave(user, workTeam);
     }
 
@@ -70,6 +77,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     @Override
     public void checkPrecondictionUpdate(User user, WorkTeam workTeam) {
         this.checkOwnerIsPresent(user, workTeam);
+        this.checkUsersHasBeenPresent(user, workTeam);
         super.checkPrecondictionUpdate(user, workTeam);
     }
 
@@ -162,5 +170,41 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         if (workTeam.containsMember(userMaster)) {
             throw new MuttleyBadRequestException(WorkTeam.class, "members", "O owner do sistema não pode estar entre os membros do time de trabalho");
         }
+    }
+
+    /**
+     * Verifica se todos os usuários inclusos fazem parte da mesma base de usuário que o user master
+     */
+    private void checkUsersHasBeenPresent(final User user, final WorkTeam workTeam) {
+        //verficando se tem algum usuário presente no workteam
+        if (workTeam.containsAnyUser()) {
+            //para evitar consultas desmasiadas, vamos pegar todos os usuario e verificar se estão presentes
+            //na base de usuários
+            if (!this.userBaseService.allHasBeenIncludedGroup(user, workTeam.getAllUsers())) {
+                //se chegou até aqui é sinal que existe algum usuário que não está presente na base
+                //logo precisamos checar um a um para garantir
+
+                final Map<String, Object> details = new HashMap<>();
+
+                //verificando o user master
+                if (workTeam.getUserMaster() != null && !this.userBaseService.hasBeenIncludedAnyGroup(user, workTeam.getUserMaster())) {
+                    details.put("userMaster", "O usuário master não está presente na base de usuário");
+                }
+
+                //verificando demais membros
+                workTeam.getMembers()
+                        .stream()
+                        .filter(it -> !this.userBaseService.hasBeenIncludedAnyGroup(user, it))
+                        .forEach(it -> {
+                            details.put("members." + it.getUserName(), "O usuário " + it.getName() + " não está presente na base de dados");
+                        });
+
+                throw new MuttleyBadRequestException(WorkTeam.class, null, null).addDetails(details);
+            }
+        }
+    }
+
+    private void checkCircularDependence(final User user, final WorkTeam workTeam) {
+
     }
 }

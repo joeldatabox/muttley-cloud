@@ -27,6 +27,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Set;
 
 import static br.com.muttley.model.workteam.WorkTeam.TYPE_ALIAS;
@@ -90,5 +91,23 @@ public class WorkTeam implements Model<Owner> {
 
     public boolean membersIsEmpty() {
         return CollectionUtils.isEmpty(this.members);
+    }
+
+    /**
+     * Verifica se tem algum membro presente no workteam
+     * incluindo o usermaster
+     */
+    public boolean containsAnyUser() {
+        return this.userMaster != null || !this.membersIsEmpty();
+    }
+
+    @JsonIgnore
+    public Set<User> getAllUsers() {
+        final Set<User> users = this.membersIsEmpty() ? new HashSet<>() : new HashSet<>(this.getMembers());
+
+        if (this.getUserMaster() != null) {
+            users.add(this.getUserMaster());
+        }
+        return users;
     }
 }

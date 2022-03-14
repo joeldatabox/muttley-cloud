@@ -15,10 +15,10 @@ import br.com.muttley.model.security.merge.MergedUserBaseItemResponse;
 import br.com.muttley.model.security.merge.MergedUserBaseResponse;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.events.NewUserHasBeenAddedInBaseEvent;
+import br.com.muttley.security.server.service.PassaportService;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserService;
-import br.com.muttley.security.server.service.PassaportService;
 import com.mongodb.BasicDBObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -428,45 +428,12 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
         return this.mongoTemplate.exists(
                 new Query(
                         where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                .and()
-                                .and("users.user.$id").is(new ObjectId(userForCheck.getId()))
+                                .andOperator(
+                                        users.parallelStream()
+                                                .map(it -> where("users.user.$id").is(it.getObjectId()))
+                                                .toArray(Criteria[]::new)
+                                )
                 ), UserBase.class
         );
-    }
-
-    /* */
-
-    /**
-     * Verifica se o usuário já existe na base
-     *//*
-    private boolean userHasBeenIncluded(final User user, final User userForCheck) {
-        return this.userHasBeenIncluded(user, userForCheck.getId());
-    }
-
-    private boolean userHasBeenIncluded(final User user, final String id) {
-        return this.mongoTemplate.exists(
-                new Query(
-                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                .and("users.user.$id").is(new ObjectId(id))
-                ), UserBase.class
-        );
-    }*/
-
-    @Getter
-    @Setter
-    @Accessors(chain = true)
-    private static class UserItemForAdd {
-        @DBRef
-        @NotNull(message = "Informe o usuário que está efetuando essa operação")
-        private User addedBy;
-
-        @DBRef
-        @NotNull(message = "Informe o usuário participante da base")
-        private User user;
-
-        @NotNull
-        private Date dtCreate;
-
-        private boolean status;
     }
 }
