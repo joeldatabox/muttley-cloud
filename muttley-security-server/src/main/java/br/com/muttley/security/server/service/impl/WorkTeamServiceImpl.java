@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.workteam.WorkTeam;
@@ -12,11 +13,17 @@ import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static br.com.muttley.mongo.service.infra.util.ListReduceBuilder.reduce;
 import static br.com.muttley.mongo.service.infra.util.SetUnionBuilder.setUnion;
@@ -63,6 +70,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     public void checkPrecondictionSave(User user, WorkTeam workTeam) {
         this.checkOwnerIsPresent(user, workTeam);
         this.checkUsersHasBeenPresent(user, workTeam);
+        this.checkCircularDependence(user, workTeam);
         super.checkPrecondictionSave(user, workTeam);
     }
 
@@ -78,11 +86,25 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     public void checkPrecondictionUpdate(User user, WorkTeam workTeam) {
         this.checkOwnerIsPresent(user, workTeam);
         this.checkUsersHasBeenPresent(user, workTeam);
+        this.checkCircularDependence(user, workTeam);
         super.checkPrecondictionUpdate(user, workTeam);
     }
 
     @Override
     public WorkTeamDomain loadDomain(final User user) {
+        final List<AggregationOperation> operations = this.createBasicQueryWorkTeamDomain(user);
+        //adicionando o critério de filtro inicial
+        operations.add(0, match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("userMaster.$id").is(user.getObjectId())));
+
+        final AggregationResults<WorkTeamDomain> results = this.mongoTemplate.aggregate(
+                newAggregation(operations),
+                WorkTeam.class,
+                WorkTeamDomain.class
+        );
+        return results.getUniqueMappedResult();
+    }
+
+    private List<AggregationOperation> createBasicQueryWorkTeamDomain(final User user) {
         /**
          * var $owner = ObjectId("5e28b3e3637e580001e465d6");
          * db.getCollection("muttley-work-teams").aggregate([
@@ -115,35 +137,29 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          *     }}}}
          * ])
          */
-        final AggregationResults<WorkTeamDomain> results = this.mongoTemplate.aggregate(
-                newAggregation(
-                        match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("userMaster.$id").is(user.getObjectId())),
-                        //fazendo as consulta recursivamente para montar as dependencias
-                        graphLookup(documentNameConfig.getNameCollectionWorkTeam())
-                                .startWith("$members")
-                                .connectFrom("members")
-                                .connectTo("userMaster")
-                                .restrict(where("owner.$id").is(user.getCurrentOwner().getObjectId()))
-                                .as("treeTeams"),
-                        //pengando todos os subordinados encontrado e agrupando
-                        project("userMaster", "members").and(
-                                reduce(
-                                        "$treeTeams",
-                                        asList(),
-                                        setUnion("$$value", "$$this.members", asList("$$this.userMaster"))
-                                )
-                        ).as("membersTree"),
-                        //agrupando subordinados encontrados juntamente com os membros atuais
-                        project("userMaster").and(setUnion("$membersTree", "$members")).as("members"),
-                        //agrupando com demais work-teams que tenha sido encontrados
-                        group("$userMaster").addToSet("members").as("members"),
-                        //fazendo o processo de reduce para resultar em um array simple de usuarios
-                        project().and("$_id").as("userMaster").and(reduce("$members", asList(), setUnion("$$value", "$$this"))).as("members")
-                ),
-                WorkTeam.class,
-                WorkTeamDomain.class
-        );
-        return results.getUniqueMappedResult();
+        return new LinkedList<>(asList(
+                //fazendo as consulta recursivamente para montar as dependencias
+                graphLookup(documentNameConfig.getNameCollectionWorkTeam())
+                        .startWith("$members")
+                        .connectFrom("members")
+                        .connectTo("userMaster")
+                        .restrict(where("owner.$id").is(user.getCurrentOwner().getObjectId()))
+                        .as("treeTeams"),
+                //pengando todos os subordinados encontrado e agrupando
+                project("userMaster", "members").and(
+                        reduce(
+                                "$treeTeams",
+                                asList(),
+                                setUnion("$$value", "$$this.members", asList("$$this.userMaster"))
+                        )
+                ).as("membersTree"),
+                //agrupando subordinados encontrados juntamente com os membros atuais
+                project("userMaster").and(setUnion("$membersTree", "$members")).as("members"),
+                //agrupando com demais work-teams que tenha sido encontrados
+                group("$userMaster").addToSet("members").as("members"),
+                //fazendo o processo de reduce para resultar em um array simple de usuarios
+                project().and("$_id").as("userMaster").and(reduce("$members", asList(), setUnion("$$value", "$$this"))).as("members")
+        ));
     }
 
     /**
@@ -205,6 +221,63 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     private void checkCircularDependence(final User user, final WorkTeam workTeam) {
+        final List<AggregationOperation> operations = this.createBasicQueryWorkTeamDomain(user);
+        //para realizar a checkagem de dependencia circular, precisamos verificar se os membros estão acima do usermaster
+        //para isso devemos buscar os membro como userMaster e o userMaster atual não pode ser listado como membro na consulta
+        operations.add(0,
+                match(
+                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                //filtrando os mebro como user master
+                                .and("userMaster.$id").in(workTeam.getMembers().parallelStream().map(User::getObjectId).collect(toSet()))
+                )
+        );
+
+        operations.addAll(
+                asList(
+                        match(where("members.$id").is(workTeam.getUserMaster().getObjectId())),
+                        Aggregation.count().as("result")
+                )
+        );
+
+        final AggregationResults<BasicAggregateResultCount> globalResults = this.mongoTemplate.aggregate(
+                newAggregation(operations),
+                WorkTeam.class,
+                BasicAggregateResultCount.class
+        );
+
+        //se o resultado é maior que zero logo tem uma dependencia circular e precisamos verificar qual usuário que está causando isso
+        //para isso vamo consultar usuário por usuário
+        if (globalResults.getUniqueMappedResult().getResult() > 0) {
+
+
+            final Set<String> usersNames = new HashSet<>();
+
+            workTeam.getMembers().forEach(it -> {
+                //removendo o filtro inicial para fazer a consulta por usuário
+                operations.remove(0);
+
+                operations.add(0,
+                        match(
+                                where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                        //filtrando os mebro como user master
+                                        .and("userMaster.$id").is(it.getObjectId())
+                        )
+                );
+
+                final AggregationResults<BasicAggregateResultCount> results = this.mongoTemplate.aggregate(
+                        newAggregation(operations),
+                        WorkTeam.class,
+                        BasicAggregateResultCount.class
+                );
+                if (results.getUniqueMappedResult().getResult() > 0) {
+                    usersNames.add(it.getName());
+                }
+
+            });
+
+            throw new MuttleyBadRequestException(WorkTeam.class, "members", "Existe membros que são superiores ao supervisor selecionado")
+                    .addDetails("userNames", usersNames);
+        }
 
     }
 }

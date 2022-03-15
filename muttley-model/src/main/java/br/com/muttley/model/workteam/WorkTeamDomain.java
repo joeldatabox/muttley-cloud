@@ -1,6 +1,12 @@
 package br.com.muttley.model.workteam;
 
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.jackson.UserCollectionSerializer;
+import br.com.muttley.model.security.jackson.UserDeserializer;
+import br.com.muttley.model.security.jackson.UserSerializer;
+import br.com.muttley.model.security.jackson.UserSetDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -16,6 +22,10 @@ import java.util.Set;
 @Setter
 @Accessors(chain = true)
 public class WorkTeamDomain {
+    @JsonSerialize(using = UserSerializer.class)
+    @JsonDeserialize(using = UserDeserializer.class)
     private User userMaster;
+    @JsonSerialize(using = UserCollectionSerializer.class)
+    @JsonDeserialize(using = UserSetDeserializer.class)
     private Set<User> members;
 }
