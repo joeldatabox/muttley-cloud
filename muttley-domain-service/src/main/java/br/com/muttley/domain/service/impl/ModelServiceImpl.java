@@ -1,12 +1,11 @@
 package br.com.muttley.domain.service.impl;
 
 import br.com.muttley.domain.service.ModelService;
-import br.com.muttley.domain.service.impl.utils.MetadataAndHistoricIdModel;
+import br.com.muttley.domain.service.impl.utils.MetadataAndIdModel;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
@@ -56,10 +55,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         checkIdForSave(value);
         //setando o dono do registro
         value.setOwner(user);
-        //garantindo que o históriconão ficará nulo
-        value.setHistoric(this.createHistoric(user));
         //garantindo que o metadata ta preenchido
-        this.createMetaData(user, value);
+        this.metadataService.generateNewMetadataFor(user, value);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
@@ -83,9 +80,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         //verificando se realmente está criando um novo registro
         checkIdForSave(values);
         //garantindo que o metadata ta preenchido
-        this.createMetaData(user, values);
-        //garantindo que o históriconão ficará nulo
-        values.parallelStream().forEach(it -> it.setHistoric(this.createHistoric(user)));
+        this.metadataService.generateNewMetadataFor(user, values);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, values);
         //verificando precondições
@@ -110,10 +105,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
             throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         value.setOwner(user);
-        //gerando histórico de alteração
-        value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(user.getCurrentOwner(), value)));
         //gerando metadata de alteração
-        this.generateMetaDataUpdate(user, value);
+        this.metadataService.generateMetaDataUpdateFor(user, this.repository.loadMetaData(user.getCurrentOwner(), value), value);
         //processa regra de negocio antes de qualquer validação
         this.beforeUpdate(user, value);
         //verificando precondições
@@ -136,17 +129,16 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         this.checkIdForUpdate(values);
         //verificando se o registro realmente existe
 
-        final List<MetadataAndHistoricIdModel> metadatasAndHistorics = this.loadIdsAndMetadatasAndHisotricsFor(user, values);
+        final List<MetadataAndIdModel> metadatasAndIds = this.loadIdsAndMetadatasAndHisotricsFor(user, values);
         final Map<Boolean, List<T>> agroupedValues = values.stream()
                 .collect(groupingBy(it -> {
-                    final Optional<MetadataAndHistoricIdModel> itemOpt = metadatasAndHistorics
+                    final Optional<MetadataAndIdModel> itemOpt = metadatasAndIds
                             .parallelStream()
                             .filter(itMeta -> Objects.equals(it.getId(), itMeta.getId()))
                             .findFirst();
                     if (itemOpt.isPresent()) {
-                        final MetadataAndHistoricIdModel metadataAndHistoricIdModel = itemOpt.get();
-                        this.generateMetaDataUpdate(user, metadataAndHistoricIdModel.getMetadata(), it);
-                        it.setHistoric(this.generateHistoricUpdate(user, metadataAndHistoricIdModel.getHistoric()));
+                        final MetadataAndIdModel metadataAndIdModel = itemOpt.get();
+                        this.metadataService.generateMetaDataUpdateFor(user, metadataAndIdModel.getMetadata(), it);
                         return true;
                     }
                     return false;
@@ -189,22 +181,22 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         }
     }
 
-    private List<MetadataAndHistoricIdModel> loadIdsAndMetadatasAndHisotricsFor(final User user, final Collection<T> values) {
+    private List<MetadataAndIdModel> loadIdsAndMetadatasAndHisotricsFor(final User user, final Collection<T> values) {
         /**
          * db.getCollection("contas-pagar").aggregate([
          *     {$match:{"owner.$id":ObjectId("60cc8953279e841c0974da56"), _id:{$in:[ObjectId("60cca012279e8437442bc81c"), ObjectId("60cca012279e8437442bc81d")]}}},
-         *     {$project:{_id:1, metadata:1, historic:1}}
+         *     {$project:{_id:1, metadata:1}}
          * ])
          */
-        final AggregationResults<MetadataAndHistoricIdModel> ids = this.mongoTemplate.aggregate(
+        final AggregationResults<MetadataAndIdModel> ids = this.mongoTemplate.aggregate(
                 newAggregation(
                         match(where("owner.$id").is(user.getCurrentOwner().getObjectId())
                                 .and("id").in(
                                         values.parallelStream().map(it -> it.getObjectId()).collect(toSet())
                                 )),
-                        project("id", "metadata", "historic")
+                        project("id", "metadata")
                 ),
-                clazz, MetadataAndHistoricIdModel.class);
+                clazz, MetadataAndIdModel.class);
         if (ids == null || CollectionUtils.isEmpty(ids.getMappedResults())) {
             return Collections.emptyList();
         }
@@ -266,24 +258,6 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
             throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
         }
         return result;
-    }
-
-    @Override
-    public Historic loadHistoric(final User user, final String id) {
-        final Historic historic = repository.loadHistoric(user.getCurrentOwner(), id);
-        if (isNull(historic)) {
-            throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
-        }
-        return historic;
-    }
-
-    @Override
-    public Historic loadHistoric(final User user, final T value) {
-        final Historic historic = repository.loadHistoric(user.getCurrentOwner(), value);
-        if (isNull(historic)) {
-            throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
-        }
-        return historic;
     }
 
     @Override

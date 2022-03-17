@@ -13,7 +13,6 @@ import br.com.muttley.model.Document;
 import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
-import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.infra.AggregationUtils;
@@ -76,10 +75,8 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         checkIdForSave(value);
         //setando o dono do registro
         value.setOwner(user);
-        //garantindo que o históriconão ficará nulo
-        value.setHistoric(this.createHistoric(user));
         //garantindo que o metadata ta preenchido
-        this.createMetaData(user, value);
+        this.metadataService.generateNewMetadataFor(user, value);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
@@ -107,9 +104,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         //verificando se realmente está criando um novo registro
         checkIdForSave(values);
         //garantindo que o metadata ta preenchido
-        this.createMetaData(user, values);
-        //garantindo que o históriconão ficará nulo
-        values.parallelStream().forEach(it -> it.setHistoric(this.createHistoric(user)));
+        this.metadataService.generateNewMetadataFor(user, values);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, values);
         //verificando precondições
@@ -132,10 +127,8 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
         checkIdForSave(value);
         //setando o dono do registro
         value.setOwner(owner);
-        //garantindo que o históriconão ficará nulo
-        value.setHistoric(this.createHistoric(user));
         //garantindo que o metadata ta preenchido
-        this.createMetaData(user, value);
+        this.metadataService.generateNewMetadataFor(user, value);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
@@ -161,11 +154,8 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
             throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         value.setOwner(user);
-        //gerando histórico de alteração
-        //value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(user.getCurrentOwner(), value)));
-        value.setHistoric(generateHistoricUpdate(user, this.loadHistoric(user, value)));
         //gerando metadata de alteração
-        this.generateMetaDataUpdate(user, this.loadMetaDataByTemplate(user.getCurrentOwner(), value.getId()), value);
+        this.metadataService.generateMetaDataUpdateFor(user, this.loadMetaDataByTemplate(user.getCurrentOwner(), value.getId()), value);
         //processa regra de negocio antes de qualquer validação
         this.beforeUpdate(user, value);
         //verificando precondições
@@ -195,9 +185,7 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
 
         if (!CollectionUtils.isEmpty(valuesForSave)) {
             //gerando metadata de alteração
-            valuesForSave.forEach(it -> generateMetaDataUpdate(user, it));
-            //gerando histórico de alteração
-            valuesForSave.forEach(it -> it.setHistoric(generateHistoricUpdate(user, this.loadHistoricByTemplate(user.getCurrentOwner(), it.getId()))));
+            valuesForSave.forEach(it -> this.metadataService.generateMetaDataUpdateFor(user, this.loadMetaDataByTemplate(user.getCurrentOwner(), it.getId()), it));
             //processa regra de negocio antes de qualquer validação
             beforeUpdate(user, valuesForSave);
             //verificando precondições
@@ -254,24 +242,6 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
             throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
         }
         return result.get(0);
-    }
-
-    @Override
-    public Historic loadHistoric(final User user, final String id) {
-        final Historic historic = this.loadHistoricByTemplate(user.getCurrentOwner(), id);
-        if (isNull(historic)) {
-            throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
-        }
-        return historic;
-    }
-
-    @Override
-    public Historic loadHistoric(final User user, final T value) {
-        final Historic historic = this.loadHistoricByTemplate(user.getCurrentOwner(), value.getId());
-        if (isNull(historic)) {
-            throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
-        }
-        return historic;
     }
 
     @Override
@@ -496,12 +466,12 @@ public abstract class SecurityModelServiceImpl<T extends Model> extends ModelSer
     private final List<T> findAllByTemplate(final OwnerData owner, final Map<String, String> queryParams) {
         validateOwner(owner);
         return this.mongoTemplate.aggregate(
-                newAggregation(
-                        AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.clazz),
-                                addOwnerQueryParam(owner, queryParams)
-                        )
-                ),
-                this.clazz, this.clazz)
+                        newAggregation(
+                                AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.clazz),
+                                        addOwnerQueryParam(owner, queryParams)
+                                )
+                        ),
+                        this.clazz, this.clazz)
                 .getMappedResults();
     }
 

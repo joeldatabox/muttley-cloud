@@ -44,17 +44,6 @@ public class AccessPlan implements Document {
     }
 
     @Override
-    public Historic getHistoric() {
-        return this.historic;
-    }
-
-    @Override
-    public AccessPlan setHistoric(Historic historic) {
-        this.historic = historic;
-        return this;
-    }
-
-    @Override
     public MetadataDocument getMetadata() {
         return metadata;
     }

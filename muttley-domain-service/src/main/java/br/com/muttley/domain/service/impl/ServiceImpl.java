@@ -5,13 +5,8 @@ import br.com.muttley.domain.service.Validator;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
-import br.com.muttley.headers.components.MuttleyCurrentTimezone;
-import br.com.muttley.headers.components.MuttleyCurrentVersion;
-import br.com.muttley.headers.components.MuttleyUserAgentName;
+import br.com.muttley.headers.services.MetadataService;
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
-import br.com.muttley.model.MetadataDocument;
-import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.bson.types.ObjectId;
@@ -25,7 +20,6 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,12 +49,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     private boolean checkRoles;
 
     @Autowired
-    protected MuttleyCurrentTimezone currentTimezone;
-    @Autowired
-    protected MuttleyCurrentVersion currentVersion;
-    @Autowired
-    protected MuttleyUserAgentName userAgentName;
-
+    protected MetadataService metadataService;
 
     @Autowired
     protected Validator validator;
@@ -93,9 +82,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         //verificando se realmente está criando um novo registro
         checkIdForSave(value);
         //garantindo que o metadata ta preenchido
-        this.createMetaData(user, value);
-        //garantindo que o históriconão ficará nulo
-        value.setHistoric(this.createHistoric(user));
+        this.metadataService.generateNewMetadataFor(user, value);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
@@ -128,9 +115,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         //verificando se realmente está criando um novo registro
         checkIdForSave(values);
         //garantindo que o metadata ta preenchido
-        this.createMetaData(user, values);
-        //garantindo que o históriconão ficará nulo
-        values.parallelStream().forEach(it -> it.setHistoric(this.createHistoric(user)));
+        this.metadataService.generateNewMetadataFor(user, values);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, values);
         //verificando precondições
@@ -173,9 +158,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
             throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         //gerando metadata de alteração
-        generateMetaDataUpdate(user, value);
-        //gerando histórico de alteração
-        value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(value)));
+        this.metadataService.generateMetaDataUpdateFor(user, repository.loadMetadata(value), value);
         //processa regra de negocio antes de qualquer validação
         beforeUpdate(user, value);
         //verificando precondições
@@ -216,9 +199,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
 
         if (!CollectionUtils.isEmpty(valuesForSave)) {
             //gerando metadata de alteração
-            valuesForSave.forEach(it -> generateMetaDataUpdate(user, it));
-            //gerando histórico de alteração
-            valuesForSave.forEach(it -> it.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(it))));
+            valuesForSave.forEach(it -> this.metadataService.generateMetaDataUpdateFor(user, this.repository.loadMetadata(it), it));
             //processa regra de negocio antes de qualquer validação
             beforeUpdate(user, valuesForSave);
             //verificando precondições
@@ -300,20 +281,6 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     }
 
     @Override
-    public Historic loadHistoric(final User user, final String id) {
-        final Historic historic = this.repository.loadHistoric(id);
-        if (isNull(historic)) {
-            throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
-        }
-        return historic;
-    }
-
-    @Override
-    public Historic loadHistoric(final User user, final T value) {
-        return this.loadHistoric(user, value.getId());
-    }
-
-    @Override
     public void checkPrecondictionDelete(final User user, final String id) {
 
     }
@@ -372,130 +339,6 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");
         }
         return results;
-    }
-
-    protected Historic createHistoric(final User user) {
-        final Date now = new Date();
-        return new Historic()
-                .setCreatedBy(user)
-                .setDtCreate(now)
-                .setLastChangeBy(user)
-                .setDtChange(now);
-    }
-
-    protected void createMetaData(final User user, final Collection<T> values) {
-        values.forEach(it -> {
-            this.createMetaData(user, it);
-        });
-    }
-
-    protected void createMetaData(final User user, final T value) {
-        //se não tiver nenhum metadata criado, vamos criar um
-        if (!value.containsMetadata()) {
-            value.setMetadata(new MetadataDocument()
-                    .setTimeZones(this.currentTimezone.getCurrentTimezoneDocument())
-                    .setVersionDocument(
-                            new VersionDocument()
-                                    .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
-                                    .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue())
-                                    .setOriginNameClientCreate(this.userAgentName.getCurrentValue())
-                                    .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
-                                    .setServerVersionCreate(this.currentVersion.getCurrenteFromServer())
-                                    .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
-                    ));
-        } else {
-            //se não tem um timezone válido, vamos criar um
-            if (!value.getMetadata().containsTimeZones()) {
-                value.getMetadata().setTimeZones(this.currentTimezone.getCurrentTimezoneDocument());
-            } else {
-                //se chegou aqui é sinal que já possui infos de timezones e devemos apenas checar e atualizar caso necessário
-
-                //O timezone atual informado é valido?
-                if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
-                    //adicionado a mesma info no createTimezone já que estamos criando um novo registro
-                    value.getMetadata().getTimeZones().setCreateTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
-                }
-
-                //adicionando infos de timezone do servidor
-                final String currentServerTimezone = this.currentTimezone.getCurrenteTimeZoneFromServer();
-                value.getMetadata().getTimeZones().setServerCreteTimeZone(currentServerTimezone);
-                value.getMetadata().getTimeZones().setServerCurrentTimeZone(currentServerTimezone);
-            }
-
-            //criando version valido
-            value.getMetadata().setVersionDocument(
-                    new VersionDocument()
-                            .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
-                            .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue())
-                            .setOriginNameClientCreate(this.userAgentName.getCurrentValue())
-                            .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
-                            .setServerVersionCreate(this.currentVersion.getCurrenteFromServer())
-                            .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
-            );
-
-
-        }
-    }
-
-    protected Historic generateHistoricUpdate(final User user, final Historic historic) {
-        return historic
-                .setLastChangeBy(user)
-                .setDtChange(new Date());
-    }
-
-    protected void generateMetaDataUpdate(final User user, final MetadataDocument currentMetadata, final T value) {
-        currentMetadata.getTimeZones().setServerCurrentTimeZone(this.currentTimezone.getCurrenteTimeZoneFromServer());
-
-
-        //se veio informações no registro, devemos aproveitar
-        if (value.containsMetadata()) {
-            if (value.getMetadata().containsTimeZones()) {
-                if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
-                    currentMetadata.getTimeZones().setCurrentTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
-                } else {
-                    currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue());
-                }
-            } else {
-                currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue());
-            }
-        } else {
-            currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue())
-                    .setServerCurrentTimeZone(this.currentTimezone.getCurrenteTimeZoneFromServer());
-        }
-        //setando versionamento
-        currentMetadata
-                .getVersionDocument()
-                .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
-                .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
-                .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
-
-        value.setMetadata(currentMetadata);
-
-        /*final MetadataDocument otherMetadata = value.getMetadata();
-
-
-        //se não tiver nenhum metadata criado, vamos criar um
-
-        MetadataDocument currentMetadata = repository.loadMetadata(value);
-
-        currentMetadata.getTimeZones()
-        if (currentMetadata == null) {
-            currentMetadata = new MetadataDocument();
-        }
-
-
-        currentMetadata.getTimeZones().setOriginLastUpdate(this.currentTimezone.getCurrentValue());
-        currentMetadata.getTimeZones().setServerLastUpdate(this.currentTimezone.getCurrenteTimeZoneFromServer());
-
-        currentMetadata.getVersionDocument().setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue());
-        currentMetadata.getVersionDocument().setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
-        currentMetadata.getVersionDocument().setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer());
-        return currentMetadata;*/
-    }
-
-    protected void generateMetaDataUpdate(final User user, final T value) {
-        //recuperando o registro do banco
-        this.generateMetaDataUpdate(user, this.repository.loadMetadata(value), value);
     }
 
     @Override

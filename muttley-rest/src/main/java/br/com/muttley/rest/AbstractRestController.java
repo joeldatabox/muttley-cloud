@@ -2,7 +2,6 @@ package br.com.muttley.rest;
 
 import br.com.muttley.domain.service.Service;
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import br.com.muttley.security.infra.service.AuthService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -114,17 +113,6 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
         return ResponseEntity.ok(value);
-    }
-
-    @Override
-    @RequestMapping(value = "/{id}/historic", method = GET, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-    @ResponseStatus(OK)
-    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
-        final Historic historic = service.loadHistoric(this.userService.getCurrentUser(), id);
-
-        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
-
-        return ResponseEntity.ok(historic);
     }
 
     @Override

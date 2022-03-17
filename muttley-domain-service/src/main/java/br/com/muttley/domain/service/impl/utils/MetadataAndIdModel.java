@@ -1,6 +1,5 @@
 package br.com.muttley.domain.service.impl.utils;
 
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -13,15 +12,13 @@ import org.springframework.data.annotation.PersistenceConstructor;
  */
 @Getter
 @EqualsAndHashCode(of = "id")
-public class MetadataAndHistoricIdModel {
+public class MetadataAndIdModel {
     private final String id;
     private final MetadataDocument metadata;
-    private final Historic historic;
 
     @PersistenceConstructor
-    public MetadataAndHistoricIdModel(final String id, final MetadataDocument metadata, final Historic historic) {
+    public MetadataAndIdModel(final String id, final MetadataDocument metadata) {
         this.id = id;
         this.metadata = metadata;
-        this.historic = historic;
     }
 }

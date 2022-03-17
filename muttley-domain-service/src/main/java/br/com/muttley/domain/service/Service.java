@@ -1,7 +1,6 @@
 package br.com.muttley.domain.service;
 
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -439,68 +438,6 @@ public interface Service<T extends Document> {
                     "   true"
     )
     T findFirst(final User user);
-
-    /**
-     * Busca o histórico de um determinado registro
-     *
-     * @param user -> usuário da requisição corrente
-     * @param id   -> id do registro a ser buscado
-     * @return Historic
-     */
-    @PreAuthorize(
-            "this.isCheckRole()? " +
-                    "(" +
-                    "   hasAnyRole(" +
-                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
-                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
-                    "   ) " +
-                    "or " +
-                    "   hasAnyRole(" +
-                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
-                    "   )" +
-                    "or (" +
-                    "   @userAgent.isMobile()? " +
-                    "       ( " +
-                    "           hasAnyRole( " +
-                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
-                    "           ) " +
-                    "       ):false " +
-                    "   )" +
-                    "): " +
-                    "   true"
-    )
-    Historic loadHistoric(final User user, final String id);
-
-    /**
-     * Busca o histórico de um determinado registro
-     *
-     * @param user  -> usuário da requisição corrente
-     * @param value -> instancia do registro a ser buscado
-     * @return Historic
-     */
-    @PreAuthorize(
-            "this.isCheckRole()? " +
-                    "(" +
-                    "   hasAnyRole(" +
-                    "       T(br.com.muttley.model.security.Role).ROLE_OWNER.toString(), " +
-                    "       T(br.com.muttley.model.security.Role).ROLE_ROOT.toString()" +
-                    "   ) " +
-                    "or " +
-                    "   hasAnyRole(" +
-                    "       T(br.com.muttley.model.security.Role).toPatternRole('read', this.getBasicRoles())" +
-                    "   )" +
-                    "or (" +
-                    "   @userAgent.isMobile()? " +
-                    "       ( " +
-                    "           hasAnyRole( " +
-                    "               T(br.com.muttley.model.security.Role).toPatternRole('read', 'MOBILE_' + this.getBasicRoles()) " +
-                    "           ) " +
-                    "       ):false " +
-                    "   )" +
-                    "): " +
-                    "   true"
-    )
-    Historic loadHistoric(final User user, final T value);
 
     /**
      * Qualquer regra de négocio que valide o processo de delete deve ser implementada

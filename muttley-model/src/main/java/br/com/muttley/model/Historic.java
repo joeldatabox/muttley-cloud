@@ -19,6 +19,7 @@ public class Historic {
     private User createdBy;
     private Date dtCreate;
     @DBRef
+    @JsonSerialize(using = UserSerializer.class)
     private User lastChangeBy;
     private Date dtChange;
 

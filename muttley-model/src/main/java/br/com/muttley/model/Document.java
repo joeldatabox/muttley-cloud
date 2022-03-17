@@ -27,12 +27,6 @@ public interface Document extends Serializable {
 
     Document setMetadata(final MetadataDocument metaData);
 
-    Document setHistoric(final Historic historic);
-
-
-    @JsonIgnore
-    Historic getHistoric();
-
     @JsonIgnore
     default boolean containsMetadata() {
         return this.getMetadata() != null;

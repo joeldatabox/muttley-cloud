@@ -37,7 +37,6 @@ public class UserPreferences implements Document {
     @JsonIgnore
     @DBRef
     private User user;
-    private Historic historic;
     private MetadataDocument metadata;
     private Set<Preference> preferences;
 
@@ -61,12 +60,10 @@ public class UserPreferences implements Document {
     public UserPreferences(
             final @JsonProperty("id") String id,
             final @JsonProperty("user") User user,
-            final @JsonProperty("historic") Historic historic,
             final @JsonProperty("preferences") Set<Preference> preferences,
             final @JsonProperty("metadata") MetadataDocument metadata) {
         this.id = id;
         this.user = user;
-        this.historic = historic;
         this.preferences = preferences;
         this.metadata = metadata;
     }
@@ -80,17 +77,6 @@ public class UserPreferences implements Document {
     public UserPreferences setId(final String id) {
         this.id = id;
         return this;
-    }
-
-    @Override
-    public UserPreferences setHistoric(final Historic historic) {
-        this.historic = historic;
-        return this;
-    }
-
-    @Override
-    public Historic getHistoric() {
-        return this.historic;
     }
 
     @Override

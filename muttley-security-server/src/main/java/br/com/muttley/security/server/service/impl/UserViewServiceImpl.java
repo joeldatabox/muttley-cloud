@@ -99,11 +99,6 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
     }
 
     @Override
-    public Historic loadHistoric(final User user, final String id) {
-        throw new NotImplementedException();
-    }
-
-    @Override
     public List<UserView> findAll(final User user, final Map<String, String> allRequestParams) {
         throw new NotImplementedException();
     }

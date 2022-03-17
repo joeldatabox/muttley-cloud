@@ -5,7 +5,6 @@ import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryIdIsNullException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.mongo.service.infra.AggregationUtils;
 import br.com.muttley.mongo.service.infra.metadata.EntityMetaData;
@@ -156,23 +155,6 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
     }
 
     @Override
-    public Historic loadHistoric(final T value) {
-        final AggregationResults result = operations.aggregate(
-                newAggregation(
-                        match(
-                                where("_id").is(value.getObjectId())
-                        ), project().and("$historic.createdBy").as("createdBy")
-                                .and("$historic.dtCreate").as("dtCreate")
-                                .and("$historic.dtChange").as("dtChange")
-                                .and("$historic.lastChangeBy").as("lastChangeBy")
-
-
-                ), COLLECTION, Historic.class);
-
-        return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
-    }
-
-    @Override
     public MetadataDocument loadMetadata(final T value) {
         final AggregationResults result = operations.aggregate(
                 newAggregation(
@@ -180,26 +162,10 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                                 where("_id").is(value.getObjectId())
                         ), project().and("$metadata.timeZones").as("timeZones")
                                 .and("$metadata.versionDocument").as("versionDocument")
+                                .and("$metadata.historic").as("historic")
                 ), COLLECTION, MetadataDocument.class);
 
         return result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;
-    }
-
-    @Override
-    public Historic loadHistoric(final String id) {
-        final AggregationResults result = operations.aggregate(
-                newAggregation(
-                        match(
-                                where("_id").is(newObjectId(id))
-                        ), project().and("$historic.createdBy").as("createdBy")
-                                .and("$historic.dtCreate").as("dtCreate")
-                                .and("$historic.dtChange").as("dtChange")
-                                .and("$historic.lastChangeBy").as("lastChangeBy")
-
-
-                ), COLLECTION, Historic.class);
-
-        return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
     }
 
     @Override
@@ -210,6 +176,7 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                                 where("_id").is(newObjectId(id))
                         ), project().and("$metaData.timeZones").as("timeZones")
                                 .and("$metaData.versionDocument").as("versionDocument")
+                                .and("$metadata.historic").as("historic")
                 ), COLLECTION, MetadataDocument.class);
 
         return result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;

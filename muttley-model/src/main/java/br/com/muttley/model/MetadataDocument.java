@@ -1,5 +1,6 @@
 package br.com.muttley.model;
 
+import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -17,16 +18,22 @@ import lombok.experimental.Accessors;
 public class MetadataDocument {
     private TimeZoneDocument timeZones;
     private VersionDocument versionDocument;
+    private Historic historic;
 
-    public MetadataDocument() {
+    public MetadataDocument(final User user) {
         this.timeZones = new TimeZoneDocument();
         this.versionDocument = new VersionDocument();
+        this.historic = Historic.Builder.createNew(user);
     }
 
     @JsonCreator
-    public MetadataDocument(@JsonProperty("timeZones") final TimeZoneDocument timeZones, @JsonProperty("versionDocument") final VersionDocument versionDocument) {
+    public MetadataDocument(
+            @JsonProperty("timeZones") final TimeZoneDocument timeZones,
+            @JsonProperty("versionDocument") final VersionDocument versionDocument,
+            @JsonProperty("historic") final Historic historic) {
         this.timeZones = timeZones;
         this.versionDocument = versionDocument;
+        this.historic = historic;
     }
 
     public boolean containsTimeZones() {
@@ -37,9 +44,14 @@ public class MetadataDocument {
         return this.getVersionDocument() != null;
     }
 
+    public boolean containsHistoric() {
+        return this.getHistoric() != null;
+    }
+
     public static class Builder {
         private TimeZoneDocument timeZone;
         private VersionDocument version;
+        private Historic historic;
 
         public static Builder getInstance() {
             return new Builder();
@@ -55,8 +67,13 @@ public class MetadataDocument {
             return this;
         }
 
+        public Builder setHistoric(Historic historic) {
+            this.historic = historic;
+            return this;
+        }
+
         public MetadataDocument build() {
-            return new MetadataDocument(this.timeZone, this.version);
+            return new MetadataDocument(this.timeZone, this.version, historic);
         }
     }
 

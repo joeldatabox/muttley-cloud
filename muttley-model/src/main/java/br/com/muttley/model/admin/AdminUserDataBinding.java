@@ -40,7 +40,6 @@ public class AdminUserDataBinding extends UserDataBinding {
         this.setId(dataBinding.getId())
                 .setOwner(dataBinding.getOwner())
                 .setUser(dataBinding.getUser())
-                .setHistoric(dataBinding.getHistoric())
                 .setKey(dataBinding.getKey())
                 .setMetadata(dataBinding.getMetadata())
                 .setResolvedValue(dataBinding.getResolvedValue())

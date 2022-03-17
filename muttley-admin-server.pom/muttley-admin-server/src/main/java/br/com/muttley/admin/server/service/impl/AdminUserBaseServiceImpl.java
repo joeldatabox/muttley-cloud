@@ -1,9 +1,9 @@
 package br.com.muttley.admin.server.service.impl;
 
 import br.com.muttley.admin.server.config.model.DocumentNameConfig;
+import br.com.muttley.admin.server.service.AdminPassaportService;
 import br.com.muttley.admin.server.service.AdminUserBaseService;
 import br.com.muttley.admin.server.service.AdminUserDataBindingService;
-import br.com.muttley.admin.server.service.AdminPassaportService;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.model.BasicAggregateResultCount;
@@ -104,8 +104,7 @@ public class AdminUserBaseServiceImpl extends AdminServiceImpl<AdminUserBase> im
         checkIdForSave(value);
         //garantindo que o metadata ta preenchido
         //this.createMetaData(user, value);
-        //garantindo que o históriconão ficará nulo
-        value.setHistoric(this.createHistoric(user));
+        this.metadataService.generateNewMetadataFor(user, value);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
