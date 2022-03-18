@@ -1,7 +1,6 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
@@ -24,7 +23,6 @@ public class AccessPlan implements Document {
 
     @Id
     private String id;
-    private Historic historic;
     private MetadataDocument metadata;
     @NotBlank(message = "Informe um nome válido")
     private String name;

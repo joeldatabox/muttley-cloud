@@ -11,7 +11,6 @@ import java.util.Set;
 import static br.com.muttley.model.security.rolesconfig.ViewRoleDefinition.newRoleDefinition;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
-import static java.util.Collections.emptySet;
 
 /**
  * @author Joel Rodrigues Moreira on 02/07/19.

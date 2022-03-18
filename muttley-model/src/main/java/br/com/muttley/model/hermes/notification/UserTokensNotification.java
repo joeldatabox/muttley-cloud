@@ -1,7 +1,6 @@
 package br.com.muttley.model.hermes.notification;
 
 
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,7 +35,6 @@ public class UserTokensNotification implements br.com.muttley.model.Document {
     private User user;
     private Set<TokenId> tokens;
     private MetadataDocument metadata;
-    private Historic historic;
 
     public UserTokensNotification() {
         this.tokens = new HashSet<>();

@@ -1,7 +1,6 @@
 package br.com.muttley.model.security.preference;
 
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.User;
 import com.fasterxml.jackson.annotation.JsonCreator;

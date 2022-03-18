@@ -1,6 +1,5 @@
 package br.com.muttley.model.security;
 
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -50,7 +49,6 @@ public class UserBase implements Model<Owner> {
     @Valid
     private Set<UserBaseItem> users;
 
-    private Historic historic;
     private MetadataDocument metadata;
 
     public UserBase() {

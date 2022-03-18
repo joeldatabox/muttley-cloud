@@ -51,9 +51,6 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
                 owner.setAccessPlan(
                         this.readAccessPlan(node.get("accessPlan"), parser)
                 );
-                owner.setHistoric(
-                        this.readHistoric(node.get("historic"), parser)
-                );
                 owner.setMetadata(
                         this.readMetadata(node.get("metadata"), parser)
                 );

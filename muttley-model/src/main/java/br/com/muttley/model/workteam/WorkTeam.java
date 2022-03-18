@@ -1,6 +1,5 @@
 package br.com.muttley.model.workteam;
 
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
@@ -76,7 +75,6 @@ public class WorkTeam implements Model<Owner> {
     @JsonSerialize(using = UserCollectionSerializer.class)
     @JsonDeserialize(using = UserSetDeserializer.class)
     protected Set<User> members;
-    protected Historic historic;
     protected MetadataDocument metadata;
 
     public boolean containsMember(final User userMaster) {

@@ -2,7 +2,6 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.annotations.index.CompoundIndexes;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;
@@ -70,8 +69,6 @@ public class Password implements br.com.muttley.model.Document {
     private List<PasswordItem> oldPasswords;
     @JsonIgnore
     private MetadataDocument metadata;
-    @JsonIgnore
-    private Historic historic;
 
     protected Password() {
         this.oldPasswords = new LinkedList<>();
@@ -85,15 +82,13 @@ public class Password implements br.com.muttley.model.Document {
             @JsonProperty("password") final String password,
             @JsonProperty("lastDatePasswordChanges") Date lastDatePasswordChanges,
             @JsonProperty("oldPasswords") final List<PasswordItem> oldPasswords,
-            @JsonProperty("metadata") final MetadataDocument metadata,
-            @JsonProperty("historic") final Historic historic) {
+            @JsonProperty("metadata") final MetadataDocument metadata) {
         this.id = id;
         this.user = user;
         this.password = password;
         this.lastDatePasswordChanges = lastDatePasswordChanges;
         this.oldPasswords = oldPasswords;
         this.metadata = metadata;
-        this.historic = historic;
     }
 
     public Password setPassword(final String password) {
