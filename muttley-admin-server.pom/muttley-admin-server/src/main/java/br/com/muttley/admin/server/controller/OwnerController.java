@@ -43,6 +43,7 @@ public class OwnerController implements RestController<Owner>, RestResource {
     private final PassaportServiceClient passaportService;
     private final ApplicationEventPublisher eventPublisher;
 
+
     @Autowired
     public OwnerController(final OwnerServiceClient client, final PassaportServiceClient passaportService, final ApplicationEventPublisher eventPublisher) {
         this.client = client;
@@ -129,14 +130,6 @@ public class OwnerController implements RestController<Owner>, RestResource {
         final Owner value = client.first();
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
-    }
-
-    @Override
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
-        final Historic historic = client.loadHistoric(id);
-        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
-        return ResponseEntity.ok(historic);
     }
 
     @Override

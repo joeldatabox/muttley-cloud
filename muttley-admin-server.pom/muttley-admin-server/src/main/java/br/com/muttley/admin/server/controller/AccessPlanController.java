@@ -108,14 +108,6 @@ public class AccessPlanController implements RestController<AccessPlan>, RestRes
     }
 
     @Override
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
-        final Historic historic = client.loadHistoric(id);
-        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
-        return ResponseEntity.ok(historic);
-    }
-
-    @Override
     @RequestMapping(method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity list(final HttpServletResponse response, @RequestParam final Map<String, String> allRequestParams) {
         final PageableResource pageableResource = client.list(allRequestParams);

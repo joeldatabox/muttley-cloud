@@ -41,9 +41,6 @@ public interface RestControllerClient<T extends Serializable> {
     @RequestMapping(value = "/first", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     T first();
 
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    Historic loadHistoric(@PathVariable("id") String id);
-
     @RequestMapping(method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     PageableResource list(@RequestParam Map<String, String> allRequestParams);
 
