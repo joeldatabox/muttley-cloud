@@ -6,12 +6,8 @@ import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.localcache.services.LocalModelService;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.MetadataDocument;
-import br.com.muttley.model.Model;
 import br.com.muttley.model.ModelSync;
 import br.com.muttley.model.SyncObjectId;
-import br.com.muttley.model.TimeZoneDocument;
-import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
 import com.google.common.collect.Lists;
@@ -120,7 +116,7 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
         /*if (this.localModelService.containsInCahce(user, clazz, id)) {
             result = (T) this.localModelService.loadModel(user, clazz, id);
         } else {*/
-            result = super.findById(user, id);
+        result = super.findById(user, id);
 /*
             this.localModelService.addCache(user, result, id);
         }
@@ -265,16 +261,16 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
             value = (T) this.localModelService.loadModel(user, clazz, sync);
         } else {*/
 
-            value = this.mongoTemplate
-                    .findOne(
-                            new Query(
-                                    where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                            .and("sync").is(sync)
-                            ), clazz);
-            if (value == null) {
-                throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
-                        .addDetails("syncInformado", sync);
-            }
+        value = this.mongoTemplate
+                .findOne(
+                        new Query(
+                                where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                        .and("sync").is(sync)
+                        ), clazz);
+        if (value == null) {
+            throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
+                    .addDetails("syncInformado", sync);
+        }
             /*this.localModelService.addCache(user, (Model) value, sync);
         }*/
         return value;

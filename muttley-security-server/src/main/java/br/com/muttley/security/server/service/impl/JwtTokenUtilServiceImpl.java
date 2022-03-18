@@ -207,7 +207,7 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
         return (
                 username.equals(user.getUserName())
                         && !isTokenExpired(token)
-                        && !isCreatedBeforeLastPasswordReset(created, password.getHistoric().getDtChange()));
+                        && !isCreatedBeforeLastPasswordReset(created, password.getMetadata().getHistoric().getDtChange()));
     }
 
     @Override

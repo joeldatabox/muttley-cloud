@@ -1,8 +1,8 @@
 package br.com.muttley.hermes.server.service;
 
-import br.com.muttley.model.security.UserView;
 import br.com.muttley.model.hermes.notification.onesignal.Content;
 import br.com.muttley.model.hermes.notification.onesignal.Notification;
+import br.com.muttley.model.security.UserView;
 
 public interface NotificationService {
     void sendNotification(final Notification notification);

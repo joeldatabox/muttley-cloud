@@ -4,7 +4,6 @@ import br.com.muttley.domain.service.impl.ServiceImpl;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;

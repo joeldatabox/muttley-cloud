@@ -2,10 +2,10 @@ package br.com.muttley.security.server.service;
 
 import br.com.muttley.domain.service.Service;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserData;
-import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.rolesconfig.AvaliableRoles;
 
 import java.util.List;

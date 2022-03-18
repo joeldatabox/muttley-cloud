@@ -2,7 +2,6 @@ package br.com.muttley.domain.service.listener;
 
 import br.com.muttley.model.Model;
 import br.com.muttley.model.jackson.converter.event.ModelResolverEvent;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Joel Rodrigues Moreira on 25/05/18.

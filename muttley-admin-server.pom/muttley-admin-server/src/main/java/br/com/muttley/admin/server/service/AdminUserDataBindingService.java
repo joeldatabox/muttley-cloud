@@ -4,7 +4,6 @@ import br.com.muttley.model.admin.AdminUserDataBinding;
 import br.com.muttley.model.security.KeyUserDataBinding;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserData;
-import br.com.muttley.model.security.UserDataBinding;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;

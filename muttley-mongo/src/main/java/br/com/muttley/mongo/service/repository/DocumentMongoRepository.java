@@ -1,6 +1,5 @@
 package br.com.muttley.mongo.service.repository;
 
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

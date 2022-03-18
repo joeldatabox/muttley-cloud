@@ -1,7 +1,6 @@
 package br.com.muttley.security.server.service;
 
 import br.com.muttley.model.admin.AdminUserBase;
-import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBaseItem;

@@ -4,7 +4,6 @@ import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.UserBaseItem;
-import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -146,13 +146,13 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     public final List<T> findAll(final Owner owner, final Map<String, String> queryParams) {
         validateOwner(owner);
         return operations.aggregate(
-                newAggregation(
-                        AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.CLASS),
+                        newAggregation(
+                                AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.CLASS),
 
-                                addOwnerQueryParam(owner, queryParams)
-                        )
-                ),
-                COLLECTION, CLASS)
+                                        addOwnerQueryParam(owner, queryParams)
+                                )
+                        ),
+                        COLLECTION, CLASS)
                 .getMappedResults();
     }
 

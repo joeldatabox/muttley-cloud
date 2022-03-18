@@ -8,7 +8,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.context.ApplicationEvent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

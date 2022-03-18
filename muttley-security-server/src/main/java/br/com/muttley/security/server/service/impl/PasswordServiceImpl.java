@@ -3,7 +3,6 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.domain.service.Validator;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.headers.services.MetadataService;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.PasswdPayload;
 import br.com.muttley.model.security.Password;
 import br.com.muttley.model.security.User;
@@ -54,8 +53,6 @@ public class PasswordServiceImpl<T extends Password> implements PasswordService<
     public void save(final User user, final T password) {
         //verificando se realmente está criando um novo registro
         checkIdForSave(password);
-        //garantindo que o históriconão ficará nulo
-        password.setHistoric(Historic.Builder.createNew(user));
         //garantindo que o metadata ta preenchido
         this.metadataService.generateNewMetadataFor(user, password);
         //processa regra de negocio antes de qualquer validação
@@ -83,8 +80,6 @@ public class PasswordServiceImpl<T extends Password> implements PasswordService<
                 .builder();
         //verificando se realmente está criando um novo registro
         checkIdForSave((T) newPassword);
-        //garantindo que o históriconão ficará nulo
-        newPassword.setHistoric(Historic.Builder.createNew(user));
         //garantindo que o metadata ta preenchido
         this.metadataService.generateNewMetadataFor(user, newPassword);
         //processa regra de negocio antes de qualquer validação

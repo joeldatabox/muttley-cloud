@@ -24,15 +24,18 @@ public class MuttleyRequestHeaderImpl implements MuttleyRequestHeader {
         this.request = request;
     }
 
-    @Override public boolean isRequestFromAdminServer() {
+    @Override
+    public boolean isRequestFromAdminServer() {
         return this.hasKey(KEY_ADMIN_SERVER);
     }
 
-    @Override public boolean hasKey(final String key) {
+    @Override
+    public boolean hasKey(final String key) {
         return this.request.getHeader(key) != null;
     }
 
-    @Override public String getByKey(final String key) {
+    @Override
+    public String getByKey(final String key) {
         return this.request.getHeader(key);
     }
 }

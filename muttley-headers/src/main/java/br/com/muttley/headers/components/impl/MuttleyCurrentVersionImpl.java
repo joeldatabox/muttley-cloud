@@ -43,7 +43,8 @@ public class MuttleyCurrentVersionImpl extends MuttleyHeader implements MuttleyC
     }
 
 
-    @Override public String getCurrenteFromServer() {
+    @Override
+    public String getCurrenteFromServer() {
         return this.buildProperties.getVersion();
     }
 }

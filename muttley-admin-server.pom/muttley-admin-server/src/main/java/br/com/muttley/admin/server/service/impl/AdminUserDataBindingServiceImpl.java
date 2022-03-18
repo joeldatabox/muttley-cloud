@@ -9,8 +9,6 @@ import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.headers.services.MetadataService;
 import br.com.muttley.model.BasicAggregateResult;
 import br.com.muttley.model.BasicAggregateResultCount;
-import br.com.muttley.model.MetadataDocument;
-import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.admin.AdminUserDataBinding;
 import br.com.muttley.model.security.KeyUserDataBinding;
 import br.com.muttley.model.security.Owner;
@@ -320,8 +318,8 @@ public class AdminUserDataBindingServiceImpl implements AdminUserDataBindingServ
         final AggregationResults<AdminUserDataBinding> results = this.mongoTemplate.aggregate(
                 newAggregation(
                         match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("key").is(key)),
-                        project("key", "value", "metadata",  "owner").and(context -> new BasicDBObject("$objectToArray", "$user")).as("user"),
-                        project("key", "value", "metadata",  "owner").and(context -> new BasicDBObject("$arrayElemAt", asList("$user.v", 1))).as("user"),
+                        project("key", "value", "metadata", "owner").and(context -> new BasicDBObject("$objectToArray", "$user")).as("user"),
+                        project("key", "value", "metadata", "owner").and(context -> new BasicDBObject("$arrayElemAt", asList("$user.v", 1))).as("user"),
                         lookup(documentNameConfig.getNameCollectionUser(), "user", "_id", "user"),
                         unwind("$user"),
                         match(where("user.userName").is(userName).and("key").is(key))
