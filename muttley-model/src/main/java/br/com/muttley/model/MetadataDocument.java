@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.PersistenceConstructor;
 
 /**
  * @author Joel Rodrigues Moreira on 30/01/20.
@@ -27,6 +28,7 @@ public class MetadataDocument {
     }
 
     @JsonCreator
+    @PersistenceConstructor
     public MetadataDocument(
             @JsonProperty("timeZones") final TimeZoneDocument timeZones,
             @JsonProperty("versionDocument") final VersionDocument versionDocument,
