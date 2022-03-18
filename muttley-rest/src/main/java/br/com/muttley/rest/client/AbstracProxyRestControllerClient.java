@@ -116,11 +116,6 @@ public abstract class AbstracProxyRestControllerClient<T> implements ProxyRestCo
     }
 
     @Override
-    public Historic loadHistoric(final String id) {
-        return this.client.loadHistoric(id);
-    }
-
-    @Override
     public PageableResource list(final Map<String, String> allRequestParams) {
         return this.client.list(allRequestParams);
     }

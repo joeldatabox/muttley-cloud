@@ -96,14 +96,6 @@ public abstract class AbstractProxyRestController<T extends Document> implements
     }
 
     @Override
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
-        final Historic historic = client.loadHistoric(id);
-        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
-        return ResponseEntity.ok(historic);
-    }
-
-    @Override
     @RequestMapping(method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<PageableResource> list(final HttpServletResponse response, @RequestBody final Map<String, String> allRequestParams) {
         final PageableResource pageableResource = client.list(allRequestParams);
