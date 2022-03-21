@@ -4,6 +4,7 @@ import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.jackson.JsonHelper;
 import br.com.muttley.model.security.preference.UserPreferences;
+import br.com.muttley.model.workteam.WorkTeamDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -74,6 +75,8 @@ public class User implements Serializable, UserData {
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo passaport corrente
     @Transient
     private UserPreferences preferences;
+    @Transient
+    private WorkTeamDomain workTeamDomain;
     private List<UserDataBinding> dataBindings;
     //Define se o usuário é do odin ou de algum outro owner
     private boolean odinUser = false;
@@ -96,6 +99,7 @@ public class User implements Serializable, UserData {
             @JsonProperty("enable") final Boolean enable,
             @JsonProperty("authorities") final Set<Authority> authorities,
             @JsonProperty("preferences") final UserPreferences preferences,
+            @JsonProperty("workTeamDomain") final WorkTeamDomain workTeamDomain,
             @JsonProperty("dataBindings") final List<UserDataBinding> dataBindings) {
         this.id = id;
         this.currentOwner = currentOwner;
@@ -107,6 +111,7 @@ public class User implements Serializable, UserData {
         this.enable = enable;
         this.authorities = authorities;
         this.preferences = preferences;
+        this.workTeamDomain = workTeamDomain;
         this.dataBindings = dataBindings;
     }
 
@@ -365,6 +370,11 @@ public class User implements Serializable, UserData {
 
     public User setDataBindings(final List<UserDataBinding> dataBindings) {
         this.dataBindings = dataBindings;
+        return this;
+    }
+
+    public User setWorkTeamDomain(final WorkTeamDomain workTeamDomain) {
+        this.workTeamDomain = workTeamDomain;
         return this;
     }
 

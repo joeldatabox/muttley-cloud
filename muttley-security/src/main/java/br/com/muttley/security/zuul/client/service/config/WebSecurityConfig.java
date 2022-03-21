@@ -5,11 +5,13 @@ import br.com.muttley.localcache.services.LocalOwnerService;
 import br.com.muttley.localcache.services.LocalRolesService;
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.localcache.services.LocalUserPreferenceService;
+import br.com.muttley.localcache.services.LocalWorkTeamService;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.PassaportServiceClient;
 import br.com.muttley.security.feign.UserDataBindingClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
+import br.com.muttley.security.feign.WorkTeamServiceClient;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.DeserializeUserPreferencesEventListener;
@@ -22,6 +24,7 @@ import br.com.muttley.security.infra.service.impl.LocalOwnerServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalRolesServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserAuthenticationServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserPrefenceServiceImpl;
+import br.com.muttley.security.infra.service.impl.LocalWorkTeamServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -64,8 +67,8 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public UserAfterCacheLoadListener creaUserAfterCacheLoadListener(final LocalUserPreferenceService userPreferenceService, final LocalOwnerService ownerService, final LocalRolesService rolesService, final LocalDatabindingService localDatabindingService) {
-        return new UserAfterCacheLoadListener(userPreferenceService, ownerService, rolesService, localDatabindingService);
+    public UserAfterCacheLoadListener creaUserAfterCacheLoadListener(final LocalUserPreferenceService userPreferenceService, final LocalOwnerService ownerService, final LocalRolesService rolesService, final LocalDatabindingService localDatabindingService, final LocalWorkTeamService localWorkTeamService) {
+        return new UserAfterCacheLoadListener(userPreferenceService, ownerService, rolesService, localDatabindingService, localWorkTeamService);
     }
 
     @Bean
@@ -90,6 +93,12 @@ public class WebSecurityConfig {
     @Autowired
     public LocalDatabindingService createLocalDatabindingService(final RedisService redisService, final UserDataBindingClient userDataBindingClient) {
         return new LocalDatabindingServiceImpl(redisService, userDataBindingClient);
+    }
+
+    @Bean
+    @Autowired
+    public LocalWorkTeamService createLocalWorkTeamService(final RedisService redisService, final WorkTeamServiceClient workTeamServiceClient) {
+        return new LocalWorkTeamServiceImpl(redisService, workTeamServiceClient);
     }
 
     @Bean
