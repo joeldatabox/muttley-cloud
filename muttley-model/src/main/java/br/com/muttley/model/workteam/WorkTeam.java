@@ -76,6 +76,7 @@ public class WorkTeam implements Model<Owner> {
     @JsonDeserialize(using = UserSetDeserializer.class)
     protected Set<User> members;
     protected MetadataDocument metadata;
+    protected boolean editDataFromMembers = false;
 
     public boolean containsMember(final User userMaster) {
         if (this.membersIsEmpty()) {

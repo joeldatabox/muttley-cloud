@@ -6,16 +6,19 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.workteam.WorkTeam;
 import br.com.muttley.model.workteam.WorkTeamDomain;
+import br.com.muttley.mongo.service.infra.util.MapBuilder;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
 import br.com.muttley.security.server.service.OwnerService;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.WorkTeamService;
+import com.mongodb.BasicDBObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.VariableOperators;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -26,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static br.com.muttley.mongo.service.infra.util.ListReduceBuilder.reduce;
+import static br.com.muttley.mongo.service.infra.util.MapBuilder.map;
 import static br.com.muttley.mongo.service.infra.util.SetUnionBuilder.setUnion;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toSet;
@@ -109,7 +113,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          * var $owner = ObjectId("5e28b3e3637e580001e465d6");
          * db.getCollection("muttley-work-teams").aggregate([
          *
-         *     {$match:{"owner.$id":$owner,"userMaster.$id":ObjectId("5e28bcf8637e580001e465e1")}},
+         *     {$match:{"owner.$id":$owner,"userMaster.$id":ObjectId("61d6d6fb2af19b00072bd502")}},
          *     //fazendo as consulta recursivamente para montar as dependencias
          *     {$graphLookup:{
          *         from:"muttley-work-teams",
@@ -120,11 +124,25 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          *         restrictSearchWithMatch:{"owner.$id": $owner}
          *     }},
          *     //pengando todos os subordinados encontrado e agrupando
-         *     {$project:{userMaster:1, members:1, membersTree:{$reduce:{
+         *     {$project:{userMaster:1, members:1, editDataFromMembers:1, membersTree:{$reduce:{
          *         input: "$treeTeams",
          *         initialValue:[],
          *         in:{$setUnion:["$$value", "$$this.members", ["$$this.userMaster"]]}
          *     }}}},
+         *     //propagando as permissoes de edicao entre os membros
+         *     {$project:{
+         *         userMaster:1,
+         *         members:{$map:{
+         *             input: "$members",
+         *             as: "member",
+         *             in: {user:"$$member", canEdit:"$editDataFromMembers"}
+         *         }},
+         *         membersTree:{$map:{
+         *             input: "$membersTree",
+         *             as: "member",
+         *             in: {user:"$$member", canEdit:"$editDataFromMembers"}
+         *         }},
+         *     }},
          *     //agrupando subordinados encontrados juntamente com os membros atuais
          *     {$project:{userMaster:1, members:{$setUnion:["$membersTree", "$members"]}}},
          *     //agrupando com demais work-teams que tenha sido encontrados
@@ -146,11 +164,25 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                         .restrict(where("owner.$id").is(user.getCurrentOwner().getObjectId()))
                         .as("treeTeams"),
                 //pengando todos os subordinados encontrado e agrupando
-                project("userMaster", "members").and(
+                project("userMaster", "members", "editDataFromMembers").and(
                         reduce(
                                 "$treeTeams",
                                 asList(),
                                 setUnion("$$value", "$$this.members", asList("$$this.userMaster"))
+                        )
+                ).as("membersTree"),
+                //propagando as permissoes de edicao entre os membros
+                project("userMaster").and(
+                        map(
+                                "$members",
+                                "member",
+                                context -> new BasicDBObject("user", "$$member").append("canEdit", "$editDataFromMembers")
+                        )
+                ).as("members").and(
+                        map(
+                                "$membersTree",
+                                "member",
+                                context -> new BasicDBObject("user", "$$member").append("canEdit", "$editDataFromMembers")
                         )
                 ).as("membersTree"),
                 //agrupando subordinados encontrados juntamente com os membros atuais
@@ -247,7 +279,8 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
         //se o resultado é maior que zero logo tem uma dependencia circular e precisamos verificar qual usuário que está causando isso
         //para isso vamo consultar usuário por usuário
-        if (globalResults.getUniqueMappedResult().getResult() > 0) {
+        final BasicAggregateResultCount globalResultCount = globalResults.getUniqueMappedResult();
+        if (globalResultCount != null && globalResultCount.getResult() > 0) {
 
 
             final Set<String> usersNames = new HashSet<>();
