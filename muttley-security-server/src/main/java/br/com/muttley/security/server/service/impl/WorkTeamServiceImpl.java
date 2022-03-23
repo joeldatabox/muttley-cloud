@@ -6,7 +6,6 @@ import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.workteam.WorkTeam;
 import br.com.muttley.model.workteam.WorkTeamDomain;
-import br.com.muttley.mongo.service.infra.util.MapBuilder;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
 import br.com.muttley.security.server.service.OwnerService;
@@ -18,7 +17,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.VariableOperators;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -33,11 +31,17 @@ import static br.com.muttley.mongo.service.infra.util.MapBuilder.map;
 import static br.com.muttley.mongo.service.infra.util.SetUnionBuilder.setUnion;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toSet;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.bind;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.graphLookup;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
+import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter.filter;
+import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Size.lengthOfArray;
+import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq.valueOf;
+import static org.springframework.data.mongodb.core.aggregation.ConditionalOperators.Cond.when;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -113,7 +117,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          * var $owner = ObjectId("5e28b3e3637e580001e465d6");
          * db.getCollection("muttley-work-teams").aggregate([
          *
-         *     {$match:{"owner.$id":$owner,"userMaster.$id":ObjectId("61d6d6fb2af19b00072bd502")}},
+         *     {$match:{"owner.$id":$owner,"userMaster.$id":ObjectId("5e28b392637e580001e465d4")}},
          *     //fazendo as consulta recursivamente para montar as dependencias
          *     {$graphLookup:{
          *         from:"muttley-work-teams",
@@ -152,7 +156,23 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          *         input: "$members",
          *         initialValue:[],
          *         in:{$setUnion:["$$value", "$$this"]}
-         *     }}}}
+         *     }}}},
+         *     //distrinchando os membros agrupados para garantir que usuários com não tenha mais de uma autorização
+         *     {$unwind:"$members"},
+         *     //agrupando por autorização
+         *     {$group:{ _id:{user:"$members.user", userMaster:"$userMaster"}, canEdit:{$addToSet:"$members.canEdit"}}},
+         *     //vamos filtrar as autorizações agrupadas e pegar apenas as que estão com true
+         *     {$project:{userMaster:"$_id.userMaster", member:"$_id.user", canEdit: {$filter:{
+         *         input:"$canEdit",
+         *         as: "item",
+         *         cond:"$$item"
+         *     }}}},
+         *     //garantido que os itens que não foram preenchidos receba o devido status de false
+         *     {$project:{userMaster:"$_id.userMaster", member:"$_id.user", canEdit: {$cond:[{$eq:[{$size:"$canEdit"}, 0]},false, true]}}},
+         *     //agrupando por user master
+         *     {$group:{ _id:"$userMaster", members:{$addToSet:{user:"$member", canEdit:"$canEdit"}}}},
+         *     //ajustando os dados
+         *     {$project:{userMaster:"$_id", members:1}}
          * ])
          */
         return new LinkedList<>(asList(
@@ -190,7 +210,23 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                 //agrupando com demais work-teams que tenha sido encontrados
                 group("$userMaster").addToSet("members").as("members"),
                 //fazendo o processo de reduce para resultar em um array simple de usuarios
-                project().and("$_id").as("userMaster").and(reduce("$members", asList(), setUnion("$$value", "$$this"))).as("members")
+                project().and("$_id").as("userMaster").and(reduce("$members", asList(), setUnion("$$value", "$$this"))).as("members"),
+                //distrinchando os membros agrupados para garantir que usuários com não tenha mais de uma autorização
+                unwind("$members"),
+                //agrupando por autorização
+                group(bind("user", "$members.user").and("userMaster", "$userMaster")).addToSet("members.canEdit").as("canEdit"),
+                //vamos filtrar as autorizações agrupadas e pegar apenas as que estão com true
+                project().and("$_id.userMaster").as("userMaster").and("$_id.user").as("member").and(filter("$canEdit").as("item").by("$$item")).as("canEdit"),
+                //garantido que os itens que não foram preenchidos receba o devido status de false
+                project("userMaster", "member").and(
+                        when(
+                                valueOf(lengthOfArray("$canEdit")).equalToValue(0)
+                        ).then(false).otherwise(true)
+                ).as("canEdit"),
+                //agrupando por user master
+                group("userMaster").addToSet(new BasicDBObject("user", "$member").append("canEdit", "$canEdit")).as("members"),
+                //ajustando os dados
+                project("members").and("_id").as("userMaster")
         ));
     }
 
