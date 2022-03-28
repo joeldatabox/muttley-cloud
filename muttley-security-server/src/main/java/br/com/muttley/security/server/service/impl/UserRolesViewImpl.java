@@ -48,6 +48,12 @@ public class UserRolesViewImpl implements UserRolesView {
             this.eventPublisher.publishEvent(new ConfigFirstOwnerPreferenceEvent(user));
         }
 
+        //verificando se o usuário atual é o master
+        if(user.equals(user.getCurrentOwner().getUserMaster())){
+            //se chegou aqui logo é o owner do sistem
+            return Role.getValues();
+        }
+
         /*final UserRolesViewResul result = this.template.findOne(new Query(
                 where("owner.$id").is(user.getCurrentOwner().getObjectId())
                         .and("userId").is(new ObjectId(user.getId()))
