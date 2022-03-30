@@ -1,8 +1,10 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.workteam.WorkTeam;
 import br.com.muttley.model.workteam.WorkTeamDomain;
@@ -12,12 +14,15 @@ import br.com.muttley.security.server.service.OwnerService;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.WorkTeamService;
 import com.mongodb.BasicDBObject;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -110,6 +115,59 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                 WorkTeamDomain.class
         );
         return results.getUniqueMappedResult();
+    }
+
+    @Override
+    public List<WorkTeam> findAll(User user, Map<String, String> allRequestParams) {
+        /**
+         *db.getCollection("muttley-work-teams").aggregate([
+         *    {$match:{$or:[{"userMaster.$id": ObjectId("5d49cca5a1d16f19595be983")}, {"members.$id":ObjectId("5d49cca5a1d16f19595be983")}]}},
+         * ])
+         */
+        final AggregationResults<WorkTeam> workTeamResults = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(
+                                new Criteria().orOperator(
+                                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                )
+                        )
+                )
+                , WorkTeam.class, WorkTeam.class);
+        if (workTeamResults == null) {
+            throw new MuttleyNotFoundException(WorkTeam.class, null, "Nenhum grupo encontrado para o usuário informado");
+        }
+        final List<WorkTeam> workTeams = workTeamResults.getMappedResults();
+        if (CollectionUtils.isEmpty(workTeams)) {
+            throw new MuttleyNotFoundException(WorkTeam.class, null, "Nenhum grupo encontrado para o usuário informado");
+        }
+        return workTeams;
+    }
+
+    @Override
+    public List<WorkTeam> findByUser(User user) {
+        /**
+         *db.getCollection("muttley-work-teams").aggregate([
+         *    {$match:{$or:[{"userMaster.$id": ObjectId("5d49cca5a1d16f19595be983")}, {"members.$id":ObjectId("5d49cca5a1d16f19595be983")}]}},
+         * ])
+         */
+        final AggregationResults<WorkTeam> workTeamResults = this.mongoTemplate.aggregate(
+                newAggregation(
+                        match(
+                                new Criteria().orOperator(
+                                        where("userMaster.$id").is(new ObjectId(user.getId())),
+                                        where("members.$id").is(new ObjectId(user.getId()))
+                                )
+                        )
+                )
+                , WorkTeam.class, WorkTeam.class);
+        if (workTeamResults == null) {
+            throw new MuttleyNotFoundException(WorkTeam.class, "members", "Nenhum grupo encontrado para o usuário informado");
+        }
+        final List<WorkTeam> workTeams = workTeamResults.getMappedResults();
+        if (CollectionUtils.isEmpty(workTeams)) {
+            throw new MuttleyNotFoundException(WorkTeam.class, "members", "Nenhum grupo encontrado para o usuário informado");
+        }
+        return workTeams;
     }
 
     private List<AggregationOperation> createBasicQueryWorkTeamDomain(final User user) {

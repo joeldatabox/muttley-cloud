@@ -106,6 +106,26 @@ public class Role {
     public static final Role ROLE_MOBILE_PASSAPORT_DELETE = new Role("ROLE_MOBILE_PASSAPORT_DELETE");
 
     @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_CREATE = new Role("ROLE_WORK_TEAM_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_READ = new Role("ROLE_WORK_TEAM_READ");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_UPDATE = new Role("ROLE_WORK_TEAM_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_DELETE = new Role("ROLE_WORK_TEAM_DELETE");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_SIMPLE_USE = new Role("ROLE_WORK_TEAM_SIMPLE_USE");
+
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_CREATE = new Role("ROLE_MOBILE_WORK_TEAM_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_READ = new Role("ROLE_MOBILE_WORK_TEAM_READ");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_UPDATE = new Role("ROLE_MOBILE_WORK_TEAM_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_DELETE = new Role("ROLE_MOBILE_WORK_TEAM_DELETE");
+
+    @JsonIgnore
     public static final Role ROLE_USER_DATA_BINDING_CREATE = new Role("ROLE_USER_DATA_BINDING_CREATE");
     @JsonIgnore
     public static final Role ROLE_USER_DATA_BINDING_READ = new Role("ROLE_USER_DATA_BINDING_READ");
@@ -307,6 +327,15 @@ public class Role {
                         Role.ROLE_MOBILE_PASSAPORT_READ,
                         Role.ROLE_MOBILE_PASSAPORT_UPDATE,
                         Role.ROLE_MOBILE_PASSAPORT_DELETE,
+                        Role.ROLE_WORK_TEAM_CREATE,
+                        Role.ROLE_WORK_TEAM_READ,
+                        Role.ROLE_WORK_TEAM_UPDATE,
+                        Role.ROLE_WORK_TEAM_DELETE,
+                        Role.ROLE_WORK_TEAM_SIMPLE_USE,
+                        Role.ROLE_MOBILE_WORK_TEAM_CREATE,
+                        Role.ROLE_MOBILE_WORK_TEAM_READ,
+                        Role.ROLE_MOBILE_WORK_TEAM_UPDATE,
+                        Role.ROLE_MOBILE_WORK_TEAM_DELETE,
                         Role.ROLE_USER_DATA_BINDING_CREATE,
                         Role.ROLE_USER_DATA_BINDING_READ,
                         Role.ROLE_USER_DATA_BINDING_UPDATE,
