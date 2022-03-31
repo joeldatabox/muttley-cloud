@@ -5,22 +5,28 @@ import br.com.muttley.domain.service.impl.utils.MetadataAndIdModel;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Model;
+import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
+import br.com.muttley.mongo.service.infra.AggregationUtils;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
 import com.mongodb.BasicDBObject;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -304,6 +310,12 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
 
     @Override
     public List<T> findAll(final User user, final Map<String, String> allRequestParams) {
+        //validando se o usuário tem owner informado
+        this.validateOwner(user.getCurrentOwner());
+        //perando o filtro
+
+        AggregationUtils.createAggregations(this.entityMetaData, null, addOwnerQueryParam(user.getCurrentOwner(), allRequestParams));
+
         final List<T> results = this.repository.findAll(user.getCurrentOwner(), allRequestParams);
         if (CollectionUtils.isEmpty(results)) {
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");
@@ -328,4 +340,26 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         }
     }
 
+
+    private final void validateOwner(final Owner owner) {
+        if (owner == null) {
+            throw new MuttleyRepositoryOwnerNotInformedException(this.clazz);
+        }
+    }
+
+    private final Map<String, String> addOwnerQueryParam(final Owner owner, final Map<String, String> queryParams) {
+        final Map<String, String> query = new LinkedHashMap<>(1);
+        query.put("owner.$id.$is", owner.getObjectId().toString());
+        if (queryParams != null) {
+            query.putAll(queryParams);
+        }
+        return query;
+    }
+
+    protected List<AggregationOperation> getFilterByWorkteam(final User user) {
+
+        return Arrays.asList(
+                match(where("metadata.historic.createdBy.$id").in(user.getWorkTeamDomain().getAllUsers()))
+        );
+    }
 }

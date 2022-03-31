@@ -147,7 +147,8 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
         validateOwner(owner);
         return operations.aggregate(
                         newAggregation(
-                                AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.CLASS),
+                                AggregationUtils.createAggregations(
+                                        this.entityMetaData, getBasicPipelines(this.CLASS),
 
                                         addOwnerQueryParam(owner, queryParams)
                                 )

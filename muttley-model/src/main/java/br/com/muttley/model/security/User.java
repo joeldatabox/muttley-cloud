@@ -378,6 +378,10 @@ public class User implements Serializable, UserData {
         return this;
     }
 
+    public WorkTeamDomain getWorkTeamDomain() {
+        return this.workTeamDomain;
+    }
+
     @JsonIgnore
     public boolean containsDatabinding(final String key) {
         if (this.dataBindingsIsEmpty()) {

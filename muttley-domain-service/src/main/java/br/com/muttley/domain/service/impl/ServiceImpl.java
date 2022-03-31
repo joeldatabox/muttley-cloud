@@ -8,6 +8,7 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.headers.services.MetadataService;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.security.User;
+import br.com.muttley.mongo.service.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     protected final DocumentMongoRepository<T> repository;
     protected final MongoTemplate mongoTemplate;
     protected final Class<T> clazz;
+    protected final EntityMetaData entityMetaData;
     @Value("${muttley.security.check-roles:false}")
     private boolean checkRoles;
 
@@ -58,6 +60,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         this.repository = repository;
         this.mongoTemplate = mongoTemplate;
         this.clazz = clazz;
+        this.entityMetaData = EntityMetaData.of(this.clazz);
     }
 
     @Override

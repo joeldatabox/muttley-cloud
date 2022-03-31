@@ -4,7 +4,6 @@ import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.Owner;
-import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.workteam.WorkTeam;
 import br.com.muttley.model.workteam.WorkTeamDomain;
@@ -114,7 +113,19 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                 WorkTeam.class,
                 WorkTeamDomain.class
         );
-        return results.getUniqueMappedResult();
+        final WorkTeamDomain domain = results.getUniqueMappedResult();
+        if (domain != null) {
+            return domain
+                    //adicionando membro do owner
+                    .addMember(user.getCurrentOwner().getUserMaster(), true);
+        }
+        //se chegou até aqui é sinal que o usuário não está presente em um time
+        //logo devemos retornar apenas ele e o usuário do owner para acesso aos dados
+        return new WorkTeamDomain()
+                //adicionando usuário atual como membro
+                .addMember(user, true)
+                //adicionando membro do owner
+                .addMember(user.getCurrentOwner().getUserMaster(), true);
     }
 
     @Override
