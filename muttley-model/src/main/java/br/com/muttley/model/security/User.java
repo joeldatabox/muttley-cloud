@@ -1,5 +1,6 @@
 package br.com.muttley.model.security;
 
+import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.jackson.JsonHelper;
@@ -520,6 +521,14 @@ public class User implements Serializable, UserData {
 
     public static boolean isValidUserName(final String userName) {
         return UserNameValidator.isValid(4, 70, userName);
+    }
+
+    @JsonIgnore
+    public boolean isOwner() {
+        if (this.getCurrentOwner() == null) {
+            throw new MuttleyException("O USUÁRIO ATUAL ESTÁ SEM INFORMAÇÃO DE OWNER");
+        }
+        return this.equals(this.getCurrentOwner().getUserMaster());
     }
 
     private static final class UserNameValidator {

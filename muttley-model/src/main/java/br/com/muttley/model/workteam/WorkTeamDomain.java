@@ -31,7 +31,9 @@ public class WorkTeamDomain {
 
     public Set<User> getAllUsers() {
         final Set<User> users = members.parallelStream().map(it -> it.getUser()).collect(Collectors.toSet());
-        users.add(userMaster);
+        if (userMaster != null) {
+            users.add(userMaster);
+        }
         return users;
     }
 

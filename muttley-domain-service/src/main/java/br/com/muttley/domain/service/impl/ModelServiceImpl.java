@@ -6,6 +6,7 @@ import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
+import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.Owner;
@@ -305,7 +306,20 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
 
     @Override
     public Long count(final User user, final Map<String, String> allRequestParams) {
-        return this.repository.count(user.getCurrentOwner(), allRequestParams);
+        validateOwner(user.getCurrentOwner());
+
+
+        final AggregationResults<BasicAggregateResultCount> result = mongoTemplate.aggregate(
+                newAggregation(
+                        AggregationUtils.createAggregationsCount(
+                                this.entityMetaData,
+                                this.getFilterByWorkteam(user),
+                                addOwnerQueryParam(user.getCurrentOwner(), allRequestParams),
+                                "result"
+                        )
+                ),
+                clazz, BasicAggregateResultCount.class);
+        return result.getUniqueMappedResult() != null ? result.getUniqueMappedResult().getResult() : 0l;
     }
 
     @Override
@@ -314,13 +328,18 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         this.validateOwner(user.getCurrentOwner());
         //perando o filtro
 
-        AggregationUtils.createAggregations(this.entityMetaData, null, addOwnerQueryParam(user.getCurrentOwner(), allRequestParams));
+        final List<AggregationOperation> aggregateions = AggregationUtils.createAggregations(this.entityMetaData, null, addOwnerQueryParam(user.getCurrentOwner(), allRequestParams));
+        //adicionando filtro para agregação
+        aggregateions.addAll(this.getFilterByWorkteam(user));
 
-        final List<T> results = this.repository.findAll(user.getCurrentOwner(), allRequestParams);
-        if (CollectionUtils.isEmpty(results)) {
+        final AggregationResults<T> results = mongoTemplate.aggregate(
+                newAggregation(aggregateions), clazz, clazz
+        );
+
+        if (results == null || CollectionUtils.isEmpty(results.getMappedResults())) {
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");
         }
-        return results;
+        return results.getMappedResults();
     }
 
     @Override
@@ -357,9 +376,12 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     }
 
     protected List<AggregationOperation> getFilterByWorkteam(final User user) {
-
+        //se for o owner do sistema não faz sentido colocar restrição pois ele tem acesso a tudo
+        if (user.isOwner()) {
+            return Collections.emptyList();
+        }
         return Arrays.asList(
-                match(where("metadata.historic.createdBy.$id").in(user.getWorkTeamDomain().getAllUsers()))
+                match(where("metadata.historic.createdBy.$id").in(user.getWorkTeamDomain().getAllUsers().parallelStream().map(it -> it.getObjectId()).collect(toSet())))
         );
     }
 }
