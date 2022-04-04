@@ -106,4 +106,5 @@ public class WebSecurityConfig {
     public DeserializeUserPreferencesEventListener createUserPreferencesResolverEventListener(final LocalOwnerService ownerService) {
         return new DeserializeUserPreferencesEventListener(ownerService);
     }
+
 }

@@ -168,6 +168,7 @@ public class User implements Serializable, UserData {
                         .setId(owner.getUserMaster().getId())
                         .setDescription(owner.getUserMaster().getDescription())
                         .setEmail(owner.getUserMaster().getEmail())
+                        .setUserName(owner.getUserMaster().getUserName())
                         .setName(owner.getUserMaster().getName())
                         .setNickUsers(owner.getUserMaster().getNickUsers());
             } else {
@@ -528,7 +529,11 @@ public class User implements Serializable, UserData {
         if (this.getCurrentOwner() == null) {
             throw new MuttleyException("O USUÁRIO ATUAL ESTÁ SEM INFORMAÇÃO DE OWNER");
         }
-        return this.equals(this.getCurrentOwner().getUserMaster());
+        //verificando se o userMaster do ownerAtual tem tedas as infos
+        //caso contrario comparamos apenas pelo userName
+        final User userMaster = this.getCurrentOwner().getUserMaster();
+        return !isEmpty(userMaster.getId()) && !isEmpty(userMaster.getEmail()) && !isEmpty(userMaster.getUserName()) ?
+                this.equals(userMaster) : this.getUserName().equals(userMaster.getUserName());
     }
 
     private static final class UserNameValidator {
