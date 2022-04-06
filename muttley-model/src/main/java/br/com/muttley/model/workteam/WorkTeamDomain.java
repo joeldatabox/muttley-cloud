@@ -4,6 +4,7 @@ import br.com.muttley.model.security.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.bson.types.ObjectId;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +36,13 @@ public class WorkTeamDomain {
             users.add(userMaster);
         }
         return users;
+    }
+
+    public Set<ObjectId> getIdsOfAllUsers() {
+        return this.getAllUsers()
+                .parallelStream()
+                .map(it -> it.getObjectId())
+                .collect(Collectors.toSet());
     }
 
     public WorkTeamDomain addMember(WorkTeamMember workTeamMember) {

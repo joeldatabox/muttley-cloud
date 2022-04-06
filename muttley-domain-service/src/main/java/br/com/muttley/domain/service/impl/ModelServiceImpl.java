@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
@@ -313,7 +314,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
                 newAggregation(
                         AggregationUtils.createAggregationsCount(
                                 this.entityMetaData,
-                                this.getFilterByWorkteam(user),
+                                this.getFilterAggregationOperationByWorkteam(user),
                                 addOwnerQueryParam(user.getCurrentOwner(), allRequestParams),
                                 "result"
                         )
@@ -330,7 +331,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
 
         final List<AggregationOperation> aggregateions = AggregationUtils.createAggregations(this.entityMetaData, null, addOwnerQueryParam(user.getCurrentOwner(), allRequestParams));
         //adicionando filtro para agregação
-        aggregateions.addAll(this.getFilterByWorkteam(user));
+        aggregateions.addAll(this.getFilterAggregationOperationByWorkteam(user));
 
         final AggregationResults<T> results = mongoTemplate.aggregate(
                 newAggregation(aggregateions), clazz, clazz
@@ -375,13 +376,22 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         return query;
     }
 
-    protected List<AggregationOperation> getFilterByWorkteam(final User user) {
+    protected List<AggregationOperation> getFilterAggregationOperationByWorkteam(final User user) {
         //se for o owner do sistema não faz sentido colocar restrição pois ele tem acesso a tudo
         if (user.isOwner()) {
             return Collections.emptyList();
         }
         return Arrays.asList(
                 match(where("metadata.historic.createdBy.$id").in(user.getWorkTeamDomain().getAllUsers().parallelStream().map(it -> it.getObjectId()).collect(toSet())))
+        );
+    }
+
+    protected List<Criteria> getFilterCriteriaByWorkteam(final User user) {
+        if(user.isOwner()){
+            return null;
+        }
+        return Arrays.asList(
+                where("metadata.historic.createdBy.$id").in(user.getWorkTeamDomain().getAllUsers().parallelStream().map(it -> it.getObjectId()).collect(toSet()))
         );
     }
 }
