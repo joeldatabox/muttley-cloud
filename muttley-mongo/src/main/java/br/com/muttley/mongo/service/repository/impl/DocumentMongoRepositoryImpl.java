@@ -174,8 +174,8 @@ public class DocumentMongoRepositoryImpl<T extends Document> extends SimpleMongo
                 newAggregation(
                         match(
                                 where("_id").is(newObjectId(id))
-                        ), project().and("$metaData.timeZones").as("timeZones")
-                                .and("$metaData.versionDocument").as("versionDocument")
+                        ), project().and("$metadata.timeZones").as("timeZones")
+                                .and("$metadata.versionDocument").as("versionDocument")
                                 .and("$metadata.historic").as("historic")
                 ), COLLECTION, MetadataDocument.class);
 
