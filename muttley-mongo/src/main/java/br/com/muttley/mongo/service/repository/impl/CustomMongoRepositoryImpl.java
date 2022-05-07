@@ -212,8 +212,8 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
                 newAggregation(
                         match(where("owner.$id").is(owner.getObjectId())
                                 .and("_id").is(value.getObjectId())
-                        ), project().and("$metaData.timeZones").as("timeZones")
-                                .and("$metaData.versionDocument").as("versionDocument")
+                        ), project().and("$metadata.timeZones").as("timeZones")
+                                .and("$metadata.versionDocument").as("versionDocument")
                                 .and("$metadata.historic").as("historic")
                 ), COLLECTION, MetadataDocument.class);
 
