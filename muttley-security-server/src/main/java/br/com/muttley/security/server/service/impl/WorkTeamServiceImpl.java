@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.Owner;
@@ -145,11 +146,11 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                 )
                 , WorkTeam.class, WorkTeam.class);
         if (workTeamResults == null) {
-            throw new MuttleyNotFoundException(WorkTeam.class, null, "Nenhum grupo encontrado para o usuário informado");
+            throw new MuttleyNoContentException(WorkTeam.class, null, "Nenhum grupo encontrado para o usuário informado");
         }
         final List<WorkTeam> workTeams = workTeamResults.getMappedResults();
         if (CollectionUtils.isEmpty(workTeams)) {
-            throw new MuttleyNotFoundException(WorkTeam.class, null, "Nenhum grupo encontrado para o usuário informado");
+            throw new MuttleyNoContentException(WorkTeam.class, null, "Nenhum grupo encontrado para o usuário informado");
         }
         return workTeams;
     }
