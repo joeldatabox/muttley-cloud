@@ -3,11 +3,13 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.localcache.services.LocalWorkTeamService;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.workteam.WorkTeam;
 import br.com.muttley.model.workteam.WorkTeamDomain;
+import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.repository.WorkTeamRepository;
 import br.com.muttley.security.server.service.OwnerService;
@@ -24,6 +26,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -60,14 +63,16 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     private final OwnerService ownerService;
     private final DocumentNameConfig documentNameConfig;
     private final UserBaseService userBaseService;
+    private final RedisService redisService;
 
     @Autowired
-    public WorkTeamServiceImpl(final WorkTeamRepository repository, final MongoTemplate mongoTemplate, OwnerService ownerService, final DocumentNameConfig documentNameConfig, UserBaseService userBaseService) {
+    public WorkTeamServiceImpl(final WorkTeamRepository repository, final MongoTemplate mongoTemplate, OwnerService ownerService, final DocumentNameConfig documentNameConfig, UserBaseService userBaseService, RedisService redisService) {
         super(repository, mongoTemplate, WorkTeam.class);
         this.repository = repository;
         this.ownerService = ownerService;
         this.documentNameConfig = documentNameConfig;
         this.userBaseService = userBaseService;
+        this.redisService = redisService;
     }
 
     @Override
@@ -77,6 +82,18 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         this.removeUserMasterFromMembers(user, workTeam);
 
         super.beforeSave(user, workTeam);
+    }
+
+    @Override
+    public void afterSave(User user, WorkTeam value) {
+        this.expire(value.getUserMaster());
+        super.afterSave(user, value);
+    }
+
+    @Override
+    public void afterSave(User user, Collection<WorkTeam> values) {
+        values.forEach(it -> this.expire(it.getUserMaster()));
+        super.afterSave(user, values);
     }
 
     @Override
@@ -101,6 +118,18 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         this.checkUsersHasBeenPresent(user, workTeam);
         this.checkCircularDependence(user, workTeam);
         super.checkPrecondictionUpdate(user, workTeam);
+    }
+
+    @Override
+    public void afterUpdate(User user, WorkTeam value) {
+        this.expire(value.getUserMaster());
+        super.afterUpdate(user, value);
+    }
+
+    @Override
+    public void afterUpdate(User user, Collection<WorkTeam> values) {
+        values.forEach(it -> this.expire(it.getUserMaster()));
+        super.afterUpdate(user, values);
     }
 
     @Override
@@ -418,5 +447,13 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                     .addDetails("userNames", usersNames);
         }
 
+    }
+
+    /**
+     * Expirando itens presente no cache do serviço
+     */
+    private void expire(final User user) {
+        //deletando item do cache
+        this.redisService.delete(LocalWorkTeamService.getBasicKey(user));
     }
 }

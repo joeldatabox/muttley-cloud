@@ -9,6 +9,8 @@ import br.com.muttley.security.server.service.WorkTeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static br.com.muttley.localcache.services.LocalWorkTeamService.getBasicKey;
+
 /**
  * @author Joel Rodrigues Moreira on 21/03/2022.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -27,7 +29,7 @@ public class LocalWorkTeamServiceImpl extends AbstractLocalWorkTemaServiceImpl {
     @Override
     public WorkTeamDomain getWorkTeamDomain(JwtToken token, User user) {
         final WorkTeamDomain workTeamDomain;
-        if (this.redisService.hasKey(this.getBasicKey(user))) {
+        if (this.redisService.hasKey(getBasicKey(user))) {
             workTeamDomain = (WorkTeamDomain) redisService.get(getBasicKey(user));
         } else {
             workTeamDomain = service.loadDomain(user);

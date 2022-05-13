@@ -15,4 +15,8 @@ public interface LocalWorkTeamService {
     public WorkTeamDomain getWorkTeamDomain(final JwtToken token, final User user);
 
     public LocalWorkTeamService expire(final User user);
+
+    public static String getBasicKey(final User user) {
+        return BASIC_KEY + user.getId();
+    }
 }
