@@ -49,7 +49,7 @@ public class UserRolesViewImpl implements UserRolesView {
         }
 
         //verificando se o usuário atual é o master
-        if(user.equals(user.getCurrentOwner().getUserMaster())){
+        if (user.equals(user.getCurrentOwner().getUserMaster())) {
             //se chegou aqui logo é o owner do sistem
             return Role.getValues();
         }

@@ -1,6 +1,5 @@
 package br.com.muttley.admin.server.controller;
 
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.AccessPlan;
 import br.com.muttley.rest.RestController;
 import br.com.muttley.rest.RestResource;

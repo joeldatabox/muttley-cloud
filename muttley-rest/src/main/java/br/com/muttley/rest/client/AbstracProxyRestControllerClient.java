@@ -1,7 +1,6 @@
 package br.com.muttley.rest.client;
 
 import br.com.muttley.localcache.services.LocalModelService;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.SyncObjectId;
 import br.com.muttley.rest.ModelSyncRestControllerClient;
 import br.com.muttley.security.infra.resource.PageableResource;

@@ -1,7 +1,6 @@
 package br.com.muttley.rest;
 
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;

@@ -1,7 +1,6 @@
 package br.com.muttley.admin.server.controller;
 
 import br.com.muttley.admin.server.events.OwnerCreatedEvent;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.rest.RestController;
 import br.com.muttley.rest.RestResource;

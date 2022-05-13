@@ -387,7 +387,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     }
 
     protected List<Criteria> getFilterCriteriaByWorkteam(final User user) {
-        if(user.isOwner()){
+        if (user.isOwner()) {
             return null;
         }
         return Arrays.asList(
