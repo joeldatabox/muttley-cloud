@@ -14,7 +14,7 @@ import java.util.Collection;
 public interface MetadataService {
     void generateNewMetadataFor(final User user, final Document value);
 
-    void generateNewMetadataFor(final User user, final Collection<Document> values);
+    void generateNewMetadataFor(final User user, final Collection<? extends Document> values);
 
     void generateMetaDataUpdateFor(final User user, final MetadataDocument currentMetadata, final Document value);
 }

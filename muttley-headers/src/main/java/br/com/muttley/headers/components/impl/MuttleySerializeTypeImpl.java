@@ -41,23 +41,28 @@ public class MuttleySerializeTypeImpl extends MuttleyHeader implements MuttleySe
         this.type = SerializeType.Builder.build(request);
     }
 
-    @Override public boolean isSync() {
+    @Override
+    public boolean isSync() {
         return this.type.isSync();
     }
 
-    @Override public boolean isObjectId() {
+    @Override
+    public boolean isObjectId() {
         return this.type.isObjectId();
     }
 
-    @Override public boolean isObjectIdAndSync() {
+    @Override
+    public boolean isObjectIdAndSync() {
         return this.type.isObjectIdAndSync();
     }
 
-    @Override public boolean isInternal() {
+    @Override
+    public boolean isInternal() {
         return this.type.isInternal();
     }
 
-    @Override public boolean containsValidValue() {
+    @Override
+    public boolean containsValidValue() {
         return getCurrentValue() != null && (getCurrentValue().equals(SYNC_TYPE) || getCurrentValue().equals(OBJECT_ID_TYPE) || getCurrentValue().equals(OBJECT_ID_AND_SYNC_TYPE));
     }
 

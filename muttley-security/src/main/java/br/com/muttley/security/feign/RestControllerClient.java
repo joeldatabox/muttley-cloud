@@ -1,6 +1,5 @@
 package br.com.muttley.security.feign;
 
-import br.com.muttley.model.Historic;
 import br.com.muttley.security.infra.resource.PageableResource;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,9 +39,6 @@ public interface RestControllerClient<T extends Serializable> {
 
     @RequestMapping(value = "/first", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     T first();
-
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    Historic loadHistoric(@PathVariable("id") String id);
 
     @RequestMapping(method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
     PageableResource list(@RequestParam Map<String, String> allRequestParams);

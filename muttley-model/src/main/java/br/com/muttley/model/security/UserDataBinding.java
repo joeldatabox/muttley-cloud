@@ -1,7 +1,6 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.annotations.index.CompoundIndexes;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
@@ -62,5 +61,4 @@ public class UserDataBinding implements Model<Owner> {
     @JsonIgnore
     protected boolean resolved = false;
     private MetadataDocument metadata;
-    private Historic historic;
 }

@@ -15,14 +15,11 @@ import br.com.muttley.model.security.merge.MergedUserBaseItemResponse;
 import br.com.muttley.model.security.merge.MergedUserBaseResponse;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.events.NewUserHasBeenAddedInBaseEvent;
+import br.com.muttley.security.server.service.PassaportService;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserService;
-import br.com.muttley.security.server.service.PassaportService;
 import com.mongodb.BasicDBObject;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 import org.bson.types.ObjectId;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +28,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -39,7 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolationException;
-import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -422,39 +418,17 @@ public class UserBaseServiceImpl extends SecurityModelServiceImpl<UserBase> impl
         return true;
     }
 
-    /* */
-
-    /**
-     * Verifica se o usuário já existe na base
-     *//*
-    private boolean userHasBeenIncluded(final User user, final User userForCheck) {
-        return this.userHasBeenIncluded(user, userForCheck.getId());
-    }
-
-    private boolean userHasBeenIncluded(final User user, final String id) {
+    @Override
+    public boolean allHasBeenIncludedGroup(User user, Collection<User> users) {
         return this.mongoTemplate.exists(
                 new Query(
                         where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                .and("users.user.$id").is(new ObjectId(id))
+                                .andOperator(
+                                        users.parallelStream()
+                                                .map(it -> where("users.user.$id").is(it.getObjectId()))
+                                                .toArray(Criteria[]::new)
+                                )
                 ), UserBase.class
         );
-    }*/
-
-    @Getter
-    @Setter
-    @Accessors(chain = true)
-    private static class UserItemForAdd {
-        @DBRef
-        @NotNull(message = "Informe o usuário que está efetuando essa operação")
-        private User addedBy;
-
-        @DBRef
-        @NotNull(message = "Informe o usuário participante da base")
-        private User user;
-
-        @NotNull
-        private Date dtCreate;
-
-        private boolean status;
     }
 }

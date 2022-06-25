@@ -54,10 +54,6 @@ public interface RestController<T> {
     @ResponseStatus(OK)
     ResponseEntity first(HttpServletResponse response);
 
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    @ResponseStatus(OK)
-    ResponseEntity loadHistoric(@PathVariable("id") String id, HttpServletResponse response);
-
     @RequestMapping(method = GET)
     ResponseEntity<PageableResource> list(HttpServletResponse response, @RequestParam Map<String, String> allRequestParams);
 

@@ -30,5 +30,5 @@ public interface MuttleyReportBuilder<T extends MuttleyReportBuilder> {
 
     MuttleyReport build();
 
-    Map<String,Object> getParamsForSubReport();
+    Map<String, Object> getParamsForSubReport();
 }

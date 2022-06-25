@@ -1,9 +1,7 @@
 package br.com.muttley.model.security.events;
 
-import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.Passaport;
-import lombok.Getter;
-import org.springframework.context.ApplicationEvent;
+import br.com.muttley.model.security.User;
 
 /**
  * Evento disparado toda vez que se tenta inserir um novo grupo de trabalho
@@ -16,19 +14,8 @@ import org.springframework.context.ApplicationEvent;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class ValidateOwnerInWorkGroupEvent extends ApplicationEvent {
-    private final Passaport passaport;
-    @Getter
-    private final User currenteUserFromRequest;
-
+public class ValidateOwnerInWorkGroupEvent extends AbstractValidateOwnerEvent<Passaport> {
     public ValidateOwnerInWorkGroupEvent(final User currenteUserFromRequest, final Passaport passaport) {
-        super(passaport);
-        this.currenteUserFromRequest = currenteUserFromRequest;
-        this.passaport = passaport;
-    }
-
-    @Override
-    public Passaport getSource() {
-        return this.passaport;
+        super(currenteUserFromRequest, passaport);
     }
 }

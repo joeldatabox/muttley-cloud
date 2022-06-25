@@ -25,7 +25,8 @@ public class MuttleyUserAgentImpl extends MuttleyHeader implements MuttleyUserAg
         super(USER_AGENT, requestProvider);
     }
 
-    @Override public boolean isMobile() {
+    @Override
+    public boolean isMobile() {
         return MOBILE.equalsIgnoreCase(getCurrentValue());
     }
 }

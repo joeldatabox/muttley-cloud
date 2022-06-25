@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -103,6 +104,26 @@ public class Role {
     public static final Role ROLE_MOBILE_PASSAPORT_UPDATE = new Role("ROLE_MOBILE_PASSAPORT_UPDATE");
     @JsonIgnore
     public static final Role ROLE_MOBILE_PASSAPORT_DELETE = new Role("ROLE_MOBILE_PASSAPORT_DELETE");
+
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_CREATE = new Role("ROLE_WORK_TEAM_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_READ = new Role("ROLE_WORK_TEAM_READ");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_UPDATE = new Role("ROLE_WORK_TEAM_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_DELETE = new Role("ROLE_WORK_TEAM_DELETE");
+    @JsonIgnore
+    public static final Role ROLE_WORK_TEAM_SIMPLE_USE = new Role("ROLE_WORK_TEAM_SIMPLE_USE");
+
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_CREATE = new Role("ROLE_MOBILE_WORK_TEAM_CREATE");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_READ = new Role("ROLE_MOBILE_WORK_TEAM_READ");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_UPDATE = new Role("ROLE_MOBILE_WORK_TEAM_UPDATE");
+    @JsonIgnore
+    public static final Role ROLE_MOBILE_WORK_TEAM_DELETE = new Role("ROLE_MOBILE_WORK_TEAM_DELETE");
 
     @JsonIgnore
     public static final Role ROLE_USER_DATA_BINDING_CREATE = new Role("ROLE_USER_DATA_BINDING_CREATE");
@@ -265,5 +286,67 @@ public class Role {
                 .parallel()
                 .map(r -> Role.toPatternRole(endNameRole, r))
                 .toArray(String[]::new);
+    }
+
+    public static void initializeRoles() {
+        Role.values.addAll(
+                Arrays.asList(
+                        Role.ROLE_OWNER,
+                        Role.ROLE_ROOT,
+                        Role.ROLE_ODIN_USER,
+                        Role.ROLE_ACCESS_PLAN_CREATE,
+                        Role.ROLE_ACCESS_PLAN_READ,
+                        Role.ROLE_ACCESS_PLAN_UPDATE,
+                        Role.ROLE_ACCESS_PLAN_DELETE,
+                        Role.ROLE_ACCESS_PLAN_SIMPLE_USE,
+                        Role.ROLE_MOBILE_ACCESS_PLAN_CREATE,
+                        Role.ROLE_MOBILE_ACCESS_PLAN_READ,
+                        Role.ROLE_MOBILE_ACCESS_PLAN_UPDATE,
+                        Role.ROLE_MOBILE_ACCESS_PLAN_DELETE,
+                        Role.ROLE_OWNER_CREATE,
+                        Role.ROLE_OWNER_READ,
+                        Role.ROLE_OWNER_UPDATE,
+                        Role.ROLE_OWNER_DELETE,
+                        Role.ROLE_OWNER_SIMPLE_USE,
+                        Role.ROLE_USER_BASE_CREATE,
+                        Role.ROLE_USER_BASE_READ,
+                        Role.ROLE_USER_BASE_UPDATE,
+                        Role.ROLE_USER_BASE_DELETE,
+                        Role.ROLE_USER_BASE_SIMPLE_USE,
+                        Role.ROLE_USER_VIEW_CREATE,
+                        Role.ROLE_USER_VIEW_READ,
+                        Role.ROLE_USER_VIEW_UPDATE,
+                        Role.ROLE_USER_VIEW_DELETE,
+                        Role.ROLE_USER_SIMPLE_USE,
+                        Role.ROLE_PASSAPORT_CREATE,
+                        Role.ROLE_PASSAPORT_READ,
+                        Role.ROLE_PASSAPORT_UPDATE,
+                        Role.ROLE_PASSAPORT_DELETE,
+                        Role.ROLE_PASSAPORT_SIMPLE_USE,
+                        Role.ROLE_MOBILE_PASSAPORT_CREATE,
+                        Role.ROLE_MOBILE_PASSAPORT_READ,
+                        Role.ROLE_MOBILE_PASSAPORT_UPDATE,
+                        Role.ROLE_MOBILE_PASSAPORT_DELETE,
+                        Role.ROLE_WORK_TEAM_CREATE,
+                        Role.ROLE_WORK_TEAM_READ,
+                        Role.ROLE_WORK_TEAM_UPDATE,
+                        Role.ROLE_WORK_TEAM_DELETE,
+                        Role.ROLE_WORK_TEAM_SIMPLE_USE,
+                        Role.ROLE_MOBILE_WORK_TEAM_CREATE,
+                        Role.ROLE_MOBILE_WORK_TEAM_READ,
+                        Role.ROLE_MOBILE_WORK_TEAM_UPDATE,
+                        Role.ROLE_MOBILE_WORK_TEAM_DELETE,
+                        Role.ROLE_USER_DATA_BINDING_CREATE,
+                        Role.ROLE_USER_DATA_BINDING_READ,
+                        Role.ROLE_USER_DATA_BINDING_UPDATE,
+                        Role.ROLE_USER_DATA_BINDING_DELETE,
+                        Role.ROLE_USER_DATA_BINDING_SIMPLE_USE,
+                        Role.ROLE_USER_DATA_BINDING_OTHERS_USERS_MERGE,
+                        Role.ROLE_MOBILE_USER_DATA_BINDING_CREATE,
+                        Role.ROLE_MOBILE_USER_DATA_BINDING_READ,
+                        Role.ROLE_MOBILE_USER_DATA_BINDING_UPDATE,
+                        Role.ROLE_MOBILE_USER_DATA_BINDING_DELETE,
+                        Role.ROLE_MOBILE_USER_DATA_BINDING_OTHERS_USERS_MERGE
+                ));
     }
 }

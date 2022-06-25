@@ -1,8 +1,6 @@
 package br.com.muttley.admin.server.controller;
 
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.AccessPlan;
-import br.com.muttley.model.security.Owner;
 import br.com.muttley.rest.RestController;
 import br.com.muttley.rest.RestResource;
 import br.com.muttley.security.feign.AccessPlanServiceClient;
@@ -46,6 +44,7 @@ public class AccessPlanController implements RestController<AccessPlan>, RestRes
         this.client = client;
         this.eventPublisher = eventPublisher;
     }
+
     @Override
     @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE})
     public ResponseEntity save(@RequestBody final AccessPlan value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
@@ -105,14 +104,6 @@ public class AccessPlanController implements RestController<AccessPlan>, RestRes
         final AccessPlan value = client.first();
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
-    }
-
-    @Override
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
-        final Historic historic = client.loadHistoric(id);
-        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
-        return ResponseEntity.ok(historic);
     }
 
     @Override

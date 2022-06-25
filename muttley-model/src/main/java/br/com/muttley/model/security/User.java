@@ -1,9 +1,11 @@
 package br.com.muttley.model.security;
 
+import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.jackson.JsonHelper;
 import br.com.muttley.model.security.preference.UserPreferences;
+import br.com.muttley.model.workteam.WorkTeamDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -74,6 +76,8 @@ public class User implements Serializable, UserData {
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo passaport corrente
     @Transient
     private UserPreferences preferences;
+    @Transient
+    private WorkTeamDomain workTeamDomain;
     private List<UserDataBinding> dataBindings;
     //Define se o usuário é do odin ou de algum outro owner
     private boolean odinUser = false;
@@ -96,6 +100,7 @@ public class User implements Serializable, UserData {
             @JsonProperty("enable") final Boolean enable,
             @JsonProperty("authorities") final Set<Authority> authorities,
             @JsonProperty("preferences") final UserPreferences preferences,
+            @JsonProperty("workTeamDomain") final WorkTeamDomain workTeamDomain,
             @JsonProperty("dataBindings") final List<UserDataBinding> dataBindings) {
         this.id = id;
         this.currentOwner = currentOwner;
@@ -107,6 +112,7 @@ public class User implements Serializable, UserData {
         this.enable = enable;
         this.authorities = authorities;
         this.preferences = preferences;
+        this.workTeamDomain = workTeamDomain;
         this.dataBindings = dataBindings;
     }
 
@@ -162,6 +168,7 @@ public class User implements Serializable, UserData {
                         .setId(owner.getUserMaster().getId())
                         .setDescription(owner.getUserMaster().getDescription())
                         .setEmail(owner.getUserMaster().getEmail())
+                        .setUserName(owner.getUserMaster().getUserName())
                         .setName(owner.getUserMaster().getName())
                         .setNickUsers(owner.getUserMaster().getNickUsers());
             } else {
@@ -368,6 +375,15 @@ public class User implements Serializable, UserData {
         return this;
     }
 
+    public User setWorkTeamDomain(final WorkTeamDomain workTeamDomain) {
+        this.workTeamDomain = workTeamDomain;
+        return this;
+    }
+
+    public WorkTeamDomain getWorkTeamDomain() {
+        return this.workTeamDomain;
+    }
+
     @JsonIgnore
     public boolean containsDatabinding(final String key) {
         if (this.dataBindingsIsEmpty()) {
@@ -506,6 +522,18 @@ public class User implements Serializable, UserData {
 
     public static boolean isValidUserName(final String userName) {
         return UserNameValidator.isValid(4, 70, userName);
+    }
+
+    @JsonIgnore
+    public boolean isOwner() {
+        if (this.getCurrentOwner() == null) {
+            throw new MuttleyException("O USUÁRIO ATUAL ESTÁ SEM INFORMAÇÃO DE OWNER");
+        }
+        //verificando se o userMaster do ownerAtual tem tedas as infos
+        //caso contrario comparamos apenas pelo userName
+        final User userMaster = this.getCurrentOwner().getUserMaster();
+        return !isEmpty(userMaster.getId()) && !isEmpty(userMaster.getEmail()) && !isEmpty(userMaster.getUserName()) ?
+                this.equals(userMaster) : this.getUserName().equals(userMaster.getUserName());
     }
 
     private static final class UserNameValidator {

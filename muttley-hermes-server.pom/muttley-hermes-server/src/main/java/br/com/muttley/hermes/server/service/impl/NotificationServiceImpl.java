@@ -9,9 +9,6 @@ import br.com.muttley.model.security.UserView;
 import br.com.muttley.notification.onesignal.service.OneSignalNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-
-import javax.validation.Validator;
 
 import static br.com.muttley.model.hermes.notification.onesignal.MuttleyLanguage.Any;
 

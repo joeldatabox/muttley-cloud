@@ -2,8 +2,6 @@ package br.com.muttley.security.server.service;
 
 import io.jsonwebtoken.SigningKeyResolver;
 
-import java.util.Map;
-
 /**
  * @author Joel Rodrigues Moreira on 19/02/20.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>

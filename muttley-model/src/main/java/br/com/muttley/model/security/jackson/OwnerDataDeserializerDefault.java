@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -51,9 +52,6 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
                 owner.setAccessPlan(
                         this.readAccessPlan(node.get("accessPlan"), parser)
                 );
-                owner.setHistoric(
-                        this.readHistoric(node.get("historic"), parser)
-                );
                 owner.setMetadata(
                         this.readMetadata(node.get("metadata"), parser)
                 );
@@ -66,19 +64,19 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
                         this.readUserMaster(node.get("userMaster"), parser)
                 );
             }
-        } else {
             //Vamos verificar se o deserializer está no contexto do spring e que o mesmo conseguiu injetar o eventPublisher
-            if (eventPublisher != null) {
-                //criando evento
-                final OwnerResolverEvent event = new OwnerResolverEvent(node.asText());
-                //disparando para alguem ouvir esse evento
-                this.eventPublisher.publishEvent(event);
-                //retornando valor recuperado
-                return event.isResolved() ? event.getValueResolved() : new Owner().setId(event.getSource());
-            }
+        } else if (eventPublisher != null) {
+            //criando evento
+            final OwnerResolverEvent event = new OwnerResolverEvent(node.asText());
+            //disparando para alguem ouvir esse evento
+            this.eventPublisher.publishEvent(event);
+            //retornando valor recuperado
+            return event.isResolved() ? event.getValueResolved() : new Owner().setId(event.getSource());
+        } else {
             /**provavelmente o deserializer está sendo usado fora do contexto do spring
              *ou seja, devemos apenas injetar o ID e nada mais
              */
+
             return node.isNull() ? null : new Owner().setId(node.asText());
         }
     }
@@ -97,6 +95,8 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
                     this.eventPublisher.publishEvent(event);
                     //retornando valor recuperado
                     return event.isResolved() ? event.getUserResolver() : new User().setUserName(event.getUserName());
+                } else {
+                    return ObjectId.isValid(node.asText()) ? new User().setId(node.asText()) : new User().setUserName(node.asText());
                 }
         }
         return null;

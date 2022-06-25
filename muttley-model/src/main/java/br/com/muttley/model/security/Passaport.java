@@ -1,6 +1,5 @@
 package br.com.muttley.model.security;
 
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
@@ -43,7 +42,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 public class Passaport implements Model<Owner> {
     @Transient
     @JsonIgnore
-    public static final String TYPE_ALIAS = "work-team";
+    public static final String TYPE_ALIAS = "passaport";
 
     @Id
     protected String id;
@@ -65,7 +64,6 @@ public class Passaport implements Model<Owner> {
     @JsonSerialize(using = UserCollectionSerializer.class)
     @JsonDeserialize(using = UserSetDeserializer.class)
     protected Set<User> members;
-    protected Historic historic;
     protected MetadataDocument metadata;
     protected Set<Role> roles;
 
@@ -137,17 +135,6 @@ public class Passaport implements Model<Owner> {
 
     public Passaport addMember(final User user) {
         this.members.add(user);
-        return this;
-    }
-
-    @Override
-    public Historic getHistoric() {
-        return historic;
-    }
-
-    @Override
-    public Passaport setHistoric(final Historic historic) {
-        this.historic = historic;
         return this;
     }
 

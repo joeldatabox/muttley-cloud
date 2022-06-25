@@ -1,6 +1,5 @@
 package br.com.muttley.mongo.service.repository;
 
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.security.Owner;
 
@@ -21,7 +20,7 @@ public interface CustomMongoRepository<T> extends DocumentMongoRepository<T> {
     /**
      * Sava um colleção de registro registro
      *
-     * @param owner -> dono do registro
+     * @param owner  -> dono do registro
      * @param values -> collection de objetos a serem salvos
      */
     Collection<T> save(final Owner owner, final Collection<T> values);
@@ -114,28 +113,12 @@ public interface CustomMongoRepository<T> extends DocumentMongoRepository<T> {
     boolean exists(final Owner owner, final Object... filter);
 
     /**
-     * Carrega o historico de um determinado registro
-     *
-     * @param owner -> dono do registro
-     * @param value -> registro a ser carregado
-     */
-    Historic loadHistoric(final Owner owner, final T value);
-
-    /**
      * Carrega o metadata de um determinado registro
      *
      * @param owner -> dono do registro
      * @param value -> registro a ser carregado
      */
     MetadataDocument loadMetaData(final Owner owner, final T value);
-
-    /**
-     * Carrega o historico de um determinado registro
-     *
-     * @param owner -> dono do registro
-     * @param id    -> id do registro a ser carregado
-     */
-    Historic loadHistoric(final Owner owner, final String id);
 
     /**
      * Carrega o metadata de um determinado registro

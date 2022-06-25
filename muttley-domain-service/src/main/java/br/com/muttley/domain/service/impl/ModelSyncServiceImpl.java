@@ -6,12 +6,8 @@ import br.com.muttley.exception.throwables.MuttleyConflictException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.localcache.services.LocalModelService;
 import br.com.muttley.model.Historic;
-import br.com.muttley.model.MetadataDocument;
-import br.com.muttley.model.Model;
 import br.com.muttley.model.ModelSync;
 import br.com.muttley.model.SyncObjectId;
-import br.com.muttley.model.TimeZoneDocument;
-import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.security.User;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
 import com.google.common.collect.Lists;
@@ -120,7 +116,7 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
         /*if (this.localModelService.containsInCahce(user, clazz, id)) {
             result = (T) this.localModelService.loadModel(user, clazz, id);
         } else {*/
-            result = super.findById(user, id);
+        result = super.findById(user, id);
 /*
             this.localModelService.addCache(user, result, id);
         }
@@ -265,16 +261,16 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
             value = (T) this.localModelService.loadModel(user, clazz, sync);
         } else {*/
 
-            value = this.mongoTemplate
-                    .findOne(
-                            new Query(
-                                    where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                            .and("sync").is(sync)
-                            ), clazz);
-            if (value == null) {
-                throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
-                        .addDetails("syncInformado", sync);
-            }
+        value = this.mongoTemplate
+                .findOne(
+                        new Query(
+                                where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                        .and("sync").is(sync)
+                        ), clazz);
+        if (value == null) {
+            throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
+                    .addDetails("syncInformado", sync);
+        }
             /*this.localModelService.addCache(user, (Model) value, sync);
         }*/
         return value;
@@ -341,117 +337,6 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
         super.delete(user, value);
         this.localModelService.expire(user, clazz, value.getId());
         this.localModelService.expire(user, clazz, value.getSync());
-    }
-
-    @Override
-    protected void createMetaData(final User user, final T value) {
-        final TimeZoneDocument timeZoneDocument = currentTimezone.getCurrentTimezoneDocument();
-        if (StringUtils.isEmpty(timeZoneDocument.getCurrentTimeZone())) {
-            timeZoneDocument.setCurrentTimeZone(timeZoneDocument.getServerCurrentTimeZone());
-        }
-        if (StringUtils.isEmpty(timeZoneDocument.getCreateTimeZone())) {
-            timeZoneDocument.setCreateTimeZone(timeZoneDocument.getServerCreteTimeZone());
-        }
-
-        //se não tiver nenhum metadata criado, vamos criar um
-        if (!value.containsMetadata()) {
-            value.setMetadata(
-                    new MetadataDocument()
-                            .setTimeZones(timeZoneDocument)
-                            .setVersionDocument(
-                                    new VersionDocument()
-                                            .setOriginVersionClientCreate(currentVersion.getCurrentValue())
-                                            .setOriginVersionClientLastUpdate(currentVersion.getCurrentValue())
-                                            .setOriginNameClientCreate(userAgentName.getCurrentValue())
-                                            .setOriginNameClientLastUpdate(userAgentName.getCurrentValue())
-                                            .setServerVersionCreate(currentVersion.getCurrenteFromServer())
-                                            .setServerVersionLastUpdate(currentVersion.getCurrenteFromServer())
-                            )
-            );
-        } else {
-            //se não tem um timezone válido, vamos criar um
-            if (!value.getMetadata().containsTimeZones()) {
-                /*final TimeZoneDocument timeZoneDocument = currentTimezone.getCurrentTimezoneDocument();
-                if (StringUtils.isEmpty(timeZoneDocument.getCurrentTimeZone())) {
-                    timeZoneDocument.setCurrentTimeZone(timeZoneDocument.getServerCurrentTimeZone());
-                }
-                if (StringUtils.isEmpty(timeZoneDocument.getCreateTimeZone())) {
-                    timeZoneDocument.setCreateTimeZone(timeZoneDocument.getServerCreteTimeZone());
-                }*/
-                value.getMetadata().setTimeZones(timeZoneDocument);
-            } else {
-                //se chegou aqui é sinal que já possui infos de timezones e devemos apenas checar e atualizar caso necessário
-
-                //O timezone atual informado é valido?
-                if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
-                    //adicionado a mesma info no createTimezone já que estamos criando um novo registro
-                    value.getMetadata().getTimeZones().setCreateTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
-                    value.getMetadata().getTimeZones().setCurrentTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
-                } else {
-                    //setando um timezone padrão para não dar prego na lógica interna do serviço
-                    value.getMetadata().getTimeZones().setCreateTimeZone(currentTimezone.getCurrenteTimeZoneFromServer());
-                    value.getMetadata().getTimeZones().setCurrentTimeZone(currentTimezone.getCurrenteTimeZoneFromServer());
-                }
-
-                //adicionando infos de timezone do servidor
-                final String currentServerTimezone = currentTimezone.getCurrenteTimeZoneFromServer();
-                value.getMetadata().getTimeZones().setServerCreteTimeZone(currentServerTimezone);
-                value.getMetadata().getTimeZones().setServerCurrentTimeZone(currentServerTimezone);
-            }
-
-            //criando version valido
-            value.getMetadata()
-                    .setVersionDocument(
-                            new VersionDocument()
-                                    .setOriginVersionClientCreate(currentVersion.getCurrentValue())
-                                    .setOriginVersionClientLastUpdate(currentVersion.getCurrentValue())
-                                    .setOriginNameClientCreate(userAgentName.getCurrentValue())
-                                    .setOriginNameClientLastUpdate(userAgentName.getCurrentValue())
-                                    .setServerVersionCreate(currentVersion.getCurrenteFromServer())
-                                    .setServerVersionLastUpdate(currentVersion.getCurrenteFromServer())
-                    );
-
-
-        }
-    }
-
-    @Override
-    protected void generateMetaDataUpdate(final User user, final T value) {
-        //recuperando o registro do banco
-        final MetadataDocument currentMetadata = this.repository.loadMetadata(value);
-
-        currentMetadata.getTimeZones().setServerCurrentTimeZone(this.currentTimezone.getCurrenteTimeZoneFromServer());
-
-
-        //se veio informações no registro, devemos aproveitar
-        if (value.containsMetadata()) {
-            if (value.getMetadata().containsTimeZones()) {
-                if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
-                    currentMetadata.getTimeZones().setCurrentTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
-                } else {
-                    currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue());
-                }
-            } else {
-                currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue());
-            }
-        } else {
-            currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue())
-                    .setServerCurrentTimeZone(this.currentTimezone.getCurrenteTimeZoneFromServer());
-        }
-        //setando versionamento
-        currentMetadata
-                .getVersionDocument()
-                .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
-                .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
-                .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
-
-
-        if (StringUtils.isEmpty(currentMetadata.getTimeZones().getCurrentTimeZone())) {
-            //setando um timezone padrão para não dar prego na lógica interna do serviço
-            currentMetadata.getTimeZones().setCurrentTimeZone(currentTimezone.getCurrenteTimeZoneFromServer());
-        }
-
-        value.setMetadata(currentMetadata);
     }
 
     @Override

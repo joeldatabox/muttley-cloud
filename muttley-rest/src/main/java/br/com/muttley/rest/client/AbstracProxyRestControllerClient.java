@@ -1,7 +1,6 @@
 package br.com.muttley.rest.client;
 
 import br.com.muttley.localcache.services.LocalModelService;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.SyncObjectId;
 import br.com.muttley.rest.ModelSyncRestControllerClient;
 import br.com.muttley.security.infra.resource.PageableResource;
@@ -113,11 +112,6 @@ public abstract class AbstracProxyRestControllerClient<T> implements ProxyRestCo
     @Override
     public T first() {
         return this.client.first();
-    }
-
-    @Override
-    public Historic loadHistoric(final String id) {
-        return this.client.loadHistoric(id);
     }
 
     @Override

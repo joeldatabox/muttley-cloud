@@ -3,7 +3,6 @@ package br.com.muttley.mongo.service.repository.impl;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryInvalidIdException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.Owner;
@@ -147,13 +146,14 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     public final List<T> findAll(final Owner owner, final Map<String, String> queryParams) {
         validateOwner(owner);
         return operations.aggregate(
-                newAggregation(
-                        AggregationUtils.createAggregations(this.entityMetaData, getBasicPipelines(this.CLASS),
+                        newAggregation(
+                                AggregationUtils.createAggregations(
+                                        this.entityMetaData, getBasicPipelines(this.CLASS),
 
-                                addOwnerQueryParam(owner, queryParams)
-                        )
-                ),
-                COLLECTION, CLASS)
+                                        addOwnerQueryParam(owner, queryParams)
+                                )
+                        ),
+                        COLLECTION, CLASS)
                 .getMappedResults();
     }
 
@@ -207,48 +207,17 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
     }
 
     @Override
-    public Historic loadHistoric(final Owner owner, final T value) {
-        final AggregationResults result = operations.aggregate(
-                newAggregation(
-                        match(where("owner.$id").is(owner.getObjectId())
-                                .and("_id").is(value.getObjectId())
-                        ), project().and("$historic.createdBy").as("createdBy")
-                                .and("$historic.dtCreate").as("dtCreate")
-                                .and("$historic.dtChange").as("dtChange")
-                ), COLLECTION, Historic.class);
-
-        return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
-    }
-
-    @Override
     public MetadataDocument loadMetaData(final Owner owner, final T value) {
         final AggregationResults result = operations.aggregate(
                 newAggregation(
                         match(where("owner.$id").is(owner.getObjectId())
                                 .and("_id").is(value.getObjectId())
-                        ), project().and("$metaData.timeZones").as("timeZones")
-                                .and("$metaData.versionDocument").as("versionDocument")
+                        ), project().and("$metadata.timeZones").as("timeZones")
+                                .and("$metadata.versionDocument").as("versionDocument")
+                                .and("$metadata.historic").as("historic")
                 ), COLLECTION, MetadataDocument.class);
 
         return result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;
-    }
-
-    @Override
-    public Historic loadHistoric(final Owner owner, final String id) {
-        try {
-            final AggregationResults result = operations.aggregate(
-                    newAggregation(
-                            match(where("owner.$id").is(owner.getObjectId())
-                                    .and("_id").is(newObjectId(id))
-                            ), project().and("$historic.createdBy").as("createdBy")
-                                    .and("$historic.dtCreate").as("dtCreate")
-                                    .and("$historic.dtChange").as("dtChange")
-                    ), COLLECTION, Historic.class);
-
-            return result.getUniqueMappedResult() != null ? ((Historic) result.getUniqueMappedResult()) : null;
-        } catch (MuttleyRepositoryInvalidIdException ex) {
-            throw new MuttleyNotFoundException(CLASS, "id", "Registro não encontrado");
-        }
     }
 
     @Override
@@ -259,6 +228,7 @@ public class CustomMongoRepositoryImpl<T extends Model> extends DocumentMongoRep
                                 .and("_id").is(newObjectId(id))
                         ), project().and("$metadata.timeZones").as("timeZones")
                                 .and("$metadata.versionDocument").as("versionDocument")
+                                .and("$metadata.historic").as("historic")
                 ), COLLECTION, MetadataDocument.class);
 
         return result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;

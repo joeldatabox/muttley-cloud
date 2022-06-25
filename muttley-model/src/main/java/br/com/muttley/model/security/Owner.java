@@ -2,7 +2,6 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.annotations.index.CompoundIndexes;
 import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.jackson.converter.DocumentSerializer;
 import br.com.muttley.model.security.jackson.AccessPlanDeserializer;
@@ -54,7 +53,6 @@ public class Owner implements br.com.muttley.model.Document, OwnerData {
     @JsonDeserialize(using = AccessPlanDeserializer.class)
     @DBRef
     protected AccessPlan accessPlan;
-    protected Historic historic;
     protected MetadataDocument metadata;
 
     @Override
@@ -105,15 +103,6 @@ public class Owner implements br.com.muttley.model.Document, OwnerData {
     public Owner setAccessPlan(final AccessPlan accessPlan) {
         this.accessPlan = accessPlan;
         return this;
-    }
-
-    public Owner setHistoric(final Historic historic) {
-        this.historic = historic;
-        return this;
-    }
-
-    public Historic getHistoric() {
-        return this.historic;
     }
 
     @Override

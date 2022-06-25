@@ -3,7 +3,6 @@ package br.com.muttley.security.server.controller;
 import br.com.muttley.domain.service.Service;
 import br.com.muttley.exception.throwables.security.MuttleySecurityCredentialException;
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.Authority;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
@@ -115,16 +114,6 @@ public abstract class AbstractRestController<T extends Document> implements Rest
         final T value = service.findFirst(user);
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
-    }
-
-    @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
-        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
-        checkRoleRead(user);
-        final Historic historic = service.loadHistoric(user, id);
-        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
-        return ResponseEntity.ok(historic);
     }
 
     @RequestMapping(method = RequestMethod.GET)

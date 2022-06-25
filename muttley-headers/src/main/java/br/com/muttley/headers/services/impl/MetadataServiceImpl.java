@@ -5,6 +5,7 @@ import br.com.muttley.headers.components.MuttleyCurrentVersion;
 import br.com.muttley.headers.components.MuttleyUserAgentName;
 import br.com.muttley.headers.services.MetadataService;
 import br.com.muttley.model.Document;
+import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.security.User;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * @author Joel Rodrigues Moreira 12/03/2021
@@ -31,7 +33,7 @@ public class MetadataServiceImpl implements MetadataService {
     public void generateNewMetadataFor(final User user, final Document value) {
         //se não tiver nenhum metadata criado, vamos criar um
         if (!value.containsMetadata()) {
-            value.setMetadata(new MetadataDocument()
+            value.setMetadata(new MetadataDocument(user)
                     .setTimeZones(this.currentTimezone.getCurrentTimezoneDocument())
                     .setVersionDocument(
                             new VersionDocument()
@@ -72,12 +74,24 @@ public class MetadataServiceImpl implements MetadataService {
                             .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
             );
 
+            //criando o historic
+            if (!value.getMetadata().containsHistoric()) {
+                value.getMetadata().setHistoric(new Historic());
+            }
+
+            final Date now = new Date();
+            value.getMetadata()
+                    .getHistoric()
+                    .setDtCreate(now)
+                    .setDtChange(now)
+                    .setCreatedBy(user)
+                    .setLastChangeBy(user);
 
         }
     }
 
     @Override
-    public void generateNewMetadataFor(final User user, final Collection<Document> values) {
+    public void generateNewMetadataFor(final User user, final Collection<? extends Document> values) {
         values.forEach(it -> {
             this.generateNewMetadataFor(user, it);
         });
@@ -114,6 +128,11 @@ public class MetadataServiceImpl implements MetadataService {
                 .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
                 .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
                 .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
+
+        //setando o historic
+        currentMetadata.getHistoric()
+                .setLastChangeBy(user)
+                .setDtChange(new Date());
 
         value.setMetadata(currentMetadata);
     }

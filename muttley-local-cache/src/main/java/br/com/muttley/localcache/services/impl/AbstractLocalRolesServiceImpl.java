@@ -8,7 +8,6 @@ import br.com.muttley.redis.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

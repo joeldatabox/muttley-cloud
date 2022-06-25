@@ -1,9 +1,11 @@
 package br.com.muttley.model;
 
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
@@ -14,11 +16,14 @@ import java.util.Date;
  * @project muttley-cloud
  */
 public class Historic {
-    @JsonSerialize(using = UserSerializer.class)
     @DBRef
+    @JsonSerialize(using = UserSerializer.class)
+    @JsonDeserialize(using = UserDeserializer.class)
     private User createdBy;
     private Date dtCreate;
     @DBRef
+    @JsonSerialize(using = UserSerializer.class)
+    @JsonDeserialize(using = UserDeserializer.class)
     private User lastChangeBy;
     private Date dtChange;
 

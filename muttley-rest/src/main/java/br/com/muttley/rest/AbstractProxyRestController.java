@@ -1,7 +1,6 @@
 package br.com.muttley.rest;
 
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -93,14 +92,6 @@ public abstract class AbstractProxyRestController<T extends Document> implements
         final T value = client.first();
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
         return ResponseEntity.ok(value);
-    }
-
-    @Override
-    @RequestMapping(value = "/{id}/historic", method = GET, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response) {
-        final Historic historic = client.loadHistoric(id);
-        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
-        return ResponseEntity.ok(historic);
     }
 
     @Override

@@ -4,7 +4,6 @@ import br.com.muttley.domain.service.impl.ServiceImpl;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
@@ -95,11 +94,6 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
 
     @Override
     public Long count(final User user, final Map<String, String> allRequestParams) {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public Historic loadHistoric(final User user, final String id) {
         throw new NotImplementedException();
     }
 

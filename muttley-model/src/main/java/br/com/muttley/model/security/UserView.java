@@ -1,7 +1,6 @@
 package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
@@ -32,7 +31,6 @@ public class UserView implements UserData, Document {
     @DBRef
     @JsonIgnore
     private Owner owner;
-    private Historic historic;
     private MetadataDocument metadata;
 
     public UserView() {

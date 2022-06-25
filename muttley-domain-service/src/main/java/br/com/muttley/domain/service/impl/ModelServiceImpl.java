@@ -1,27 +1,34 @@
 package br.com.muttley.domain.service.impl;
 
 import br.com.muttley.domain.service.ModelService;
-import br.com.muttley.domain.service.impl.utils.MetadataAndHistoricIdModel;
+import br.com.muttley.domain.service.impl.utils.MetadataAndIdModel;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
+import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.Document;
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.Model;
+import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
+import br.com.muttley.mongo.service.infra.AggregationUtils;
 import br.com.muttley.mongo.service.repository.CustomMongoRepository;
 import com.mongodb.BasicDBObject;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -56,10 +63,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         checkIdForSave(value);
         //setando o dono do registro
         value.setOwner(user);
-        //garantindo que o históriconão ficará nulo
-        value.setHistoric(this.createHistoric(user));
         //garantindo que o metadata ta preenchido
-        this.createMetaData(user, value);
+        this.metadataService.generateNewMetadataFor(user, value);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
@@ -83,9 +88,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         //verificando se realmente está criando um novo registro
         checkIdForSave(values);
         //garantindo que o metadata ta preenchido
-        this.createMetaData(user, values);
-        //garantindo que o históriconão ficará nulo
-        values.parallelStream().forEach(it -> it.setHistoric(this.createHistoric(user)));
+        this.metadataService.generateNewMetadataFor(user, values);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, values);
         //verificando precondições
@@ -110,10 +113,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
             throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         value.setOwner(user);
-        //gerando histórico de alteração
-        value.setHistoric(generateHistoricUpdate(user, repository.loadHistoric(user.getCurrentOwner(), value)));
         //gerando metadata de alteração
-        this.generateMetaDataUpdate(user, value);
+        this.metadataService.generateMetaDataUpdateFor(user, this.repository.loadMetaData(user.getCurrentOwner(), value), value);
         //processa regra de negocio antes de qualquer validação
         this.beforeUpdate(user, value);
         //verificando precondições
@@ -136,17 +137,16 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         this.checkIdForUpdate(values);
         //verificando se o registro realmente existe
 
-        final List<MetadataAndHistoricIdModel> metadatasAndHistorics = this.loadIdsAndMetadatasAndHisotricsFor(user, values);
+        final List<MetadataAndIdModel> metadatasAndIds = this.loadIdsAndMetadatasAndHisotricsFor(user, values);
         final Map<Boolean, List<T>> agroupedValues = values.stream()
                 .collect(groupingBy(it -> {
-                    final Optional<MetadataAndHistoricIdModel> itemOpt = metadatasAndHistorics
+                    final Optional<MetadataAndIdModel> itemOpt = metadatasAndIds
                             .parallelStream()
                             .filter(itMeta -> Objects.equals(it.getId(), itMeta.getId()))
                             .findFirst();
                     if (itemOpt.isPresent()) {
-                        final MetadataAndHistoricIdModel metadataAndHistoricIdModel = itemOpt.get();
-                        this.generateMetaDataUpdate(user, metadataAndHistoricIdModel.getMetadata(), it);
-                        it.setHistoric(this.generateHistoricUpdate(user, metadataAndHistoricIdModel.getHistoric()));
+                        final MetadataAndIdModel metadataAndIdModel = itemOpt.get();
+                        this.metadataService.generateMetaDataUpdateFor(user, metadataAndIdModel.getMetadata(), it);
                         return true;
                     }
                     return false;
@@ -189,22 +189,22 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         }
     }
 
-    private List<MetadataAndHistoricIdModel> loadIdsAndMetadatasAndHisotricsFor(final User user, final Collection<T> values) {
+    private List<MetadataAndIdModel> loadIdsAndMetadatasAndHisotricsFor(final User user, final Collection<T> values) {
         /**
          * db.getCollection("contas-pagar").aggregate([
          *     {$match:{"owner.$id":ObjectId("60cc8953279e841c0974da56"), _id:{$in:[ObjectId("60cca012279e8437442bc81c"), ObjectId("60cca012279e8437442bc81d")]}}},
-         *     {$project:{_id:1, metadata:1, historic:1}}
+         *     {$project:{_id:1, metadata:1}}
          * ])
          */
-        final AggregationResults<MetadataAndHistoricIdModel> ids = this.mongoTemplate.aggregate(
+        final AggregationResults<MetadataAndIdModel> ids = this.mongoTemplate.aggregate(
                 newAggregation(
                         match(where("owner.$id").is(user.getCurrentOwner().getObjectId())
                                 .and("id").in(
                                         values.parallelStream().map(it -> it.getObjectId()).collect(toSet())
                                 )),
-                        project("id", "metadata", "historic")
+                        project("id", "metadata")
                 ),
-                clazz, MetadataAndHistoricIdModel.class);
+                clazz, MetadataAndIdModel.class);
         if (ids == null || CollectionUtils.isEmpty(ids.getMappedResults())) {
             return Collections.emptyList();
         }
@@ -269,24 +269,6 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     }
 
     @Override
-    public Historic loadHistoric(final User user, final String id) {
-        final Historic historic = repository.loadHistoric(user.getCurrentOwner(), id);
-        if (isNull(historic)) {
-            throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
-        }
-        return historic;
-    }
-
-    @Override
-    public Historic loadHistoric(final User user, final T value) {
-        final Historic historic = repository.loadHistoric(user.getCurrentOwner(), value);
-        if (isNull(historic)) {
-            throw new MuttleyNotFoundException(clazz, "historic", "Nenhum registro encontrado");
-        }
-        return historic;
-    }
-
-    @Override
     public void deleteById(final User user, final String id) {
         this.beforeDelete(user, id);
         checkPrecondictionDelete(user, id);
@@ -325,16 +307,40 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
 
     @Override
     public Long count(final User user, final Map<String, String> allRequestParams) {
-        return this.repository.count(user.getCurrentOwner(), allRequestParams);
+        validateOwner(user.getCurrentOwner());
+
+
+        final AggregationResults<BasicAggregateResultCount> result = mongoTemplate.aggregate(
+                newAggregation(
+                        AggregationUtils.createAggregationsCount(
+                                this.entityMetaData,
+                                this.getFilterAggregationOperationByWorkteam(user),
+                                addOwnerQueryParam(user.getCurrentOwner(), allRequestParams),
+                                "result"
+                        )
+                ),
+                clazz, BasicAggregateResultCount.class);
+        return result.getUniqueMappedResult() != null ? result.getUniqueMappedResult().getResult() : 0l;
     }
 
     @Override
     public List<T> findAll(final User user, final Map<String, String> allRequestParams) {
-        final List<T> results = this.repository.findAll(user.getCurrentOwner(), allRequestParams);
-        if (CollectionUtils.isEmpty(results)) {
+        //validando se o usuário tem owner informado
+        this.validateOwner(user.getCurrentOwner());
+        //perando o filtro
+
+        final List<AggregationOperation> aggregateions = AggregationUtils.createAggregations(this.entityMetaData, null, addOwnerQueryParam(user.getCurrentOwner(), allRequestParams));
+        //adicionando filtro para agregação
+        aggregateions.addAll(this.getFilterAggregationOperationByWorkteam(user));
+
+        final AggregationResults<T> results = mongoTemplate.aggregate(
+                newAggregation(aggregateions), clazz, clazz
+        );
+
+        if (results == null || CollectionUtils.isEmpty(results.getMappedResults())) {
             throw new MuttleyNoContentException(clazz, "user", "não foi encontrado nenhum registro");
         }
-        return results;
+        return results.getMappedResults();
     }
 
     @Override
@@ -354,4 +360,38 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         }
     }
 
+
+    private final void validateOwner(final Owner owner) {
+        if (owner == null) {
+            throw new MuttleyRepositoryOwnerNotInformedException(this.clazz);
+        }
+    }
+
+    private final Map<String, String> addOwnerQueryParam(final Owner owner, final Map<String, String> queryParams) {
+        final Map<String, String> query = new LinkedHashMap<>(1);
+        query.put("owner.$id.$is", owner.getObjectId().toString());
+        if (queryParams != null) {
+            query.putAll(queryParams);
+        }
+        return query;
+    }
+
+    protected List<AggregationOperation> getFilterAggregationOperationByWorkteam(final User user) {
+        //se for o owner do sistema não faz sentido colocar restrição pois ele tem acesso a tudo
+        if (user.isOwner()) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(
+                match(where("metadata.historic.createdBy.$id").in(user.getWorkTeamDomain().getAllUsers().parallelStream().map(it -> it.getObjectId()).collect(toSet())))
+        );
+    }
+
+    protected List<Criteria> getFilterCriteriaByWorkteam(final User user) {
+        if (user.isOwner()) {
+            return null;
+        }
+        return Arrays.asList(
+                where("metadata.historic.createdBy.$id").in(user.getWorkTeamDomain().getAllUsers().parallelStream().map(it -> it.getObjectId()).collect(toSet()))
+        );
+    }
 }

@@ -1,6 +1,5 @@
 package br.com.muttley.security.server.controller;
 
-import br.com.muttley.model.Historic;
 import br.com.muttley.model.security.AccessPlan;
 import br.com.muttley.model.security.Authority;
 import br.com.muttley.rest.hateoas.resource.PageableResource;
@@ -96,17 +95,6 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         publishSingleResourceRetrievedEvent(this.eventPublisher, response);
 
         return ResponseEntity.ok(value);
-    }
-
-    @RequestMapping(value = "/{id}/historic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity loadHistoric(@PathVariable("id") final String id, final HttpServletResponse response,
-                                       @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
-        final Historic historic = service.loadHistoric(null, id);
-
-        publishSingleResourceRetrievedEvent(this.eventPublisher, response);
-
-        return ResponseEntity.ok(historic);
     }
 
     @RequestMapping(method = RequestMethod.GET)

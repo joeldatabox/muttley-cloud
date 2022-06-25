@@ -79,7 +79,7 @@ public class DateUtils {
         } else {
             today = ZonedDateTime.now(dateTime.getZone());
         }
-        return tofirstHour(today).isEqual(tofirstHour(dateTime));
+        return toFirstHour(today).isEqual(toFirstHour(dateTime));
     }
 
     public static Date toFirstHour(final Date date) {
@@ -94,7 +94,7 @@ public class DateUtils {
                 .withNano(0);
     }
 
-    public static ZonedDateTime tofirstHour(final ZonedDateTime dateTime) {
+    public static ZonedDateTime toFirstHour(final ZonedDateTime dateTime) {
         return dateTime
                 .withHour(0)
                 .withMinute(0)

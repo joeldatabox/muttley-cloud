@@ -3,15 +3,10 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.domain.service.Validator;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyConflictException;
-import br.com.muttley.headers.components.MuttleyCurrentTimezone;
-import br.com.muttley.headers.components.MuttleyCurrentVersion;
-import br.com.muttley.headers.components.MuttleyUserAgentName;
+import br.com.muttley.headers.services.MetadataService;
 import br.com.muttley.localcache.services.LocalDatabindingService;
 import br.com.muttley.model.BasicAggregateResult;
 import br.com.muttley.model.BasicAggregateResultCount;
-import br.com.muttley.model.Historic;
-import br.com.muttley.model.MetadataDocument;
-import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.security.KeyUserDataBinding;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
@@ -35,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -57,11 +51,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Service
 public class UserDataBindingServiceImpl implements UserDataBindingService {
     @Autowired
-    protected MuttleyCurrentTimezone currentTimezone;
-    @Autowired
-    protected MuttleyCurrentVersion currentVersion;
-    @Autowired
-    protected MuttleyUserAgentName userAgentName;
+    protected MetadataService metadataService;
     private final MongoTemplate mongoTemplate;
     private final UserDataBindingRepository repository;
     private final DocumentNameConfig documentNameConfig;
@@ -624,104 +614,10 @@ public class UserDataBindingServiceImpl implements UserDataBindingService {
     private void checkBasicInfos(final User user, final UserDataBinding userDataBinding) {
         userDataBinding.setOwner(user.getCurrentOwner());
         if (StringUtils.isEmpty(userDataBinding.getId())) {
-            userDataBinding.setHistoric(this.createHistoric(user));
-            this.createMetaData(user, userDataBinding);
+            this.metadataService.generateNewMetadataFor(user, userDataBinding);
         } else {
-            this.generateHistoricUpdate(user, this.repository.loadHistoric(userDataBinding), userDataBinding);
-            this.generateMetaDataUpdate(user, this.repository.loadMetadata(userDataBinding), userDataBinding);
+            this.metadataService.generateMetaDataUpdateFor(user, repository.loadMetadata(userDataBinding), userDataBinding);
         }
-    }
-
-    protected void createMetaData(final User user, final UserDataBinding value) {
-        //se não tiver nenhum metadata criado, vamos criar um
-        if (!value.containsMetadata()) {
-            value.setMetadata(new MetadataDocument()
-                    .setTimeZones(this.currentTimezone.getCurrentTimezoneDocument())
-                    .setVersionDocument(
-                            new VersionDocument()
-                                    .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
-                                    .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue())
-                                    .setOriginNameClientCreate(this.userAgentName.getCurrentValue())
-                                    .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
-                                    .setServerVersionCreate(this.currentVersion.getCurrenteFromServer())
-                                    .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
-                    ));
-        } else {
-            //se não tem um timezone válido, vamos criar um
-            if (!value.getMetadata().containsTimeZones()) {
-                value.getMetadata().setTimeZones(this.currentTimezone.getCurrentTimezoneDocument());
-            } else {
-                //se chegou aqui é sinal que já possui infos de timezones e devemos apenas checar e atualizar caso necessário
-
-                //O timezone atual informado é valido?
-                if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
-                    //adicionado a mesma info no createTimezone já que estamos criando um novo registro
-                    value.getMetadata().getTimeZones().setCreateTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
-                }
-
-                //adicionando infos de timezone do servidor
-                final String currentServerTimezone = this.currentTimezone.getCurrenteTimeZoneFromServer();
-                value.getMetadata().getTimeZones().setServerCreteTimeZone(currentServerTimezone);
-                value.getMetadata().getTimeZones().setServerCurrentTimeZone(currentServerTimezone);
-            }
-
-            //criando version valido
-            value.getMetadata().setVersionDocument(
-                    new VersionDocument()
-                            .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
-                            .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue())
-                            .setOriginNameClientCreate(this.userAgentName.getCurrentValue())
-                            .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
-                            .setServerVersionCreate(this.currentVersion.getCurrenteFromServer())
-                            .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
-            );
-
-
-        }
-    }
-
-    protected Historic createHistoric(final User user) {
-        final Date now = new Date();
-        return new Historic()
-                .setCreatedBy(user)
-                .setDtCreate(now)
-                .setLastChangeBy(user)
-                .setDtChange(now);
-    }
-
-    protected void generateMetaDataUpdate(final User user, final MetadataDocument currentMetadata, final UserDataBinding value) {
-        currentMetadata.getTimeZones().setServerCurrentTimeZone(this.currentTimezone.getCurrenteTimeZoneFromServer());
-
-
-        //se veio informações no registro, devemos aproveitar
-        if (value.containsMetadata()) {
-            if (value.getMetadata().containsTimeZones()) {
-                if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
-                    currentMetadata.getTimeZones().setCurrentTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
-                } else {
-                    currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue());
-                }
-            } else {
-                currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue());
-            }
-        } else {
-            currentMetadata.getTimeZones().setCurrentTimeZone(this.currentTimezone.getCurrentValue())
-                    .setServerCurrentTimeZone(this.currentTimezone.getCurrenteTimeZoneFromServer());
-        }
-        //setando versionamento
-        currentMetadata
-                .getVersionDocument()
-                .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
-                .setOriginNameClientLastUpdate(this.userAgentName.getCurrentValue())
-                .setOriginVersionClientLastUpdate(this.currentVersion.getCurrentValue());
-
-        value.setMetadata(currentMetadata);
-    }
-
-    protected void generateHistoricUpdate(final User user, final Historic historic, final UserDataBinding userDataBinding) {
-        userDataBinding.setHistoric(historic
-                .setLastChangeBy(user)
-                .setDtChange(new Date()));
     }
 
     protected User findByUserName(final String userName) {

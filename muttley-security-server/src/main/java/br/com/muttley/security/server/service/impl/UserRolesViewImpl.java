@@ -1,9 +1,9 @@
 package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.model.security.Passaport;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.Passaport;
 import br.com.muttley.security.server.events.ConfigFirstOwnerPreferenceEvent;
 import br.com.muttley.security.server.service.UserRolesView;
 import com.mongodb.BasicDBObject;
@@ -46,6 +46,12 @@ public class UserRolesViewImpl implements UserRolesView {
     public Set<Role> findByUser(final User user) {
         if (!user.containsPreference(OWNER_PREFERENCE)) {
             this.eventPublisher.publishEvent(new ConfigFirstOwnerPreferenceEvent(user));
+        }
+
+        //verificando se o usuário atual é o master
+        if (user.equals(user.getCurrentOwner().getUserMaster())) {
+            //se chegou aqui logo é o owner do sistem
+            return Role.getValues();
         }
 
         /*final UserRolesViewResul result = this.template.findOne(new Query(

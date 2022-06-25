@@ -4,6 +4,7 @@ import br.com.muttley.localcache.services.LocalDatabindingService;
 import br.com.muttley.localcache.services.LocalOwnerService;
 import br.com.muttley.localcache.services.LocalRolesService;
 import br.com.muttley.localcache.services.LocalUserPreferenceService;
+import br.com.muttley.localcache.services.LocalWorkTeamService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.OwnerData;
 import br.com.muttley.model.security.User;
@@ -26,13 +27,15 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
     private final LocalOwnerService ownerService;
     private final LocalRolesService rolesService;
     private final LocalDatabindingService databindingService;
+    private final LocalWorkTeamService localWorkTeamService;
 
     @Autowired
-    public UserAfterCacheLoadListener(final LocalUserPreferenceService localUserPreferenceService, final LocalOwnerService ownerService, final LocalRolesService rolesService, final LocalDatabindingService databindingService) {
+    public UserAfterCacheLoadListener(final LocalUserPreferenceService localUserPreferenceService, final LocalOwnerService ownerService, final LocalRolesService rolesService, final LocalDatabindingService databindingService, LocalWorkTeamService localWorkTeamService) {
         this.localUserPreferenceService = localUserPreferenceService;
         this.ownerService = ownerService;
         this.rolesService = rolesService;
         this.databindingService = databindingService;
+        this.localWorkTeamService = localWorkTeamService;
     }
 
     @Override
@@ -45,6 +48,7 @@ public class UserAfterCacheLoadListener implements ApplicationListener<UserAfter
         user.setCurrentOwner((OwnerData) user.getPreferences().get(OWNER_PREFERENCE).getResolved());
         user.setAuthorities(this.rolesService.loadCurrentRoles(event.getJwtToken(), event.getUser()));
         user.setDataBindings(this.databindingService.getUserDataBindings(token, user));
+        user.setWorkTeamDomain(this.localWorkTeamService.getWorkTeamDomain(token, user));
 
         /*final List<UserDataBinding> dataBindings = dataBindingService.list();
         try {

@@ -2,8 +2,8 @@ package br.com.muttley.security.server.controller;
 
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Passaport;
-import br.com.muttley.security.server.service.UserService;
 import br.com.muttley.security.server.service.PassaportService;
+import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
