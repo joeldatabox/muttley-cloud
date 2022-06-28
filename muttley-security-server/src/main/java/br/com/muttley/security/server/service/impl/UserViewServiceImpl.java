@@ -20,9 +20,11 @@ import org.springframework.util.StringUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -104,11 +106,34 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
 
     @Override
     public UserView findByUserName(final String userName, final String idOwner) {
-        try {
-            return this.list(userName, idOwner).get(0);
-        } catch (MuttleyNoContentException ex) {
+        final List<AggregationOperation> operations = new LinkedList<>(asList(
+                match(
+                        new Criteria().orOperator(
+                                where("name").is(userName),
+                                where("userName").is(userName),
+                                where("email").is(userName),
+                                where("nickUsers").is(userName)
+                        )
+                )
+        ));
+
+        if (!StringUtils.isEmpty(idOwner)) {
+            operations.add(
+                    match(
+                            where("owner.$id").is(new ObjectId(idOwner))
+                    )
+            );
+        }
+
+        this.mongoTemplate.aggregate(newAggregation(operations), this.documentNameConfig.getNameViewCollectionUser(), UserView.class);
+
+        final AggregationResults<UserView> results = this.mongoTemplate.aggregate(
+                newAggregation(operations), this.documentNameConfig.getNameViewCollectionUser(), UserView.class
+        );
+        if (results == null || results.getUniqueMappedResult() == null) {
             throw new MuttleyNotFoundException(UserView.class, "userName", "Usuário não encontrado");
         }
+        return results.getUniqueMappedResult();
     }
 
     @Override
