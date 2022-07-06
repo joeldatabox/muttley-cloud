@@ -5,7 +5,6 @@ import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.fill.JRSwapFileVirtualizer;
 import net.sf.jasperreports.engine.util.JRSwapFile;
-import org.springframework.scheduling.annotation.Async;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,13 +29,8 @@ public abstract class AbstractMuttleyReport implements MuttleyReport {
     }
 
     @Override
-    public String getFileForSubReport() {
-        return null;
-    }
-
-    @Override
     public InputStream getSourceReport() {
-        return this.getClass().getResourceAsStream(this.getFileReport());
+        return this.getClass().getResourceAsStream(this.builder.getFileReport());
     }
 
     @Override

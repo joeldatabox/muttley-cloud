@@ -90,4 +90,9 @@ public abstract class AbstractMuttleyReportBuilder<T extends MuttleyReportBuilde
         this.addParam(CURRENT_TIMEZONE, timezone.getCurrentTimezoneFromRequestOrServer());
         return this.INSTANCE;
     }
+
+    @Override
+    public String getFileForSubReport() {
+        return null;
+    }
 }

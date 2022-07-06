@@ -13,9 +13,6 @@ import java.util.Map;
  * @project muttley-cloud
  */
 public interface MuttleyReport {
-    String getFileForSubReport();
-
-    String getFileReport();
 
     InputStream getSourceReport();
 
