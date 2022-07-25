@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static br.com.muttley.mongo.service.infra.util.ListReduceBuilder.reduce;
 import static br.com.muttley.mongo.service.infra.util.MapBuilder.map;
@@ -79,20 +80,20 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     public void beforeSave(User user, WorkTeam workTeam) {
         //garantindo informações cruciais
         workTeam.setOwner(user);
-        this.removeUserMasterFromMembers(user, workTeam);
+        this.removeUsersMasterFromMembers(user, workTeam);
 
         super.beforeSave(user, workTeam);
     }
 
     @Override
     public void afterSave(User user, WorkTeam value) {
-        this.expire(value.getUserMaster());
+        this.expire(value);
         super.afterSave(user, value);
     }
 
     @Override
     public void afterSave(User user, Collection<WorkTeam> values) {
-        values.forEach(it -> this.expire(it.getUserMaster()));
+        values.forEach(this::expire);
         super.afterSave(user, values);
     }
 
@@ -108,7 +109,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     public void beforeUpdate(User user, WorkTeam workTeam) {
         //garantindo que não será alterado informações cruciais
         workTeam.setOwner(user.getCurrentOwner());
-        this.removeUserMasterFromMembers(user, workTeam);
+        this.removeUsersMasterFromMembers(user, workTeam);
         super.beforeUpdate(user, workTeam);
     }
 
@@ -122,25 +123,25 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
     @Override
     public void afterUpdate(User user, WorkTeam value) {
-        this.expire(value.getUserMaster());
+        this.expire(value);
         super.afterUpdate(user, value);
     }
 
     @Override
     public void afterUpdate(User user, Collection<WorkTeam> values) {
-        values.forEach(it -> this.expire(it.getUserMaster()));
+        values.forEach(it -> this.expire(it));
         super.afterUpdate(user, values);
     }
 
     @Override
     public WorkTeamDomain loadDomain(final User user) {
-        final List<AggregationOperation> operations = this.createBasicQueryWorkTeamDomain(user);
+        final List<AggregationOperation> operations = this.createBasicQueryViewWorkTeamDomain(user);
         //adicionando o critério de filtro inicial
-        operations.add(0, match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("userMaster.$id").is(user.getObjectId())));
+        operations.add(0, match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("usersMaster.$id").is(user.getObjectId())));
 
         final AggregationResults<WorkTeamDomain> results = this.mongoTemplate.aggregate(
                 newAggregation(operations),
-                WorkTeam.class,
+                documentNameConfig.getNameViewCollectionWorkTeam(),
                 WorkTeamDomain.class
         );
         final WorkTeamDomain domain = results.getUniqueMappedResult();
@@ -211,30 +212,30 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         return workTeams;
     }
 
-    private List<AggregationOperation> createBasicQueryWorkTeamDomain(final User user) {
+    private List<AggregationOperation> createBasicQueryViewWorkTeamDomain(final User user) {
         /**
-         * var $owner = ObjectId("5e28b3e3637e580001e465d6");
-         * db.getCollection("muttley-work-teams").aggregate([
-         *
-         *     {$match:{"owner.$id":$owner,"userMaster.$id":ObjectId("5e28b392637e580001e465d4")}},
+         * var $owner = ObjectId("61a97c9cb19886c43a02cac8");
+         * var $userMaster = ObjectId("61aa06375dab550007905ed5");
+         * db.getCollection("view-muttley-work-teams").aggregate([
+         *     {$match:{"owner.$id":$owner,"usersMaster.$id":$userMaster}},
          *     //fazendo as consulta recursivamente para montar as dependencias
          *     {$graphLookup:{
          *         from:"muttley-work-teams",
          *         startWith:"$members",
          *         connectFromField: "members",
-         *         connectToField:"userMaster",
+         *         connectToField:"usersMaster",
          *         as: "treeTeams",
          *         restrictSearchWithMatch:{"owner.$id": $owner}
          *     }},
          *     //pengando todos os subordinados encontrado e agrupando
-         *     {$project:{userMaster:1, members:1, editDataFromMembers:1, membersTree:{$reduce:{
+         *     {$project:{usersMaster:1, members:1, editDataFromMembers:1, membersTree:{$reduce:{
          *         input: "$treeTeams",
          *         initialValue:[],
-         *         in:{$setUnion:["$$value", "$$this.members", ["$$this.userMaster"]]}
+         *         in:{$setUnion:["$$value", "$$this.members", ["$$this.usersMaster"]]}
          *     }}}},
          *     //propagando as permissoes de edicao entre os membros
          *     {$project:{
-         *         userMaster:1,
+         *         usersMaster:1,
          *         members:{$map:{
          *             input: "$members",
          *             as: "member",
@@ -247,11 +248,11 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          *         }},
          *     }},
          *     //agrupando subordinados encontrados juntamente com os membros atuais
-         *     {$project:{userMaster:1, members:{$setUnion:["$membersTree", "$members"]}}},
+         *     {$project:{usersMaster:1, members:{$setUnion:["$membersTree", "$members"]}}},
          *     //agrupando com demais work-teams que tenha sido encontrados
-         *     {$group:{_id:"$userMaster", members:{$addToSet:"$members"}}},
+         *     {$group:{_id:"$usersMaster", members:{$addToSet:"$members"}}},
          *     //fazendo o processo de reduce para resultar em um array simple de usuarios
-         *     {$project:{userMaster:"$_id", members:{$reduce:{
+         *     {$project:{usersMaster:"$_id", members:{$reduce:{
          *         input: "$members",
          *         initialValue:[],
          *         in:{$setUnion:["$$value", "$$this"]}
@@ -259,39 +260,39 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          *     //distrinchando os membros agrupados para garantir que usuários com não tenha mais de uma autorização
          *     {$unwind:"$members"},
          *     //agrupando por autorização
-         *     {$group:{ _id:{user:"$members.user", userMaster:"$userMaster"}, canEdit:{$addToSet:"$members.canEdit"}}},
+         *     {$group:{ _id:{user:"$members.user", usersMaster:"$usersMaster"}, canEdit:{$addToSet:"$members.canEdit"}}},
          *     //vamos filtrar as autorizações agrupadas e pegar apenas as que estão com true
-         *     {$project:{userMaster:"$_id.userMaster", member:"$_id.user", canEdit: {$filter:{
+         *     {$project:{usersMaster:"$_id.usersMaster", member:"$_id.user", canEdit: {$filter:{
          *         input:"$canEdit",
          *         as: "item",
          *         cond:"$$item"
          *     }}}},
          *     //garantido que os itens que não foram preenchidos receba o devido status de false
-         *     {$project:{userMaster:"$_id.userMaster", member:"$_id.user", canEdit: {$cond:[{$eq:[{$size:"$canEdit"}, 0]},false, true]}}},
+         *     {$project:{usersMaster:"$_id.usersMaster", member:"$_id.user", canEdit: {$cond:[{$eq:[{$size:"$canEdit"}, 0]},false, true]}}},
          *     //agrupando por user master
-         *     {$group:{ _id:"$userMaster", members:{$addToSet:{user:"$member", canEdit:"$canEdit"}}}},
+         *     {$group:{ _id:"$usersMaster", members:{$addToSet:{user:"$member", canEdit:"$canEdit"}}}},
          *     //ajustando os dados
-         *     {$project:{userMaster:"$_id", members:1}}
+         *     {$project:{usersMaster:"$_id", members:1}}
          * ])
          */
         return new LinkedList<>(asList(
                 //fazendo as consulta recursivamente para montar as dependencias
-                graphLookup(documentNameConfig.getNameCollectionWorkTeam())
+                graphLookup(documentNameConfig.getNameViewCollectionWorkTeam())
                         .startWith("$members")
                         .connectFrom("members")
-                        .connectTo("userMaster")
+                        .connectTo("usersMaster")
                         .restrict(where("owner.$id").is(user.getCurrentOwner().getObjectId()))
                         .as("treeTeams"),
                 //pengando todos os subordinados encontrado e agrupando
-                project("userMaster", "members", "editDataFromMembers").and(
+                project("usersMaster", "members", "editDataFromMembers").and(
                         reduce(
                                 "$treeTeams",
                                 asList(),
-                                setUnion("$$value", "$$this.members", asList("$$this.userMaster"))
+                                setUnion("$$value", "$$this.members", asList("$$this.usersMaster"))
                         )
                 ).as("membersTree"),
                 //propagando as permissoes de edicao entre os membros
-                project("userMaster").and(
+                project("usersMaster").and(
                         map(
                                 "$members",
                                 "member",
@@ -305,38 +306,39 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                         )
                 ).as("membersTree"),
                 //agrupando subordinados encontrados juntamente com os membros atuais
-                project("userMaster").and(setUnion("$membersTree", "$members")).as("members"),
+                project("usersMaster").and(setUnion("$membersTree", "$members")).as("members"),
                 //agrupando com demais work-teams que tenha sido encontrados
-                group("$userMaster").addToSet("members").as("members"),
+                group("$usersMaster").addToSet("members").as("members"),
                 //fazendo o processo de reduce para resultar em um array simple de usuarios
-                project().and("$_id").as("userMaster").and(reduce("$members", asList(), setUnion("$$value", "$$this"))).as("members"),
+                project().and("$_id").as("usersMaster").and(reduce("$members", asList(), setUnion("$$value", "$$this"))).as("members"),
                 //distrinchando os membros agrupados para garantir que usuários com não tenha mais de uma autorização
                 unwind("$members"),
                 //agrupando por autorização
-                group(bind("user", "$members.user").and("userMaster", "$userMaster")).addToSet("members.canEdit").as("canEdit"),
+                group(bind("user", "$members.user").and("usersMaster", "$usersMaster")).addToSet("members.canEdit").as("canEdit"),
                 //vamos filtrar as autorizações agrupadas e pegar apenas as que estão com true
-                project().and("$_id.userMaster").as("userMaster").and("$_id.user").as("member").and(filter("$canEdit").as("item").by("$$item")).as("canEdit"),
+                project().and("$_id.usersMaster").as("usersMaster").and("$_id.user").as("member").and(filter("$canEdit").as("item").by("$$item")).as("canEdit"),
                 //garantido que os itens que não foram preenchidos receba o devido status de false
-                project("userMaster", "member").and(
+                project("usersMaster", "member").and(
                         when(
                                 valueOf(lengthOfArray("$canEdit")).equalToValue(0)
                         ).then(false).otherwise(true)
                 ).as("canEdit"),
                 //agrupando por user master
-                group("userMaster").addToSet(new BasicDBObject("user", "$member").append("canEdit", "$canEdit")).as("members"),
-                //ajustando os dados
+                group("usersMaster").addToSet(new BasicDBObject("user", "$member").append("canEdit", "$canEdit")).as("members"),
+                //ajustando os dados para retornar no padrão da collection e nao da view
                 project("members").and("_id").as("userMaster")
         ));
     }
 
     /**
-     * Precisamos garantir que o usuário master não estará jundo listado aos seus membros
+     * Precisamos garantir que o usuários master não estará jundo listado aos seus membros
      */
-    private void removeUserMasterFromMembers(final User user, final WorkTeam workTeam) {
+    private void removeUsersMasterFromMembers(final User user, final WorkTeam workTeam) {
+
         workTeam.setMembers(
                 workTeam.getMembers()
                         .parallelStream()
-                        .filter(it -> !it.equals(workTeam.getUserMaster()))
+                        .filter(it -> workTeam.getUsersMaster().parallelStream().filter(iit -> it.equals(iit)).count() == 0)
                         .collect(toSet())
         );
     }
@@ -370,8 +372,13 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                 final Map<String, Object> details = new HashMap<>();
 
                 //verificando o user master
-                if (workTeam.getUserMaster() != null && !this.userBaseService.hasBeenIncludedAnyGroup(user, workTeam.getUserMaster())) {
-                    details.put("userMaster", "O usuário master não está presente na base de usuário");
+                if (!workTeam.usersMasterIsEmpty()) {
+                    workTeam.getUsersMaster()
+                            .stream()
+                            .filter(it -> !this.userBaseService.hasBeenIncludedAnyGroup(user, it))
+                            .forEach(it -> {
+                                details.put("usersMaster." + it.getUserName(), "O usuário " + it.getName() + " não está presente na base de dados");
+                            });
                 }
 
                 //verificando demais membros
@@ -388,27 +395,27 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     private void checkCircularDependence(final User user, final WorkTeam workTeam) {
-        final List<AggregationOperation> operations = this.createBasicQueryWorkTeamDomain(user);
+        final List<AggregationOperation> operations = this.createBasicQueryViewWorkTeamDomain(user);
         //para realizar a checkagem de dependencia circular, precisamos verificar se os membros estão acima do usermaster
         //para isso devemos buscar os membro como userMaster e o userMaster atual não pode ser listado como membro na consulta
         operations.add(0,
                 match(
                         where("owner.$id").is(user.getCurrentOwner().getObjectId())
                                 //filtrando os mebro como user master
-                                .and("userMaster.$id").in(workTeam.getMembers().parallelStream().map(User::getObjectId).collect(toSet()))
+                                .and("usersMaster.$id").in(workTeam.getMembers().parallelStream().map(User::getObjectId).collect(toSet()))
                 )
         );
 
         operations.addAll(
                 asList(
-                        match(where("members.$id").is(workTeam.getUserMaster().getObjectId())),
+                        match(where("members.$id").is(workTeam.getUsersMaster().parallelStream().map(User::getObjectId).collect(toSet()))),
                         Aggregation.count().as("result")
                 )
         );
 
         final AggregationResults<BasicAggregateResultCount> globalResults = this.mongoTemplate.aggregate(
                 newAggregation(operations),
-                WorkTeam.class,
+                documentNameConfig.getNameViewCollectionWorkTeam(),
                 BasicAggregateResultCount.class
         );
 
@@ -428,7 +435,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                         match(
                                 where("owner.$id").is(user.getCurrentOwner().getObjectId())
                                         //filtrando os mebro como user master
-                                        .and("userMaster.$id").is(it.getObjectId())
+                                        .and("usersMaster.$id").is(it.getObjectId())
                         )
                 );
 
@@ -452,8 +459,10 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     /**
      * Expirando itens presente no cache do serviço
      */
-    private void expire(final User user) {
-        //deletando item do cache
-        this.redisService.delete(LocalWorkTeamService.getBasicKey(user));
+    private void expire(final WorkTeam workTeam) {
+        workTeam.getUsersMaster().forEach(it -> {
+            //deletando item do cache
+            this.redisService.delete(LocalWorkTeamService.getBasicKey(it));
+        });
     }
 }

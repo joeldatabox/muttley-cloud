@@ -51,7 +51,7 @@ public abstract class AbstractMuttleyReport implements MuttleyReport {
     public void print(final OutputStream outputStream) {
         //criando o virtualizador de cache para impressão
         final JRSwapFileVirtualizer virtualizer = new JRSwapFileVirtualizer(
-                2,
+                1,
                 new JRSwapFile(getProperty("java.io.tmpdir"), 1024, 100),
                 true
         );

@@ -4,6 +4,7 @@ import br.com.muttley.model.View;
 import br.com.muttley.mongo.service.config.source.ViewSource;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.config.view.source.ViewMuttleyUsers;
+import br.com.muttley.security.server.config.view.source.ViewMuttleyWorkTeams;
 import com.mongodb.MongoClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +39,7 @@ public class ViewConfig implements ApplicationListener<ContextRefreshedEvent> {
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
-            //createView(new ViewMuttleyWorkTeam(this.documentNameConfig));
+            createView(new ViewMuttleyWorkTeams(this.documentNameConfig));
             createView(new ViewMuttleyUsers(this.documentNameConfig));
             //createView(new ViewMuttleyWorkTeamRolesUser(this.documentNameConfig));
         } catch (final Exception ex) {
