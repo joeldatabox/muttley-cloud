@@ -33,7 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static br.com.muttley.mongo.service.infra.util.ListReduceBuilder.reduce;
 import static br.com.muttley.mongo.service.infra.util.MapBuilder.map;
@@ -80,7 +79,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     public void beforeSave(User user, WorkTeam workTeam) {
         //garantindo informações cruciais
         workTeam.setOwner(user);
-        this.removeUsersMasterFromMembers(user, workTeam);
+        //this.removeUsersMasterFromMembers(user, workTeam);
 
         super.beforeSave(user, workTeam);
     }
@@ -102,6 +101,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         this.checkOwnerIsPresent(user, workTeam);
         this.checkUsersHasBeenPresent(user, workTeam);
         this.checkCircularDependence(user, workTeam);
+        this.checkUsersMasterHasBeenInMembers(user, workTeam);
         super.checkPrecondictionSave(user, workTeam);
     }
 
@@ -109,7 +109,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     public void beforeUpdate(User user, WorkTeam workTeam) {
         //garantindo que não será alterado informações cruciais
         workTeam.setOwner(user.getCurrentOwner());
-        this.removeUsersMasterFromMembers(user, workTeam);
+        //this.removeUsersMasterFromMembers(user, workTeam);
         super.beforeUpdate(user, workTeam);
     }
 
@@ -118,6 +118,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         this.checkOwnerIsPresent(user, workTeam);
         this.checkUsersHasBeenPresent(user, workTeam);
         this.checkCircularDependence(user, workTeam);
+        this.checkUsersMasterHasBeenInMembers(user, workTeam);
         super.checkPrecondictionUpdate(user, workTeam);
     }
 
@@ -333,7 +334,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     /**
      * Precisamos garantir que o usuários master não estará jundo listado aos seus membros
      */
-    private void removeUsersMasterFromMembers(final User user, final WorkTeam workTeam) {
+    /*private void removeUsersMasterFromMembers(final User user, final WorkTeam workTeam) {
 
         workTeam.setMembers(
                 workTeam.getMembers()
@@ -341,7 +342,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                         .filter(it -> workTeam.getUsersMaster().parallelStream().filter(iit -> it.equals(iit)).count() == 0)
                         .collect(toSet())
         );
-    }
+    }*/
 
     private void checkOwnerIsPresent(final User user, final WorkTeam workTeam) {
         final Owner owner = user.getCurrentOwner();
@@ -456,13 +457,27 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
     }
 
+    private void checkUsersMasterHasBeenInMembers(final User user, final WorkTeam workTeam) {
+        //verificando tem usuários masters como membros
+        final Set<User> users = workTeam.getUsersMaster().parallelStream()
+                .filter(it -> workTeam.getMembers().contains(it))
+                .collect(toSet());
+        if (!users.isEmpty()) {
+            final MuttleyBadRequestException exception = new MuttleyBadRequestException(WorkTeam.class, "members", "Gestores não podem estar presentes como membros a serem geridos");
+            exception.addDetails("members", users.parallelStream().map(User::getName).collect(toSet()));
+            throw exception;
+        }
+    }
+
+
     /**
      * Expirando itens presente no cache do serviço
      */
     private void expire(final WorkTeam workTeam) {
-        workTeam.getUsersMaster().forEach(it -> {
+        redisService.deleteByExpression(LocalWorkTeamService.getBasicKeyExpressionOwner(workTeam.getOwner()) + "*");
+        /*workTeam.getUsersMaster().forEach(it -> {
             //deletando item do cache
-            this.redisService.delete(LocalWorkTeamService.getBasicKey(it));
-        });
+            this.redisService.delete(LocalWorkTeamService.getBasicKey(it.getCurrentOwner(), it));
+        });*/
     }
 }

@@ -31,7 +31,7 @@ public class LocalWorkTeamServiceImpl extends AbstractLocalWorkTemaServiceImpl i
     public WorkTeamDomain getWorkTeamDomain(JwtToken token, User user) {
         final WorkTeamDomain workTeamDomain;
         //verificando se existe esse registro em cache
-        if (this.redisService.hasKey(getBasicKey(user))) {
+        if (this.redisService.hasKey(getBasicKey(user.getCurrentOwner(), user))) {
             workTeamDomain = this.loadWorkTeamDomainInCache(user);
         } else {
             //recuperando o workteamdomaina do servidor

@@ -29,8 +29,8 @@ public class LocalWorkTeamServiceImpl extends AbstractLocalWorkTemaServiceImpl {
     @Override
     public WorkTeamDomain getWorkTeamDomain(JwtToken token, User user) {
         final WorkTeamDomain workTeamDomain;
-        if (this.redisService.hasKey(getBasicKey(user))) {
-            workTeamDomain = (WorkTeamDomain) redisService.get(getBasicKey(user));
+        if (this.redisService.hasKey(getBasicKey(user.getCurrentOwner(), user))) {
+            workTeamDomain = (WorkTeamDomain) redisService.get(getBasicKey(user.getCurrentOwner(), user));
         } else {
             workTeamDomain = service.loadDomain(user);
             this.save(token, user, workTeamDomain);
