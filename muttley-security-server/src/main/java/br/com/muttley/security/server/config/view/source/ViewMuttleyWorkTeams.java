@@ -21,8 +21,8 @@ public class ViewMuttleyWorkTeams implements ViewSource {
     private final String DESCRIPTION = "A view foi criada para facilitar o processo de listagem de workteams por userMaster. O operador $graphLookup não aceita trabalhar com array, logo, se faz necessário dar um $unwind para facilitar o processo";
 
     public ViewMuttleyWorkTeams(final DocumentNameConfig documentNameConfig) {
-        this.NAME = documentNameConfig.getNameViewCollectionPassaport();
-        this.SOURCE = documentNameConfig.getNameCollectionPassaport();
+        this.NAME = documentNameConfig.getNameViewCollectionWorkTeam();
+        this.SOURCE = documentNameConfig.getNameCollectionWorkTeam();
     }
 
 

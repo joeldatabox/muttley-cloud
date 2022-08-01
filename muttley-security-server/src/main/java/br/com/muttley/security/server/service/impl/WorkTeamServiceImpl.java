@@ -343,7 +343,6 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                         .collect(toSet())
         );
     }*/
-
     private void checkOwnerIsPresent(final User user, final WorkTeam workTeam) {
         final Owner owner = user.getCurrentOwner();
         final User userMaster;
@@ -409,7 +408,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
         operations.addAll(
                 asList(
-                        match(where("members.$id").is(workTeam.getUsersMaster().parallelStream().map(User::getObjectId).collect(toSet()))),
+                        match(where("members.user.$id").in(workTeam.getUsersMaster().parallelStream().map(User::getObjectId).collect(toSet()))),
                         Aggregation.count().as("result")
                 )
         );
