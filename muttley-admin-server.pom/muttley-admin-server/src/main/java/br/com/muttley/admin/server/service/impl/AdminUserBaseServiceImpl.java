@@ -7,6 +7,9 @@ import br.com.muttley.admin.server.service.AdminUserDataBindingService;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.model.BasicAggregateResultCount;
+import br.com.muttley.model.MetadataDocument;
+import br.com.muttley.model.TimeZoneDocument;
+import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.admin.AdminOwner;
 import br.com.muttley.model.admin.AdminUserBase;
 import br.com.muttley.model.security.Owner;
@@ -24,6 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -41,7 +45,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
+import static br.com.muttley.model.TimeZoneDocument.getTimezoneFromId;
 import static br.com.muttley.model.security.Role.ROLE_USER_BASE_CREATE;
 import static java.util.Arrays.asList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
@@ -104,7 +110,11 @@ public class AdminUserBaseServiceImpl extends AdminServiceImpl<AdminUserBase> im
         checkIdForSave(value);
         //garantindo que o metadata ta preenchido
         //this.createMetaData(user, value);
-        this.metadataService.generateNewMetadataFor(user, value);
+        try {
+            this.metadataService.generateNewMetadataFor(user, value);
+        } catch (BeanCreationException ex) {
+            this.generateLocalMetadata(user, value);
+        }
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
@@ -117,6 +127,18 @@ public class AdminUserBaseServiceImpl extends AdminServiceImpl<AdminUserBase> im
         this.afterSave(user, otherValue);
         //valor salvo
         return otherValue;
+    }
+
+    /**
+     * Gera o metadatalocal caso estejamos fora do contexto de requisição
+     */
+    private void generateLocalMetadata(final User user, final AdminUserBase value) {
+        final MetadataDocument metadataDocument = new MetadataDocument(user);
+        final TimeZone tz = TimeZone.getDefault();
+        final String timezone = getTimezoneFromId(tz.getID());
+        metadataDocument.setTimeZones(new TimeZoneDocument(timezone, timezone, timezone, timezone));
+        metadataDocument.setVersionDocument(new VersionDocument());
+        value.setMetadata(metadataDocument);
     }
 
     //@Override

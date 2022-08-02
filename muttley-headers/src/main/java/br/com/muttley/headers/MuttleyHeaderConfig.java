@@ -62,6 +62,7 @@ public class MuttleyHeaderConfig {
     }
 
     @Bean
+    @Primary
     public MetadataService getMetadataService() {
         return new MetadataServiceImpl();
     }
