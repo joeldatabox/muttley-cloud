@@ -26,6 +26,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>br.com.muttley</groupId>
             <artifactId>muttley-exception</artifactId>
             <scope>provided</scope>

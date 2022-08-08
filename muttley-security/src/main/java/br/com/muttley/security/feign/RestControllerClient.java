@@ -25,6 +25,9 @@ public interface RestControllerClient<T extends Serializable> {
     @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE})
     T save(@RequestBody T value, @RequestParam(required = false, value = "returnEntity", defaultValue = "") String returnEntity);
 
+    @RequestMapping(method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE})
+    T save(@RequestBody T value);
+
     @RequestMapping(value = "/{id}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
     T update(@PathVariable("id") String id, @RequestBody T model);
 

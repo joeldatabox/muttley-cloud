@@ -29,9 +29,11 @@ import java.util.Map;
 @Service
 public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.security.server.service.JwtTokenUtilService {
 
-    static final String CLAIM_KEY_USERNAME = "sub";
-    static final String CLAIM_KEY_AUDIENCE = "audience";
-    static final String CLAIM_KEY_CREATED = "created";
+    private static final String CLAIM_KEY_USERNAME = "sub";
+    private static final String CLAIM_KEY_AUDIENCE = "audience";
+    private static final String CLAIM_KEY_CREATED = "created";
+
+    private static final String CLAIM_KEY_DETAILS = "details";
 
     private static final String AUDIENCE_UNKNOWN = "unknown";
     private static final String AUDIENCE_WEB = "web";
@@ -143,19 +145,35 @@ public class JwtTokenUtilServiceImpl implements Serializable, br.com.muttley.sec
 
     @Override
     public final String generateToken(final UserDetails userDetails, Device device) {
+        return generateToken(userDetails, device, null);
+    }
+
+    @Override
+    public final String generateToken(final UserDetails userDetails, final Device device, Map<String, Object> details) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
         claims.put(CLAIM_KEY_AUDIENCE, generateAudience(device));
         claims.put(CLAIM_KEY_CREATED, Instant.now().get(ChronoField.INSTANT_SECONDS));
+        if (details != null) {
+            claims.put(CLAIM_KEY_DETAILS, details);
+        }
         return generateToken(claims);
     }
 
     @Override
     public String generateToken(final User user, final Device device) {
+        return generateToken(user, device, null);
+    }
+
+    @Override
+    public String generateToken(final User user, final Device device, final Map<String, Object> details) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(CLAIM_KEY_USERNAME, user.getUserName());
         claims.put(CLAIM_KEY_AUDIENCE, generateAudience(device));
         claims.put(CLAIM_KEY_CREATED, new Date());
+        if (details != null) {
+            claims.put(CLAIM_KEY_DETAILS, details);
+        }
         return generateToken(claims);
     }
 

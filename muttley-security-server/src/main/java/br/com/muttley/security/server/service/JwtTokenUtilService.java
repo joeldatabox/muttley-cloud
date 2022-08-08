@@ -6,6 +6,7 @@ import org.springframework.mobile.device.Device;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author Joel Rodrigues Moreira on 19/02/20.
@@ -21,9 +22,13 @@ public interface JwtTokenUtilService {
 
     String getAudienceFromToken(String token);
 
-    String generateToken(UserDetails userDetails, Device device);
+    String generateToken(final UserDetails userDetails, final Device device);
+
+    String generateToken(final UserDetails userDetails, final Device device, Map<String, Object> details);
 
     String generateToken(User user, Device device);
+
+    String generateToken(User user, Device device, Map<String, Object> details);
 
     boolean canTokenBeRefreshed(String token, Date lastPasswordReset);
 
