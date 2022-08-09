@@ -6,7 +6,7 @@ Adicione a dependência em seu serviço de configuração;
     <dependency>
         <groupId>br.com.muttley</groupId>
         <artifactId>muttley-discovery-server</artifactId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>${revision}</version>
     </dependency>
 ----
 
