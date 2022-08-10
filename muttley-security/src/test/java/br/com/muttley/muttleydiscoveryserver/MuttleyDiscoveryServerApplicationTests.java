@@ -5,6 +5,7 @@ import com.sun.org.apache.xpath.internal.operations.String;
 import org.apache.commons.lang.CharEncoding;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Date;
@@ -21,6 +22,8 @@ public class MuttleyDiscoveryServerApplicationTests {
 
     @Test
     public void contextLoads() throws ParseException {
+        final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("rsa/id_rsa_sfa");
+        System.out.println(stream);
         final java.lang.String s = new java.lang.String(generateKey(HS256).getEncoded(), StandardCharsets.UTF_8);
         System.out.println(s);
         System.out.println(BASE64.encode(generateKey(HS512).getEncoded()));
