@@ -26,11 +26,13 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static br.com.muttley.mongo.service.infra.Operator.CONTAINS;
+import static br.com.muttley.mongo.service.infra.Operator.GT;
 import static br.com.muttley.mongo.service.infra.Operator.GTE;
 import static br.com.muttley.mongo.service.infra.Operator.IN;
 import static br.com.muttley.mongo.service.infra.Operator.IS;
 import static br.com.muttley.mongo.service.infra.Operator.LIMIT;
 import static br.com.muttley.mongo.service.infra.Operator.LT;
+import static br.com.muttley.mongo.service.infra.Operator.LTE;
 import static br.com.muttley.mongo.service.infra.Operator.OR;
 import static br.com.muttley.mongo.service.infra.Operator.ORDER_BY_ASC;
 import static br.com.muttley.mongo.service.infra.Operator.ORDER_BY_DESC;
@@ -170,11 +172,17 @@ public class AggregationUtils {
                 case CONTAINS:
                     addParamInTriMap(triMap, keyTrimap, CONTAINS, value);
                     break;
+                case LTE:
+                    addParamInTriMap(triMap, keyTrimap, LTE, value);
+                    break;
                 case GTE:
                     addParamInTriMap(triMap, keyTrimap, GTE, value);
                     break;
                 case LT:
                     addParamInTriMap(triMap, keyTrimap, LT, value);
+                    break;
+                case GT:
+                    addParamInTriMap(triMap, keyTrimap, GT, value);
                     break;
                 case IN:
                     addParamInTriMap(triMap, keyTrimap, IN, split(String.valueOf(value)));
