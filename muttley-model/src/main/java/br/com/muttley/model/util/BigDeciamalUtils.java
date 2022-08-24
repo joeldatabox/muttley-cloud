@@ -13,6 +13,10 @@ public class BigDeciamalUtils {
         return BigDecimal.ZERO.setScale(15, RoundingMode.HALF_EVEN);
     }
 
+    public static BigDecimal setDefaultValueIfIsnull(final BigDecimal value, final BigDecimal defaultValue) {
+        return value == null ? defaultValue : value;
+    }
+
     public static BigDecimal setDefaultScale(final BigDecimal bigDecimal) {
         return setScale(bigDecimal, 15, RoundingMode.HALF_EVEN);
     }
