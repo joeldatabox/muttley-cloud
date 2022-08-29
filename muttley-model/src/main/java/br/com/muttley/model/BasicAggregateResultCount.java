@@ -9,4 +9,12 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(of = "result")
 public class BasicAggregateResultCount extends BasicAggregateResult<Long> {
+    public static final BasicAggregateResultCount ZERO = new BasicAggregateResultCount(0l);
+
+    public BasicAggregateResultCount() {
+    }
+
+    public BasicAggregateResultCount(final long value) {
+        this.setResult(value);
+    }
 }
