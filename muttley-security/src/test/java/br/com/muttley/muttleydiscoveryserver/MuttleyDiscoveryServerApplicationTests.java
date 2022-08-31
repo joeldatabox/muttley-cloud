@@ -27,8 +27,8 @@ public class MuttleyDiscoveryServerApplicationTests {
         final java.lang.String s = new java.lang.String(generateKey(HS256).getEncoded(), StandardCharsets.UTF_8);
         System.out.println(s);
         System.out.println(BASE64.encode(generateKey(HS512).getEncoded()));
-        //System.out.println(new Password(null, null, "12345", new Date(), null, null, null).
-             //   setPassword("12345").getPassword());
+        /*System.out.println(new Password(null, null, "12345", new Date(), null, null, null).
+                setPassword("12345").getPassword());*/
 
         System.out.println(Password.BuilderPasswordEncoder.getPasswordEncoder().encode("123456"));
     }
