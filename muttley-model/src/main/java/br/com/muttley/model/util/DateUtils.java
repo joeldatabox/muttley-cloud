@@ -143,6 +143,14 @@ public class DateUtils {
         return date.with(lastDayOfMonth());
     }
 
+    public static Date toDate(final LocalDate date) {
+        return toDate(date, ZoneId.systemDefault());
+    }
+
+    public static Date toDate(final LocalDate date, final ZoneId zoneOffset) {
+        return Date.from(date.atStartOfDay(zoneOffset).toInstant());
+    }
+
     public static Date toDate(final LocalDateTime date) {
         return Date.from(
                 date.atZone(ZoneId.systemDefault()).toInstant()
