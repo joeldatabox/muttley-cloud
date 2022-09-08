@@ -8,24 +8,9 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
+import java.security.*;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -42,6 +27,8 @@ import static javax.crypto.Cipher.ENCRYPT_MODE;
  * @project muttley-cloud
  */
 public class RSAUtil {
+    private static final String PUBLIC_KEY = "PUBLIC KEY";
+    private static final String PRIVATE_KEY = "PRIVATE KEY";
 
     public static KeyPair createKeyPair() {
         return createKeyPair(1024);
@@ -67,22 +54,35 @@ public class RSAUtil {
     }
 
     public static void write(final String fileName, final PrivateKey privateKey) {
-        write(fileName, "PRIVATE KEY", privateKey);
+        write(fileName, PRIVATE_KEY, privateKey);
+    }
+
+    public static void write(final File file, final PrivateKey privateKey) {
+        write(file, PRIVATE_KEY, privateKey);
     }
 
     public static void write(final String fileName, final PublicKey publicKey) {
-        write(fileName, "PUBLIC KEY", publicKey);
+        write(fileName, PUBLIC_KEY, publicKey);
     }
 
-    private static void write(final String fileName, final String description, final Key privateKey) {
-        try (final PemWriter pemWriter = new PemWriter(new OutputStreamWriter(new FileOutputStream(fileName)))) {
-            pemWriter.writeObject(new PemObject(description, privateKey.getEncoded()));
+    public static void write(final File file, final PublicKey publicKey) {
+        write(file, PUBLIC_KEY, publicKey);
+    }
+
+    private static void write(final String fileName, final String description, final Key key) {
+        write(new File(fileName), description, key);
+    }
+
+    private static void write(final File file, final String description, final Key key) {
+        file.getParentFile().mkdirs();
+        try (final PemWriter pemWriter = new PemWriter(new OutputStreamWriter(new FileOutputStream(file)))) {
+            pemWriter.writeObject(new PemObject(description, key.getEncoded()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static String generateRandomString(final int size) {
+    public static String generateRandomString(final int size) {
         final int leftLimit = 48; // numeral '0'
         final int rightLimit = 122; // letter 'z'
 
@@ -118,6 +118,10 @@ public class RSAUtil {
         }
     }
 
+    private static byte[] parsePEMFile(final String description, final String value) {
+        return new PemObject(description, value.getBytes()).getContent();
+    }
+
     private static PublicKey getPublicKey(byte[] keyBytes, String algorithm) {
         PublicKey publicKey = null;
         try {
@@ -148,8 +152,16 @@ public class RSAUtil {
         return privateKey;
     }
 
+    public static PublicKey readPublicKeyFromString(String value) {
+        return getPublicKey(parsePEMFile(PUBLIC_KEY, value), "RSA");
+    }
+
     public static PublicKey readPublicKeyFromFile(String filepath) {
         return getPublicKey(parsePEMFile(new File(filepath)), "RSA");
+    }
+
+    public static PrivateKey readPrivateKeyFromString(final String value) {
+        return getPrivateKey(parsePEMFile(PRIVATE_KEY, value), "RSA");
     }
 
     public static PrivateKey readPrivateKeyFromFile(final InputStream reader) {
