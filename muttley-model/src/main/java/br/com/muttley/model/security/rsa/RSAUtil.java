@@ -216,4 +216,22 @@ public class RSAUtil {
             throw new RuntimeException(e);
         }
     }
+
+    public static String toString(final PrivateKey key) {
+        return toString(PRIVATE_KEY, key);
+    }
+
+    public static String toString(final PublicKey key) {
+        return toString(PUBLIC_KEY, key);
+    }
+
+    public static String toString(final String description, final Key key) {
+        try (final StringWriter stringWriter = new StringWriter(); final PemWriter pemWriter = new PemWriter(stringWriter)) {
+            pemWriter.writeObject(new PemObject(description, key.getEncoded()));
+            pemWriter.flush();
+            return stringWriter.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot format certificate to PEM format", e);
+        }
+    }
 }

@@ -1,20 +1,22 @@
 package br.com.muttley.security.server.components;
 
 import br.com.muttley.localcache.services.LocalRSAKeyPairService;
-import br.com.muttley.model.security.rsa.RSAUtil;
+import br.com.muttley.localcache.services.impl.AbstractLocalRSAKeyPairService;
+import br.com.muttley.redis.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
-import java.security.Key;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-import static br.com.muttley.model.security.rsa.RSAUtil.generateRandomString;
+import static br.com.muttley.model.security.rsa.RSAUtil.*;
 
 /**
  * @author Joel Rodrigues Moreira on 10/08/2022.
@@ -23,56 +25,57 @@ import static br.com.muttley.model.security.rsa.RSAUtil.generateRandomString;
  */
 @EnableConfigurationProperties(RSAPairKeyProperty.class)
 @Component
-public class RSAPairKeyComponent implements LocalRSAKeyPairService {
+@DependsOn("clearRedis")
+public class RSAPairKeyComponent extends AbstractLocalRSAKeyPairService implements LocalRSAKeyPairService, ApplicationListener<ApplicationReadyEvent> {
     private final RSAPairKeyProperty properties;
 
 
     @Autowired
-    public RSAPairKeyComponent(final RSAPairKeyProperty properties) {
+    public RSAPairKeyComponent(final RedisService service, final RSAPairKeyProperty properties) {
+        super(service);
         this.properties = properties;
     }
 
-    @PostConstruct
-    private void init() {
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
         final File privateKeyFile = new File(properties.getPrivateKeyFile());
         final File publicKeyFile = new File(properties.getPublicKeyFile());
         //verificando se precisa criar a chave
         if (properties.isAutoCriateIfNotExists() && !privateKeyFile.exists()) {
-            final KeyPair keyPair = RSAUtil.createKeyPair(4096, StringUtils.isEmpty(this.properties.getSeed()) ? generateRandomString(15000) : this.properties.getSeed());
-            RSAUtil.write(privateKeyFile, keyPair.getPrivate());
-            RSAUtil.write(publicKeyFile, keyPair.getPublic());
+            final KeyPair keyPair = createKeyPair(4096, StringUtils.isEmpty(this.properties.getSeed()) ? generateRandomString(15000) : this.properties.getSeed());
+            write(privateKeyFile, keyPair.getPrivate());
+            write(publicKeyFile, keyPair.getPublic());
         }
-
+        //forçando o carregamento do par de chaves
+        this.getPrivateKey();
+        this.getPublicKey();
     }
 
     @Override
     public String encryptMessage(String message) {
-        return RSAUtil.encrypt(LocalKeyPair.getPrivateKey(this.properties.getPrivateKeyFile()), message);
+        return encrypt(getPrivateKey(), message);
     }
 
     @Override
     public String decryptMessage(String encryptedMessage) {
-        return RSAUtil.decrypt(LocalKeyPair.getPublicKey(this.properties.getPrivateKeyFile()), encryptedMessage);
+        return decrypt(getPublicKey(), encryptedMessage);
     }
 
-
-    private static class LocalKeyPair {
-        private static PrivateKey privateKey;
-        private static PublicKey publicKey;
-
-        public static final Key getPrivateKey(final String location) {
-            if (privateKey == null) {
-                privateKey = RSAUtil.readPrivateKeyFromFile(location);
-            }
-            return privateKey;
+    @Override
+    protected PrivateKey getPrivateKey() {
+        if (this.privateKey == null) {
+            this.privateKey = readPrivateKeyFromFile(this.properties.getPrivateKeyFile());
+            this.setPrivateKey(privateKey);
         }
+        return privateKey;
+    }
 
-        public static final Key getPublicKey(final String location) {
-            if (publicKey == null) {
-                publicKey = RSAUtil.readPublicKeyFromFile(location);
-            }
-            return publicKey;
+    @Override
+    protected PublicKey getPublicKey() {
+        if (this.publicKey == null) {
+            this.publicKey = readPublicKeyFromFile(this.properties.getPublicKeyFile());
+            this.setPublicKey(this.publicKey);
         }
-
+        return publicKey;
     }
 }
