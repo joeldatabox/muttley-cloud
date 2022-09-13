@@ -21,6 +21,7 @@ import br.com.muttley.security.infra.service.AuthService;
 import br.com.muttley.security.infra.service.impl.AuthServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalDatabindingServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalOwnerServiceImpl;
+import br.com.muttley.security.infra.service.impl.LocalRSAKeyPairServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalRolesServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserAuthenticationServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserPrefenceServiceImpl;
@@ -87,6 +88,12 @@ public class WebSecurityConfig {
     @Autowired
     public LocalRolesService createLocalRolesService(final RedisService redisService, final PassaportServiceClient passaportServiceClient) {
         return new LocalRolesServiceImpl(redisService, passaportServiceClient);
+    }
+
+    @Bean
+    @Autowired
+    public LocalRSAKeyPairServiceImpl createLocalRSAKeyPairService(final RedisService redisService) {
+        return new LocalRSAKeyPairServiceImpl(redisService);
     }
 
     @Bean

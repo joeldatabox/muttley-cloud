@@ -4,11 +4,14 @@ import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
 import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
@@ -16,6 +19,8 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Joel Rodrigues Moreira on 08/08/2022.
@@ -41,9 +46,31 @@ public class APIToken implements Model<Owner> {
     @JsonDeserialize(using = UserDeserializer.class)
     @DBRef
     private User user;
+    @NotNull
     private Date dtCreate;
+    @NotNull
     private String version;
     private String description;
+    @NotEmpty(message = "É necessário ter um token devidamente gerado")
+    private String token;
     private MetadataDocument metadata;
 
+    @JsonIgnore
+    public String generateSeedHash() {
+        final Map<String, Object> map = new HashMap<>();
+        map.put("owner", this.owner != null ? owner.getId() : null);
+        map.put("user", this.user != null ? user.getId() : null);
+        map.put("dtCreate", this.dtCreate);
+        map.put("version", this.version);
+        map.put("description", this.description);
+
+        try {
+            return new ObjectMapper()
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(map);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
 }

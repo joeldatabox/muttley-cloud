@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
  * @project muttley-cloud
  */
 @Repository
-public interface APITokenRespository extends DocumentMongoRepository<APIToken> {
+public interface APITokenRepository extends DocumentMongoRepository<APIToken> {
 }

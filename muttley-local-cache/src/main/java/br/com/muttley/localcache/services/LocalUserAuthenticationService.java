@@ -11,6 +11,8 @@ import br.com.muttley.model.security.JwtUser;
  */
 public interface LocalUserAuthenticationService {
 
+    JwtUser getJwtUserFrom(final String apiToken);
+
     JwtUser getJwtUserFrom(final JwtToken token);
 
     LocalUserAuthenticationService remove(final JwtToken token);

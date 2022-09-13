@@ -1,5 +1,6 @@
 package br.com.muttley.security.infra.service.impl;
 
+import br.com.muttley.localcache.services.LocalRSAKeyPairService;
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
@@ -21,16 +22,23 @@ public class LocalUserAuthenticationServiceImpl implements LocalUserAuthenticati
     protected final RedisService redisService;
     protected final AuthenticationTokenServiceClient tokenServiceClient;
     private final LocalJwtTokenUtilService utilService;
+    private final LocalRSAKeyPairService rsaKeyPairService;
     protected final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public LocalUserAuthenticationServiceImpl(final RedisService redisService, final AuthenticationTokenServiceClient tokenServiceClient, final ApplicationEventPublisher eventPublisher) {
+    public LocalUserAuthenticationServiceImpl(final RedisService redisService, final AuthenticationTokenServiceClient tokenServiceClient, final LocalRSAKeyPairService rsaKeyPairService, final ApplicationEventPublisher eventPublisher) {
         this.redisService = redisService;
         this.tokenServiceClient = tokenServiceClient;
         this.utilService = new LocalJwtTokenUtilService(redisService);
+        this.rsaKeyPairService = rsaKeyPairService;
         this.eventPublisher = eventPublisher;
     }
 
+
+    @Override
+    public JwtUser getJwtUserFrom(String apiToken) {
+        return null;
+    }
 
     @Override
     public JwtUser getJwtUserFrom(final JwtToken token) {

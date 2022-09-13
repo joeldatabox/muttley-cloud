@@ -7,6 +7,11 @@ import br.com.muttley.redis.service.RedisService;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
+import static br.com.muttley.model.security.rsa.RSAUtil.decrypt;
+import static br.com.muttley.model.security.rsa.RSAUtil.encrypt;
+import static br.com.muttley.model.security.rsa.RSAUtil.readPrivateKeyFromString;
+import static br.com.muttley.model.security.rsa.RSAUtil.readPublicKeyFromString;
+
 public abstract class AbstractLocalRSAKeyPairService implements LocalRSAKeyPairService {
     protected PrivateKey privateKey;
     protected PublicKey publicKey;
@@ -17,26 +22,26 @@ public abstract class AbstractLocalRSAKeyPairService implements LocalRSAKeyPairS
     }
 
     protected String getBasicKeyPublic() {
-        return LocalRSAKeyPairService.BASIC_KEY_PUBLIC;
+        return BASIC_KEY_PUBLIC;
     }
 
     protected String getBasicKeyPrivate() {
-        return LocalRSAKeyPairService.BASIC_KEY_PRIVATE;
+        return BASIC_KEY_PRIVATE;
     }
 
     @Override
     public String encryptMessage(String message) {
-        return null;
+        return encrypt(getPrivateKey(), message);
     }
 
     @Override
     public String decryptMessage(String encryptedMessage) {
-        return null;
+        return decrypt(getPublicKey(), encryptedMessage);
     }
 
     protected PrivateKey getPrivateKey() {
         if (privateKey == null) {
-            privateKey = RSAUtil.readPrivateKeyFromString((String) this.service.get(this.getBasicKeyPrivate()));
+            privateKey = readPrivateKeyFromString((String) this.service.get(this.getBasicKeyPrivate()));
         }
         return privateKey;
     }
@@ -48,7 +53,7 @@ public abstract class AbstractLocalRSAKeyPairService implements LocalRSAKeyPairS
 
     protected PublicKey getPublicKey() {
         if (publicKey == null) {
-            publicKey = RSAUtil.readPublicKeyFromString((String) this.service.get(this.getBasicKeyPublic()));
+            publicKey = readPublicKeyFromString((String) this.service.get(this.getBasicKeyPublic()));
         }
         return publicKey;
     }
