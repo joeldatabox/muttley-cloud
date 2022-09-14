@@ -32,6 +32,7 @@ import java.util.Map;
         @CompoundIndex(name = "owner_index", def = "{'owner' : 1}"),
         @CompoundIndex(name = "owner.id_index", def = "{'owner.$id' : 1}"),
         @CompoundIndex(name = "owner.id_user.$id_index", def = "{'owner.$id' : 1, 'user.$id' : 1}"),
+        @CompoundIndex(name = "token.index", def = "{'token' : 1}")
 })
 @Getter
 @Setter

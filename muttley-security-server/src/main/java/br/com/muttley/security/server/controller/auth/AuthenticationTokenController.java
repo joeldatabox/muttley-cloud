@@ -80,8 +80,4 @@ public class AuthenticationTokenController {
         throw new MuttleySecurityUnauthorizedException();
     }
 
-    @RequestMapping(value = "/user-from-api-token", method = GET)
-    public JwtUser getUserFromApiToken(final @RequestParam String apiToken) {
-
-    }
 }

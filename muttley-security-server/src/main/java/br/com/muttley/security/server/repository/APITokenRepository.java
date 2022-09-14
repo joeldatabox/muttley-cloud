@@ -11,4 +11,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface APITokenRepository extends DocumentMongoRepository<APIToken> {
+
+    APIToken findByToken(final String token);
 }
