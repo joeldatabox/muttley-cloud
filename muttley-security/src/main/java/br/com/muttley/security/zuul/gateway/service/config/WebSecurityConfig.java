@@ -1,6 +1,8 @@
 package br.com.muttley.security.zuul.gateway.service.config;
 
+import br.com.muttley.localcache.services.LocalAPITokenService;
 import br.com.muttley.localcache.services.LocalOwnerService;
+import br.com.muttley.localcache.services.LocalRSAKeyPairService;
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.OwnerServiceClient;
@@ -29,14 +31,14 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public AuthenticationTokenFilterGateway createAuthenticationTokenFilter(@Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader, final LocalUserAuthenticationService localUserAuthentication) {
-        return new AuthenticationTokenFilterGateway(tokenHeader, localUserAuthentication);
+    public AuthenticationTokenFilterGateway createAuthenticationTokenFilter(@Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader, @Value("${muttley.security.jwt.controller.xAPITokenHeader:X-Api-Token}") final String xAPIToken, final LocalUserAuthenticationService localUserAuthentication, final LocalAPITokenService localAPITokenService) {
+        return new AuthenticationTokenFilterGateway(tokenHeader, xAPIToken, localUserAuthentication, localAPITokenService);
     }
 
     @Bean
     @Autowired
-    public LocalUserAuthenticationService createLocalUserAuthenticationService(final RedisService redisService, final AuthenticationTokenServiceClient authenticationTokenService, final ApplicationEventPublisher eventPublisher) {
-        return new LocalUserAuthenticationServiceImpl(redisService, authenticationTokenService, eventPublisher);
+    public LocalUserAuthenticationService createLocalUserAuthenticationService(final RedisService redisService, final AuthenticationTokenServiceClient authenticationTokenService, final LocalRSAKeyPairService rsaKeyPairService, final ApplicationEventPublisher eventPublisher) {
+        return new LocalUserAuthenticationServiceImpl(redisService, authenticationTokenService, rsaKeyPairService, eventPublisher);
     }
 
     @Bean

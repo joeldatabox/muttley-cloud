@@ -48,7 +48,6 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
         this.refreshTokenEndPoin = refreshTokenEndPoin;
         this.createEndPoint = createEndPoint;
         this.unauthorizedHandler = unauthorizedHandler;
-
         this.authenticationTokenFilterGateway = authenticationTokenFilterGateway;
         this.userServiceClient = userServiceClient;
     }

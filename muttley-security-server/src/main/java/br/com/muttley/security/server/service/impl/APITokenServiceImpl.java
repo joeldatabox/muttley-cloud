@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.Date;
 
+import static br.com.muttley.model.security.rsa.RSAUtil.generateRandomString;
+
 /**
  * @author Joel Rodrigues Moreira on 09/08/2022.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -33,9 +35,10 @@ public class APITokenServiceImpl extends SecurityServiceImpl<APIToken> implement
     @Override
     public void beforeSave(User user, APIToken value) {
         //setando data de criação
-        value.setDtCreate(new Date());
-        //gerando token de acesso
-        value.setToken(rsaPairKeyComponent.encryptMessage(value.generateSeedHash()));
+        value.setDtCreate(new Date())
+                .setLocaSeed(generateRandomString(15))
+                //gerando token de acesso
+                .setToken(rsaPairKeyComponent.encryptMessage(value.generateSeedHash()));
     }
 
     @Override

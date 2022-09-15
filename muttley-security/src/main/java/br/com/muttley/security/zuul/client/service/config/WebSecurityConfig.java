@@ -1,7 +1,9 @@
 package br.com.muttley.security.zuul.client.service.config;
 
+import br.com.muttley.localcache.services.LocalAPITokenService;
 import br.com.muttley.localcache.services.LocalDatabindingService;
 import br.com.muttley.localcache.services.LocalOwnerService;
+import br.com.muttley.localcache.services.LocalRSAKeyPairService;
 import br.com.muttley.localcache.services.LocalRolesService;
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.localcache.services.LocalUserPreferenceService;
@@ -56,8 +58,8 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public LocalUserAuthenticationService createLocalUserAuthenticationService(final RedisService redisService, final AuthenticationTokenServiceClient authenticationTokenService, final ApplicationEventPublisher eventPublisher) {
-        return new LocalUserAuthenticationServiceImpl(redisService, authenticationTokenService, eventPublisher);
+    public LocalUserAuthenticationService createLocalUserAuthenticationService(final RedisService redisService, final AuthenticationTokenServiceClient authenticationTokenService, final LocalRSAKeyPairService localRSAKeyPairService, final ApplicationEventPublisher eventPublisher) {
+        return new LocalUserAuthenticationServiceImpl(redisService, authenticationTokenService, localRSAKeyPairService, eventPublisher);
     }
 
     @Bean

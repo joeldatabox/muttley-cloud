@@ -2,6 +2,8 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.Model;
+import br.com.muttley.model.jackson.converter.DocumentSerializer;
+import br.com.muttley.model.security.jackson.OwnerDeserializer;
 import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,8 +18,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,10 +42,12 @@ import java.util.Map;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class APIToken implements Model<Owner> {
+public class APIToken implements Model<Owner>, UserDetails {
     @Id
     private String id;
     @DBRef
+    @JsonSerialize(using = DocumentSerializer.class)
+    @JsonDeserialize(using = OwnerDeserializer.class)
     private Owner owner;
     @NotNull(message = "É nécessário ter um usuário master no grupo de trabalho")
     @JsonSerialize(using = UserSerializer.class)
@@ -54,16 +61,18 @@ public class APIToken implements Model<Owner> {
     private String description;
     @NotEmpty(message = "É necessário ter um token devidamente gerado")
     private String token;
+    private String locaSeed;
     private MetadataDocument metadata;
 
     @JsonIgnore
     public String generateSeedHash() {
-        final Map<String, Object> map = new HashMap<>();
+        final Map<String, Object> map = new HashMap<>(6);
         map.put("owner", this.owner != null ? owner.getId() : null);
         map.put("user", this.user != null ? user.getId() : null);
         map.put("dtCreate", this.dtCreate);
         map.put("version", this.version);
         map.put("description", this.description);
+        map.put("localSeed", this.locaSeed);
 
         try {
             return new ObjectMapper()
@@ -73,5 +82,40 @@ public class APIToken implements Model<Owner> {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
     }
 }
