@@ -32,7 +32,7 @@ import java.util.Map;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@org.springframework.data.mongodb.core.mapping.Document(collection = "#{documentNameConfig.getNameCollectionAPIToken()}")
+@org.springframework.data.mongodb.core.mapping.Document(collection = "#{documentNameConfig.getNameCollectionXAPIToken()}")
 @CompoundIndexes({
         @CompoundIndex(name = "owner_index", def = "{'owner' : 1}"),
         @CompoundIndex(name = "owner.id_index", def = "{'owner.$id' : 1}"),
@@ -42,7 +42,7 @@ import java.util.Map;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class APIToken implements Model<Owner>, UserDetails {
+public class XAPIToken implements Model<Owner>, UserDetails {
     @Id
     private String id;
     @DBRef

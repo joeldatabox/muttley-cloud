@@ -27,7 +27,7 @@ import java.util.Set;
  */
 @Document(collection = "#{documentNameConfig.getNameCollectionUserBase()}")
 @CompoundIndexes({
-        @CompoundIndex(name = "owner_index_unique", def = "{'owner' : 1}")
+        @CompoundIndex(name = "owner_index_unique", def = "{'owner' : 1}", unique = true)
 })
 @Getter
 @Setter

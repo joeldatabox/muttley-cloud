@@ -1,7 +1,7 @@
 package br.com.muttley.localcache.services.impl;
 
 import br.com.muttley.localcache.services.LocalAPITokenService;
-import br.com.muttley.model.security.APIToken;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.redis.service.RedisService;
 
 public abstract class AbstractLocalAPITokenServiceImpl implements LocalAPITokenService {
@@ -12,13 +12,13 @@ public abstract class AbstractLocalAPITokenServiceImpl implements LocalAPITokenS
         this.redisService = redisService;
     }
 
-    protected LocalAPITokenService saveInCache(final APIToken apiToken) {
-        this.redisService.set(this.getBasicKey(apiToken.getToken()), apiToken, DEFAULT_EXPIRATION);
+    protected LocalAPITokenService saveInCache(final XAPIToken XAPIToken) {
+        this.redisService.set(this.getBasicKey(XAPIToken.getToken()), XAPIToken, DEFAULT_EXPIRATION);
         return this;
     }
 
-    public APIToken loadAPIToken(final String token) {
-        return (APIToken) this.redisService.get(this.getBasicKey(token));
+    public XAPIToken loadAPIToken(final String token) {
+        return (XAPIToken) this.redisService.get(this.getBasicKey(token));
     }
 
     @Override

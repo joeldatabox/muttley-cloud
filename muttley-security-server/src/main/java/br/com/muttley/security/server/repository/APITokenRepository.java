@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.repository;
 
-import br.com.muttley.model.security.APIToken;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * @project muttley-cloud
  */
 @Repository
-public interface APITokenRepository extends DocumentMongoRepository<APIToken> {
+public interface APITokenRepository extends DocumentMongoRepository<XAPIToken> {
 
-    APIToken findByToken(final String token);
+    XAPIToken findByToken(final String token);
 }

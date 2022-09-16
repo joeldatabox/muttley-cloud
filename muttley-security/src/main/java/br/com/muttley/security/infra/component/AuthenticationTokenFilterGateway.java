@@ -3,7 +3,7 @@ package br.com.muttley.security.infra.component;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.localcache.services.LocalAPITokenService;
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
-import br.com.muttley.model.security.APIToken;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,9 +65,9 @@ public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
     }
 
     private void loadXAPIToken(HttpServletRequest request, String xAPIToken) {
-        APIToken apiToken = this.apiTokenService.loadAPIToken(xAPIToken);
-        if (apiToken != null) {
-            final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(apiToken, null, apiToken.getAuthorities());
+        XAPIToken XAPIToken = this.apiTokenService.loadAPIToken(xAPIToken);
+        if (XAPIToken != null) {
+            final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(XAPIToken, null, XAPIToken.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

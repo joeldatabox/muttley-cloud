@@ -2,7 +2,7 @@ package br.com.muttley.security.server.service.impl;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
-import br.com.muttley.model.security.APIToken;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.security.server.components.RSAPairKeyComponent;
 import br.com.muttley.security.server.repository.APITokenRepository;
@@ -22,18 +22,18 @@ import static br.com.muttley.model.security.rsa.RSAUtil.generateRandomString;
  * @project muttley-cloud
  */
 @Service
-public class APITokenServiceImpl extends SecurityServiceImpl<APIToken> implements APITokenService {
+public class APITokenServiceImpl extends SecurityServiceImpl<XAPIToken> implements APITokenService {
     private RSAPairKeyComponent rsaPairKeyComponent;
     private final APITokenRepository repository;
 
     @Autowired
     public APITokenServiceImpl(APITokenRepository repository, MongoTemplate mongoTemplate) {
-        super(repository, mongoTemplate, APIToken.class);
+        super(repository, mongoTemplate, XAPIToken.class);
         this.repository = repository;
     }
 
     @Override
-    public void beforeSave(User user, APIToken value) {
+    public void beforeSave(User user, XAPIToken value) {
         //setando data de criação
         value.setDtCreate(new Date())
                 .setLocaSeed(generateRandomString(15))
@@ -42,22 +42,22 @@ public class APITokenServiceImpl extends SecurityServiceImpl<APIToken> implement
     }
 
     @Override
-    public void checkPrecondictionUpdate(User user, APIToken value) {
-        throw new MuttleyBadRequestException(APIToken.class, "", "Não é permitido fazer alteração de um token");
+    public void checkPrecondictionUpdate(User user, XAPIToken value) {
+        throw new MuttleyBadRequestException(XAPIToken.class, "", "Não é permitido fazer alteração de um token");
     }
 
     @Override
-    public void checkPrecondictionUpdate(User user, Collection<APIToken> values) {
-        throw new MuttleyBadRequestException(APIToken.class, "", "Não é permitido fazer alteração de um token");
+    public void checkPrecondictionUpdate(User user, Collection<XAPIToken> values) {
+        throw new MuttleyBadRequestException(XAPIToken.class, "", "Não é permitido fazer alteração de um token");
     }
 
     @Override
     public User loadUserByAPIToken(String token) {
-        final APIToken apiToken = this.repository.findByToken(token);
-        if (apiToken == null) {
-            throw new MuttleyNotFoundException(APIToken.class, "token", "Token não identificado");
+        final XAPIToken XAPIToken = this.repository.findByToken(token);
+        if (XAPIToken == null) {
+            throw new MuttleyNotFoundException(XAPIToken.class, "token", "Token não identificado");
         }
-        return apiToken.getUser();
+        return XAPIToken.getUser();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class APITokenServiceImpl extends SecurityServiceImpl<APIToken> implement
     }
 
     @Override
-    public void afterDelete(User user, APIToken value) {
+    public void afterDelete(User user, XAPIToken value) {
         super.afterDelete(user, value);
     }
 }

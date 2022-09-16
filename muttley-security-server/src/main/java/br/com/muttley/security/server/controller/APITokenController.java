@@ -1,6 +1,6 @@
 package br.com.muttley.security.server.controller;
 
-import br.com.muttley.model.security.APIToken;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.security.server.service.APITokenService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
  */
 @RestController
 @RequestMapping(value = "/api/v1/api-tokens", produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-public class APITokenController extends AbstractRestController<APIToken> {
+public class APITokenController extends AbstractRestController<XAPIToken> {
     private final APITokenService service;
 
     @Autowired

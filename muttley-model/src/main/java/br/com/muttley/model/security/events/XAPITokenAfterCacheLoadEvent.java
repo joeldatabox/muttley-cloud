@@ -1,7 +1,6 @@
 package br.com.muttley.model.security.events;
 
-import br.com.muttley.model.security.APIToken;
-import lombok.Getter;
+import br.com.muttley.model.security.XAPIToken;
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -11,8 +10,8 @@ import org.springframework.context.ApplicationEvent;
  */
 public class XAPITokenAfterCacheLoadEvent extends ApplicationEvent {
 
-    public XAPITokenAfterCacheLoadEvent(final String xAPIToken, final APIToken apiToken) {
-        super(new APITokenAfterCacheLoadEventSource(xAPIToken, apiToken));
+    public XAPITokenAfterCacheLoadEvent(final String xAPIToken, final XAPIToken XAPIToken) {
+        super(new APITokenAfterCacheLoadEventSource(xAPIToken, XAPIToken));
     }
 
     @Override
@@ -21,21 +20,28 @@ public class XAPITokenAfterCacheLoadEvent extends ApplicationEvent {
     }
 
     public String getXAPIToken() {
+        return this.getSource().getxAPIToken();
+    }
+
+    public XAPIToken getAPIToken() {
         return this.getSource().getXAPIToken();
     }
 
-    public APIToken getAPIToken() {
-        return this.getSource().getApiToken();
-    }
-
-    @Getter
     private static class APITokenAfterCacheLoadEventSource {
         private final String xAPIToken;
-        private final APIToken apiToken;
+        private final XAPIToken XAPIToken;
 
-        private APITokenAfterCacheLoadEventSource(String xAPIToken, APIToken apiToken) {
+        private APITokenAfterCacheLoadEventSource(String xAPIToken, XAPIToken XAPIToken) {
             this.xAPIToken = xAPIToken;
-            this.apiToken = apiToken;
+            this.XAPIToken = XAPIToken;
+        }
+
+        public XAPIToken getXAPIToken() {
+            return XAPIToken;
+        }
+
+        public String getxAPIToken() {
+            return xAPIToken;
         }
     }
 }
