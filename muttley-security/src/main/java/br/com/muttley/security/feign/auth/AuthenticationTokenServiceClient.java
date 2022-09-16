@@ -20,8 +20,4 @@ public interface AuthenticationTokenServiceClient {
 
     @RequestMapping(value = "/user-from-token", method = POST)
     public JwtUser getUserFromToken(final @RequestBody JwtToken token);
-
-    @RequestMapping(value = "/user-from-api-token", method = GET)
-    public JwtUser getUserFromApiToken(final @RequestParam String apiToken);
-
 }

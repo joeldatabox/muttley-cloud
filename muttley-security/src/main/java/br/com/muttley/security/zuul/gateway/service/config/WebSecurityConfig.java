@@ -1,6 +1,6 @@
 package br.com.muttley.security.zuul.gateway.service.config;
 
-import br.com.muttley.localcache.services.LocalAPITokenService;
+import br.com.muttley.localcache.services.LocalXAPITokenService;
 import br.com.muttley.localcache.services.LocalOwnerService;
 import br.com.muttley.localcache.services.LocalRSAKeyPairService;
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
@@ -12,6 +12,7 @@ import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.DeserializeUserPreferencesEventListener;
 import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.service.impl.LocalOwnerServiceImpl;
+import br.com.muttley.security.infra.service.impl.LocalRSAKeyPairServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserAuthenticationServiceImpl;
 import br.com.muttley.security.zuul.gateway.listener.UserEventResolverListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,8 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public AuthenticationTokenFilterGateway createAuthenticationTokenFilter(@Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader, @Value("${muttley.security.jwt.controller.xAPITokenHeader:X-Api-Token}") final String xAPIToken, final LocalUserAuthenticationService localUserAuthentication, final LocalAPITokenService localAPITokenService) {
-        return new AuthenticationTokenFilterGateway(tokenHeader, xAPIToken, localUserAuthentication, localAPITokenService);
+    public AuthenticationTokenFilterGateway createAuthenticationTokenFilter(@Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader, @Value("${muttley.security.jwt.controller.xAPITokenHeader:X-Api-Token}") final String xAPIToken, final LocalUserAuthenticationService localUserAuthentication, final LocalXAPITokenService localXAPITokenService) {
+        return new AuthenticationTokenFilterGateway(tokenHeader, xAPIToken, localUserAuthentication, localXAPITokenService);
     }
 
     @Bean
@@ -63,5 +64,11 @@ public class WebSecurityConfig {
     @Autowired
     public UserEventResolverListener createUserEventResolverListener(final UserServiceClient userServiceClient) {
         return new UserEventResolverListener(userServiceClient);
+    }
+
+    @Bean
+    @Autowired
+    public LocalRSAKeyPairService createLocalRSAKeyPairService(final RedisService redisService) {
+        return new LocalRSAKeyPairServiceImpl(redisService);
     }
 }

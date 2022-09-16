@@ -29,7 +29,7 @@ public class DocumentNameConfig {
     private final String nameViewCollectionUser;
     private final String nameViewCollectionPassaport;
 
-    private final String nameCollectionAPIToken;
+    private final String nameCollectionXAPIToken;
     private final String nameViewCollectionPassaportRolesUser;
 
     private final String nameViewCollectionWorkTeam;
@@ -50,7 +50,7 @@ public class DocumentNameConfig {
             @Value("${br.com.muttley.security.server.user-data-binding:muttley-users-databinding}") final String nameCollectionUserDataBinding,
             @Value("${br.com.muttley.security.server.user-document-view:view-muttley-users}") final String nameViewCollectionUser,
             @Value("${br.com.muttley.security.server.passaport-document-view:view-muttley-passaports}") final String nameViewCollectionPassaport,
-            @Value("${br.com.muttley.security.server.api-token-document:muttley-api-token}") final String nameCollectionAPIToken,
+            @Value("${br.com.muttley.security.server.x-api-token-document:muttley-x-api-token}") final String nameCollectionXAPIToken,
             @Value("${br.com.muttley.security.server.passaport-role-document-view:view-muttley-passaports-roles-user}") final String nameViewCollectionPassaportRolesUser,
             @Value("${br.com.muttley.security.server.work-team-document-view:view-muttley-work-teams}") final String nameViewCollectionWorkTeam
     ) {
@@ -69,7 +69,7 @@ public class DocumentNameConfig {
         this.nameCollectionUserDataBinding = nameCollectionUserDataBinding;
         this.nameViewCollectionUser = nameViewCollectionUser;
         this.nameViewCollectionPassaport = nameViewCollectionPassaport;
-        this.nameCollectionAPIToken = nameCollectionAPIToken;
+        this.nameCollectionXAPIToken = nameCollectionXAPIToken;
         this.nameViewCollectionPassaportRolesUser = nameViewCollectionPassaportRolesUser;
         this.nameViewCollectionWorkTeam = nameViewCollectionWorkTeam;
     }

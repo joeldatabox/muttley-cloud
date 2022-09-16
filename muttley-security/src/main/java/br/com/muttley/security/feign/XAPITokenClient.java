@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @FeignClient(value = "${muttley.security.name-server}", path = "/api/v1/api-tokens", configuration = {FeignClientConfig.class, FeignTimeoutConfig.class, HeadersMetadataInterceptor.class})
-public interface APITokenClient {
+public interface XAPITokenClient {
     @RequestMapping(value = "/token/{token}", method = GET)
     XAPIToken getByToken(@PathVariable("token") final String token);
 }

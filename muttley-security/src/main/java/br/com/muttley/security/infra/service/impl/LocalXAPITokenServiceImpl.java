@@ -1,21 +1,21 @@
 package br.com.muttley.security.infra.service.impl;
 
-import br.com.muttley.localcache.services.LocalAPITokenService;
-import br.com.muttley.localcache.services.impl.AbstractLocalAPITokenServiceImpl;
+import br.com.muttley.localcache.services.LocalXAPITokenService;
+import br.com.muttley.localcache.services.impl.AbstractLocalXAPITokenServiceImpl;
 import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.redis.service.RedisService;
-import br.com.muttley.security.feign.APITokenClient;
+import br.com.muttley.security.feign.XAPITokenClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LocalAPITokenServiceImpl extends AbstractLocalAPITokenServiceImpl implements LocalAPITokenService {
-    private final APITokenClient apiTokenClient;
+public class LocalXAPITokenServiceImpl extends AbstractLocalXAPITokenServiceImpl implements LocalXAPITokenService {
+    private final XAPITokenClient XAPITokenClient;
 
     @Autowired
-    public LocalAPITokenServiceImpl(RedisService redisService, APITokenClient apiTokenClient) {
+    public LocalXAPITokenServiceImpl(RedisService redisService, XAPITokenClient XAPITokenClient) {
         super(redisService);
-        this.apiTokenClient = apiTokenClient;
+        this.XAPITokenClient = XAPITokenClient;
     }
 
     @Override
@@ -24,7 +24,7 @@ public class LocalAPITokenServiceImpl extends AbstractLocalAPITokenServiceImpl i
         if (this.redisService.hasKey(getBasicKey(token))) {
             XAPIToken = super.loadAPIToken(token);
         } else {
-            XAPIToken = this.apiTokenClient.getByToken(token);
+            XAPIToken = this.XAPITokenClient.getByToken(token);
             this.saveInCache(XAPIToken);
         }
         return XAPIToken;

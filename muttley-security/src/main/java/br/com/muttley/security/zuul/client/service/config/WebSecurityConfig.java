@@ -1,6 +1,5 @@
 package br.com.muttley.security.zuul.client.service.config;
 
-import br.com.muttley.localcache.services.LocalAPITokenService;
 import br.com.muttley.localcache.services.LocalDatabindingService;
 import br.com.muttley.localcache.services.LocalOwnerService;
 import br.com.muttley.localcache.services.LocalRSAKeyPairService;
@@ -94,7 +93,7 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public LocalRSAKeyPairServiceImpl createLocalRSAKeyPairService(final RedisService redisService) {
+    public LocalRSAKeyPairService createLocalRSAKeyPairService(final RedisService redisService) {
         return new LocalRSAKeyPairServiceImpl(redisService);
     }
 

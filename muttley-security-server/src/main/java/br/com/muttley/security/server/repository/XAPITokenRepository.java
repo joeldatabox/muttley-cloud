@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * @project muttley-cloud
  */
 @Repository
-public interface APITokenRepository extends DocumentMongoRepository<XAPIToken> {
+public interface XAPITokenRepository extends DocumentMongoRepository<XAPIToken> {
 
     XAPIToken findByToken(final String token);
 }

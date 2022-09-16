@@ -1,7 +1,7 @@
 package br.com.muttley.security.infra.component;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
-import br.com.muttley.localcache.services.LocalAPITokenService;
+import br.com.muttley.localcache.services.LocalXAPITokenService;
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.model.security.JwtToken;
@@ -30,14 +30,14 @@ public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
     protected final String tokenHeader;
     protected final String xAPIToken;
     protected final LocalUserAuthenticationService localUserAuthentication;
-    protected final LocalAPITokenService apiTokenService;
+    protected final LocalXAPITokenService apiTokenService;
 
     @Autowired
     public AuthenticationTokenFilterGateway(
             @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader,
             @Value("${muttley.security.jwt.controller.xAPITokenHeader:X-Api-Token}") final String xAPIToken,
             final LocalUserAuthenticationService localUserAuthentication,
-            final LocalAPITokenService apiTokenService) {
+            final LocalXAPITokenService apiTokenService) {
         this.tokenHeader = tokenHeader;
         this.xAPIToken = xAPIToken;
         this.localUserAuthentication = localUserAuthentication;
