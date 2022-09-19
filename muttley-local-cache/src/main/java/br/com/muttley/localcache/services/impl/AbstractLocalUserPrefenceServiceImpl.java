@@ -3,6 +3,7 @@ package br.com.muttley.localcache.services.impl;
 import br.com.muttley.localcache.services.LocalUserPreferenceService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.redis.service.RedisService;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,11 @@ public abstract class AbstractLocalUserPrefenceServiceImpl implements LocalUserP
     }
 
     @Override
+    public UserPreferences getUserPreferences(XAPIToken token, User user) {
+        throw new NotImplementedException();
+    }
+
+    @Override
     public void expireUserPreferences(User user) {
         //deletando item do cache
         this.redisService.delete(this.getBasicKey(user));
@@ -46,6 +53,10 @@ public abstract class AbstractLocalUserPrefenceServiceImpl implements LocalUserP
     }
 
     protected void savePreferenceInCache(final JwtToken token, final User user, final UserPreferences userPreferences) {
+        savePreferenceInCache(token.getDtExpiration(), user, userPreferences);
+    }
+
+    protected void savePreferenceInCache(final Date dtExpiration, final User user, final UserPreferences userPreferences) {
         final Map<String, Object> userPreferencesMap = new HashMap<>();
         userPreferencesMap.put("id", userPreferences.getId());
         if (!userPreferences.isEmpty()) {
@@ -61,7 +72,7 @@ public abstract class AbstractLocalUserPrefenceServiceImpl implements LocalUserP
                             }).collect(Collectors.toList())
             );
         }
-        this.redisService.set(this.getBasicKey(user), userPreferencesMap, token.getDtExpiration());
+        this.redisService.set(this.getBasicKey(user), userPreferencesMap, dtExpiration);
     }
 
     protected UserPreferences getPreferenceInCache(final JwtToken token, final User user) {

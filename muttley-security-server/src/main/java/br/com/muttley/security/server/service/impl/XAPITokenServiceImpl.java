@@ -24,15 +24,16 @@ import static br.com.muttley.model.security.rsa.RSAUtil.generateRandomString;
  */
 @Service
 public class XAPITokenServiceImpl extends SecurityServiceImpl<XAPIToken> implements XAPITokenService {
-    private RSAPairKeyComponent rsaPairKeyComponent;
+    private final RSAPairKeyComponent rsaPairKeyComponent;
     private final XAPITokenRepository repository;
 
     private final MuttleyCurrentVersion currentVersion;
 
     @Autowired
-    public XAPITokenServiceImpl(XAPITokenRepository repository, MongoTemplate mongoTemplate, MuttleyCurrentVersion currentVersion) {
+    public XAPITokenServiceImpl(final XAPITokenRepository repository, final MongoTemplate mongoTemplate, final RSAPairKeyComponent rsaPairKeyComponent, final MuttleyCurrentVersion currentVersion) {
         super(repository, mongoTemplate, XAPIToken.class);
         this.repository = repository;
+        this.rsaPairKeyComponent = rsaPairKeyComponent;
         this.currentVersion = currentVersion;
     }
 
@@ -40,7 +41,7 @@ public class XAPITokenServiceImpl extends SecurityServiceImpl<XAPIToken> impleme
     public void beforeSave(User user, XAPIToken value) {
         //setando data de criação
         value.setDtCreate(new Date())
-                .setLocaSeed(generateRandomString(15))
+                .setLocaSeed(generateRandomString(20))
                 //gerando token de acesso
                 .setToken(this.rsaPairKeyComponent.encryptMessage(value.generateSeedHash()));
     }
@@ -65,12 +66,12 @@ public class XAPITokenServiceImpl extends SecurityServiceImpl<XAPIToken> impleme
     }
 
     @Override
-    public User loadUserByAPIToken(String token) {
+    public XAPIToken loadUserByAPIToken(String token) {
         final XAPIToken XAPIToken = this.repository.findByToken(token);
         if (XAPIToken == null) {
             throw new MuttleyNotFoundException(XAPIToken.class, "token", "Token não identificado");
         }
-        return XAPIToken.getUser();
+        return XAPIToken;
     }
 
     @Override

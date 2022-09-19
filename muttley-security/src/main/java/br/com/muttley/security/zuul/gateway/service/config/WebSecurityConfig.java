@@ -1,12 +1,13 @@
 package br.com.muttley.security.zuul.gateway.service.config;
 
-import br.com.muttley.localcache.services.LocalXAPITokenService;
 import br.com.muttley.localcache.services.LocalOwnerService;
 import br.com.muttley.localcache.services.LocalRSAKeyPairService;
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
+import br.com.muttley.localcache.services.LocalXAPITokenService;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.UserServiceClient;
+import br.com.muttley.security.feign.XAPITokenClient;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterGateway;
 import br.com.muttley.security.infra.component.DeserializeUserPreferencesEventListener;
@@ -14,6 +15,7 @@ import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import br.com.muttley.security.infra.service.impl.LocalOwnerServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalRSAKeyPairServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserAuthenticationServiceImpl;
+import br.com.muttley.security.infra.service.impl.LocalXAPITokenServiceImpl;
 import br.com.muttley.security.zuul.gateway.listener.UserEventResolverListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,5 +72,11 @@ public class WebSecurityConfig {
     @Autowired
     public LocalRSAKeyPairService createLocalRSAKeyPairService(final RedisService redisService) {
         return new LocalRSAKeyPairServiceImpl(redisService);
+    }
+
+    @Bean
+    @Autowired
+    public LocalXAPITokenService createLocalXAPITokenService(final RedisService redisService, final XAPITokenClient XAPITokenClient) {
+        return new LocalXAPITokenServiceImpl(redisService, XAPITokenClient);
     }
 }

@@ -10,7 +10,7 @@ import br.com.muttley.model.security.User;
  */
 public interface XAPITokenService extends SecurityService<XAPIToken> {
 
-    User loadUserByAPIToken(final String token);
+    XAPIToken loadUserByAPIToken(final String token);
 
     XAPIToken generateXAPIToken(final User user);
 }

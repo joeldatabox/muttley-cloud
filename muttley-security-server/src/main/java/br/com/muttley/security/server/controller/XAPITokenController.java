@@ -7,9 +7,9 @@ import br.com.muttley.security.server.service.XAPITokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
@@ -38,8 +38,8 @@ public class XAPITokenController extends AbstractRestController<XAPIToken> {
         return ResponseEntity.ok(this.service.generateXAPIToken(this.userService.getUserFromToken(new JwtToken(tokenHeader))));
     }
 
-    @RequestMapping(value = "/token/{token}", method = GET)
-    public ResponseEntity getByToken(@PathVariable("token") final String token) {
+    @RequestMapping(value = "/token", method = GET)
+    public ResponseEntity getByToken(@RequestParam("token") final String token) {
         return ResponseEntity.ok(this.service.loadUserByAPIToken(token));
     }
 

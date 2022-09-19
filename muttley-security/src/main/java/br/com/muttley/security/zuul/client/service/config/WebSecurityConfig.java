@@ -7,12 +7,14 @@ import br.com.muttley.localcache.services.LocalRolesService;
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.localcache.services.LocalUserPreferenceService;
 import br.com.muttley.localcache.services.LocalWorkTeamService;
+import br.com.muttley.localcache.services.LocalXAPITokenService;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.OwnerServiceClient;
 import br.com.muttley.security.feign.PassaportServiceClient;
 import br.com.muttley.security.feign.UserDataBindingClient;
 import br.com.muttley.security.feign.UserPreferenceServiceClient;
 import br.com.muttley.security.feign.WorkTeamServiceClient;
+import br.com.muttley.security.feign.XAPITokenClient;
 import br.com.muttley.security.feign.auth.AuthenticationTokenServiceClient;
 import br.com.muttley.security.infra.component.AuthenticationTokenFilterClient;
 import br.com.muttley.security.infra.component.DeserializeUserPreferencesEventListener;
@@ -27,6 +29,7 @@ import br.com.muttley.security.infra.service.impl.LocalRolesServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserAuthenticationServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalUserPrefenceServiceImpl;
 import br.com.muttley.security.infra.service.impl.LocalWorkTeamServiceImpl;
+import br.com.muttley.security.infra.service.impl.LocalXAPITokenServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -51,8 +54,10 @@ public class WebSecurityConfig {
     @Autowired
     public AuthenticationTokenFilterClient createAuthenticationTokenFilterClient(
             @Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}") final String tokenHeader,
-            final LocalUserAuthenticationService localUserAuthentication) {
-        return new AuthenticationTokenFilterClient(tokenHeader, localUserAuthentication);
+            @Value("${muttley.security.jwt.controller.xAPITokenHeader:X-Api-Token}") final String xAPIToken,
+            final LocalUserAuthenticationService localUserAuthentication,
+            final LocalXAPITokenService apiTokenService) {
+        return new AuthenticationTokenFilterClient(tokenHeader, xAPIToken, localUserAuthentication, apiTokenService);
     }
 
     @Bean
@@ -115,4 +120,9 @@ public class WebSecurityConfig {
         return new DeserializeUserPreferencesEventListener(ownerService);
     }
 
+    @Bean
+    @Autowired
+    public LocalXAPITokenService createLocalXAPITokenService(final RedisService redisService, final XAPITokenClient XAPITokenClient) {
+        return new LocalXAPITokenServiceImpl(redisService, XAPITokenClient);
+    }
 }
