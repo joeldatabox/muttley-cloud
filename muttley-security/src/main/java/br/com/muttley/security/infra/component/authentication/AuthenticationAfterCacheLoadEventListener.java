@@ -45,12 +45,8 @@ public class AuthenticationAfterCacheLoadEventListener implements ApplicationLis
         //carregando preferencias
         authentication.setPreferences(this.localUserPreferenceService.getUserPreferences(token, authentication.getCurrentUser()));
 
-        authentication.setPreferences(this.localUserPreferenceService.getUserPreferences())
-        user.setPreferences(this.localUserPreferenceService.getUserPreferences(authentication, user));
-        //setando o owner
-        user.setCurrentOwner((OwnerData) user.getPreferences().get(OWNER_PREFERENCE).getResolved());
-        user.setAuthorities(this.rolesService.loadCurrentRoles(event.getJwtToken(), event.getUser()));
-        user.setDataBindings(this.databindingService.getUserDataBindings(authentication, user));
-        user.setWorkTeamDomain(this.localWorkTeamService.getWorkTeamDomain(authentication, user));
+        authentication.setAuthorities(this.rolesService.loadCurrentRoles(event.getToken(), event.getAuthentication().getCurrentUser()));
+        authentication.setDataBindings(this.databindingService.getUserDataBindings(token, authentication.getCurrentUser()));
+        authentication.setWorkTeam(this.localWorkTeamService.getWorkTeamDomain(token, authentication.getCurrentUser()));
     }
 }

@@ -4,10 +4,12 @@ import br.com.muttley.localcache.services.LocalRolesService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.redis.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,12 +32,30 @@ public abstract class AbstractLocalRolesServiceImpl implements LocalRolesService
     }
 
     @Override
+    public Set<Role> loadCurrentRoles(final XAPIToken token, final User user) {
+        throw new NotImplementedException();
+    }
+
+    @Override
     public void expireRoles(final User user) {
         this.redisService.delete(this.getBasicKey(user));
     }
 
     protected void saveRolesInCache(final JwtToken token, final User user, final Set<Role> roles) {
-        this.redisService.set(this.getBasicKey(user), roles.parallelStream().map(Role::getRoleName).collect(Collectors.toSet()), token.getDtExpiration());
+        this.saveRolesInCache(token.getDtExpiration(), user, roles);
+    }
+
+    protected void saveRolesInCache(final XAPIToken token, final User user, final Set<Role> roles) {
+        this.saveRolesInCache(token.generateDtExpiration(), user, roles);
+    }
+
+    private void saveRolesInCache(final Date dtExpiration, final User user, final Set<Role> roles) {
+        this.redisService.set(
+                this.getBasicKey(user),
+                roles.parallelStream()
+                        .map(Role::getRoleName)
+                        .collect(Collectors.toSet()),
+                dtExpiration);
     }
 
     protected Set<Role> loadRolesInCache(final User user) {

@@ -4,6 +4,7 @@ import br.com.muttley.localcache.services.impl.AbstractLocalDatabindingServiceIm
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserDataBinding;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.server.events.CurrentDatabindingResolverEvent;
 import br.com.muttley.security.server.events.CurrentDatabindingResolverEvent.CurrentDatabindingEventItem;
@@ -41,6 +42,23 @@ public class LocalDatabindingServiceImpl extends AbstractLocalDatabindingService
             dataBindings = event.getDataBindings();
             //salvando no cache
             this.saveDatabindingsInCache(jwtUser, user, dataBindings);
+        }
+        return dataBindings;
+    }
+
+    @Override
+    public List<UserDataBinding> getUserDataBindings(final XAPIToken token, final User user) {
+        final List<UserDataBinding> dataBindings;
+        //verificando se já existe no cache
+        if (this.redisService.hasKey(this.getBasicKey(user))) {
+            //recuperando dos itens
+            dataBindings = this.getDatabinDataBindingsInCache(token, user);
+        } else {
+            final CurrentDatabindingResolverEvent event = new CurrentDatabindingResolverEvent(new CurrentDatabindingEventItem(token, user));
+            this.publisher.publishEvent(event);
+            dataBindings = event.getDataBindings();
+            //salvando no cache
+            this.saveDatabindingsInCache(token, user, dataBindings);
         }
         return dataBindings;
     }

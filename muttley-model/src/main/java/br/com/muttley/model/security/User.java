@@ -81,6 +81,8 @@ public class User implements Serializable, UserData {
     private List<UserDataBinding> dataBindings;
     //Define se o usuário é do odin ou de algum outro owner
     private boolean odinUser = false;
+    private String fone;
+
 
     public User() {
         this.authorities = new LinkedHashSet();

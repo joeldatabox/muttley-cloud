@@ -5,6 +5,7 @@ import br.com.muttley.localcache.services.impl.AbstractLocalRolesServiceImpl;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.feign.PassaportServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,21 @@ public class LocalRolesServiceImpl extends AbstractLocalRolesServiceImpl impleme
 
     @Override
     public Set<Role> loadCurrentRoles(final JwtToken token, final User user) {
+        final Set<Role> roles;
+        //verificando se já existe roles para esse usuário
+        if (this.redisService.hasKey(this.getBasicKey(user))) {
+            roles = this.loadRolesInCache(user);
+        } else {
+            //se chegou até aqui precisaremos buscar as roles do server
+            roles = this.passaportService.loadCurrentRoles();
+            //salvando as roles no cache
+            this.saveRolesInCache(token, user, roles);
+        }
+        return roles;
+    }
+
+    @Override
+    public Set<Role> loadCurrentRoles(XAPIToken token, User user) {
         final Set<Role> roles;
         //verificando se já existe roles para esse usuário
         if (this.redisService.hasKey(this.getBasicKey(user))) {

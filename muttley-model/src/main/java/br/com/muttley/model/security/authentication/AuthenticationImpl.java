@@ -19,10 +19,13 @@ import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Transient;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Joel Rodrigues Moreira on 19/09/2022.
@@ -82,9 +85,30 @@ public class AuthenticationImpl implements Authentication {
         return roles.filter(it -> it != null).anyMatch(getAuthorities()::contains);
     }
 
+    @Override
+    public Authentication setAuthorities(Set<Authority> authorities) {
+        this.authorities = authorities;
+        return this;
+    }
+
+    @Override
+    public Authentication setAuthorities(final Collection<Role> roles) {
+        this.authorities = roles.parallelStream().map(it -> new AuthorityImpl(it)).collect(toSet());
+        return this;
+    }
+
+    @Override
+    public boolean isOdiUser() {
+        return odinUser;
+    }
+
+    @Override
+    public Set<Authority> getAuthorities() {
+        return authorities;
+    }
 
     /////////////////////////////////
-    @Override
+    /*@Override
     public String getPassword() {
         return null;
     }
@@ -117,5 +141,5 @@ public class AuthenticationImpl implements Authentication {
     @Override
     public boolean isOdiUser() {
         return false;
-    }
+    }*/
 }

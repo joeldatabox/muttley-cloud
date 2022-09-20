@@ -56,6 +56,10 @@ public abstract class AbstractLocalUserPrefenceServiceImpl implements LocalUserP
         savePreferenceInCache(token.getDtExpiration(), user, userPreferences);
     }
 
+    protected void savePreferenceInCache(final XAPIToken token, final User user, final UserPreferences userPreferences) {
+        savePreferenceInCache(token.generateDtExpiration(), user, userPreferences);
+    }
+
     protected void savePreferenceInCache(final Date dtExpiration, final User user, final UserPreferences userPreferences) {
         final Map<String, Object> userPreferencesMap = new HashMap<>();
         userPreferencesMap.put("id", userPreferences.getId());
@@ -76,6 +80,14 @@ public abstract class AbstractLocalUserPrefenceServiceImpl implements LocalUserP
     }
 
     protected UserPreferences getPreferenceInCache(final JwtToken token, final User user) {
+        return this.getPreferenceInCache(user);
+    }
+
+    protected UserPreferences getPreferenceInCache(final XAPIToken token, final User user) {
+        return this.getPreferenceInCache(user);
+    }
+
+    private UserPreferences getPreferenceInCache(final User user) {
         final Map<String, Object> userPreferencesMap = (Map<String, Object>) this.redisService.get(this.getBasicKey(user));
         final UserPreferences preferences = new UserPreferences();
         preferences.setId(String.valueOf(userPreferencesMap.get("id")));

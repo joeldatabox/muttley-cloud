@@ -2,12 +2,13 @@ package br.com.muttley.model.security.authentication;
 
 import br.com.muttley.model.security.Authority;
 import br.com.muttley.model.security.Owner;
+import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserDataBinding;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.model.workteam.WorkTeamDomain;
-import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ import java.util.Set;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public interface Authentication extends UserDetails {
+public interface Authentication {
     User getCurrentUser();
 
     Authentication setCurrentUser(final User user);
@@ -28,6 +29,8 @@ public interface Authentication extends UserDetails {
     Set<Authority> getAuthorities();
 
     Authentication setAuthorities(final Set<Authority> authorities);
+
+    Authentication setAuthorities(final Collection<Role> roles);
 
     WorkTeamDomain getWorkTeam();
 

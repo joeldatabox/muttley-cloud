@@ -22,6 +22,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.NotNull;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -117,5 +119,9 @@ public class XAPIToken implements Model<Owner>, UserDetails {
     @Override
     public boolean isEnabled() {
         return false;
+    }
+
+    public Date generateDtExpiration() {
+        return Date.from(Instant.now().plus(Duration.ofHours(2)));
     }
 }

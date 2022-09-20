@@ -41,11 +41,11 @@ public class CurrentDatabindingResolverEvent extends ApplicationEvent {
     }
 
     @Getter
-    public static class CurrentDatabindingEventItem {
-        private final JwtToken token;
+    public static class CurrentDatabindingEventItem<T> {
+        private final T token;
         private final User user;
 
-        public CurrentDatabindingEventItem(final JwtToken token, final User user) {
+        public CurrentDatabindingEventItem(final T token, final User user) {
             this.token = token;
             this.user = user;
         }

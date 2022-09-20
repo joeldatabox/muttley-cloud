@@ -5,6 +5,7 @@ import br.com.muttley.localcache.services.LocalUserPreferenceService;
 import br.com.muttley.localcache.services.impl.AbstractLocalUserPrefenceServiceImpl;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.model.security.events.DeserializeUserPreferencesEvent;
 import br.com.muttley.model.security.events.DeserializeUserPreferencesEvent.UserPreferencesResolverEventItem;
 import br.com.muttley.model.security.preference.UserPreferences;
@@ -58,5 +59,30 @@ public class LocalUserPrefenceServiceImpl extends AbstractLocalUserPrefenceServi
         }
         throw new MuttleySecurityBadRequestException(UserPreferences.class, "user", "O usuário informado é diferente do presente no token");
     }
+
+    @Override
+    public UserPreferences getUserPreferences(XAPIToken token, User user) {
+        final UserPreferences preferences;
+        //verificando se já existe a chave
+        if (this.redisService.hasKey(this.getBasicKey(user))) {
+            //recuperando as preferencias do usuário do cache
+            preferences = this.getPreferenceInCache(token, user);
+        } else {
+            //se chegou aqui é sinal que ainda não exite um preferencia carregada em cache, logo devemo buscar
+            //recuperando as preferencias do servidor de segurança
+            preferences = userPreferenceService.getUserPreferences();
+            //salvando no cache para evitar loops desnecessários
+            this.savePreferenceInCache(token, user, preferences);
+        }
+        if (preferences != null) {
+            //por comodidade vamo disparar o evento para resolução dos itens das preferencias
+            final DeserializeUserPreferencesEvent event = new DeserializeUserPreferencesEvent(new UserPreferencesResolverEventItem(user, preferences));
+            this.publisher.publishEvent(event);
+            //salvando no cache novamente para guardar as modificações
+            this.savePreferenceInCache(token, user, preferences);
+        }
+        return preferences;
+    }
+
 
 }
