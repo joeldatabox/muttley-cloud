@@ -73,7 +73,8 @@ public class CreateUserController {
                 (String) payload.get(EMAIL),
                 (String) payload.get(USER_NAME),
                 payload.containsKey(NICK_NAMES) ? new HashSet((List) payload.get(NICK_NAMES)) : null,
-                (String) payload.get(PASSWD)
+                (String) payload.get(PASSWD),
+                null
         );
         this.eventPublisher.publishEvent(new UserCreatedEvent(service.save(user, "true")));
     }

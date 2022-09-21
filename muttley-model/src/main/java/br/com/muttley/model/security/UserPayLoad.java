@@ -28,6 +28,7 @@ public class UserPayLoad implements Serializable {
     private Set<String> nickUsers;
     @NotBlank(message = "Informe uma senha valida!")
     private String passwd;
+    private String fone;
     //private Set<UserDataBinding> dataBindings;
 
     @JsonCreator
@@ -37,7 +38,8 @@ public class UserPayLoad implements Serializable {
             @JsonProperty("email") final String email,
             @JsonProperty("userName") final String userName,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
-            @JsonProperty("passwd") final String passwd
+            @JsonProperty("passwd") final String passwd,
+            @JsonProperty("fone") String fone
             /*@JsonProperty("dataBindings") final Set<UserDataBinding> dataBindings*/) {
         this.name = name;
         this.description = description;
@@ -72,6 +74,15 @@ public class UserPayLoad implements Serializable {
         return passwd;
     }
 
+    public String getFone() {
+        return fone;
+    }
+
+    public UserPayLoad setFone(String fone) {
+        this.fone = fone;
+        return this;
+    }
+
     public static final class Builder {
         private String name;
         private String description;
@@ -79,6 +90,7 @@ public class UserPayLoad implements Serializable {
         private String userName;
         private Set<String> nickUsers;
         private String passwd;
+        private String fone;
 
         private Builder() {
         }
@@ -113,6 +125,11 @@ public class UserPayLoad implements Serializable {
             return this;
         }
 
+        public Builder setFone(String fone) {
+            this.fone = fone;
+            return this;
+        }
+
         public Builder set(final User user) {
             return this.setName(user.getName())
                     .setDescription(user.getDescription())
@@ -126,7 +143,7 @@ public class UserPayLoad implements Serializable {
         }
 
         public UserPayLoad build() {
-            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd);
+            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd, this.fone);
         }
     }
 }

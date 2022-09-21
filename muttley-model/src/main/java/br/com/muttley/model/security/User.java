@@ -103,13 +103,15 @@ public class User implements Serializable, UserData {
             @JsonProperty("authorities") final Set<Authority> authorities,
             @JsonProperty("preferences") final UserPreferences preferences,
             @JsonProperty("workTeamDomain") final WorkTeamDomain workTeamDomain,
-            @JsonProperty("dataBindings") final List<UserDataBinding> dataBindings) {
+            @JsonProperty("dataBindings") final List<UserDataBinding> dataBindings,
+            @JsonProperty("fone")String fone) {
         this.id = id;
         this.currentOwner = currentOwner;
         this.name = name;
         this.description = description;
         this.userName = userName;
         this.email = email;
+        this.fone = fone;
         this.setNickUsers(nickUsers);
         this.enable = enable;
         this.authorities = authorities;
