@@ -20,7 +20,7 @@ public class UserCreatedEventListener implements ApplicationListener<UserCreated
     private final ApplicationEventPublisher applicationEventPublisher;
     private final NoSecurityOwnerService ownerService;
 
-    public UserCreatedEventListener(@Value("${muttley.security.owner.autoCreateBefore:true}") boolean autoCreateOwner, final ApplicationEventPublisher applicationEventPublisher, NoSecurityOwnerService ownerService) {
+    public UserCreatedEventListener(@Value("${muttley.security-server.owner.autoCreateBefore:false}") boolean autoCreateOwner, final ApplicationEventPublisher applicationEventPublisher, NoSecurityOwnerService ownerService) {
         this.autoCreateOwner = autoCreateOwner;
         this.applicationEventPublisher = applicationEventPublisher;
         this.ownerService = ownerService;

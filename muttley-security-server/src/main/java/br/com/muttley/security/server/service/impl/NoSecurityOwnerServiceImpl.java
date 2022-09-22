@@ -3,6 +3,7 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.domain.service.Validator;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.headers.services.MetadataService;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.Passaport;
 import br.com.muttley.security.server.events.NoSecurityOwnerCreateEvent;
@@ -22,6 +23,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class NoSecurityOwnerServiceImpl implements NoSecurityOwnerService {
     protected final OwnerRepository repository;
+    @Autowired
+    protected MetadataService metadataService;
     private final MongoTemplate template;
 
     @Autowired
@@ -59,6 +62,8 @@ public class NoSecurityOwnerServiceImpl implements NoSecurityOwnerService {
         /*//verificando precondições
         this.checkPrecondictionSave(user, value);
         this.beforeSave(user, value);*/
+        //garantindo que o metadata ta preenchido
+        this.metadataService.generateNewMetadataFor(owner.getUserMaster(), owner);
         final Owner salvedOwner = this.repository.save(owner);
         this.publisher.publishEvent(new NoSecurityOwnerCreateEvent(salvedOwner));
         return salvedOwner;
