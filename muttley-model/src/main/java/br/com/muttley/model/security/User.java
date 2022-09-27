@@ -104,7 +104,7 @@ public class User implements Serializable, UserData {
             @JsonProperty("preferences") final UserPreferences preferences,
             @JsonProperty("workTeamDomain") final WorkTeamDomain workTeamDomain,
             @JsonProperty("dataBindings") final List<UserDataBinding> dataBindings,
-            @JsonProperty("fone")String fone) {
+            @JsonProperty("fone") String fone) {
         this.id = id;
         this.currentOwner = currentOwner;
         this.name = name;
@@ -127,6 +127,7 @@ public class User implements Serializable, UserData {
         this.setUserName(payLoad.getUserName());
         this.setEmail(payLoad.getEmail());
         this.setNickUsers(payLoad.getNickUsers());
+        this.setOdinUser(payLoad.isOdinUser());
         /*if (!isEmpty(payLoad.getPasswd())) {
             this.setPasswd(payLoad.getPasswd());
         }*/

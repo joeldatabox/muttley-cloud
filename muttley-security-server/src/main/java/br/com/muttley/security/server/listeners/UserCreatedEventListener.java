@@ -29,14 +29,15 @@ public class UserCreatedEventListener implements ApplicationListener<UserCreated
     @Override
     public void onApplicationEvent(UserCreatedEvent userCreatedEvent) {
         if (this.autoCreateOwner) {
-            final AccessPlanDefaultEvent event = new AccessPlanDefaultEvent("");
-            this.applicationEventPublisher.publishEvent(event);
-            final Owner owner = new Owner()
-                    .setUserMaster(userCreatedEvent.getUser())
-                    .setAccessPlan(event.getResolved())
-                    .setName("Meus dados(" + userCreatedEvent.getUser().getName() + ")");
-            this.ownerService.save(owner);
-
+            if (!userCreatedEvent.getUser().isOdinUser()) {
+                final AccessPlanDefaultEvent event = new AccessPlanDefaultEvent("");
+                this.applicationEventPublisher.publishEvent(event);
+                final Owner owner = new Owner()
+                        .setUserMaster(userCreatedEvent.getUser())
+                        .setAccessPlan(event.getResolved())
+                        .setName("Meus dados(" + userCreatedEvent.getUser().getName() + ")");
+                this.ownerService.save(owner);
+            }
         }
 
     }

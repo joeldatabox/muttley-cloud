@@ -1,5 +1,6 @@
 package br.com.muttley.model.hermes.notification.twilio;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -13,6 +14,10 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 public class SMSPayload {
+    @JsonProperty("To")
     private String to;
+    @JsonProperty("Body")
     private String body;
+    @JsonProperty("MessagingServiceSid")
+    private String serviceSid;
 }

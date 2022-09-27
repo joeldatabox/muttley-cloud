@@ -1,21 +1,25 @@
 package br.com.muttley.security.server.listeners;
 
 import br.com.muttley.model.security.Passaport;
+import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.events.NoSecurityOwnerCreateEvent;
-import br.com.muttley.security.server.events.OwnerCreateEvent;
 import br.com.muttley.security.server.service.AuthService;
 import br.com.muttley.security.server.service.NoSecurityUserBaseService;
 import br.com.muttley.security.server.service.PassaportService;
-import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Collectors;
+
 import static br.com.muttley.model.security.Role.ROLE_OWNER;
+import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_CREATE;
+import static br.com.muttley.model.security.Role.ROLE_ROOT;
+import static br.com.muttley.model.security.Role.ROLE_USER_DATA_BINDING_CREATE;
 import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PREFERENCE;
 
 /**
@@ -56,6 +60,30 @@ public class NoSecurityOwnerCreateEventListener implements ApplicationListener<N
 
         passaport = this.service.save(userMaster, passaport);
 
+        Passaport passaportGestores = new Passaport()
+                .setName("Gestores")
+                .setDescription("Grupo de gestores")
+                .setOwner(ownerCreateEvent.getSource())
+                .setUserMaster(userMaster)
+                .addMember(userMaster)
+                .addRoles(Role
+                        .getValues()
+                        .parallelStream()
+                        .filter(it -> {
+                            final String roleName = it.getRoleName();
+
+                            return !roleName.equals(ROLE_OWNER.getRoleName())
+                                    && !roleName.equals(ROLE_ROOT.getRoleName())
+                                    && !roleName.contains(ROLE_PASSAPORT_CREATE.getSimpleName())
+                                    && !roleName.contains(ROLE_USER_DATA_BINDING_CREATE.getSimpleName())
+                                    && !roleName.endsWith("CREATE")
+                                    && !roleName.endsWith("UPDATE")
+                                    && !roleName.endsWith("DELETE");
+                        })
+                        .collect(Collectors.toSet())
+                );
+
+        passaportGestores = this.service.save(userMaster, passaportGestores);
         /*Já que acabamos de criar um Owner, devemos verificar se o usuário master já tem algumas preferencias básicas
          * tudo isso para evitar erros
          */

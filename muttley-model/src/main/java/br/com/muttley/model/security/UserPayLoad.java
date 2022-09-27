@@ -29,6 +29,7 @@ public class UserPayLoad implements Serializable {
     @NotBlank(message = "Informe uma senha valida!")
     private String passwd;
     private String fone;
+    private boolean odinUser = false;
     //private Set<UserDataBinding> dataBindings;
 
     @JsonCreator
@@ -39,7 +40,9 @@ public class UserPayLoad implements Serializable {
             @JsonProperty("userName") final String userName,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
             @JsonProperty("passwd") final String passwd,
-            @JsonProperty("fone") String fone
+            @JsonProperty("fone") String fone,
+            @JsonProperty("odinUser") boolean odinUser
+
             /*@JsonProperty("dataBindings") final Set<UserDataBinding> dataBindings*/) {
         this.name = name;
         this.description = description;
@@ -47,6 +50,8 @@ public class UserPayLoad implements Serializable {
         this.userName = userName;
         this.nickUsers = nickUsers;
         this.passwd = passwd;
+        this.fone = fone;
+        this.odinUser = odinUser;
         //this.dataBindings = dataBindings;
     }
 
@@ -83,6 +88,15 @@ public class UserPayLoad implements Serializable {
         return this;
     }
 
+    public boolean isOdinUser() {
+        return odinUser;
+    }
+
+    public UserPayLoad setOdinUser(boolean odinUser) {
+        this.odinUser = odinUser;
+        return this;
+    }
+
     public static final class Builder {
         private String name;
         private String description;
@@ -91,6 +105,8 @@ public class UserPayLoad implements Serializable {
         private Set<String> nickUsers;
         private String passwd;
         private String fone;
+
+        private boolean odinUser;
 
         private Builder() {
         }
@@ -130,12 +146,18 @@ public class UserPayLoad implements Serializable {
             return this;
         }
 
+        public Builder setOdinUser(boolean odinUser) {
+            this.odinUser = odinUser;
+            return this;
+        }
+
         public Builder set(final User user) {
             return this.setName(user.getName())
                     .setDescription(user.getDescription())
                     .setEmail(user.getEmail())
                     .setUserName(user.getUserName())
-                    .setNickUsers(user.getNickUsers());
+                    .setNickUsers(user.getNickUsers())
+                    .setOdinUser(user.isOdinUser());
         }
 
         public static Builder newInstance() {
@@ -143,7 +165,7 @@ public class UserPayLoad implements Serializable {
         }
 
         public UserPayLoad build() {
-            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd, this.fone);
+            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd, this.fone, this.odinUser);
         }
     }
 }

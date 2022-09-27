@@ -55,9 +55,15 @@ public class AccessPlanConfig implements ApplicationListener<ApplicationReadyEve
     }
 
     private final Collection<AccessPlan> getDefaultPlanos() {
-        return asList(new AccessPlan()
-
-                .setName("Básico")
-                .setTotalUsers(10));
+        return asList(
+                new AccessPlan()
+                        .setName("Básico")
+                        .setTotalUsers(10)
+                        .setDescription("Plano de acesso básico"),
+                new AccessPlan()
+                        .setName("Premium")
+                        .setTotalUsers(10)
+                        .setDescription("Plano de acesso premium")
+        );
     }
 }
