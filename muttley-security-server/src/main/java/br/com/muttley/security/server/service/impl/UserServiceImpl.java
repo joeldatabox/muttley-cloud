@@ -13,6 +13,7 @@ import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.events.UserCreatedEvent;
+import br.com.muttley.model.security.events.ValidadeUserForeCreateEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
@@ -63,6 +64,9 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Service
 public class UserServiceImpl implements UserService {
 
+    @Value("${muttley.security-server.validateUserFoneNumber:false}")
+    protected boolean validateFoneNumber;
+
     private final UserRepository repository;
     private final UserPreferencesService preferencesService;
     private final UserDataBindingService dataBindingService;
@@ -99,9 +103,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(final UserPayLoad value) {
-        final User newUser = this.save(new User(value));
-        this.passwordService.createPasswordFor(newUser, value.getPasswd());
-        return newUser;
+        //verificanso se já existe o usuário
+        this.checkIndexUser(new User(value));
+
+        if (this.validateFoneNumber && !value.isOdinUser()) {
+            final ValidadeUserForeCreateEvent validadeUserForeCreateEvent = new ValidadeUserForeCreateEvent(value);
+            this.eventPublisher.publishEvent(validadeUserForeCreateEvent);
+            if (value.seedHasBeeVerificate()) {
+                final User newUser = this.save(new User(value));
+                this.passwordService.createPasswordFor(newUser, value.getPasswd());
+                return newUser;
+            }
+            throw new MuttleyBadRequestException(null, null, "Código de verificação invalido");
+        } else {
+            final User newUser = this.save(new User(value));
+            this.passwordService.createPasswordFor(newUser, value.getPasswd());
+            return newUser;
+        }
+
     }
 
     @Override

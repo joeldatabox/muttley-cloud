@@ -2,6 +2,7 @@ package br.com.muttley.notification.twilio.service.impl;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.codec.Base64;
 
 import java.nio.charset.Charset;
@@ -15,7 +16,7 @@ public class TwilioBasicAuthorizationRequestInterceptor implements RequestInterc
     private static final Charset CHARSET = Charset.forName("ISO-8859-1");
     private final String AUTHENTICATION;
 
-    public TwilioBasicAuthorizationRequestInterceptor(final String user, final String password) {
+    public TwilioBasicAuthorizationRequestInterceptor(@Value("${muttley.notification.twilio.accountSid}") final String user, @Value("${muttley.notification.twilio.accountToken}") final String password) {
         this.AUTHENTICATION = base64Encode(user + ":" + password);
     }
 

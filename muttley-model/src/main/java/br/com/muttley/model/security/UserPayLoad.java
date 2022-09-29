@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -30,6 +31,11 @@ public class UserPayLoad implements Serializable {
     private String passwd;
     private String fone;
     private boolean odinUser = false;
+
+    //numero enviado por sms para confirma o numero telefonico
+    private String seedVerification;
+    //numero que mobilidade receber e que deve ser comparado com o seed
+    private String codeVerification;
     //private Set<UserDataBinding> dataBindings;
 
     @JsonCreator
@@ -41,7 +47,9 @@ public class UserPayLoad implements Serializable {
             @JsonProperty("nickUsers") final Set<String> nickUsers,
             @JsonProperty("passwd") final String passwd,
             @JsonProperty("fone") String fone,
-            @JsonProperty("odinUser") boolean odinUser
+            @JsonProperty("odinUser") boolean odinUser,
+            @JsonProperty("seedVerification") String seedVerification,
+            @JsonProperty("codeVerification") String codeVerification
 
             /*@JsonProperty("dataBindings") final Set<UserDataBinding> dataBindings*/) {
         this.name = name;
@@ -52,6 +60,8 @@ public class UserPayLoad implements Serializable {
         this.passwd = passwd;
         this.fone = fone;
         this.odinUser = odinUser;
+        this.seedVerification = seedVerification;
+        this.codeVerification = codeVerification;
         //this.dataBindings = dataBindings;
     }
 
@@ -97,6 +107,31 @@ public class UserPayLoad implements Serializable {
         return this;
     }
 
+    public String getSeedVerification() {
+        return seedVerification;
+    }
+
+    public UserPayLoad setSeedVerification(String seedVerification) {
+        this.seedVerification = seedVerification;
+        return this;
+    }
+
+    public String getCodeVerification() {
+        return codeVerification;
+    }
+
+    public UserPayLoad setCodeVerification(String codeVerification) {
+        this.codeVerification = codeVerification;
+        return this;
+    }
+
+    public boolean seedHasBeeVerificate() {
+        if (this.getSeedVerification() == null) {
+            return false;
+        }
+        return Objects.equals(this.getSeedVerification(), this.getCodeVerification());
+    }
+
     public static final class Builder {
         private String name;
         private String description;
@@ -107,6 +142,11 @@ public class UserPayLoad implements Serializable {
         private String fone;
 
         private boolean odinUser;
+
+        //numero enviado por sms para confirma o numero telefonico
+        private String seedVerification;
+        //numero que mobilidade receber e que deve ser comparado com o seed
+        private String codeVerification;
 
         private Builder() {
         }
@@ -151,6 +191,16 @@ public class UserPayLoad implements Serializable {
             return this;
         }
 
+        public Builder setSeedVerification(String seedVerification) {
+            this.seedVerification = seedVerification;
+            return this;
+        }
+
+        public Builder setCodeVerification(String codeVerification) {
+            this.codeVerification = codeVerification;
+            return this;
+        }
+
         public Builder set(final User user) {
             return this.setName(user.getName())
                     .setDescription(user.getDescription())
@@ -165,7 +215,7 @@ public class UserPayLoad implements Serializable {
         }
 
         public UserPayLoad build() {
-            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd, this.fone, this.odinUser);
+            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd, this.fone, this.odinUser, this.seedVerification, this.codeVerification);
         }
     }
 }

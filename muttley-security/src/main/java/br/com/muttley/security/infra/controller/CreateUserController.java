@@ -4,8 +4,10 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestExc
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.events.UserCreatedEvent;
+import br.com.muttley.model.security.events.ValidadeUserForeCreateEvent;
 import br.com.muttley.security.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +27,8 @@ import java.util.Map;
  */
 public class CreateUserController {
 
+
+
     protected final ApplicationEventPublisher eventPublisher;
     protected UserServiceClient service;
     protected static final String NOME = "name";
@@ -33,6 +37,8 @@ public class CreateUserController {
     protected static final String EMAIL = "email";
     protected static final String PASSWD = "password";
     protected static final String NICK_NAMES = "nickNames";
+    protected static final String FONE = "fone";
+    protected static final String CODE_VERIFICATION = "code";
 
     @Autowired
     public CreateUserController(final ApplicationEventPublisher eventPublisher, final UserServiceClient service) {
@@ -59,13 +65,13 @@ public class CreateUserController {
 
         }*/
 
-        if (payload.size() > 4) {
+        /*if (payload.size() > 4) {
             throw new MuttleySecurityBadRequestException(User.class, null, "Por favor informe somente o nome, userName, nickNames e a senha")
                     .addDetails(NOME, "Nome completo")
                     .addDetails(USER_NAME, "Informe um userName válido")
                     .addDetails(PASSWD, "Informe uma senha válida")
                     .addDetails(NICK_NAMES, "Informe possíveis nickNames");
-        }
+        }*/
 
         final UserPayLoad user = new UserPayLoad(
                 (String) payload.get(NOME),
@@ -74,8 +80,10 @@ public class CreateUserController {
                 (String) payload.get(USER_NAME),
                 payload.containsKey(NICK_NAMES) ? new HashSet((List) payload.get(NICK_NAMES)) : null,
                 (String) payload.get(PASSWD),
+                (String) payload.get(FONE),
+                false,
                 null,
-                false
+                (String) payload.get(CODE_VERIFICATION)
         );
         this.eventPublisher.publishEvent(new UserCreatedEvent(service.save(user, "true")));
     }
