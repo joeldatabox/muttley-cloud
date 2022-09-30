@@ -20,4 +20,26 @@ public class SMSPayload {
     private String body;
     @JsonProperty("MessagingServiceSid")
     private String serviceSid;
+
+    public SMSPayload setTo(String to) {
+        if (to != null) {
+            this.to = to.replaceAll("\\D+", "");
+            switch (this.to.length()) {
+                //se tem 13 caractéres logo, devemos add somente o + no inicio
+                case 13:
+                    this.to = "+" + this.to;
+                    break;
+                //se tem 111 caractéres logo, devemos add somente o +55 no inicio
+                case 11:
+                    this.to = "+55" + this.to;
+                    break;
+                default:
+
+            }
+
+        } else {
+            this.to = to;
+        }
+        return this;
+    }
 }

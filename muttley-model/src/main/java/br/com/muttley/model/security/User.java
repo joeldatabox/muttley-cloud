@@ -128,6 +128,7 @@ public class User implements Serializable, UserData {
         this.setEmail(payLoad.getEmail());
         this.setNickUsers(payLoad.getNickUsers());
         this.setOdinUser(payLoad.isOdinUser());
+        this.setFone(payLoad.getFone());
         /*if (!isEmpty(payLoad.getPasswd())) {
             this.setPasswd(payLoad.getPasswd());
         }*/
@@ -239,6 +240,15 @@ public class User implements Serializable, UserData {
         if (nickUsers != null) {
             this.nickUsers = nickUsers.parallelStream().map(String::toLowerCase).collect(toSet());
         }
+        return this;
+    }
+
+    public String getFone() {
+        return fone;
+    }
+
+    public User setFone(String fone) {
+        this.fone = fone;
         return this;
     }
 
