@@ -113,6 +113,8 @@ public class UserServiceImpl implements UserService {
                 final User newUser = this.save(new User(value));
                 this.passwordService.createPasswordFor(newUser, value.getPasswd());
                 return newUser;
+            } else if (value.codeVerificationIsEmpty()) {
+                return null;
             }
             throw new MuttleyBadRequestException(null, null, "Código de verificação invalido");
         } else {

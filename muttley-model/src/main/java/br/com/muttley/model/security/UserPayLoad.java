@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.util.ObjectUtils;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -34,8 +35,11 @@ public class UserPayLoad implements Serializable {
 
     //numero enviado por sms para confirma o numero telefonico
     private String seedVerification;
+
     //numero que mobilidade receber e que deve ser comparado com o seed
     private String codeVerification;
+
+    private boolean renewCode = false;
     //private Set<UserDataBinding> dataBindings;
 
     @JsonCreator
@@ -49,7 +53,8 @@ public class UserPayLoad implements Serializable {
             @JsonProperty("fone") String fone,
             @JsonProperty("odinUser") boolean odinUser,
             @JsonProperty("seedVerification") String seedVerification,
-            @JsonProperty("codeVerification") String codeVerification
+            @JsonProperty("codeVerification") String codeVerification,
+            @JsonProperty("renewCode") boolean renewCode
 
             /*@JsonProperty("dataBindings") final Set<UserDataBinding> dataBindings*/) {
         this.name = name;
@@ -62,6 +67,7 @@ public class UserPayLoad implements Serializable {
         this.odinUser = odinUser;
         this.seedVerification = seedVerification;
         this.codeVerification = codeVerification;
+        this.renewCode = renewCode;
         //this.dataBindings = dataBindings;
     }
 
@@ -132,6 +138,23 @@ public class UserPayLoad implements Serializable {
         return Objects.equals(this.getSeedVerification(), this.getCodeVerification());
     }
 
+    public boolean seedVerificationIsEmpty() {
+        return ObjectUtils.isEmpty(this.getSeedVerification());
+    }
+
+    public boolean codeVerificationIsEmpty() {
+        return ObjectUtils.isEmpty(this.getCodeVerification());
+    }
+
+    public boolean isRenewCode() {
+        return renewCode;
+    }
+
+    public UserPayLoad setRenewCode(boolean renewCode) {
+        this.renewCode = renewCode;
+        return this;
+    }
+
     public static final class Builder {
         private String name;
         private String description;
@@ -147,6 +170,7 @@ public class UserPayLoad implements Serializable {
         private String seedVerification;
         //numero que mobilidade receber e que deve ser comparado com o seed
         private String codeVerification;
+        private boolean renewCode = false;
 
         private Builder() {
         }
@@ -201,6 +225,11 @@ public class UserPayLoad implements Serializable {
             return this;
         }
 
+        public Builder setRenewCode(boolean renewCode) {
+            this.renewCode = renewCode;
+            return this;
+        }
+
         public Builder set(final User user) {
             return this.setName(user.getName())
                     .setDescription(user.getDescription())
@@ -215,7 +244,7 @@ public class UserPayLoad implements Serializable {
         }
 
         public UserPayLoad build() {
-            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd, this.fone, this.odinUser, this.seedVerification, this.codeVerification);
+            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd, this.fone, this.odinUser, this.seedVerification, this.codeVerification, this.renewCode);
         }
     }
 }

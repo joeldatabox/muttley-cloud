@@ -4,12 +4,11 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestExc
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.events.UserCreatedEvent;
-import br.com.muttley.model.security.events.ValidadeUserForeCreateEvent;
 import br.com.muttley.security.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,7 +27,6 @@ import java.util.Map;
 public class CreateUserController {
 
 
-
     protected final ApplicationEventPublisher eventPublisher;
     protected UserServiceClient service;
     protected static final String NOME = "name";
@@ -40,6 +38,8 @@ public class CreateUserController {
     protected static final String FONE = "fone";
     protected static final String CODE_VERIFICATION = "code";
 
+    protected static final String RENEW_CODE_VERIFICATION = "renewCode";
+
     @Autowired
     public CreateUserController(final ApplicationEventPublisher eventPublisher, final UserServiceClient service) {
         this.eventPublisher = eventPublisher;
@@ -48,7 +48,7 @@ public class CreateUserController {
 
     @RequestMapping(value = "${muttley.security.jwt.controller.createEndPoint}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public void save(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
+    public ResponseEntity save(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
 
         if (
                 !((payload.containsKey("name") && payload.containsKey("password") && payload.containsKey("email")) ||
@@ -83,8 +83,15 @@ public class CreateUserController {
                 (String) payload.get(FONE),
                 false,
                 null,
-                (String) payload.get(CODE_VERIFICATION)
+                (String) payload.get(CODE_VERIFICATION),
+                (payload.get(RENEW_CODE_VERIFICATION) == null? false: (Boolean)payload.get(RENEW_CODE_VERIFICATION))
         );
-        this.eventPublisher.publishEvent(new UserCreatedEvent(service.save(user, "true")));
+        final User salvedUser = service.save(user, "true");
+        if (salvedUser == null) {
+            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        } else {
+            this.eventPublisher.publishEvent(new UserCreatedEvent(salvedUser));
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
