@@ -110,7 +110,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         }
         //verificando se o registro realmente existe
         if (!this.repository.exists(value)) {
-            throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
+            throw this.createNotFoundExceptionById(user, value.getId());
+            //throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         value.setOwner(user);
         //gerando metadata de alteração
@@ -184,8 +185,9 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         }
         final List<T> valuesNotSaved = agroupedValues.get(Boolean.FALSE);
         if (!CollectionUtils.isEmpty(valuesNotSaved)) {
-            throw new MuttleyNotFoundException(clazz, "id", "Registros não encontrados")
-                    .addDetails("ids", valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));
+            throw this.createNotFoundExceptionById(user, valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));
+            /*throw new MuttleyNotFoundException(clazz, "id", "Registros não encontrados")
+                    .addDetails("ids", valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));*/
         }
     }
 
@@ -219,7 +221,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
 
         final T result = this.repository.findOne(user.getCurrentOwner(), id);
         if (isNull(result)) {
-            throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, id);
+            //throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return result;
     }
@@ -237,7 +240,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
                 )
                 , clazz, clazz);
         if (results == null || results.getUniqueMappedResult() == null) {
-            throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, id);
+            //throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return results.getUniqueMappedResult();
     }
@@ -263,7 +267,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     public T findFirst(final User user) {
         final T result = this.repository.findFirst(user.getCurrentOwner());
         if (isNull(result)) {
-            throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
+            throw this.createNotFoundExceptionById(user).setField("user");
+            //throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
         }
         return result;
     }
@@ -273,7 +278,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         this.beforeDelete(user, id);
         checkPrecondictionDelete(user, id);
         if (!repository.exists(user.getCurrentOwner(), id)) {
-            throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, id);
+            //throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         this.repository.delete(user.getCurrentOwner(), id);
         this.afterDelete(user, id);
@@ -284,7 +290,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         this.beforeDelete(user, value);
         checkPrecondictionDelete(user, value.getId());
         if (!repository.exists(user.getCurrentOwner(), value)) {
-            throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, value.getId());
+            //throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
         }
         this.repository.delete(user.getCurrentOwner(), value);
         this.afterDelete(user, value);

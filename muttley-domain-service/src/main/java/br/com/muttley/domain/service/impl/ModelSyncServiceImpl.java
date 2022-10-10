@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.joining;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
@@ -141,7 +142,8 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
                     )
                     , clazz, clazz);
             if (results == null || results.getUniqueMappedResult() == null) {
-                throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+                throw this.createNotFoundExceptionById(user, id);
+                //throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
             }
             result = results.getUniqueMappedResult();
             this.localModelService.addReferenceCache(user, result, id);
@@ -268,8 +270,9 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
                                         .and("sync").is(sync)
                         ), clazz);
         if (value == null) {
-            throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
-                    .addDetails("syncInformado", sync);
+            throw this.createNotFoundExceptionBySync(user, sync);
+            /*throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
+                    .addDetails("syncInformado", sync);*/
         }
             /*this.localModelService.addCache(user, (Model) value, sync);
         }*/
@@ -291,8 +294,9 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
                     )
                     , clazz, clazz);
             if (results == null || results.getUniqueMappedResult() == null) {
-                throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
-                        .addDetails("syncInformado", sync);
+                throw this.createNotFoundExceptionBySync(user, sync);
+                /*throw new MuttleyNotFoundException(clazz, "sync", "Registro não encontrado!")
+                        .addDetails("syncInformado", sync);*/
             }
             result = results.getUniqueMappedResult();
             this.localModelService.addReferenceCache(user, result, sync);
@@ -436,5 +440,25 @@ public abstract class ModelSyncServiceImpl<T extends ModelSync> extends ModelSer
 
     protected void validadeIdOrSync(final String idSync) {
         this.validadeSyncParam(idSync);
+    }
+
+    protected MuttleyNotFoundException createNotFoundExceptionBySync(final User user) {
+        return new MuttleyNotFoundException(clazz, "sync", this.getSingularNameAlias(this.clazz) + " não encontrado(a)");
+    }
+
+    protected MuttleyNotFoundException createNotFoundExceptionBySync(final User user, final String sync) {
+        final MuttleyNotFoundException exception = new MuttleyNotFoundException(clazz, "id", this.getSingularNameAlias(this.clazz) + "(" + sync + ") não encontrado(a)");
+        exception.addDetails("sync", sync);
+        return exception;
+    }
+
+    protected MuttleyNotFoundException createNotFoundExceptionBySync(final User user, final Collection<String> syncs) {
+        final String syncsConcat = syncs.parallelStream()
+                .limit(3)
+                .collect(joining(", "));
+
+        final MuttleyNotFoundException exception = new MuttleyNotFoundException(clazz, "id", this.getSingularNameAlias(this.clazz) + "(" + syncsConcat + ") não encontrados(as)");
+        exception.addDetails("syncs", syncs);
+        return exception;
     }
 }
