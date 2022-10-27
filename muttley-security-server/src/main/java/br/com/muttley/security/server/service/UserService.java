@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.service;
 
 import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.preference.Preference;
@@ -64,4 +65,6 @@ public interface UserService {
     User getUserFromPreference(final Preference preference);
 
     boolean constainsPreference(final User user, final String keyPreference);
+
+    void recoveryPassword(RecoveryPayload recovery);
 }

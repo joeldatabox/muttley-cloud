@@ -28,6 +28,7 @@ public class UserView implements UserData, Document {
     private String email;
     private Set<String> nickUsers;
     private boolean status;
+    private String fone;
     @DBRef
     @JsonIgnore
     private Owner owner;
@@ -43,6 +44,7 @@ public class UserView implements UserData, Document {
                 .setUserName(user.getUserName())
                 .setEmail(user.getEmail())
                 .setNickUsers(user.getNickUsers())
+                .setFone(user.getFone())
                 .setOwner(user.getCurrentOwner());
     }
 

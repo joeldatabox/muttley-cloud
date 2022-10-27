@@ -10,10 +10,13 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundExcep
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.PasswdPayload;
+import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.events.ValidadeUserForeCreateEvent;
+import br.com.muttley.model.security.events.ValidatePasswordRecoveryEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
@@ -529,6 +532,33 @@ public class UserServiceImpl implements UserService {
             return false;
         }
         return result.getUniqueMappedResult().getResult() > 0;
+    }
+
+    @Override
+    public void recoveryPassword(RecoveryPayload recovery) {
+        if (this.validateFoneNumber) {
+            //verificando se o recovery está com todas as informações necessárias
+            if (isNullOrEmpty(recovery.getEmail())) {
+                throw new MuttleyBadRequestException(null, "email", "Informe um e-mail válido");
+            }
+            final ValidatePasswordRecoveryEvent passwordRecoveryEvent = new ValidatePasswordRecoveryEvent(recovery);
+            this.eventPublisher.publishEvent(passwordRecoveryEvent);
+            if (passwordRecoveryEvent.numberIsValid()) {
+                this.passwordService.update(new PasswdPayload());update(new PasswdPayload());
+            }
+            if (value.seedHasBeeVerificate()) {
+                final User newUser = this.save(new User(value));
+                this.passwordService.createPasswordFor(newUser, value.getPasswd());
+                return newUser;
+            } else if (value.codeVerificationIsEmpty()) {
+                return null;
+            }
+            throw new MuttleyBadRequestException(null, null, "Código de verificação invalido");
+        } else {
+            final User newUser = this.save(new User(value));
+            this.passwordService.createPasswordFor(newUser, value.getPasswd());
+            return newUser;
+        }
     }
 
     private User merge(final User user) {

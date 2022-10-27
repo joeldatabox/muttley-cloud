@@ -114,6 +114,13 @@ public class PasswordServiceImpl<T extends Password> implements PasswordService<
         repository.save(currentPassword);
     }
 
+    @Override
+    public void resetePasswordFor(final User user, String password) {
+        final Password passwordModel = this.findByUser(user);
+        passwordModel.setPassword(password);
+        repository.save(passwordModel);
+    }
+
     private void checkIdForSave(final T value) {
         if (StringUtils.isEmpty(value.getId())) {
             value.setId(null);

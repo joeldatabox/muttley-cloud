@@ -5,6 +5,7 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedE
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Password;
+import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.UserLoggedEvent;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
@@ -86,6 +87,10 @@ public class AuthenticationRestController {
             return ResponseEntity.ok(new JwtToken(refreshedToken));
         }
         throw new MuttleySecurityBadRequestException(null, null, "Token invalido. Faça login novamente");
+    }
+
+    public ResponseEntity recoveryPassword(@RequestBody RecoveryPayload recovery) {
+        this.userService.recoveryPassword(recovery);
     }
 
     private final void checkPayloadContainsUserNameAndPasswdOndy(final Map<String, String> payload) {
