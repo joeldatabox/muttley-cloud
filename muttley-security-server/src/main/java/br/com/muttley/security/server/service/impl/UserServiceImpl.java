@@ -10,10 +10,10 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundExcep
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.PasswdPayload;
 import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
+import br.com.muttley.model.security.events.SendNewPasswordRecoveredEvent;
 import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.events.ValidadeUserForeCreateEvent;
 import br.com.muttley.model.security.events.ValidatePasswordRecoveryEvent;
@@ -48,6 +48,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -544,20 +545,11 @@ public class UserServiceImpl implements UserService {
             final ValidatePasswordRecoveryEvent passwordRecoveryEvent = new ValidatePasswordRecoveryEvent(recovery);
             this.eventPublisher.publishEvent(passwordRecoveryEvent);
             if (passwordRecoveryEvent.numberIsValid()) {
-                this.passwordService.update(new PasswdPayload());update(new PasswdPayload());
+                final User user = this.findUserByEmailOrUserNameOrNickUser(recovery.getEmail());
+                final SendNewPasswordRecoveredEvent sendNewPasswordRecoveredEvent = new SendNewPasswordRecoveredEvent(user, generateNewPassword());
+                this.passwordService.resetePasswordFor(user, sendNewPasswordRecoveredEvent.getHallPassword());
+                this.eventPublisher.publishEvent(sendNewPasswordRecoveredEvent);
             }
-            if (value.seedHasBeeVerificate()) {
-                final User newUser = this.save(new User(value));
-                this.passwordService.createPasswordFor(newUser, value.getPasswd());
-                return newUser;
-            } else if (value.codeVerificationIsEmpty()) {
-                return null;
-            }
-            throw new MuttleyBadRequestException(null, null, "Código de verificação invalido");
-        } else {
-            final User newUser = this.save(new User(value));
-            this.passwordService.createPasswordFor(newUser, value.getPasswd());
-            return newUser;
         }
     }
 
@@ -742,6 +734,17 @@ public class UserServiceImpl implements UserService {
             return false;
         }
         return result.getUniqueMappedResult().getCount() > 0;
+    }
+
+    private String generateNewPassword() {
+        final int leftLimit = 48; // numeral '0'
+        final int leftNumber = 57; // numeral '0'
+        return new Random()
+                .ints(leftLimit, leftNumber + 1)
+                .parallel()
+                .limit(6)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
     }
 
     /*private void validatePreferences(final UserPreferences preferences) {

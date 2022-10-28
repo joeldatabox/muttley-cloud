@@ -89,7 +89,8 @@ public class AuthenticationRestController {
         throw new MuttleySecurityBadRequestException(null, null, "Token invalido. Faça login novamente");
     }
 
-    public ResponseEntity recoveryPassword(@RequestBody RecoveryPayload recovery) {
+    @RequestMapping(value = "/reset-password", method = POST)
+    public void recoveryPassword(@RequestBody RecoveryPayload recovery) {
         this.userService.recoveryPassword(recovery);
     }
 
