@@ -1,5 +1,6 @@
 package br.com.muttley.model.security;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -13,6 +14,8 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 public class RecoveryPayload {
+    @JsonIgnore
+    private User user;//user temporario
     private String email;
     private boolean renewCode;
     private String codeVerification;

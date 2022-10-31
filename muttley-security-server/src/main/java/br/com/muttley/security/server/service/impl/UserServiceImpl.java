@@ -542,10 +542,10 @@ public class UserServiceImpl implements UserService {
             if (isNullOrEmpty(recovery.getEmail())) {
                 throw new MuttleyBadRequestException(null, "email", "Informe um e-mail válido");
             }
-            final ValidatePasswordRecoveryEvent passwordRecoveryEvent = new ValidatePasswordRecoveryEvent(recovery);
+            final User user = this.findUserByEmailOrUserNameOrNickUser(recovery.getEmail());
+            final ValidatePasswordRecoveryEvent passwordRecoveryEvent = new ValidatePasswordRecoveryEvent(recovery.setUser(user));
             this.eventPublisher.publishEvent(passwordRecoveryEvent);
             if (passwordRecoveryEvent.numberIsValid()) {
-                final User user = this.findUserByEmailOrUserNameOrNickUser(recovery.getEmail());
                 final SendNewPasswordRecoveredEvent sendNewPasswordRecoveredEvent = new SendNewPasswordRecoveredEvent(user, generateNewPassword());
                 this.passwordService.resetePasswordFor(user, sendNewPasswordRecoveredEvent.getHallPassword());
                 this.eventPublisher.publishEvent(sendNewPasswordRecoveredEvent);
