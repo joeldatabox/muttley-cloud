@@ -5,6 +5,8 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPas
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.RecoveryPasswordResponse;
+import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.UserPayLoadLogin;
 import br.com.muttley.model.security.events.UserLoggedEvent;
 import br.com.muttley.security.feign.auth.AuthenticationRestServiceClient;
@@ -25,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
+
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * RestController responsavel por despachar novas requisições de token
@@ -101,6 +105,11 @@ public class AuthenticationRestController {
         final JwtToken newToken = this.authenticationRestService.refreshAndGetAuthenticationToken(currentToken);
         this.localUserAuthenticationService.refreshToken(currentToken, newToken);
         return ResponseEntity.ok(newToken);
+    }
+
+    @RequestMapping(value = "${muttley.security.jwt.controller.resetPassword}", method = POST)
+    public RecoveryPasswordResponse recoveryPassword(final HttpServletRequest request, final @RequestBody RecoveryPayload recovery) {
+        return this.authenticationRestService.recoveryPassword(recovery);
     }
 
     /**

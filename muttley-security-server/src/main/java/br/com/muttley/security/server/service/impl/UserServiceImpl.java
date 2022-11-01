@@ -10,6 +10,7 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundExcep
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.RecoveryPasswordResponse;
 import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
@@ -536,21 +537,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void recoveryPassword(RecoveryPayload recovery) {
+    public RecoveryPasswordResponse recoveryPassword(RecoveryPayload recovery) {
         if (this.validateFoneNumber) {
             //verificando se o recovery está com todas as informações necessárias
             if (isNullOrEmpty(recovery.getEmail())) {
                 throw new MuttleyBadRequestException(null, "email", "Informe um e-mail válido");
             }
             final User user = this.findUserByEmailOrUserNameOrNickUser(recovery.getEmail());
-            final ValidatePasswordRecoveryEvent passwordRecoveryEvent = new ValidatePasswordRecoveryEvent(recovery.setUser(user));
+            final ValidatePasswordRecoveryEvent passwordRecoveryEvent = new ValidatePasswordRecoveryEvent(recovery.setFone(user.getFone()));
             this.eventPublisher.publishEvent(passwordRecoveryEvent);
+            final RecoveryPasswordResponse response = new RecoveryPasswordResponse();
             if (passwordRecoveryEvent.numberIsValid()) {
                 final SendNewPasswordRecoveredEvent sendNewPasswordRecoveredEvent = new SendNewPasswordRecoveredEvent(user, generateNewPassword());
                 this.passwordService.resetePasswordFor(user, sendNewPasswordRecoveredEvent.getHallPassword());
-                this.eventPublisher.publishEvent(sendNewPasswordRecoveredEvent);
+
+                response.setPassword(sendNewPasswordRecoveredEvent.getHallPassword());
+                return response;
+                //this.eventPublisher.publishEvent(sendNewPasswordRecoveredEvent);
             }
+            return response.setFone(user.getFone());
         }
+        //SE CHEGOU AQUI É SINAL QUE A VALIDAÇÃO POR FONE NAO TA ATIVA
+        throw new MuttleyException("ERRO NO PROCESSO DE RECOVERY");
     }
 
     private User merge(final User user) {

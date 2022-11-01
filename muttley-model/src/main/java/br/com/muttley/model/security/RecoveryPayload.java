@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class RecoveryPayload {
     @JsonIgnore
-    private User user;//user temporario
+    private String fone;//fone do user
     private String email;
     private boolean renewCode;
     private String codeVerification;

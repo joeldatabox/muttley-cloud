@@ -2,6 +2,8 @@ package br.com.muttley.security.feign.auth;
 
 import br.com.muttley.feign.service.config.FeignTimeoutConfig;
 import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.RecoveryPasswordResponse;
+import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.UserPayLoadLogin;
 import br.com.muttley.security.infra.security.server.FeignClientConfig;
 import org.springframework.cloud.netflix.feign.FeignClient;
@@ -24,4 +26,7 @@ public interface AuthenticationRestServiceClient {
 
     @RequestMapping(value = "/refresh", method = POST)
     public JwtToken refreshAndGetAuthenticationToken(@RequestBody JwtToken token);
+
+    @RequestMapping(value = "/reset-password", method = POST)
+    RecoveryPasswordResponse recoveryPassword(@RequestBody RecoveryPayload recovery);
 }
