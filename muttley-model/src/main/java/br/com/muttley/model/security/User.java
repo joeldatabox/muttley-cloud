@@ -532,8 +532,9 @@ public class User implements Serializable, UserData {
         //verificando se o userMaster do ownerAtual tem tedas as infos
         //caso contrario comparamos apenas pelo userName
         final User userMaster = this.getCurrentOwner().getUserMaster();
-        return !isEmpty(userMaster.getId()) && !isEmpty(userMaster.getEmail()) && !isEmpty(userMaster.getUserName()) ?
-                this.equals(userMaster) : this.getUserName().equals(userMaster.getUserName());
+        return this.getUserName().equals(userMaster.getUserName());
+        /*return !isEmpty(userMaster.getId()) && !isEmpty(userMaster.getEmail()) && !isEmpty(userMaster.getUserName()) ?
+                this.equals(userMaster) : this.getUserName().equals(userMaster.getUserName());*/
     }
 
     private static final class UserNameValidator {
