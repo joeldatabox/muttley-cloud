@@ -1,6 +1,10 @@
 package br.com.muttley.model.util;
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -169,5 +173,21 @@ public class DateUtils {
 
     public static Date toDate(final ZonedDateTime date, ZoneOffset zoneOffset) {
         return Date.from(date.toLocalDateTime().toInstant(zoneOffset));
+    }
+
+    public static ZonedDateTime toZonedDateTime(final Date date) {
+        return ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    }
+
+    public static ZonedDateTime toZonedDateTime(final Date date, final String offset) {
+        return ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.of(offset));
+    }
+
+    public static Date toUTC(final Date date) {
+        return toDate(ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("+0000")));
+    }
+
+    public static ZonedDateTime toUTC(final ZonedDateTime zonedDateTime) {
+        return ZonedDateTime.ofInstant(zonedDateTime.toInstant(), ZoneId.of("+0000"));
     }
 }
