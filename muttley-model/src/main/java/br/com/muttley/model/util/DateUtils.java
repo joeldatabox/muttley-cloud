@@ -2,12 +2,14 @@ package br.com.muttley.model.util;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+import static br.com.muttley.model.TimeZoneDocument.getTimezoneFromId;
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
@@ -189,5 +191,51 @@ public class DateUtils {
 
     public static ZonedDateTime toUTC(final ZonedDateTime zonedDateTime) {
         return ZonedDateTime.ofInstant(zonedDateTime.toInstant(), ZoneId.of("+0000"));
+    }
+
+    /**
+     * Applica um deslocamento na data e hora levando em consideração o offset
+     */
+    public static ZonedDateTime applyOffset(final ZonedDateTime zonedDateTime) {
+        //recuperando o offset
+        final String offset = zonedDateTime.getOffset().toString();
+        //transformando em data
+        final LocalTime hour = LocalTime.parse(offset.replaceAll("[-+]", ""));
+        //applicando o deslocamento necessário
+        return offset.startsWith("-") ?
+                zonedDateTime
+                        .minusHours(hour.getHour())
+                        .minusMinutes(hour.getMinute())
+                :
+                zonedDateTime
+                        .plusHours(hour.getHour())
+                        .plusMinutes(hour.getMinute());
+    }
+
+    public static Date applyOffset(final Date date, final ZoneId zoneId) {
+        return applyOffset(date, getTimezoneFromId(zoneId.toString()));
+    }
+
+    public static Date applyOffset(final Date date, final ZoneOffset offsetTime) {
+        return applyOffset(date, getTimezoneFromId(offsetTime.toString()));
+    }
+
+    public static Date applyOffset(final Date date, final String offset) {
+        //transformando em data
+        final LocalTime hour = LocalTime.parse(offset.replaceAll("[-+]", ""));
+        //applicando o deslocamento necessário
+        final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.of(offset));
+
+        return Date.from(offset.startsWith("-") ?
+                zonedDateTime
+                        .minusHours(hour.getHour())
+                        .minusMinutes(hour.getMinute())
+                        .toInstant()
+                :
+                zonedDateTime
+                        .plusHours(hour.getHour())
+                        .plusMinutes(hour.getMinute())
+                        .toInstant()
+        );
     }
 }

@@ -1,6 +1,7 @@
 package br.com.muttley.mongo.service.converters;
 
 
+import br.com.muttley.model.TimeZoneDocument;
 import org.bson.BsonDateTime;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
+
+import static br.com.muttley.model.TimeZoneDocument.getTimezoneFromId;
 
 /**
  * Created by master on 16/06/17.
@@ -28,7 +31,7 @@ public class ZonedDateTimeToBsonDocumentConverter implements Converter<ZonedDate
                 Date.from(zonedDateTime.toInstant()).getTime()
         ));
 
-        final String offset = zonedDateTime.getOffset().toString();
+        final String offset = getTimezoneFromId(zonedDateTime.getOffset().toString());
 
         document.put("offset", new BsonString(offset));
 
