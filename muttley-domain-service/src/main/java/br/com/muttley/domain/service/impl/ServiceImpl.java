@@ -296,6 +296,11 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     }
 
     @Override
+    public void checkPrecondictionDelete(User user, T value) {
+
+    }
+
+    @Override
     public void beforeDelete(final User user, final String id) {
 
     }
@@ -325,7 +330,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     @Override
     public void delete(final User user, final T value) {
         beforeDelete(user, value);
-        checkPrecondictionDelete(user, value.getId());
+        checkPrecondictionDelete(user, value);
         if (!repository.exists(value)) {
             throw this.createNotFoundExceptionById(user, value.getId());
             //throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");

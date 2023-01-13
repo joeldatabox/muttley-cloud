@@ -4,7 +4,6 @@ import br.com.muttley.domain.service.ModelService;
 import br.com.muttley.domain.service.impl.utils.MetadataAndIdModel;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
-import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.Document;
@@ -288,7 +287,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     @Override
     public void delete(final User user, final T value) {
         this.beforeDelete(user, value);
-        checkPrecondictionDelete(user, value.getId());
+        checkPrecondictionDelete(user, value);
         if (!repository.exists(user.getCurrentOwner(), value)) {
             throw this.createNotFoundExceptionById(user, value.getId());
             //throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
@@ -299,6 +298,11 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
 
     @Override
     public void checkPrecondictionDelete(final User user, final String id) {
+
+    }
+
+    @Override
+    public void checkPrecondictionDelete(final User user, final T value) {
 
     }
 

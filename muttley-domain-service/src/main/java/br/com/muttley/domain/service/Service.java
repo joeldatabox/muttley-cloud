@@ -449,6 +449,15 @@ public interface Service<T extends Document> {
     void checkPrecondictionDelete(final User user, final String id);
 
     /**
+     * Qualquer regra de négocio que valide o processo de delete deve ser implementada
+     * nesse método através de sobrescrita
+     *
+     * @param user  -> usuário da requisição corrente
+     * @param value -> registro que está sendo deletado
+     */
+    void checkPrecondictionDelete(final User user, final T value);
+
+    /**
      * Este método é chamado toda vez antes de se deltetar algum registro e depois de se chamar o metodo
      * {@link #checkPrecondictionDelete(User, String)}.
      * Este método não deve ser utilizado para executar válidações mas sim para log's, pequenos ajuste
@@ -501,7 +510,7 @@ public interface Service<T extends Document> {
 
     /**
      * Este método é chamado toda vez antes de se deltetar algum registro e depois de se chamar o metodo
-     * {@link #checkPrecondictionDelete(User, String)}.
+     * {@link #checkPrecondictionDelete(User, T)}.
      * Este método não deve ser utilizado para executar válidações mas sim para log's, pequenos ajuste
      * e ou regras de négocio antes de se deletar algum registro
      *
