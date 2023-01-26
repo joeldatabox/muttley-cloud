@@ -198,7 +198,7 @@ public class DateUtils {
      */
     public static ZonedDateTime applyOffset(final ZonedDateTime zonedDateTime) {
         //recuperando o offset
-        final String offset = zonedDateTime.getOffset().toString();
+        final String offset = getTimezoneFromId(zonedDateTime.getOffset().toString());
         //transformando em data
         final LocalTime hour = LocalTime.parse(offset.replaceAll("[-+]", ""));
         //applicando o deslocamento necessário
@@ -210,6 +210,10 @@ public class DateUtils {
                 zonedDateTime
                         .plusHours(hour.getHour())
                         .plusMinutes(hour.getMinute());
+    }
+
+    public static Date applyLocalSystemOffset(final Date date) {
+        return applyOffset(date, getTimezoneFromId(ZoneId.systemDefault().toString()));
     }
 
     public static Date applyOffset(final Date date, final ZoneId zoneId) {
