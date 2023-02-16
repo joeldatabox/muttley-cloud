@@ -9,6 +9,7 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.domain.Domain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,10 @@ public class MetadataServiceImpl implements MetadataService {
                                     .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
                     ));
         } else {
+            //se não tiver um domain definido devemos atribuir como private
+            if (!value.getMetadata().containsDomain()) {
+                value.getMetadata().setDomain(Domain.PRIVATE);
+            }
             //se não tem um timezone válido, vamos criar um
             if (!value.getMetadata().containsTimeZones()) {
                 value.getMetadata().setTimeZones(this.currentTimezone.getCurrentTimezoneDocument());
@@ -108,6 +113,9 @@ public class MetadataServiceImpl implements MetadataService {
 
         //se veio informações no registro, devemos aproveitar
         if (value.containsMetadata()) {
+            if (value.getMetadata().containsDomain()) {
+                currentMetadata.setDomain(value.getMetadata().getDomain());
+            }
             if (value.getMetadata().containsTimeZones()) {
                 if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
                     currentMetadata.getTimeZones().setCurrentTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());

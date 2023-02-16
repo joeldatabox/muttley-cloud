@@ -251,7 +251,7 @@ public interface RestResource<T extends Document> {
         return map;
     }
 
-    default int getMaxrecords() {\
+    default int getMaxrecords() {
         return 100;
     }
 }
