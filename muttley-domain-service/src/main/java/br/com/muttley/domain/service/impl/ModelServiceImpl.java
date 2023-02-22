@@ -34,6 +34,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import static br.com.muttley.model.security.domain.Domain.PUBLIC;
+import static br.com.muttley.model.security.domain.Domain.RESTRICTED;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -393,7 +395,31 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
             return Collections.emptyList();
         }
         return Arrays.asList(
-                match(where("metadata.historic.createdBy.$id").in(user.getWorkTeamDomain().getAllUsers().parallelStream().map(it -> it.getObjectId()).collect(toSet())))
+                match(
+                        new Criteria().orOperator(
+                                //pegando todos os registros que forem publicos
+                                where("metadata.domain").is(PUBLIC),
+                                //pegando todos os registro que forem do grupo de permissões
+                                where("metadata.historic.createdBy.$id")
+                                        .in(
+                                                user.getWorkTeamDomain()
+                                                        .getAllUsers()
+                                                        .parallelStream()
+                                                        .map(it -> it.getObjectId())
+                                                        .collect(toSet())
+                                        ),
+                                //pegando todos os registro que forem restritos ao grupo de permissões
+                                where("metadata.historic.createdBy.$id")
+                                        .in(
+                                                user.getWorkTeamDomain()
+                                                        .getAllUsers()
+                                                        .parallelStream()
+                                                        .map(it -> it.getObjectId())
+                                                        .collect(toSet())
+                                        ).and("metadata.domain")
+                                        .is(RESTRICTED)
+                        )
+                )
         );
     }
 
@@ -402,7 +428,29 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
             return null;
         }
         return Arrays.asList(
-                where("metadata.historic.createdBy.$id").in(user.getWorkTeamDomain().getAllUsers().parallelStream().map(it -> it.getObjectId()).collect(toSet()))
+                new Criteria().orOperator(
+                        //pegando todos os registros que forem publicos
+                        where("metadata.domain").is(PUBLIC),
+                        //pegando todos os registro que forem do grupo de permissões
+                        where("metadata.historic.createdBy.$id")
+                                .in(
+                                        user.getWorkTeamDomain()
+                                                .getAllUsers()
+                                                .parallelStream()
+                                                .map(it -> it.getObjectId())
+                                                .collect(toSet())
+                                ),
+                        //pegando todos os registro que forem restritos ao grupo de permissões
+                        where("metadata.historic.createdBy.$id")
+                                .in(
+                                        user.getWorkTeamDomain()
+                                                .getAllUsers()
+                                                .parallelStream()
+                                                .map(it -> it.getObjectId())
+                                                .collect(toSet())
+                                ).and("metadata.domain")
+                                .is(RESTRICTED)
+                )
         );
     }
 }
