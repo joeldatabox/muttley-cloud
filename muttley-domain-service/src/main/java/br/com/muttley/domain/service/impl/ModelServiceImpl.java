@@ -24,7 +24,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -36,6 +35,7 @@ import java.util.Set;
 
 import static br.com.muttley.model.security.domain.Domain.PUBLIC;
 import static br.com.muttley.model.security.domain.Domain.RESTRICTED;
+import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -394,30 +394,29 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         if (user.isOwner()) {
             return Collections.emptyList();
         }
-        return Arrays.asList(
+        return asList(
                 match(
                         new Criteria().orOperator(
                                 //pegando todos os registros que forem publicos
                                 where("metadata.domain").is(PUBLIC),
-                                //pegando todos os registro que forem do grupo de permissões
+                                //pegando todos os registros de subordinados
                                 where("metadata.historic.createdBy.$id")
                                         .in(
                                                 user.getWorkTeamDomain()
-                                                        .getAllUsers()
+                                                        .getSubordinates()
                                                         .parallelStream()
-                                                        .map(it -> it.getObjectId())
+                                                        .map(it -> it.getUser().getObjectId())
                                                         .collect(toSet())
                                         ),
-                                //pegando todos os registro que forem restritos ao grupo de permissões
+                                //pegando todos os registros dos colegas presentes no workteam
                                 where("metadata.historic.createdBy.$id")
                                         .in(
                                                 user.getWorkTeamDomain()
-                                                        .getAllUsers()
+                                                        .getColleagues()
                                                         .parallelStream()
-                                                        .map(it -> it.getObjectId())
+                                                        .map(it -> it.getUser().getObjectId())
                                                         .collect(toSet())
-                                        ).and("metadata.domain")
-                                        .is(RESTRICTED)
+                                        ).and("metadata.domain").is(RESTRICTED)
                         )
                 )
         );
@@ -427,7 +426,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         if (user.isOwner()) {
             return null;
         }
-        return Arrays.asList(
+        return asList(
                 new Criteria().orOperator(
                         //pegando todos os registros que forem publicos
                         where("metadata.domain").is(PUBLIC),

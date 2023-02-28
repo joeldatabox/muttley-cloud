@@ -16,6 +16,7 @@ import br.com.muttley.security.server.service.OwnerService;
 import br.com.muttley.security.server.service.UserBaseService;
 import br.com.muttley.security.server.service.WorkTeamService;
 import com.mongodb.BasicDBObject;
+import org.bson.BsonString;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -34,22 +35,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static br.com.muttley.mongo.service.infra.util.ListReduceBuilder.reduce;
-import static br.com.muttley.mongo.service.infra.util.MapBuilder.map;
-import static br.com.muttley.mongo.service.infra.util.SetUnionBuilder.setUnion;
+import static br.com.muttley.model.security.domain.Domain.PUBLIC;
+import static br.com.muttley.model.security.domain.Domain.RESTRICTED;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toSet;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.bind;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.graphLookup;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
-import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter.filter;
-import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Size.lengthOfArray;
-import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq.valueOf;
-import static org.springframework.data.mongodb.core.aggregation.ConditionalOperators.Cond.when;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -138,7 +132,15 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     public WorkTeamDomain loadDomain(final User user) {
         final List<AggregationOperation> operations = this.createBasicQueryViewWorkTeamDomain(user);
         //adicionando o critério de filtro inicial
-        operations.add(0, match(where("owner.$id").is(user.getCurrentOwner().getObjectId()).and("usersMaster.$id").is(user.getObjectId())));
+        operations.add(0,
+                match(
+                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                .orOperator(
+                                        where("usersMaster.$id").is(user.getObjectId()),
+                                        where("members.$id").is(user.getObjectId())
+                                )
+                )
+        );
 
         final AggregationResults<WorkTeamDomain> results = this.mongoTemplate.aggregate(
                 newAggregation(operations),
@@ -148,16 +150,16 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         final WorkTeamDomain domain = results.getUniqueMappedResult();
         if (domain != null) {
             return domain
+                    .setUserMaster(user)
                     //adicionando membro do owner
-                    .addMember(user.getCurrentOwner().getUserMaster(), true);
+                    .addSupervisors(user.getCurrentOwner().getUserMaster());
         }
         //se chegou até aqui é sinal que o usuário não está presente em um time
         //logo devemos retornar apenas ele e o usuário do owner para acesso aos dados
         return new WorkTeamDomain()
-                //adicionando usuário atual como membro
-                .addMember(user, true)
+                .setUserMaster(user)
                 //adicionando membro do owner
-                .addMember(user.getCurrentOwner().getUserMaster(), true);
+                .addSupervisors(user.getCurrentOwner().getUserMaster());
     }
 
     @Override
@@ -215,10 +217,17 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
     private List<AggregationOperation> createBasicQueryViewWorkTeamDomain(final User user) {
         /**
-         * var $owner = ObjectId("61a97c9cb19886c43a02cac8");
-         * var $userMaster = ObjectId("61aa06375dab550007905ed5");
-         * db.getCollection("view-muttley-work-teams").aggregate([
-         *     {$match:{"owner.$id":$owner,"usersMaster.$id":$userMaster}},
+         * var $owner = ObjectId("629f37d4e684d90007552522");
+         * var $userMaster = ObjectId("63f75c0b6aba3346954ea371");
+         * //var $userMaster = ObjectId("629f37c1e684d9000755251f");
+         *
+         * db.getCollection("muttley-work-teams").aggregate([
+         *     //buscando workteams em que o usuario e membro ou gestor
+         *     {$match:{
+         *         "owner.$id":$owner,
+         *         $or:[{"usersMaster.$id":$userMaster}, {"members.$id":$userMaster}]
+         *     }},
+         *
          *     //fazendo as consulta recursivamente para montar as dependencias
          *     {$graphLookup:{
          *         from:"muttley-work-teams",
@@ -226,108 +235,299 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          *         connectFromField: "members",
          *         connectToField:"usersMaster",
          *         as: "treeTeams",
-         *         restrictSearchWithMatch:{"owner.$id": $owner}
+         *         restrictSearchWithMatch:{
+         *             //garantindo filtro pelo owner corrente
+         *             "owner.$id": $owner,
+         *             //garantindo que pegaria apenas registros onde o usuario seja membro e nao um administrador
+         *             "usersMaster.$id":{$nin:[$userMaster]}
+         *         }
          *     }},
+         *
          *     //pengando todos os subordinados encontrado e agrupando
-         *     {$project:{usersMaster:1, members:1, editDataFromMembers:1, membersTree:{$reduce:{
-         *         input: "$treeTeams",
-         *         initialValue:[],
-         *         in:{$setUnion:["$$value", "$$this.members", ["$$this.usersMaster"]]}
-         *     }}}},
-         *     //propagando as permissoes de edicao entre os membros
          *     {$project:{
          *         usersMaster:1,
-         *         members:{$map:{
-         *             input: "$members",
-         *             as: "member",
-         *             in: {user:"$$member", canEdit:"$editDataFromMembers"}
-         *         }},
-         *         membersTree:{$map:{
-         *             input: "$membersTree",
-         *             as: "member",
-         *             in: {user:"$$member", canEdit:"$editDataFromMembers"}
-         *         }},
+         *         members:1,
+         *         //criando a tipagem
+         *         //definimos o tipo com base no campo treeTeams
+         *         //se ela estiver vazia log e supervisores
+         *         type:{$cond:[{$eq:["$treeTeams", []]}, "supervisors","subordinates"]},
+         *         treeTeams:1,
+         *         //executando reduce no campo treeTeams para concatenarmos os membros e usersMaster
+         *         //idependente de qual o resultado podemos concatenalos, pois, todos estaram no mesmo nivel da cascata
+         *         membersTree:{
+         *             $reduce:{
+         *                 input: "$treeTeams",
+         *                 initialValue:[],
+         *                 //concatenando tudo
+         *                 in:{$setUnion:["$$value", "$$this.members", "$$this.usersMaster"]}
+         *             }
+         *         }
          *     }},
-         *     //agrupando subordinados encontrados juntamente com os membros atuais
-         *     {$project:{usersMaster:1, members:{$setUnion:["$membersTree", "$members"]}}},
-         *     //agrupando com demais work-teams que tenha sido encontrados
-         *     {$group:{_id:"$usersMaster", members:{$addToSet:"$members"}}},
-         *     //fazendo o processo de reduce para resultar em um array simple de usuarios
-         *     {$project:{usersMaster:"$_id", members:{$reduce:{
-         *         input: "$members",
-         *         initialValue:[],
-         *         in:{$setUnion:["$$value", "$$this"]}
-         *     }}}},
-         *     //distrinchando os membros agrupados para garantir que usuários com não tenha mais de uma autorização
-         *     {$unwind:"$members"},
-         *     //agrupando por autorização
-         *     {$group:{ _id:{user:"$members.user", usersMaster:"$usersMaster"}, canEdit:{$addToSet:"$members.canEdit"}}},
-         *     //vamos filtrar as autorizações agrupadas e pegar apenas as que estão com true
-         *     {$project:{usersMaster:"$_id.usersMaster", member:"$_id.user", canEdit: {$filter:{
-         *         input:"$canEdit",
-         *         as: "item",
-         *         cond:"$$item"
-         *     }}}},
-         *     //garantido que os itens que não foram preenchidos receba o devido status de false
-         *     {$project:{usersMaster:"$_id.usersMaster", member:"$_id.user", canEdit: {$cond:[{$eq:[{$size:"$canEdit"}, 0]},false, true]}}},
-         *     //agrupando por user master
-         *     {$group:{ _id:"$usersMaster", members:{$addToSet:{user:"$member", canEdit:"$canEdit"}}}},
-         *     //ajustando os dados
-         *     {$project:{usersMaster:"$_id", members:1}}
+         *     //ajustando dados para supervisores, colegas e subordinados
+         *     {$project:{
+         *         supervisors:{
+         *             $cond:[
+         *                 //registros marcados com o type supervisors contem os supervisores esperados
+         *                 //logo, devemos pegar os usuarios do campo usersMaster
+         *                 {$eq:["$type", "supervisors"]},
+         *                 //garantindo que nao sera inserido o ususario corrente
+         *                 {$filter:{
+         *                     input:"$usersMaster",
+         *                     as: "item",
+         *                     cond:{$ne:["$$item.$id", $userMaster]}
+         *                 }},
+         *                 []
+         *             ]
+         *         },
+         *         colleagues:{
+         *             $cond:[
+         *                 //registros marcados com o type supervisors contem os colegas de trabalho esperados
+         *                 //logo, devemos pegar os usuarios do campo members
+         *                 {$eq:["$type", "supervisors"]},
+         *                 //garantindo que nao sera inserido o ususario corrente
+         *                 {$filter:{
+         *                     input:"$members",
+         *                     as: "item",
+         *                     cond:{$ne:["$$item.$id", $userMaster]}
+         *                 }},
+         *                 []
+         *             ]
+         *         },
+         *         subordinates:{
+         *             $cond:[
+         *                 //registros marcados com o type subordinates contem os subordinados esperados
+         *                 //logo, devemos pegar os usuarios do campo membersTree
+         *                 {$eq:["$type", "subordinates"]},
+         *                 //garantindo que nao sera inserido o ususario corrente
+         *                 {$filter:{
+         *                     input:"$membersTree",
+         *                     as: "item",
+         *                     cond:{$ne:["$$item.$id", $userMaster]}
+         *                 }},
+         *                 []
+         *             ]
+         *         }
+         *     }},
+         *
+         *     //agrupando usuarios encontrados
+         *     {$group:{_id:"null",supervisors:{$addToSet: "$supervisors"},colleagues:{$addToSet:"$colleagues"}, subordinates:{$addToSet:"$subordinates"}}},
+         *     //ajustando os dados de acordo com o modelo esperado
+         *     {$project:{
+         *         supervisors:{
+         *             $map:{
+         *                 input: {
+         *                     //fazendo o processo de reduce para transform o array bidimencional
+         *                     $reduce:{
+         *                         input:"$supervisors",
+         *                         initialValue:[],
+         *                         in:{$setUnion: ["$$value", "$$this"]}
+         *                     }
+         *                 },
+         *                 as:"item",
+         *                 //por padrao so sera acessado dados publicos dos supervisores
+         *                 in:{user:"$$item", domain:"PUBLIC"}
+         *             }
+         *         },
+         *         colleagues:{
+         *             $map:{
+         *                 input: {
+         *                     //fazendo o processo de reduce para transform o array bidimencional
+         *                     $reduce:{
+         *                         input:"$colleagues",
+         *                         initialValue:[],
+         *                         in:{$setUnion: ["$$value", "$$this"]}
+         *                     }
+         *                 },
+         *                 as:"item",
+         *                 //por padrao so sera acessado dados publicos ou restritos dos colegas
+         *                 in:{user:"$$item", domain:"RESTRICTED"}
+         *             }
+         *         },
+         *         subordinates:{
+         *             $map:{
+         *                 input: {
+         *                     //fazendo o processo de reduce para transform o array bidimencional
+         *                     $reduce:{
+         *                         input:"$subordinates",
+         *                         initialValue:[],
+         *                         in:{$setUnion: ["$$value", "$$this"]}
+         *                     }
+         *                 },
+         *                 as:"item",
+         *                 //por padrao podemos acessar qualquer registros de subordinados
+         *                 in:{user:"$$item", domain:null}
+         *             }
+         *         }
+         *     }}
          * ])
          */
         return new LinkedList<>(asList(
+                //buscando workteams em que o usuario e membro ou gestor
+                /*match(
+                        where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                .orOperator(
+                                        where("usersMaster.$id").is(user.getObjectId()),
+                                        where("members.$id").is(user.getObjectId())
+                                )
+                ),*/
                 //fazendo as consulta recursivamente para montar as dependencias
-                graphLookup(documentNameConfig.getNameViewCollectionWorkTeam())
+                graphLookup(documentNameConfig.getNameCollectionWorkTeam())
                         .startWith("$members")
                         .connectFrom("members")
                         .connectTo("usersMaster")
-                        .restrict(where("owner.$id").is(user.getCurrentOwner().getObjectId()))
-                        .as("treeTeams"),
+                        .restrict(
+                                //garantindo filtro pelo owner corrente
+                                where("owner.$id").is(user.getCurrentOwner().getObjectId())
+                                        //garantindo que pegaria apenas registros onde o usuario seja membro e nao um administrador
+                                        .and("usersMaster.$id").nin(asList(user.getObjectId()))
+                        ).as("treeTeams"),
                 //pengando todos os subordinados encontrado e agrupando
-                project("usersMaster", "members", "editDataFromMembers").and(
-                        reduce(
-                                "$treeTeams",
-                                asList(),
-                                setUnion("$$value", "$$this.members", asList("$$this.usersMaster"))
-                        )
-                ).as("membersTree"),
-                //propagando as permissoes de edicao entre os membros
-                project("usersMaster").and(
-                        map(
-                                "$members",
-                                "member",
-                                context -> new BasicDBObject("user", "$$member").append("canEdit", "$editDataFromMembers")
-                        )
-                ).as("members").and(
-                        map(
-                                "$membersTree",
-                                "member",
-                                context -> new BasicDBObject("user", "$$member").append("canEdit", "$editDataFromMembers")
-                        )
-                ).as("membersTree"),
-                //agrupando subordinados encontrados juntamente com os membros atuais
-                project("usersMaster").and(setUnion("$membersTree", "$members")).as("members"),
-                //agrupando com demais work-teams que tenha sido encontrados
-                group("$usersMaster").addToSet("members").as("members"),
-                //fazendo o processo de reduce para resultar em um array simple de usuarios
-                project().and("$_id").as("usersMaster").and(reduce("$members", asList(), setUnion("$$value", "$$this"))).as("members"),
-                //distrinchando os membros agrupados para garantir que usuários com não tenha mais de uma autorização
-                unwind("$members"),
-                //agrupando por autorização
-                group(bind("user", "$members.user").and("usersMaster", "$usersMaster")).addToSet("members.canEdit").as("canEdit"),
-                //vamos filtrar as autorizações agrupadas e pegar apenas as que estão com true
-                project().and("$_id.usersMaster").as("usersMaster").and("$_id.user").as("member").and(filter("$canEdit").as("item").by("$$item")).as("canEdit"),
-                //garantido que os itens que não foram preenchidos receba o devido status de false
-                project("usersMaster", "member").and(
-                        when(
-                                valueOf(lengthOfArray("$canEdit")).equalToValue(0)
-                        ).then(false).otherwise(true)
-                ).as("canEdit"),
-                //agrupando por user master
-                group("usersMaster").addToSet(new BasicDBObject("user", "$member").append("canEdit", "$canEdit")).as("members"),
-                //ajustando os dados para retornar no padrão da collection e nao da view
-                project("members").and("_id").as("userMaster")
+                project("usersMaster", "members", "treeTeams")
+                        //criando a tipagem
+                        //definimos o tipo com base no campo treeTeams
+                        //se ela estiver vazia log e supervisores
+                        .and(context ->
+                                new BasicDBObject("$cond",
+                                        asList(
+                                                new BasicDBObject("$eq", asList("$treeTeams", asList())),
+                                                "supervisors",
+                                                "subordinates"
+                                        )
+                                )
+                        ).as("type")
+                        //executando reduce no campo treeTeams para concatenarmos os membros e usersMaster
+                        //idependente de qual o resultado podemos concatenalos, pois, todos estaram no mesmo nivel da cascata
+                        .and(context ->
+                                new BasicDBObject("$reduce",
+                                        new BasicDBObject("input", "$treeTeams")
+                                                .append("initialValue", asList())
+                                                //concatenando tudo
+                                                .append("in",
+                                                        new BasicDBObject("$setUnion", asList("$$value", "$$this.members", "$$this.usersMaster"))
+                                                )
+                                )
+                        ).as("membersTree"),
+                //ajustando dados para supervisores, colegas e subordinados
+                project()
+                        .and(context ->
+                                new BasicDBObject("$cond",
+                                        asList(
+                                                //registros marcados com o type supervisors contem os supervisores esperados
+                                                //logo, devemos pegar os usuarios do campo usersMaster
+                                                new BasicDBObject("$eq", asList("$type", "supervisors")),
+                                                //garantindo que nao sera inserido o ususario corrente
+                                                new BasicDBObject("$filter",
+                                                        new BasicDBObject("input", "$usersMaster")
+                                                                .append("as", "item")
+                                                                .append("cond",
+                                                                        new BasicDBObject("$ne", asList("$$item.$id", user.getObjectId()))
+                                                                )
+                                                ),
+                                                asList()
+                                        )
+                                )
+                        ).as("supervisors")
+                        .and(context ->
+                                new BasicDBObject("$cond",
+                                        asList(
+                                                //registros marcados com o type supervisors contem os colegas de trabalho esperados
+                                                //logo, devemos pegar os usuarios do campo members
+                                                new BasicDBObject("$eq", asList("$type", "supervisors")),
+                                                //garantindo que nao sera inserido o ususario corrente
+                                                new BasicDBObject("$filter",
+                                                        new BasicDBObject("input", "$members")
+                                                                .append("as", "item")
+                                                                .append("cond",
+                                                                        new BasicDBObject("$ne", asList("$$item.$id", user.getObjectId()))
+                                                                )
+                                                ),
+                                                asList()
+                                        )
+                                )
+                        ).as("colleagues")
+                        .and(context ->
+                                new BasicDBObject("$cond",
+                                        asList(
+                                                //registros marcados com o type subordinates contem os subordinados esperados
+                                                //logo, devemos pegar os usuarios do campo membersTree
+                                                new BasicDBObject("$eq", asList("$type", "subordinates")),
+                                                //garantindo que nao sera inserido o ususario corrente
+                                                new BasicDBObject("$filter",
+                                                        new BasicDBObject("input", "$membersTree")
+                                                                .append("as", "item")
+                                                                .append("cond",
+                                                                        new BasicDBObject("$ne", asList("$$item.$id", user.getObjectId()))
+                                                                )
+                                                ),
+                                                asList()
+                                        )
+                                )
+                        ).as("subordinates")
+                        .and(context -> new BasicDBObject("aux", new BsonString("1"))).as("aux"),
+                //agrupando usuarios encontrados
+                group("$aux")
+                        .addToSet("$supervisors").as("supervisors")
+                        .addToSet("$colleagues").as("colleagues")
+                        .addToSet("$subordinates").as("subordinates"),
+                //ajustando os dados de acordo com o modelo esperado
+                project()
+                        .and(context ->
+                                new BasicDBObject("$map",
+                                        new BasicDBObject("input",
+                                                //fazendo o processo de reduce para transform o array bidimencional
+                                                new BasicDBObject("$reduce",
+                                                        new BasicDBObject("input", "$supervisors")
+                                                                .append("initialValue", asList())
+                                                                .append("in",
+                                                                        new BasicDBObject("$setUnion", asList("$$value", "$$this"))
+                                                                )
+                                                )
+                                        )
+                                                .append("as", "item")
+                                                //por padrao so sera acessado dados publicos dos supervisores
+                                                .append("in",
+                                                        new BasicDBObject("user", "$$item").append("domain", PUBLIC.name())
+                                                )
+                                )
+                        ).as("supervisors")
+                        .and(context ->
+                                new BasicDBObject("$map",
+                                        new BasicDBObject("input",
+                                                //fazendo o processo de reduce para transform o array bidimencional
+                                                new BasicDBObject("$reduce",
+                                                        new BasicDBObject("input", "$colleagues")
+                                                                .append("initialValue", asList())
+                                                                .append("in",
+                                                                        new BasicDBObject("$setUnion", asList("$$value", "$$this"))
+                                                                )
+                                                )
+                                        )
+                                                .append("as", "item")
+                                                //por padrao so sera acessado dados publicos ou restritos dos colegas
+                                                .append("in",
+                                                        new BasicDBObject("user", "$$item").append("domain", RESTRICTED.name())
+                                                )
+                                )
+                        ).as("colleagues")
+                        .and(context ->
+                                new BasicDBObject("$map",
+                                        new BasicDBObject("input",
+                                                //fazendo o processo de reduce para transform o array bidimencional
+                                                new BasicDBObject("$reduce",
+                                                        new BasicDBObject("input", "$subordinates")
+                                                                .append("initialValue", asList())
+                                                                .append("in",
+                                                                        new BasicDBObject("$setUnion", asList("$$value", "$$this"))
+                                                                )
+                                                )
+                                        )
+                                                .append("as", "item")
+                                                //por padrao podemos acessar qualquer registros de subordinados
+                                                .append("in",
+                                                        new BasicDBObject("user", "$$item").append("domain", null)
+                                                )
+                                )
+                        ).as("subordinates")
         ));
     }
 
