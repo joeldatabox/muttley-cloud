@@ -28,8 +28,8 @@ import static br.com.muttley.model.security.domain.Domain.RESTRICTED;
 @Setter
 @Accessors(chain = true)
 public class WorkTeamDomain {
-    @JsonSerialize(using = UserSerializer.class)
-    @JsonDeserialize(using = UserDeserializer.class)
+    /*@JsonSerialize(using = UserSerializer.class)
+    @JsonDeserialize(using = UserDeserializer.class)*/
     private User userMaster;
     /*@JsonSerialize(using = UserCollectionSerializer.class)
     @JsonDeserialize(using = UserSetDeserializer.class)*/

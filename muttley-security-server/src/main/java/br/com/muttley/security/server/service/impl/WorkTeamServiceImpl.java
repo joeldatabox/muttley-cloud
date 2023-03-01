@@ -7,6 +7,7 @@ import br.com.muttley.localcache.services.LocalWorkTeamService;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.domain.Domain;
 import br.com.muttley.model.workteam.WorkTeam;
 import br.com.muttley.model.workteam.WorkTeamDomain;
 import br.com.muttley.redis.service.RedisService;
@@ -144,7 +145,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
         final AggregationResults<WorkTeamDomain> results = this.mongoTemplate.aggregate(
                 newAggregation(operations),
-                documentNameConfig.getNameViewCollectionWorkTeam(),
+                documentNameConfig.getNameCollectionWorkTeam(),
                 WorkTeamDomain.class
         );
         final WorkTeamDomain domain = results.getUniqueMappedResult();
@@ -466,9 +467,9 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                         .and(context -> new BasicDBObject("aux", new BsonString("1"))).as("aux"),
                 //agrupando usuarios encontrados
                 group("$aux")
-                        .addToSet("$supervisors").as("supervisors")
-                        .addToSet("$colleagues").as("colleagues")
-                        .addToSet("$subordinates").as("subordinates"),
+                        .addToSet("$$ROOT.supervisors").as("supervisors")
+                        .addToSet("$$ROOT.colleagues").as("colleagues")
+                        .addToSet("$$ROOT.subordinates").as("subordinates"),
                 //ajustando os dados de acordo com o modelo esperado
                 project()
                         .and(context ->

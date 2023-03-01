@@ -20,8 +20,8 @@ import org.springframework.data.annotation.PersistenceConstructor;
 @Getter
 @EqualsAndHashCode(of = "user")
 public class WorkTeamMember {
-    @JsonSerialize(using = UserSerializer.class)
-    @JsonDeserialize(using = UserDeserializer.class)
+    /*@JsonSerialize(using = UserSerializer.class)
+    @JsonDeserialize(using = UserDeserializer.class)*/
     private final User user;
     private final Domain domain;
 

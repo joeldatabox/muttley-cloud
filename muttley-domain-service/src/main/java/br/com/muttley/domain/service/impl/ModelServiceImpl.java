@@ -399,6 +399,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
                         new Criteria().orOperator(
                                 //pegando todos os registros que forem publicos
                                 where("metadata.domain").is(PUBLIC),
+                                //pegando todos os registros que o proprio usuário criou
+                                where("metadata.historic.createdBy.$id").is(user.getObjectId()),
                                 //pegando todos os registros de subordinados
                                 where("metadata.historic.createdBy.$id")
                                         .in(
