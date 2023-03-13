@@ -36,6 +36,7 @@ public class MetadataServiceImpl implements MetadataService {
         if (!value.containsMetadata()) {
             value.setMetadata(new MetadataDocument(user)
                     .setTimeZones(this.currentTimezone.getCurrentTimezoneDocument())
+                    .setDomain(Domain.PRIVATE)
                     .setVersionDocument(
                             new VersionDocument()
                                     .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
