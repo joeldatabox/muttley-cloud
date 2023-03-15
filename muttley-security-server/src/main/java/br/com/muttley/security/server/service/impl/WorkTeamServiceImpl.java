@@ -7,7 +7,6 @@ import br.com.muttley.localcache.services.LocalWorkTeamService;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.domain.Domain;
 import br.com.muttley.model.workteam.WorkTeam;
 import br.com.muttley.model.workteam.WorkTeamDomain;
 import br.com.muttley.redis.service.RedisService;
@@ -599,24 +598,24 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         final List<AggregationOperation> operations = this.createBasicQueryViewWorkTeamDomain(user);
         //para realizar a checkagem de dependencia circular, precisamos verificar se os membros estão acima do usermaster
         //para isso devemos buscar os membro como userMaster e o userMaster atual não pode ser listado como membro na consulta
+
         operations.add(0,
                 match(
                         where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                //filtrando os mebro como user master
                                 .and("usersMaster.$id").in(workTeam.getMembers().parallelStream().map(User::getObjectId).collect(toSet()))
                 )
         );
 
         operations.addAll(
                 asList(
-                        match(where("members.user.$id").in(workTeam.getUsersMaster().parallelStream().map(User::getObjectId).collect(toSet()))),
+                        match(where("subordinates.user.$id").in(workTeam.getUsersMaster().parallelStream().map(User::getObjectId).collect(toSet()))),
                         Aggregation.count().as("result")
                 )
         );
 
         final AggregationResults<BasicAggregateResultCount> globalResults = this.mongoTemplate.aggregate(
                 newAggregation(operations),
-                documentNameConfig.getNameViewCollectionWorkTeam(),
+                documentNameConfig.getNameCollectionWorkTeam(),
                 BasicAggregateResultCount.class
         );
 
@@ -635,8 +634,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                 operations.add(0,
                         match(
                                 where("owner.$id").is(user.getCurrentOwner().getObjectId())
-                                        //filtrando os mebro como user master
-                                        .and("usersMaster.$id").is(it.getObjectId())
+                                        .and("usersMaster.$id").in(it.getObjectId())
                         )
                 );
 
@@ -645,7 +643,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                         WorkTeam.class,
                         BasicAggregateResultCount.class
                 );
-                if (results.getUniqueMappedResult().getResult() > 0) {
+                if (results != null && results.getUniqueMappedResult() != null && results.getUniqueMappedResult().getResult() > 0) {
                     usersNames.add(it.getName());
                 }
 
