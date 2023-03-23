@@ -36,7 +36,7 @@ public class MetadataServiceImpl implements MetadataService {
         if (!value.containsMetadata()) {
             value.setMetadata(new MetadataDocument(user)
                     .setTimeZones(this.currentTimezone.getCurrentTimezoneDocument())
-                    .setDomain(Domain.PRIVATE)
+                    .setDomain(user.isOwner() ? Domain.PUBLIC : Domain.PRIVATE)
                     .setVersionDocument(
                             new VersionDocument()
                                     .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
@@ -49,7 +49,7 @@ public class MetadataServiceImpl implements MetadataService {
         } else {
             //se não tiver um domain definido devemos atribuir como private
             if (!value.getMetadata().containsDomain()) {
-                value.getMetadata().setDomain(Domain.PRIVATE);
+                value.getMetadata().setDomain(user.isOwner() ? Domain.PUBLIC : Domain.PRIVATE);
             }
             //se não tem um timezone válido, vamos criar um
             if (!value.getMetadata().containsTimeZones()) {
