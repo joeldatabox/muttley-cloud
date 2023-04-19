@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.Date;
 
+import static br.com.muttley.model.security.domain.Domain.PRIVATE;
+import static br.com.muttley.model.security.domain.Domain.PUBLIC;
+
 /**
  * @author Joel Rodrigues Moreira 12/03/2021
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -36,7 +39,7 @@ public class MetadataServiceImpl implements MetadataService {
         if (!value.containsMetadata()) {
             value.setMetadata(new MetadataDocument(user)
                     .setTimeZones(this.currentTimezone.getCurrentTimezoneDocument())
-                    .setDomain(user.isOwner() ? Domain.PUBLIC : Domain.PRIVATE)
+                    .setDomain(generateDoaminByUser(user))
                     .setVersionDocument(
                             new VersionDocument()
                                     .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
@@ -49,7 +52,7 @@ public class MetadataServiceImpl implements MetadataService {
         } else {
             //se não tiver um domain definido devemos atribuir como private
             if (!value.getMetadata().containsDomain()) {
-                value.getMetadata().setDomain(user.isOwner() ? Domain.PUBLIC : Domain.PRIVATE);
+                value.getMetadata().setDomain(generateDoaminByUser(user));
             }
             //se não tem um timezone válido, vamos criar um
             if (!value.getMetadata().containsTimeZones()) {
@@ -144,5 +147,19 @@ public class MetadataServiceImpl implements MetadataService {
                 .setDtChange(new Date());
 
         value.setMetadata(currentMetadata);
+    }
+
+    private Domain generateDoaminByUser(final User user) {
+        //Definimos o tipo de dominio baseado no usuário atual
+        //se o usuário for owner, logo podemos definir o registro como publico,
+        //caso contrario será privado
+
+        try {
+            return user.isOwner() ? PUBLIC : PRIVATE;
+        } catch (RuntimeException exception) {
+            //se deu erro ao tentar verificar se é um owner logo podemos incarar que é um registro privado
+            //o erro ocorre pois o usuário é novo e logo não tem info de owner
+            return PRIVATE;
+        }
     }
 }
