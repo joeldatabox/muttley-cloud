@@ -35,11 +35,16 @@ public class MetadataServiceImpl implements MetadataService {
 
     @Override
     public void generateNewMetadataFor(final User user, final Document value) {
+        this.generateNewMetadataFor(user, value, null);
+    }
+
+    @Override
+    public void generateNewMetadataFor(final User user, final Document value, final Domain domain) {
         //se não tiver nenhum metadata criado, vamos criar um
         if (!value.containsMetadata()) {
             value.setMetadata(new MetadataDocument(user)
                     .setTimeZones(this.currentTimezone.getCurrentTimezoneDocument())
-                    .setDomain(generateDoaminByUser(user))
+                    .setDomain(generateDoaminByUser(user, domain))
                     .setVersionDocument(
                             new VersionDocument()
                                     .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
@@ -52,7 +57,7 @@ public class MetadataServiceImpl implements MetadataService {
         } else {
             //se não tiver um domain definido devemos atribuir como private
             if (!value.getMetadata().containsDomain()) {
-                value.getMetadata().setDomain(generateDoaminByUser(user));
+                value.getMetadata().setDomain(generateDoaminByUser(user, domain));
             }
             //se não tem um timezone válido, vamos criar um
             if (!value.getMetadata().containsTimeZones()) {
@@ -100,9 +105,14 @@ public class MetadataServiceImpl implements MetadataService {
     }
 
     @Override
-    public void generateNewMetadataFor(final User user, final Collection<? extends Document> values) {
+    public void generateNewMetadataFor(final User user, final Collection<? extends Document> values){
+        this.generateNewMetadataFor(user, values, null);
+    }
+
+    @Override
+    public void generateNewMetadataFor(final User user, final Collection<? extends Document> values, final Domain domain) {
         values.forEach(it -> {
-            this.generateNewMetadataFor(user, it);
+            this.generateNewMetadataFor(user, it, domain);
         });
     }
 
@@ -149,13 +159,13 @@ public class MetadataServiceImpl implements MetadataService {
         value.setMetadata(currentMetadata);
     }
 
-    private Domain generateDoaminByUser(final User user) {
+    private Domain generateDoaminByUser(final User user, final Domain domain) {
         //Definimos o tipo de dominio baseado no usuário atual
         //se o usuário for owner, logo podemos definir o registro como publico,
         //caso contrario será privado
 
         try {
-            return user.isOwner() ? PUBLIC : PRIVATE;
+            return domain != null ? domain : user.isOwner() ? PUBLIC : PRIVATE;
         } catch (RuntimeException exception) {
             //se deu erro ao tentar verificar se é um owner logo podemos incarar que é um registro privado
             //o erro ocorre pois o usuário é novo e logo não tem info de owner

@@ -9,6 +9,7 @@ import br.com.muttley.headers.services.MetadataService;
 import br.com.muttley.model.Document;
 import br.com.muttley.model.NameAlias;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.domain.Domain;
 import br.com.muttley.mongo.service.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.bson.types.ObjectId;
@@ -87,7 +88,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         //verificando se realmente está criando um novo registro
         checkIdForSave(value);
         //garantindo que o metadata ta preenchido
-        this.metadataService.generateNewMetadataFor(user, value);
+        this.generateNewMetadataFor(user, value, null);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
@@ -120,7 +121,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         //verificando se realmente está criando um novo registro
         checkIdForSave(values);
         //garantindo que o metadata ta preenchido
-        this.metadataService.generateNewMetadataFor(user, values);
+        this.generateNewMetadataFor(user, values, null);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, values);
         //verificando precondições
@@ -465,5 +466,13 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
             return nameAlias.pluralName();
         }
         return clazz.getSimpleName();
+    }
+
+    protected void generateNewMetadataFor(final User user, final T value, final Domain domain) {
+        this.metadataService.generateNewMetadataFor(user, value, domain);
+    }
+
+    protected void generateNewMetadataFor(final User user, final Collection<T> value, final Domain domain) {
+        this.metadataService.generateNewMetadataFor(user, value, domain);
     }
 }

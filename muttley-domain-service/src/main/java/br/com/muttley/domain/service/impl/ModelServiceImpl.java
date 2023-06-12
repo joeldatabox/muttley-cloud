@@ -65,7 +65,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         //setando o dono do registro
         value.setOwner(user);
         //garantindo que o metadata ta preenchido
-        this.metadataService.generateNewMetadataFor(user, value);
+        this.generateNewMetadataFor(user, value, null);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
@@ -89,7 +89,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         //verificando se realmente está criando um novo registro
         checkIdForSave(values);
         //garantindo que o metadata ta preenchido
-        this.metadataService.generateNewMetadataFor(user, values);
+        this.generateNewMetadataFor(user, values, null);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, values);
         //verificando precondições
@@ -429,28 +429,30 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
             return null;
         }
         return asList(
+
                 new Criteria().orOperator(
                         //pegando todos os registros que forem publicos
                         where("metadata.domain").is(PUBLIC),
-                        //pegando todos os registro que forem do grupo de permissões
+                        //pegando todos os registros que o proprio usuário criou
+                        where("metadata.historic.createdBy.$id").is(user.getObjectId()),
+                        //pegando todos os registros de subordinados
                         where("metadata.historic.createdBy.$id")
                                 .in(
                                         user.getWorkTeamDomain()
-                                                .getAllUsers()
+                                                .getSubordinates()
                                                 .parallelStream()
-                                                .map(it -> it.getObjectId())
+                                                .map(it -> it.getUser().getObjectId())
                                                 .collect(toSet())
                                 ),
-                        //pegando todos os registro que forem restritos ao grupo de permissões
+                        //pegando todos os registros dos colegas presentes no workteam
                         where("metadata.historic.createdBy.$id")
                                 .in(
                                         user.getWorkTeamDomain()
-                                                .getAllUsers()
+                                                .getColleagues()
                                                 .parallelStream()
-                                                .map(it -> it.getObjectId())
+                                                .map(it -> it.getUser().getObjectId())
                                                 .collect(toSet())
-                                ).and("metadata.domain")
-                                .is(RESTRICTED)
+                                ).and("metadata.domain").is(RESTRICTED)
                 )
         );
     }
