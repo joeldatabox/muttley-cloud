@@ -43,6 +43,8 @@ import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_READ;
 import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_UPDATE;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newAvaliableRoles;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newViewRoleDefinition;
+import static br.com.muttley.model.security.rolesconfig.FontSet.MDI;
+import static br.com.muttley.model.security.rolesconfig.ViewRoleDefinition.newRoleDefinition;
 import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toSet;
@@ -244,7 +246,12 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
     public AvaliableRoles loadAvaliableRoles(final User user) {
         final AvaliableRolesEvent event = new AvaliableRolesEvent(user,
                 newAvaliableRoles(
-                        newViewRoleDefinition("Times de trabalho", "Ações relacionada a times de trabalho", ROLE_PASSAPORT_CREATE, ROLE_PASSAPORT_READ, ROLE_PASSAPORT_UPDATE, ROLE_PASSAPORT_DELETE)
+                        newViewRoleDefinition("account-group-outline", MDI, "Times de trabalho", "Ações relacionada a times de trabalho",
+                                newRoleDefinition(ROLE_PASSAPORT_CREATE, "Inserir times de trabalho"),
+                                newRoleDefinition(ROLE_PASSAPORT_READ, "Visualizar times de trabalho"),
+                                newRoleDefinition(ROLE_PASSAPORT_UPDATE, "Atualizar times de trabalho"),
+                                newRoleDefinition(ROLE_PASSAPORT_DELETE, "Remover times de trabalho")
+                        )
                 )
         );
 

@@ -192,7 +192,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         }
     }
 
-    private List<MetadataAndIdModel> loadIdsAndMetadatasAndHisotricsFor(final User user, final Collection<T> values) {
+    protected List<MetadataAndIdModel> loadIdsAndMetadatasAndHisotricsFor(final User user, final Collection<T> values) {
         /**
          * db.getCollection("contas-pagar").aggregate([
          *     {$match:{"owner.$id":ObjectId("60cc8953279e841c0974da56"), _id:{$in:[ObjectId("60cca012279e8437442bc81c"), ObjectId("60cca012279e8437442bc81d")]}}},
