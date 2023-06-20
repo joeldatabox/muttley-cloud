@@ -37,10 +37,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static br.com.muttley.model.security.Role.ROLE_OWNER;
-import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_CREATE;
-import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_DELETE;
-import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_READ;
-import static br.com.muttley.model.security.Role.ROLE_PASSAPORT_UPDATE;
+import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_CREATE;
+import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_DELETE;
+import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_READ;
+import static br.com.muttley.model.security.Role.ROLE_WORK_TEAM_UPDATE;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newAvaliableRoles;
 import static br.com.muttley.model.security.rolesconfig.AvaliableRoles.newViewRoleDefinition;
 import static br.com.muttley.model.security.rolesconfig.FontSet.MDI;
@@ -247,10 +247,10 @@ public class PassaportServiceImpl extends SecurityServiceImpl<Passaport> impleme
         final AvaliableRolesEvent event = new AvaliableRolesEvent(user,
                 newAvaliableRoles(
                         newViewRoleDefinition("account-group-outline", MDI, "Times de trabalho", "Ações relacionada a times de trabalho",
-                                newRoleDefinition(ROLE_PASSAPORT_CREATE, "Inserir times de trabalho"),
-                                newRoleDefinition(ROLE_PASSAPORT_READ, "Visualizar times de trabalho"),
-                                newRoleDefinition(ROLE_PASSAPORT_UPDATE, "Atualizar times de trabalho"),
-                                newRoleDefinition(ROLE_PASSAPORT_DELETE, "Remover times de trabalho")
+                                newRoleDefinition(ROLE_WORK_TEAM_CREATE, "Inserir times de trabalho"),
+                                newRoleDefinition(ROLE_WORK_TEAM_READ, "Visualizar times de trabalho"),
+                                newRoleDefinition(ROLE_WORK_TEAM_UPDATE, "Atualizar times de trabalho"),
+                                newRoleDefinition(ROLE_WORK_TEAM_DELETE, "Remover times de trabalho")
                         )
                 )
         );
