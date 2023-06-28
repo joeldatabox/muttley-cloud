@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import static br.com.muttley.model.util.BigDeciamalUtils.setDefaultScale;
+import static br.com.muttley.utils.BigDecimalUtils.setDefaultScale;
 
 /**
  * @author Joel Rodrigues Moreira on 12/03/18.

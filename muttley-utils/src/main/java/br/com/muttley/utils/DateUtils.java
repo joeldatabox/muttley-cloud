@@ -1,4 +1,4 @@
-package br.com.muttley.model.util;
+package br.com.muttley.utils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import static br.com.muttley.model.TimeZoneDocument.getTimezoneFromId;
+import static br.com.muttley.utils.TimeZoneUtils.getTimezoneFromId;
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 

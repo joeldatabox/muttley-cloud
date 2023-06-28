@@ -13,7 +13,7 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
-import static br.com.muttley.model.TimeZoneDocument.getTimezoneFromId;
+import static br.com.muttley.utils.TimeZoneUtils.getTimezoneFromId;
 
 /**
  * Created by master on 16/06/17.

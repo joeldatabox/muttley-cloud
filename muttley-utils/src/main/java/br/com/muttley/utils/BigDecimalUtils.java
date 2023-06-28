@@ -1,4 +1,4 @@
-package br.com.muttley.model.util;
+package br.com.muttley.utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -8,7 +8,7 @@ import java.math.RoundingMode;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-public class BigDeciamalUtils {
+public class BigDecimalUtils {
     public static BigDecimal newZero() {
         return BigDecimal.ZERO.setScale(15, RoundingMode.HALF_EVEN);
     }

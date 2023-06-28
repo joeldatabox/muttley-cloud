@@ -1,4 +1,4 @@
-package br.com.muttley.model.util;
+package br.com.muttley.utils;
 
 import org.springframework.util.StringUtils;
 

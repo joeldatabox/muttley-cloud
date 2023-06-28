@@ -11,7 +11,8 @@ import org.springframework.web.context.annotation.RequestScope;
 import javax.servlet.http.HttpServletRequest;
 import java.util.TimeZone;
 
-import static br.com.muttley.model.TimeZoneDocument.getTimezoneFromId;
+import static br.com.muttley.utils.TimeZoneUtils.getTimezoneFromId;
+import static br.com.muttley.utils.TimeZoneUtils.isValidTimeZone;
 import static org.springframework.util.StringUtils.isEmpty;
 
 /**
@@ -67,7 +68,7 @@ public class MuttleyCurrentTimezoneImpl extends MuttleyHeader implements Muttley
     }
 
     protected boolean isValid() {
-        return TimeZoneDocument.isValidTimeZone(super.getCurrentValue());
+        return isValidTimeZone(super.getCurrentValue());
     }
 
     @Override

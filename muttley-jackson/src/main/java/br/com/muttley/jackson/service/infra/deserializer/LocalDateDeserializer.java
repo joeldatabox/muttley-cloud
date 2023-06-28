@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.regex.Pattern;
 
-import static br.com.muttley.model.util.DateUtils.DEFAULT_ISO_LOCAL_DATE;
-import static br.com.muttley.model.util.DateUtils.DEFAULT_ISO_ZONED_DATE_TIME;
+import static br.com.muttley.utils.DateUtils.DEFAULT_ISO_LOCAL_DATE;
+import static br.com.muttley.utils.DateUtils.DEFAULT_ISO_ZONED_DATE_TIME;
 import static java.util.Arrays.asList;
 
 /**
