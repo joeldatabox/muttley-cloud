@@ -1,24 +1,20 @@
 package br.com.muttley.report;
 
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
+import br.com.muttley.report.strategy.MuttleyReportAggregationStrategy;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRField;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import static br.com.muttley.utils.MapUtils.getValueByNavigation;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.skip;
 
 /**
  * @author Joel Rodrigues Moreira on 27/02/20.
@@ -28,7 +24,8 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.skip
 public class JRMuttleyMongoDataSource implements JRDataSource {
     private long currentPageSize = 0;
     protected final MongoTemplate mongoTemplate;
-    protected final List<AggregationOperation> operations;
+
+    protected final MuttleyReportAggregationStrategy aggregationStrategy;
 
     protected final Class<?> COLLECTION;
     protected final String COLLECTION_NAME;
@@ -38,26 +35,26 @@ public class JRMuttleyMongoDataSource implements JRDataSource {
     protected final Long currentLimit;
     protected boolean throwsExceptionsIsEmpty = true;
 
-    public JRMuttleyMongoDataSource(final MongoTemplate mongoTemplate, final List<AggregationOperation> operations, Class<?> collection) {
-        this(mongoTemplate, operations, 100l, collection);
+    public JRMuttleyMongoDataSource(final MongoTemplate mongoTemplate, final MuttleyReportAggregationStrategy aggregationStrategy, Class<?> collection) {
+        this(mongoTemplate, aggregationStrategy, 100l, collection);
     }
 
-    public JRMuttleyMongoDataSource(final MongoTemplate mongoTemplate, final List<AggregationOperation> operations, final String collection) {
-        this(mongoTemplate, operations, 100l, collection);
+    public JRMuttleyMongoDataSource(final MongoTemplate mongoTemplate, final MuttleyReportAggregationStrategy aggregationStrategy, final String collection) {
+        this(mongoTemplate, aggregationStrategy, 100l, collection);
     }
 
-    public JRMuttleyMongoDataSource(final MongoTemplate mongoTemplate, final List<AggregationOperation> operations, final long limit, Class<?> collection) {
+    public JRMuttleyMongoDataSource(final MongoTemplate mongoTemplate, final MuttleyReportAggregationStrategy aggregationStrategy, final long limit, Class<?> collection) {
         this.currentLimit = limit;
         this.mongoTemplate = mongoTemplate;
-        this.operations = operations;
+        this.aggregationStrategy = aggregationStrategy;
         this.COLLECTION = collection;
         this.COLLECTION_NAME = null;
     }
 
-    public JRMuttleyMongoDataSource(final MongoTemplate mongoTemplate, final List<AggregationOperation> operations, final long limit, final String collection) {
+    public JRMuttleyMongoDataSource(final MongoTemplate mongoTemplate, final MuttleyReportAggregationStrategy aggregationStrategy, final long limit, final String collection) {
         this.currentLimit = limit;
         this.mongoTemplate = mongoTemplate;
-        this.operations = operations;
+        this.aggregationStrategy = aggregationStrategy;
         this.COLLECTION = null;
         this.COLLECTION_NAME = collection;
     }
@@ -128,13 +125,13 @@ public class JRMuttleyMongoDataSource implements JRDataSource {
 
         if (this.COLLECTION != null) {
             results = this.mongoTemplate.aggregate(
-                    this.createAggregationReport(this.operations, this.currentSkip, this.currentLimit),
+                    this.createAggregationReport(this.currentSkip, this.currentLimit),
                     this.COLLECTION,
                     Document.class
             );
         } else {
             results = this.mongoTemplate.aggregate(
-                    this.createAggregationReport(this.operations, this.currentSkip, this.currentLimit),
+                    this.createAggregationReport(this.currentSkip, this.currentLimit),
                     this.COLLECTION_NAME,
                     Document.class
             );
@@ -154,15 +151,7 @@ public class JRMuttleyMongoDataSource implements JRDataSource {
         return true;
     }
 
-    protected Aggregation createAggregationReport(final List<AggregationOperation> operations, final long skip, final long limit) {
-        //criando uma cópia das operações a serem executadas
-        final List<AggregationOperation> newOperations = new ArrayList<>(operations);
-
-        //adicionando skip
-        newOperations.add(skip(skip));
-        //adicionando limit
-        newOperations.add(limit(limit));
-
-        return newAggregation(newOperations);
+    protected Aggregation createAggregationReport(final long skip, final long limit) {
+        return newAggregation(this.aggregationStrategy.getAggregation(skip, limit));
     }
 }
