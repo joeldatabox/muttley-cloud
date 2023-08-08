@@ -1,6 +1,6 @@
 package br.com.muttley.files.listeners;
 
-import br.com.muttley.files.events.DownloadSyncFilesEvent;
+import br.com.muttley.files.events.DeleteSyncFilesEvent;
 import br.com.muttley.files.properties.Properties;
 import br.com.muttley.utils.FilesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,21 +15,20 @@ import java.nio.file.Paths;
  * @project muttley-cloud
  */
 @Component
-public class DownloadSyncFilesEventListener {
+public class DeleteSyncFilesEventListener {
     private final Properties properties;
 
     @Autowired
-    public DownloadSyncFilesEventListener(final Properties properties) {
+    public DeleteSyncFilesEventListener(final Properties properties) {
         this.properties = properties;
     }
 
-    @EventListener(DownloadSyncFilesEvent.class)
-    public void onApplicationEvent(DownloadSyncFilesEvent event) {
+    @EventListener(classes = DeleteSyncFilesEvent.class)
+    public void onApplicationEvent(DeleteSyncFilesEvent event) {
         event.getSource()
                 .parallelStream()
                 .forEach(it -> {
-                    System.out.println("Baixou sync" + it.getUrl());
-                    FilesUtils.downloadFile(it.getUrl(), Paths.get(properties.getFiles(), it.getPath().toString()), it.isReplaceIfExists());
+                    FilesUtils.removeFile(Paths.get(this.properties.getFiles(), it.getPath().toString()), it.isDropParentIfEmpty());
                 });
     }
 }

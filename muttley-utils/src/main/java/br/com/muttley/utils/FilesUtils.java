@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 /**
  * @author Joel Rodrigues Moreira on 28/07/2023.
@@ -40,6 +41,33 @@ public class FilesUtils {
             } catch (final IOException exception) {
                 throw new RuntimeException(exception);
             }
+        }
+    }
+
+    /**
+     * @param file              -> Arquivo para ser deletado
+     * @param dropParentIfEmpty -> caso o diretório fique fazio o mesmo será removido
+     */
+    public static void removeFile(final Path file, boolean dropParentIfEmpty) {
+
+        //removendo arquivo
+        try {
+            //verificando se é realmente é um arquivo
+            if (!Files.isDirectory(file)) {
+                Files.deleteIfExists(file);
+
+                //deletando diretório caso necessário
+                if (dropParentIfEmpty) {
+                    try (Stream<Path> filesStream = Files.list(file.getParent())) {
+                        //vefirifincando se o diretório está vazio
+                        if (!filesStream.findFirst().isPresent()) {
+                            Files.deleteIfExists(file.getParent());
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

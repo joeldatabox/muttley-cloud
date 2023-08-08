@@ -41,4 +41,12 @@ public class FileForDownload {
             throw new RuntimeException(e);
         }
     }
+
+    public FileForDelete toFileForDelete() {
+        return new FileForDelete(this.path);
+    }
+
+    public FileForDelete toFileForDelete(final boolean removeDirectory) {
+        return new FileForDelete(this.path, removeDirectory);
+    }
 }
