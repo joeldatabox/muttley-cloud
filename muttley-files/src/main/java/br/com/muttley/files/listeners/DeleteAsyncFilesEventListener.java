@@ -5,6 +5,7 @@ import br.com.muttley.files.properties.Properties;
 import br.com.muttley.utils.FilesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Paths;
@@ -24,6 +25,7 @@ public class DeleteAsyncFilesEventListener {
     }
 
     @EventListener(DeleteAsyncFilesEvent.class)
+    @Async
     public void onApplicationEvent(DeleteAsyncFilesEvent event) {
         event.getSource()
                 .parallelStream()

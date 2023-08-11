@@ -5,6 +5,7 @@ import br.com.muttley.files.properties.Properties;
 import br.com.muttley.utils.FilesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Paths;
@@ -24,7 +25,17 @@ public class MergeAsyncFilesEventListener {
     }
 
     @EventListener(MergeAsyncFilesEvent.class)
+    @Async
     public void onApplicationEvent(MergeAsyncFilesEvent event) {
+        //removendo todos os arquivos primeiramente
+        event.getSource()
+                .getFilesForDelete()
+                .parallelStream()
+                .forEach(it -> {
+                    FilesUtils.removeFile(Paths.get(this.properties.getFiles(), it.getPath().toString()), it.isDropParentIfEmpty());
+                });
+
+        //baixando os arquivo necessários
         event.getSource()
                 .getFilesForDownload()
                 .parallelStream()
@@ -33,12 +44,7 @@ public class MergeAsyncFilesEventListener {
                     FilesUtils.downloadFile(it.getUrl(), Paths.get(properties.getFiles(), it.getPath().toString()), it.isReplaceIfExists());
                 });
 
-        event.getSource()
-                .getFilesForDelete()
-                .parallelStream()
-                .forEach(it -> {
-                    FilesUtils.removeFile(Paths.get(this.properties.getFiles(), it.getPath().toString()), it.isDropParentIfEmpty());
-                });
+
 
 
     }
