@@ -3,10 +3,13 @@ package br.com.muttley.files.listeners;
 import br.com.muttley.files.events.DownloadSyncFilesEvent;
 import br.com.muttley.files.properties.Properties;
 import br.com.muttley.utils.FilesUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -17,6 +20,7 @@ import java.nio.file.Paths;
 @Component
 public class DownloadSyncFilesEventListener {
     private final Properties properties;
+    private final Logger logger = LoggerFactory.getLogger(DownloadSyncFilesEventListener.class);
 
     @Autowired
     public DownloadSyncFilesEventListener(final Properties properties) {
@@ -28,8 +32,9 @@ public class DownloadSyncFilesEventListener {
         event.getSource()
                 .parallelStream()
                 .forEach(it -> {
-                    System.out.println("Baixou sync" + it.getUrl());
-                    FilesUtils.downloadFile(it.getUrl(), Paths.get(properties.getFiles(), it.getPath().toString()), it.isReplaceIfExists());
+                    final Path path = Paths.get(this.properties.getFiles(), it.getPath().toString());
+                    FilesUtils.downloadFile(it.getUrl(), path, it.isReplaceIfExists());
+                    logger.info("The file has been successfully downloaded: \n\t Local file -> " + path.toAbsolutePath() + "\n\t Remote file -> " + it.getUrl());
                 });
     }
 }
