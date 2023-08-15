@@ -2,12 +2,15 @@ package br.com.muttley.utils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 /**
@@ -33,8 +36,8 @@ public class FilesUtils {
                     Files.createDirectories(directory);
                 }
                 //fazendo o download do arquivo
-                try (ReadableByteChannel readableByteChannel = Channels.newChannel(localDownload.openStream())) {
-                    try (FileChannel fileChannel = new FileOutputStream(destination.toFile()).getChannel()) {
+                try (final ReadableByteChannel readableByteChannel = Channels.newChannel(localDownload.openStream())) {
+                    try (final FileChannel fileChannel = new FileOutputStream(destination.toFile()).getChannel()) {
                         fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
                     }
                 }
@@ -42,6 +45,14 @@ public class FilesUtils {
                 throw new RuntimeException(exception);
             }
         }
+    }
+
+    public static Path resolveLocalFile(Path parentLocation, final URL url) {
+        //pegando o caminho complento onde será armazenado o arquivo
+        final Path localPath = Paths.get(parentLocation.toString(), getPathFromURL(url).toString());
+        //fazendo download loca caso necessário
+        downloadFile(url, localPath, false);
+        return localPath;
     }
 
     /**
@@ -58,7 +69,7 @@ public class FilesUtils {
 
                 //deletando diretório caso necessário
                 if (dropParentIfEmpty) {
-                    try (Stream<Path> filesStream = Files.list(file.getParent())) {
+                    try (final Stream<Path> filesStream = Files.list(file.getParent())) {
                         //vefirifincando se o diretório está vazio
                         if (!filesStream.findFirst().isPresent()) {
                             Files.deleteIfExists(file.getParent());
@@ -70,4 +81,32 @@ public class FilesUtils {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Cria uma representação de diretório local com base na url informada
+     * Exemplo  "www.mysite.com.br/teste/my-files/image.jpg" será transformado para
+     * "/teste/my-files/image.jpg"
+     *
+     * @param url -> URL esperada
+     */
+    public static Path getPathFromURL(final URL url) {
+        return getPathFromURL(url, "UTF-8");
+    }
+
+    /**
+     * Cria uma representação de diretório local com base na url informada
+     * Exemplo  "www.mysite.com.br/teste/my-files/image.jpg" será transformado para
+     * "/teste/my-files/image.jpg"
+     *
+     * @param url      -> URL esperada
+     * @param enconder -> encoder necessário para resolver a url
+     */
+    public static Path getPathFromURL(final URL url, final String enconder) {
+        try {
+            return Paths.get(URLDecoder.decode(Paths.get(url.getPath()).getFileName().toString(), enconder));
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }
+

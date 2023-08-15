@@ -20,6 +20,7 @@ public abstract class AbstractMuttleyReportBuilder<T extends MuttleyReportBuilde
     public static final String CURRENT_USER = "CURRENT_USER";
     public static final String CURRENT_VERSION = "CURRENT_VERSION";
     public static final String CURRENT_TIMEZONE = "CURRENT_TIMEZONE";
+    public static final String MUTTLEY_CLOUD_FILES = "MUTTLEY_CLOUD_FILES";
 
     @Getter
     protected Map<String, Object> params = new HashMap<>();
@@ -31,7 +32,8 @@ public abstract class AbstractMuttleyReportBuilder<T extends MuttleyReportBuilde
     protected MuttleyCurrentVersion currentVersion;
     @Getter
     protected MuttleyCurrentTimezone currentTimezone;
-
+    @Getter
+    protected String currentCloudFileDirectory;
     protected final T INSTANCE = (T) this;
 
     protected AbstractMuttleyReportBuilder() {
@@ -42,6 +44,7 @@ public abstract class AbstractMuttleyReportBuilder<T extends MuttleyReportBuilde
         this.setCurrentUser(builder.getCurrentUser());
         this.setCurrentTimezone(builder.getCurrentTimezone());
         this.setCurrentVersion(builder.getCurrentVersion());
+        this.setCurrentCloudFileDirectory(builder.getCurrentCloudFileDirectory());
     }
 
     public T addParam(final String key, final Object value) {
@@ -88,6 +91,12 @@ public abstract class AbstractMuttleyReportBuilder<T extends MuttleyReportBuilde
     public T setCurrentTimezone(final MuttleyCurrentTimezone timezone) {
         this.currentTimezone = timezone;
         this.addParam(CURRENT_TIMEZONE, timezone.getCurrentTimezoneFromRequestOrServer());
+        return this.INSTANCE;
+    }
+
+    public T setCurrentCloudFileDirectory(final String path) {
+        this.currentCloudFileDirectory = path;
+        this.addParam(MUTTLEY_CLOUD_FILES, this.currentCloudFileDirectory);
         return this.INSTANCE;
     }
 
