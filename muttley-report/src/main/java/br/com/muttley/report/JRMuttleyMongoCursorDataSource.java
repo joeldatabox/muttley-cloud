@@ -52,8 +52,12 @@ public class JRMuttleyMongoCursorDataSource implements JRDataSource {
         this.throwsExceptionsIsEmpty = throwsExceptionsIsEmpty;
         return this;
     }
+
     protected boolean fetchQuery() {
         this.currentSkip += this.currentLimit;
+        if (cursor != null) {
+            cursor.close();
+        }
         this.cursor = this.mongoTemplate.getCollection(this.COLLECTION_NAME)
                 .aggregate(
                         this.createAggregationReport(this.currentSkip, this.currentLimit),
