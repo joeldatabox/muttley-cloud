@@ -22,6 +22,9 @@ public class MapUtils {
             //verificando se item é um map
             //caso não for devemos retornar null
             if (!(item instanceof Map)) {
+                if (item != null) {
+                    System.out.println("###ATTENTION. A MAP was expected instead of an object of type " + item.getClass());
+                }
                 return null;
             }
             //pegando o item recuperado e fazendo recursão para pegar o proxímo nível

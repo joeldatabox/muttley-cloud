@@ -52,7 +52,7 @@ public abstract class AbstractMuttleyReport implements MuttleyReport {
         //criando o virtualizador de cache para impressão
         final JRSwapFileVirtualizer virtualizer = new JRSwapFileVirtualizer(
                 1,
-                new JRSwapFile(getProperty("java.io.tmpdir"), 1024, 100),
+                new JRSwapFile(getProperty("java.io.tmpdir"), 1, 100),
                 true
         );
         try {
@@ -63,7 +63,7 @@ public abstract class AbstractMuttleyReport implements MuttleyReport {
             exportReportToPdfStream(
                     fillReport(
                             this.loadReport(),
-                            this.getParams(),
+                            map,
                             this.getDataSource()
                     ),
                     outputStream
