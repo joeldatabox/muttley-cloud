@@ -9,6 +9,8 @@ import com.mongodb.DBObject;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 
@@ -34,6 +36,9 @@ public class JRMuttleyMongoCursorDataSource implements JRDataSource {
     protected long currentSkip = 0l;
     protected final Long currentLimit;
     protected boolean throwsExceptionsIsEmpty = true;
+    private final Logger LOGGER = LoggerFactory.getLogger(JRMuttleyMongoCursorDataSource.class);
+    private boolean printQueries = false;
+    private long totalConsumed = 0l;
 
 
     public JRMuttleyMongoCursorDataSource(final MongoTemplate mongoTemplate, final MuttleyReportAggregationStrategy aggregationStrategy, final String collection) {
@@ -53,22 +58,35 @@ public class JRMuttleyMongoCursorDataSource implements JRDataSource {
         return this;
     }
 
+    public JRMuttleyMongoCursorDataSource setPrintQueries(boolean printQueries) {
+        this.printQueries = printQueries;
+        return this;
+    }
+
     protected boolean fetchQuery() {
-        this.currentSkip += this.currentLimit;
         if (cursor != null) {
             cursor.close();
+            cursor = null;
         }
-        this.cursor = this.mongoTemplate.getCollection(this.COLLECTION_NAME)
-                .aggregate(
-                        this.createAggregationReport(this.currentSkip, this.currentLimit),
-                        AggregationOptions.builder()
-                                .batchSize(100)
-                                .maxTime(60, TimeUnit.MINUTES)
-                                .outputMode(AggregationOptions.OutputMode.CURSOR)
-                                .allowDiskUse(true)
-                                .build()
-                );
 
+        //CONTROLE DE PAGINAÇãO
+        if (totalConsumed == this.currentSkip + this.currentLimit) {
+            this.currentSkip += this.currentLimit;
+            final List<DBObject> aggregation = this.createAggregationReport(this.currentSkip, this.currentLimit);
+            if (this.printQueries) {
+                LOGGER.info("Executing aggregation: {}", aggregation.stream().map(it -> ((BasicDBObject) it).toJson()).collect(Collectors.joining(",")));
+            }
+            this.cursor = this.mongoTemplate.getCollection(this.COLLECTION_NAME)
+                    .aggregate(
+                            this.createAggregationReport(this.currentSkip, this.currentLimit),
+                            AggregationOptions.builder()
+                                    .batchSize(100)
+                                    .maxTime(60, TimeUnit.MINUTES)
+                                    .outputMode(AggregationOptions.OutputMode.CURSOR)
+                                    .allowDiskUse(true)
+                                    .build()
+                    );
+        }
         return cursor != null && cursor.hasNext();
     }
 
@@ -88,8 +106,7 @@ public class JRMuttleyMongoCursorDataSource implements JRDataSource {
         }
         if (result) {
             this.currentValue = (BasicDBObject) this.cursor.next();
-        } else {
-            this.cursor.close();
+            this.totalConsumed++;
         }
         return result;
     }

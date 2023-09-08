@@ -36,9 +36,13 @@ public class MergeAsyncFilesEventListener {
                 .getFilesForDelete()
                 .parallelStream()
                 .forEach(it -> {
-                    final Path path = Paths.get(this.properties.getFiles(), it.getPath().toString());
-                    FilesUtils.removeFile(path, it.isDropParentIfEmpty());
-                    logger.info("The successfully deleted file: \n\t Local file -> " + path.toAbsolutePath());
+                    try {
+                        final Path path = Paths.get(this.properties.getFiles(), it.getPath().toString());
+                        FilesUtils.removeFile(path, it.isDropParentIfEmpty());
+                        logger.info("The successfully deleted file: \n\t Local file -> " + path.toAbsolutePath());
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 });
 
         //baixando os arquivo necessários
@@ -46,9 +50,13 @@ public class MergeAsyncFilesEventListener {
                 .getFilesForDownload()
                 .parallelStream()
                 .forEach(it -> {
-                    final Path path = Paths.get(this.properties.getFiles(), it.getPath().toString());
-                    FilesUtils.downloadFile(it.getUrl(), path, it.isReplaceIfExists());
-                    logger.info("The file has been successfully downloaded: \n\t Local file -> " + path.toAbsolutePath() + "\n\t Remote file -> " + it.getUrl());
+                    try {
+                        final Path path = Paths.get(this.properties.getFiles(), it.getPath().toString());
+                        FilesUtils.downloadFile(it.getUrl(), path, it.isReplaceIfExists());
+                        logger.info("The file has been successfully downloaded: \n\t Local file -> " + path.toAbsolutePath() + "\n\t Remote file -> " + it.getUrl());
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 });
 
 
