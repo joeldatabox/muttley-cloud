@@ -4,7 +4,6 @@ import br.com.muttley.domain.service.ModelService;
 import br.com.muttley.domain.service.impl.utils.MetadataAndIdModel;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
-import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.exception.throwables.repository.MuttleyRepositoryOwnerNotInformedException;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.Document;
@@ -25,7 +24,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -35,6 +33,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import static br.com.muttley.model.security.domain.Domain.PUBLIC;
+import static br.com.muttley.model.security.domain.Domain.RESTRICTED;
+import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -64,7 +65,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         //setando o dono do registro
         value.setOwner(user);
         //garantindo que o metadata ta preenchido
-        this.metadataService.generateNewMetadataFor(user, value);
+        this.generateNewMetadataFor(user, value, null);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
@@ -88,7 +89,7 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         //verificando se realmente está criando um novo registro
         checkIdForSave(values);
         //garantindo que o metadata ta preenchido
-        this.metadataService.generateNewMetadataFor(user, values);
+        this.generateNewMetadataFor(user, values, null);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, values);
         //verificando precondições
@@ -110,7 +111,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         }
         //verificando se o registro realmente existe
         if (!this.repository.exists(value)) {
-            throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
+            throw this.createNotFoundExceptionById(user, value.getId());
+            //throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         value.setOwner(user);
         //gerando metadata de alteração
@@ -184,12 +186,13 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         }
         final List<T> valuesNotSaved = agroupedValues.get(Boolean.FALSE);
         if (!CollectionUtils.isEmpty(valuesNotSaved)) {
-            throw new MuttleyNotFoundException(clazz, "id", "Registros não encontrados")
-                    .addDetails("ids", valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));
+            throw this.createNotFoundExceptionById(user, valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));
+            /*throw new MuttleyNotFoundException(clazz, "id", "Registros não encontrados")
+                    .addDetails("ids", valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));*/
         }
     }
 
-    private List<MetadataAndIdModel> loadIdsAndMetadatasAndHisotricsFor(final User user, final Collection<T> values) {
+    protected List<MetadataAndIdModel> loadIdsAndMetadatasAndHisotricsFor(final User user, final Collection<T> values) {
         /**
          * db.getCollection("contas-pagar").aggregate([
          *     {$match:{"owner.$id":ObjectId("60cc8953279e841c0974da56"), _id:{$in:[ObjectId("60cca012279e8437442bc81c"), ObjectId("60cca012279e8437442bc81d")]}}},
@@ -219,7 +222,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
 
         final T result = this.repository.findOne(user.getCurrentOwner(), id);
         if (isNull(result)) {
-            throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, id);
+            //throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return result;
     }
@@ -237,7 +241,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
                 )
                 , clazz, clazz);
         if (results == null || results.getUniqueMappedResult() == null) {
-            throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, id);
+            //throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return results.getUniqueMappedResult();
     }
@@ -263,7 +268,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     public T findFirst(final User user) {
         final T result = this.repository.findFirst(user.getCurrentOwner());
         if (isNull(result)) {
-            throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
+            throw this.createNotFoundExceptionById(user).setField("user");
+            //throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
         }
         return result;
     }
@@ -273,7 +279,8 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         this.beforeDelete(user, id);
         checkPrecondictionDelete(user, id);
         if (!repository.exists(user.getCurrentOwner(), id)) {
-            throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, id);
+            //throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         this.repository.delete(user.getCurrentOwner(), id);
         this.afterDelete(user, id);
@@ -282,9 +289,10 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
     @Override
     public void delete(final User user, final T value) {
         this.beforeDelete(user, value);
-        checkPrecondictionDelete(user, value.getId());
+        checkPrecondictionDelete(user, value);
         if (!repository.exists(user.getCurrentOwner(), value)) {
-            throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, value.getId());
+            //throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
         }
         this.repository.delete(user.getCurrentOwner(), value);
         this.afterDelete(user, value);
@@ -292,6 +300,11 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
 
     @Override
     public void checkPrecondictionDelete(final User user, final String id) {
+
+    }
+
+    @Override
+    public void checkPrecondictionDelete(final User user, final T value) {
 
     }
 
@@ -381,8 +394,33 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         if (user.isOwner()) {
             return Collections.emptyList();
         }
-        return Arrays.asList(
-                match(where("metadata.historic.createdBy.$id").in(user.getWorkTeamDomain().getAllUsers().parallelStream().map(it -> it.getObjectId()).collect(toSet())))
+        return asList(
+                match(
+                        new Criteria().orOperator(
+                                //pegando todos os registros que forem publicos
+                                where("metadata.domain").is(PUBLIC),
+                                //pegando todos os registros que o proprio usuário criou
+                                where("metadata.historic.createdBy.$id").is(user.getObjectId()),
+                                //pegando todos os registros de subordinados
+                                where("metadata.historic.createdBy.$id")
+                                        .in(
+                                                user.getWorkTeamDomain()
+                                                        .getSubordinates()
+                                                        .parallelStream()
+                                                        .map(it -> it.getUser().getObjectId())
+                                                        .collect(toSet())
+                                        ),
+                                //pegando todos os registros dos colegas presentes no workteam
+                                where("metadata.historic.createdBy.$id")
+                                        .in(
+                                                user.getWorkTeamDomain()
+                                                        .getColleagues()
+                                                        .parallelStream()
+                                                        .map(it -> it.getUser().getObjectId())
+                                                        .collect(toSet())
+                                        ).and("metadata.domain").is(RESTRICTED)
+                        )
+                )
         );
     }
 
@@ -390,8 +428,32 @@ public abstract class ModelServiceImpl<T extends Model> extends ServiceImpl<T> i
         if (user.isOwner()) {
             return null;
         }
-        return Arrays.asList(
-                where("metadata.historic.createdBy.$id").in(user.getWorkTeamDomain().getAllUsers().parallelStream().map(it -> it.getObjectId()).collect(toSet()))
+        return asList(
+
+                new Criteria().orOperator(
+                        //pegando todos os registros que forem publicos
+                        where("metadata.domain").is(PUBLIC),
+                        //pegando todos os registros que o proprio usuário criou
+                        where("metadata.historic.createdBy.$id").is(user.getObjectId()),
+                        //pegando todos os registros de subordinados
+                        where("metadata.historic.createdBy.$id")
+                                .in(
+                                        user.getWorkTeamDomain()
+                                                .getSubordinates()
+                                                .parallelStream()
+                                                .map(it -> it.getUser().getObjectId())
+                                                .collect(toSet())
+                                ),
+                        //pegando todos os registros dos colegas presentes no workteam
+                        where("metadata.historic.createdBy.$id")
+                                .in(
+                                        user.getWorkTeamDomain()
+                                                .getColleagues()
+                                                .parallelStream()
+                                                .map(it -> it.getUser().getObjectId())
+                                                .collect(toSet())
+                                ).and("metadata.domain").is(RESTRICTED)
+                )
         );
     }
 }

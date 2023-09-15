@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import static br.com.muttley.model.TimeZoneDocument.getTimezoneFromId;
+import static br.com.muttley.utils.TimeZoneUtils.getTimezoneFromId;
 import static br.com.muttley.model.security.Role.ROLE_USER_BASE_CREATE;
 import static java.util.Arrays.asList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;

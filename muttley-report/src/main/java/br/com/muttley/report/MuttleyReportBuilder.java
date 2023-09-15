@@ -22,6 +22,8 @@ public interface MuttleyReportBuilder<T extends MuttleyReportBuilder> {
 
     MuttleyCurrentTimezone getCurrentTimezone();
 
+    String getCurrentCloudFileDirectory();
+
     T addParam(final String key, final Object value);
 
     T addSubReport(final MuttleyReportBuilder report);

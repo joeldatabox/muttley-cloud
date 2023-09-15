@@ -221,14 +221,14 @@ public interface RestResource<T extends Document> {
             Integer limit = null;
             try {
                 limit = Integer.valueOf(map.get(Operator.LIMIT.toString()));
-                if (limit > 100) {
-                    ex.addDetails(Operator.LIMIT.toString(), "o limite informado foi (" + limit + ") mas o maxímo é(100)");
+                if (limit > this.getMaxrecords()) {
+                    ex.addDetails(Operator.LIMIT.toString(), "o limite informado foi (" + limit + ") mas o maxímo é(" + this.getMaxrecords() + ")");
                 }
             } catch (NumberFormatException nex) {
-                ex.addDetails(Operator.LIMIT.toString(), "deve conter um numero com o tamanho maximo de 100");
+                ex.addDetails(Operator.LIMIT.toString(), "deve conter um numero com o tamanho maximo de " + this.getMaxrecords());
             }
         } else {
-            map.put(Operator.LIMIT.toString(), "100");
+            map.put(Operator.LIMIT.toString(), String.valueOf(this.getMaxrecords()));
         }
 
         if (map.containsKey(Operator.SKIP.toString())) {
@@ -249,5 +249,9 @@ public interface RestResource<T extends Document> {
             throw ex;
         }
         return map;
+    }
+
+    default int getMaxrecords() {
+        return 100;
     }
 }

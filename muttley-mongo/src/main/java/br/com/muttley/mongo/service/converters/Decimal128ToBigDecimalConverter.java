@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
-import static br.com.muttley.model.util.BigDeciamalUtils.setDefaultScale;
+import static br.com.muttley.utils.BigDecimalUtils.setDefaultScale;
 
 @Component
 @ReadingConverter

@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static br.com.muttley.model.TimeZoneDocument.getTimezoneFromId;
+import static br.com.muttley.utils.TimeZoneUtils.getTimezoneFromId;
 import static lombok.AccessLevel.NONE;
 
 /**

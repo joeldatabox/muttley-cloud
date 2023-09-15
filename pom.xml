@@ -27,7 +27,7 @@
         <spring-cloud.version>Edgware.SR3</spring-cloud.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-lang3.version>3.10</commons-lang3.version>
-        <jasperreports.version>6.18.1</jasperreports.version>
+        <jasperreports.version>6.20.5</jasperreports.version>
         <zxing-parent.version>3.4.0</zxing-parent.version>
         <bouncycastle.version>1.70</bouncycastle.version>
     </properties>
@@ -50,6 +50,7 @@
         <module>muttley-domain-service</module>
         <module>muttley-jackson</module>
         <module>muttley-feign</module>
+        <module>muttley-files</module>
         <module>muttley-zuul</module>
         <module>muttley-report</module>
         <module>muttley-local-cache</module>
@@ -202,6 +203,12 @@
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-feign</artifactId>
                 <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>br.com.muttley</groupId>
+                <artifactId>muttley-files</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>

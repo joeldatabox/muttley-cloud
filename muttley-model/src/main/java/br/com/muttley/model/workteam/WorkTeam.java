@@ -42,8 +42,7 @@ import static br.com.muttley.model.workteam.WorkTeam.TYPE_ALIAS;
         @CompoundIndex(name = "owner.id_index", def = "{'owner.$id' : 1}"),
         @CompoundIndex(name = "usersMaster.id_index", def = "{'usersMaster.$id' : 1}"),
         @CompoundIndex(name = "owner_usersMaster_index", def = "{'owner' : 1, 'usersMaster' : 1}"),
-        @CompoundIndex(name = "owner.id_usersMaster.id_index", def = "{'owner.$id' : 1, 'usersMaster.$id' : 1}"),
-        @CompoundIndex(name = "name_usersMaster_index_unique", def = "{'name' : 1, 'usersMaster': 1}", unique = true)
+        @CompoundIndex(name = "owner.id_usersMaster.id_index", def = "{'owner.$id' : 1, 'usersMaster.$id' : 1}")
 })
 @TypeAlias(TYPE_ALIAS)
 @Getter

@@ -7,7 +7,9 @@ import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.headers.services.MetadataService;
 import br.com.muttley.model.Document;
+import br.com.muttley.model.NameAlias;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.domain.Domain;
 import br.com.muttley.mongo.service.infra.metadata.EntityMetaData;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.bson.types.ObjectId;
@@ -30,6 +32,7 @@ import java.util.stream.Stream;
 import static br.com.muttley.model.Document.getPropertyFrom;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
@@ -85,7 +88,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         //verificando se realmente está criando um novo registro
         checkIdForSave(value);
         //garantindo que o metadata ta preenchido
-        this.metadataService.generateNewMetadataFor(user, value);
+        this.generateNewMetadataFor(user, value, null);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, value);
         //verificando precondições
@@ -118,7 +121,7 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         //verificando se realmente está criando um novo registro
         checkIdForSave(values);
         //garantindo que o metadata ta preenchido
-        this.metadataService.generateNewMetadataFor(user, values);
+        this.generateNewMetadataFor(user, values, null);
         //processa regra de negocio antes de qualquer validação
         this.beforeSave(user, values);
         //verificando precondições
@@ -158,7 +161,8 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         this.checkIdForUpdate(value);
         //verificando se o registro realmente existe
         if (!this.repository.exists(value.getId())) {
-            throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
+            throw this.createNotFoundExceptionById(user, value.getId());
+            //throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
         }
         //gerando metadata de alteração
         this.metadataService.generateMetaDataUpdateFor(user, repository.loadMetadata(value), value);
@@ -215,8 +219,9 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         }
         final List<T> valuesNotSaved = agroupedValues.get(Boolean.FALSE);
         if (!CollectionUtils.isEmpty(valuesNotSaved)) {
-            throw new MuttleyNotFoundException(clazz, "id", "Registros não encontrados")
-                    .addDetails("ids", valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));
+            throw this.createNotFoundExceptionById(user, valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));
+            /*throw new MuttleyNotFoundException(clazz, "id", "Registros não encontrados")
+                    .addDetails("ids", valuesNotSaved.parallelStream().map(Document::getId).collect(toList()));*/
         }
     }
 
@@ -233,7 +238,8 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
 
         final T result = this.repository.findOne(id);
         if (isNull(result)) {
-            throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, id);
+            //throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return result;
     }
@@ -252,7 +258,8 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
                 , clazz, clazz);
 
         if (results == null || results.getUniqueMappedResult() == null) {
-            throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, id);
+            //throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         return results.getUniqueMappedResult();
     }
@@ -278,13 +285,19 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     public T findFirst(final User user) {
         final T result = this.repository.findFirst();
         if (isNull(result)) {
-            throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
+            throw this.createNotFoundExceptionById(user).setField("user");
+            //*throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
         }
         return result;
     }
 
     @Override
     public void checkPrecondictionDelete(final User user, final String id) {
+
+    }
+
+    @Override
+    public void checkPrecondictionDelete(User user, T value) {
 
     }
 
@@ -298,7 +311,8 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         beforeDelete(user, id);
         checkPrecondictionDelete(user, id);
         if (!repository.exists(id)) {
-            throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, id);
+            //throw new MuttleyNotFoundException(clazz, "id", id + " este registro não foi encontrado");
         }
         this.repository.delete(id);
         afterDelete(user, id);
@@ -317,9 +331,10 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
     @Override
     public void delete(final User user, final T value) {
         beforeDelete(user, value);
-        checkPrecondictionDelete(user, value.getId());
+        checkPrecondictionDelete(user, value);
         if (!repository.exists(value)) {
-            throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
+            throw this.createNotFoundExceptionById(user, value.getId());
+            //throw new MuttleyNotFoundException(clazz, "id", value.getId() + " este registro não foi encontrado");
         }
         this.repository.delete(value);
         afterDelete(user, value);
@@ -415,5 +430,49 @@ public abstract class ServiceImpl<T extends Document> implements Service<T> {
         if (value.getId() == null) {
             throw new MuttleyBadRequestException(clazz, "id", "Não é possível alterar um registro sem informar um id válido");
         }
+    }
+
+    protected MuttleyNotFoundException createNotFoundExceptionById(final User user) {
+        return new MuttleyNotFoundException(clazz, "id", this.getSingularNameAlias(this.clazz) + " não encontrado(a)");
+    }
+
+    protected MuttleyNotFoundException createNotFoundExceptionById(final User user, final String id) {
+        final MuttleyNotFoundException exception = new MuttleyNotFoundException(clazz, "id", this.getSingularNameAlias(this.clazz) + "(" + id + ") não encontrado(a)");
+        exception.addDetails("id", id);
+        return exception;
+    }
+
+    protected MuttleyNotFoundException createNotFoundExceptionById(final User user, final Collection<String> ids) {
+        final String idsConcat = ids.parallelStream()
+                .limit(3)
+                .collect(joining(", "));
+
+        final MuttleyNotFoundException exception = new MuttleyNotFoundException(clazz, "id", this.getSingularNameAlias(this.clazz) + "(" + idsConcat + ") não encontrados(as)");
+        exception.addDetails("ids", ids);
+        return exception;
+    }
+
+    protected String getSingularNameAlias(final Class<?> clazz) {
+        final NameAlias nameAlias = clazz.getAnnotation(NameAlias.class);
+        if (nameAlias != null) {
+            return nameAlias.singularName();
+        }
+        return clazz.getSimpleName();
+    }
+
+    protected String getPluralNameAlias(final Class<?> clazz) {
+        final NameAlias nameAlias = clazz.getAnnotation(NameAlias.class);
+        if (nameAlias != null) {
+            return nameAlias.pluralName();
+        }
+        return clazz.getSimpleName();
+    }
+
+    protected void generateNewMetadataFor(final User user, final T value, final Domain domain) {
+        this.metadataService.generateNewMetadataFor(user, value, domain);
+    }
+
+    protected void generateNewMetadataFor(final User user, final Collection<T> value, final Domain domain) {
+        this.metadataService.generateNewMetadataFor(user, value, domain);
     }
 }

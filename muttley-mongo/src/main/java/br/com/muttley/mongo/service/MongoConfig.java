@@ -13,6 +13,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
 import org.bson.BSON;
+import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.mongodb.MongoCredential.createCredential;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 /**
@@ -92,11 +94,18 @@ public class MongoConfig extends AbstractMongoConfiguration {
         BSON.addEncodingHook(BigDecimal.class, new BigDecimalTransformer());
         BSON.addEncodingHook(ZonedDateTime.class, new ZonedDateTimeTransformer());
 
-        final CodecRegistry condecRegistry = CodecRegistries.fromRegistries(
+        final List<CodecRegistry> codecRegistries = new ArrayList<>(asList(
                 CodecRegistries.fromProviders(new BigDecimalCodecProvider()),
                 CodecRegistries.fromProviders(new ZonedDateTimeCodecProvider()),
                 MongoClient.getDefaultCodecRegistry()
-        );
+        ));
+
+        final List<CodecProvider> codecProviders = this.getCodecProviders();
+        if (codecProviders != null) {
+            codecProviders.stream().map(it -> CodecRegistries.fromProviders(it)).forEach(it -> codecRegistries.add(it));
+        }
+
+        final CodecRegistry condecRegistry = CodecRegistries.fromRegistries(codecRegistries);
 
         final MongoClientOptions.Builder builder = MongoClientOptions.builder().codecRegistry(condecRegistry);
 
@@ -106,6 +115,10 @@ public class MongoConfig extends AbstractMongoConfiguration {
                 singletonList(createCredential(this.userName, this.dataBaseName, password.toCharArray())),
                 builder.build()
         );
+    }
+
+    protected List<CodecProvider> getCodecProviders() {
+        return null;
     }
 
     /**

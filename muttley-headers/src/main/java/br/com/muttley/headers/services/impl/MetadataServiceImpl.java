@@ -9,11 +9,15 @@ import br.com.muttley.model.Historic;
 import br.com.muttley.model.MetadataDocument;
 import br.com.muttley.model.VersionDocument;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.domain.Domain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Date;
+
+import static br.com.muttley.model.security.domain.Domain.PRIVATE;
+import static br.com.muttley.model.security.domain.Domain.PUBLIC;
 
 /**
  * @author Joel Rodrigues Moreira 12/03/2021
@@ -31,10 +35,16 @@ public class MetadataServiceImpl implements MetadataService {
 
     @Override
     public void generateNewMetadataFor(final User user, final Document value) {
+        this.generateNewMetadataFor(user, value, null);
+    }
+
+    @Override
+    public void generateNewMetadataFor(final User user, final Document value, final Domain domain) {
         //se não tiver nenhum metadata criado, vamos criar um
         if (!value.containsMetadata()) {
             value.setMetadata(new MetadataDocument(user)
                     .setTimeZones(this.currentTimezone.getCurrentTimezoneDocument())
+                    .setDomain(generateDoaminByUser(user, domain))
                     .setVersionDocument(
                             new VersionDocument()
                                     .setOriginVersionClientCreate(this.currentVersion.getCurrentValue())
@@ -45,6 +55,10 @@ public class MetadataServiceImpl implements MetadataService {
                                     .setServerVersionLastUpdate(this.currentVersion.getCurrenteFromServer())
                     ));
         } else {
+            //se não tiver um domain definido devemos atribuir como private
+            if (!value.getMetadata().containsDomain()) {
+                value.getMetadata().setDomain(generateDoaminByUser(user, domain));
+            }
             //se não tem um timezone válido, vamos criar um
             if (!value.getMetadata().containsTimeZones()) {
                 value.getMetadata().setTimeZones(this.currentTimezone.getCurrentTimezoneDocument());
@@ -91,9 +105,14 @@ public class MetadataServiceImpl implements MetadataService {
     }
 
     @Override
-    public void generateNewMetadataFor(final User user, final Collection<? extends Document> values) {
+    public void generateNewMetadataFor(final User user, final Collection<? extends Document> values){
+        this.generateNewMetadataFor(user, values, null);
+    }
+
+    @Override
+    public void generateNewMetadataFor(final User user, final Collection<? extends Document> values, final Domain domain) {
         values.forEach(it -> {
-            this.generateNewMetadataFor(user, it);
+            this.generateNewMetadataFor(user, it, domain);
         });
     }
 
@@ -108,6 +127,9 @@ public class MetadataServiceImpl implements MetadataService {
 
         //se veio informações no registro, devemos aproveitar
         if (value.containsMetadata()) {
+            if (value.getMetadata().containsDomain()) {
+                currentMetadata.setDomain(value.getMetadata().getDomain());
+            }
             if (value.getMetadata().containsTimeZones()) {
                 if (value.getMetadata().getTimeZones().isValidCurrentTimeZone()) {
                     currentMetadata.getTimeZones().setCurrentTimeZone(value.getMetadata().getTimeZones().getCurrentTimeZone());
@@ -135,5 +157,19 @@ public class MetadataServiceImpl implements MetadataService {
                 .setDtChange(new Date());
 
         value.setMetadata(currentMetadata);
+    }
+
+    private Domain generateDoaminByUser(final User user, final Domain domain) {
+        //Definimos o tipo de dominio baseado no usuário atual
+        //se o usuário for owner, logo podemos definir o registro como publico,
+        //caso contrario será privado
+
+        try {
+            return domain != null ? domain : user.isOwner() ? PUBLIC : PRIVATE;
+        } catch (RuntimeException exception) {
+            //se deu erro ao tentar verificar se é um owner logo podemos incarar que é um registro privado
+            //o erro ocorre pois o usuário é novo e logo não tem info de owner
+            return PRIVATE;
+        }
     }
 }

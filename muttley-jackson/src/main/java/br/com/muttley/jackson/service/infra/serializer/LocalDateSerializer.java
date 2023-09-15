@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.time.LocalDate;
 
-import static br.com.muttley.model.util.DateUtils.DEFAULT_ISO_LOCAL_DATE;
+import static br.com.muttley.utils.DateUtils.DEFAULT_ISO_LOCAL_DATE;
 
 /**
  * @author Joel Rodrigues Moreira on 17/06/2021.
