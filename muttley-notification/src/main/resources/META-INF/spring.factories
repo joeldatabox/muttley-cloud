@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  br.com.muttley.notification.onesignal.config.OneSignalConfig
+  br.com.muttley.notification.onesignal.config.OneSignalConfig,\
+  br.com.muttley.notification.infobip.config.InfobipConfig
