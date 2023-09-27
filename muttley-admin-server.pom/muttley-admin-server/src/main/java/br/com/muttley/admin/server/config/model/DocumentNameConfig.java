@@ -26,6 +26,8 @@ public class DocumentNameConfig {
     private final String nameCollectionPassaport;
     private final String nameCollectionWorkTeam;
 
+    private final String nameCollectionXAPIToken;
+
     private final String nameCollectionAdminUserDataBinding;
     private final String nameCollectionUserDataBinding;
     private final String nameViewCollectionUser;
@@ -33,6 +35,7 @@ public class DocumentNameConfig {
     private final String nameViewCollectionPassaportRolesUser;
 
     private final String nameViewCollectionWorkTeam;
+
 
     public DocumentNameConfig(
             @Value("${br.com.muttley.security.server.owner-document:muttley-admin-owners}") final String nameCollectionAdminOwner,
@@ -47,6 +50,7 @@ public class DocumentNameConfig {
             @Value("${br.com.muttley.security.server.admin-passaport-document:muttley-admin-passaports}") final String nameCollectionAdminPassaport,
             @Value("${br.com.muttley.security.server.passaport-document:muttley-passaports}") final String nameCollectionPassaport,
             @Value("${br.com.muttley.security.server.work-team-document:muttley-work-teams}") final String nameCollectionWorkTeam,
+            @Value("${br.com.muttley.security.server.x-api-token-document:muttley-x-api-token}") final String nameCollectionXAPIToken,
             @Value("${br.com.muttley.security.server.user-data-binding:muttley-admin-users-databinding}") final String nameCollectionAdminUserDataBinding,
             @Value("${br.com.muttley.security.server.user-data-binding:muttley-users-databinding}") final String nameCollectionUserDataBinding,
             @Value("${br.com.muttley.security.server.user-document-view:view-muttley-users}") final String nameViewCollectionUser,
@@ -66,6 +70,7 @@ public class DocumentNameConfig {
         this.nameCollectionAdminPassaport = nameCollectionAdminPassaport;
         this.nameCollectionPassaport = nameCollectionPassaport;
         this.nameCollectionWorkTeam = nameCollectionWorkTeam;
+        this.nameCollectionXAPIToken = nameCollectionXAPIToken;
         this.nameCollectionAdminUserDataBinding = nameCollectionAdminUserDataBinding;
         this.nameCollectionUserDataBinding = nameCollectionUserDataBinding;
         this.nameViewCollectionUser = nameViewCollectionUser;

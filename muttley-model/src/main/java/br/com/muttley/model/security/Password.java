@@ -40,7 +40,7 @@ import static io.jsonwebtoken.impl.crypto.MacProvider.generateKey;
  */
 @Document(collection = "#{documentNameConfig.getNameCollectionPassword()}")
 @CompoundIndexes({
-        @CompoundIndex(name = "user_index_unique", def = "{'user': 1}", unique = true)
+        @CompoundIndex(name = "user_index_unique", def = "{'user': 1}")
 })
 @Getter
 @Setter

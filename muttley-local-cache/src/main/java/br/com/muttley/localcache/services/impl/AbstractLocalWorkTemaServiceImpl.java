@@ -3,9 +3,12 @@ package br.com.muttley.localcache.services.impl;
 import br.com.muttley.localcache.services.LocalWorkTeamService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.model.workteam.WorkTeamDomain;
 import br.com.muttley.redis.service.RedisService;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import java.util.Date;
 
 import static br.com.muttley.localcache.services.LocalWorkTeamService.getBasicKey;
 import static br.com.muttley.localcache.services.LocalWorkTeamService.getBasicKeyExpressionOwner;
@@ -28,6 +31,11 @@ public abstract class AbstractLocalWorkTemaServiceImpl implements LocalWorkTeamS
     }
 
     @Override
+    public WorkTeamDomain getWorkTeamDomain(XAPIToken token, User user) {
+        throw new NotImplementedException();
+    }
+
+    @Override
     public LocalWorkTeamService expire(User user) {
         //deletando item do cache
         this.redisService.delete(getBasicKey(user.getCurrentOwner(), user));
@@ -42,7 +50,15 @@ public abstract class AbstractLocalWorkTemaServiceImpl implements LocalWorkTeamS
     }
 
     protected void save(final JwtToken token, final User user, final WorkTeamDomain domain) {
-        this.redisService.set(getBasicKey(user.getCurrentOwner(), user), domain, token.getDtExpiration());
+        this.save(token.getDtExpiration(), user, domain);
+    }
+
+    protected void save(final XAPIToken token, final User user, final WorkTeamDomain domain) {
+        this.save(token.generateDtExpiration(), user, domain);
+    }
+
+    private void save(final Date dtExpiration, final User user, final WorkTeamDomain domain) {
+        this.redisService.set(getBasicKey(user.getCurrentOwner(), user), domain, dtExpiration);
     }
 
     protected WorkTeamDomain loadWorkTeamDomainInCache(final User user) {

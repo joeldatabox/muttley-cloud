@@ -8,6 +8,7 @@ import br.com.muttley.security.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +26,7 @@ import java.util.Map;
  */
 public class CreateUserController {
 
+
     protected final ApplicationEventPublisher eventPublisher;
     protected UserServiceClient service;
     protected static final String NOME = "name";
@@ -33,6 +35,10 @@ public class CreateUserController {
     protected static final String EMAIL = "email";
     protected static final String PASSWD = "password";
     protected static final String NICK_NAMES = "nickNames";
+    protected static final String FONE = "fone";
+    protected static final String CODE_VERIFICATION = "code";
+
+    protected static final String RENEW_CODE_VERIFICATION = "renewCode";
 
     @Autowired
     public CreateUserController(final ApplicationEventPublisher eventPublisher, final UserServiceClient service) {
@@ -42,7 +48,7 @@ public class CreateUserController {
 
     @RequestMapping(value = "${muttley.security.jwt.controller.createEndPoint}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public void save(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
+    public ResponseEntity save(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
 
         if (
                 !((payload.containsKey("name") && payload.containsKey("password") && payload.containsKey("email")) ||
@@ -59,13 +65,13 @@ public class CreateUserController {
 
         }*/
 
-        if (payload.size() > 4) {
+        /*if (payload.size() > 4) {
             throw new MuttleySecurityBadRequestException(User.class, null, "Por favor informe somente o nome, userName, nickNames e a senha")
                     .addDetails(NOME, "Nome completo")
                     .addDetails(USER_NAME, "Informe um userName válido")
                     .addDetails(PASSWD, "Informe uma senha válida")
                     .addDetails(NICK_NAMES, "Informe possíveis nickNames");
-        }
+        }*/
 
         final UserPayLoad user = new UserPayLoad(
                 (String) payload.get(NOME),
@@ -73,8 +79,19 @@ public class CreateUserController {
                 (String) payload.get(EMAIL),
                 (String) payload.get(USER_NAME),
                 payload.containsKey(NICK_NAMES) ? new HashSet((List) payload.get(NICK_NAMES)) : null,
-                (String) payload.get(PASSWD)
+                (String) payload.get(PASSWD),
+                (String) payload.get(FONE),
+                false,
+                null,
+                (String) payload.get(CODE_VERIFICATION),
+                (payload.get(RENEW_CODE_VERIFICATION) == null? false: (Boolean)payload.get(RENEW_CODE_VERIFICATION))
         );
-        this.eventPublisher.publishEvent(new UserCreatedEvent(service.save(user, "true")));
+        final User salvedUser = service.save(user, "true");
+        if (salvedUser == null) {
+            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        } else {
+            this.eventPublisher.publishEvent(new UserCreatedEvent(salvedUser));
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

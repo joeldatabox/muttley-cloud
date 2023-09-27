@@ -55,6 +55,10 @@ public class UserController {
     @ResponseStatus(CREATED)
     public ResponseEntity save(@RequestBody final UserPayLoad value, final HttpServletResponse response, @RequestParam(required = false, value = "returnEntity", defaultValue = "") final String returnEntity) {
         final User record = service.save(value);
+
+        if (record == null) {
+            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        }
         if (returnEntity != null && returnEntity.equals("true")) {
             return ResponseEntity.status(HttpStatus.CREATED).body(record.setPreferences(null).toJson());
         }

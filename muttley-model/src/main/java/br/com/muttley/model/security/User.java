@@ -81,6 +81,8 @@ public class User implements Serializable, UserData {
     private List<UserDataBinding> dataBindings;
     //Define se o usuário é do odin ou de algum outro owner
     private boolean odinUser = false;
+    private String fone;
+
 
     public User() {
         this.authorities = new LinkedHashSet();
@@ -101,13 +103,15 @@ public class User implements Serializable, UserData {
             @JsonProperty("authorities") final Set<Authority> authorities,
             @JsonProperty("preferences") final UserPreferences preferences,
             @JsonProperty("workTeamDomain") final WorkTeamDomain workTeamDomain,
-            @JsonProperty("dataBindings") final List<UserDataBinding> dataBindings) {
+            @JsonProperty("dataBindings") final List<UserDataBinding> dataBindings,
+            @JsonProperty("fone") String fone) {
         this.id = id;
         this.currentOwner = currentOwner;
         this.name = name;
         this.description = description;
         this.userName = userName;
         this.email = email;
+        this.fone = fone;
         this.setNickUsers(nickUsers);
         this.enable = enable;
         this.authorities = authorities;
@@ -123,6 +127,8 @@ public class User implements Serializable, UserData {
         this.setUserName(payLoad.getUserName());
         this.setEmail(payLoad.getEmail());
         this.setNickUsers(payLoad.getNickUsers());
+        this.setOdinUser(payLoad.isOdinUser());
+        this.setFone(payLoad.getFone());
         /*if (!isEmpty(payLoad.getPasswd())) {
             this.setPasswd(payLoad.getPasswd());
         }*/
@@ -234,6 +240,15 @@ public class User implements Serializable, UserData {
         if (nickUsers != null) {
             this.nickUsers = nickUsers.parallelStream().map(String::toLowerCase).collect(toSet());
         }
+        return this;
+    }
+
+    public String getFone() {
+        return fone;
+    }
+
+    public User setFone(String fone) {
+        this.fone = fone;
         return this;
     }
 

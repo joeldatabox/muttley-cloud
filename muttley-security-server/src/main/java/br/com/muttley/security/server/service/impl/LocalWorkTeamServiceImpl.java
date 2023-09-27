@@ -3,6 +3,7 @@ package br.com.muttley.security.server.service.impl;
 import br.com.muttley.localcache.services.impl.AbstractLocalWorkTemaServiceImpl;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.model.workteam.WorkTeamDomain;
 import br.com.muttley.redis.service.RedisService;
 import br.com.muttley.security.server.service.WorkTeamService;
@@ -28,6 +29,18 @@ public class LocalWorkTeamServiceImpl extends AbstractLocalWorkTemaServiceImpl {
 
     @Override
     public WorkTeamDomain getWorkTeamDomain(JwtToken token, User user) {
+        final WorkTeamDomain workTeamDomain;
+        if (this.redisService.hasKey(getBasicKey(user.getCurrentOwner(), user))) {
+            workTeamDomain = (WorkTeamDomain) redisService.get(getBasicKey(user.getCurrentOwner(), user));
+        } else {
+            workTeamDomain = service.loadDomain(user);
+            this.save(token, user, workTeamDomain);
+        }
+        return workTeamDomain;
+    }
+
+    @Override
+    public WorkTeamDomain getWorkTeamDomain(XAPIToken token, User user) {
         final WorkTeamDomain workTeamDomain;
         if (this.redisService.hasKey(getBasicKey(user.getCurrentOwner(), user))) {
             workTeamDomain = (WorkTeamDomain) redisService.get(getBasicKey(user.getCurrentOwner(), user));

@@ -3,6 +3,7 @@ package br.com.muttley.localcache.services;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.XAPIToken;
 
 import java.util.Set;
 
@@ -15,6 +16,8 @@ public interface LocalRolesService {
     public static final String BASIC_KEY = "ROLES:";
 
     Set<Role> loadCurrentRoles(final JwtToken token, final User user);
+
+    Set<Role> loadCurrentRoles(final XAPIToken token, final User user);
 
     void expireRoles(final User user);
 

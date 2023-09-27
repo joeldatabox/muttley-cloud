@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * @author Joel Rodrigues Moreira on 23/02/18.
@@ -30,15 +31,17 @@ import static java.util.Objects.isNull;
  * @project muttley-cloud
  */
 @RestController
-@RequestMapping(value = "/api/v1/access-plan", produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/api/v1/access-plan", produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
 public class AccessPlanController extends AbstractRestController<AccessPlan> {
+    final AccessPlanService service;
 
     @Autowired
     public AccessPlanController(final AccessPlanService service, final UserService userService, final ApplicationEventPublisher eventPublisher) {
         super(service, userService, eventPublisher);
+        this.service = service;
     }
 
-    @RequestMapping(method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity save(
             @RequestBody final AccessPlan value,
@@ -56,7 +59,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final AccessPlan model,
                                  @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
@@ -64,7 +67,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         return ResponseEntity.ok(service.update(null, model));
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity deleteById(@PathVariable("id") final String id,
                                      @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
@@ -73,7 +76,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity findById(@PathVariable("id") final String id, final HttpServletResponse response,
                                    @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
@@ -85,7 +88,7 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
         return ResponseEntity.ok(value);
     }
 
-    @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/first", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity first(final HttpServletResponse response,
                                 @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
@@ -110,6 +113,12 @@ public class AccessPlanController extends AbstractRestController<AccessPlan> {
     public final ResponseEntity count(@RequestParam final Map<String, String> allRequestParams,
                                       @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         return ResponseEntity.ok(String.valueOf(service.count(null, allRequestParams)));
+    }
+
+    @RequestMapping(value = "/find-by-owner", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public final ResponseEntity findByOwner(@RequestParam("owner") final String owner, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+        return ResponseEntity.ok(this.service.findByOwner(owner));
     }
 
     protected String[] getCreateRoles() {

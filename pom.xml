@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -11,7 +11,7 @@
 
     <groupId>br.com.muttley</groupId>
     <artifactId>muttley-cloud</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <name>muttley-cloud</name>
@@ -22,11 +22,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
+        <revision>0.0.3-SNAPSHOT</revision>
+        <flatten.version>1.2.5</flatten.version>
         <spring-cloud.version>Edgware.SR3</spring-cloud.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-lang3.version>3.10</commons-lang3.version>
         <jasperreports.version>6.20.5</jasperreports.version>
         <zxing-parent.version>3.4.0</zxing-parent.version>
+        <bouncycastle.version>1.70</bouncycastle.version>
     </properties>
 
     <modules>
@@ -79,127 +82,127 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-admin-server.pom</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-admin-server</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-security-server</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-config-server</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-hermes-server.pom</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-hermes-server</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-hermes-api</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-discovery-server</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-exception</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-report</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-model</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-utils</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-redis</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-security</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-mongo</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-headers</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-notification</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-rest</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-domain-service</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-jackson</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-feign</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
@@ -211,21 +214,26 @@
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-zuul</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-local-cache</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>br.com.muttley</groupId>
                 <artifactId>muttley-validators</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>commons-beanutils</groupId>
@@ -274,4 +282,34 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <!--ajuda nos ajustes de versão interno do projeto-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>${flatten.version}</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

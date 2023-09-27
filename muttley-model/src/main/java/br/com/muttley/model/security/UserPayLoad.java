@@ -5,9 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.util.ObjectUtils;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -28,6 +30,16 @@ public class UserPayLoad implements Serializable {
     private Set<String> nickUsers;
     @NotBlank(message = "Informe uma senha valida!")
     private String passwd;
+    private String fone;
+    private boolean odinUser = false;
+
+    //numero enviado por sms para confirma o numero telefonico
+    private String seedVerification;
+
+    //numero que mobilidade receber e que deve ser comparado com o seed
+    private String codeVerification;
+
+    private boolean renewCode = false;
     //private Set<UserDataBinding> dataBindings;
 
     @JsonCreator
@@ -37,7 +49,13 @@ public class UserPayLoad implements Serializable {
             @JsonProperty("email") final String email,
             @JsonProperty("userName") final String userName,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
-            @JsonProperty("passwd") final String passwd
+            @JsonProperty("passwd") final String passwd,
+            @JsonProperty("fone") String fone,
+            @JsonProperty("odinUser") boolean odinUser,
+            @JsonProperty("seedVerification") String seedVerification,
+            @JsonProperty("codeVerification") String codeVerification,
+            @JsonProperty("renewCode") boolean renewCode
+
             /*@JsonProperty("dataBindings") final Set<UserDataBinding> dataBindings*/) {
         this.name = name;
         this.description = description;
@@ -45,6 +63,11 @@ public class UserPayLoad implements Serializable {
         this.userName = userName;
         this.nickUsers = nickUsers;
         this.passwd = passwd;
+        this.fone = fone;
+        this.odinUser = odinUser;
+        this.seedVerification = seedVerification;
+        this.codeVerification = codeVerification;
+        this.renewCode = renewCode;
         //this.dataBindings = dataBindings;
     }
 
@@ -72,6 +95,66 @@ public class UserPayLoad implements Serializable {
         return passwd;
     }
 
+    public String getFone() {
+        return fone;
+    }
+
+    public UserPayLoad setFone(String fone) {
+        this.fone = fone;
+        return this;
+    }
+
+    public boolean isOdinUser() {
+        return odinUser;
+    }
+
+    public UserPayLoad setOdinUser(boolean odinUser) {
+        this.odinUser = odinUser;
+        return this;
+    }
+
+    public String getSeedVerification() {
+        return seedVerification;
+    }
+
+    public UserPayLoad setSeedVerification(String seedVerification) {
+        this.seedVerification = seedVerification;
+        return this;
+    }
+
+    public String getCodeVerification() {
+        return codeVerification;
+    }
+
+    public UserPayLoad setCodeVerification(String codeVerification) {
+        this.codeVerification = codeVerification;
+        return this;
+    }
+
+    public boolean seedHasBeeVerificate() {
+        if (this.getSeedVerification() == null) {
+            return false;
+        }
+        return Objects.equals(this.getSeedVerification(), this.getCodeVerification());
+    }
+
+    public boolean seedVerificationIsEmpty() {
+        return ObjectUtils.isEmpty(this.getSeedVerification());
+    }
+
+    public boolean codeVerificationIsEmpty() {
+        return ObjectUtils.isEmpty(this.getCodeVerification());
+    }
+
+    public boolean isRenewCode() {
+        return renewCode;
+    }
+
+    public UserPayLoad setRenewCode(boolean renewCode) {
+        this.renewCode = renewCode;
+        return this;
+    }
+
     public static final class Builder {
         private String name;
         private String description;
@@ -79,6 +162,15 @@ public class UserPayLoad implements Serializable {
         private String userName;
         private Set<String> nickUsers;
         private String passwd;
+        private String fone;
+
+        private boolean odinUser;
+
+        //numero enviado por sms para confirma o numero telefonico
+        private String seedVerification;
+        //numero que mobilidade receber e que deve ser comparado com o seed
+        private String codeVerification;
+        private boolean renewCode = false;
 
         private Builder() {
         }
@@ -113,12 +205,38 @@ public class UserPayLoad implements Serializable {
             return this;
         }
 
+        public Builder setFone(String fone) {
+            this.fone = fone;
+            return this;
+        }
+
+        public Builder setOdinUser(boolean odinUser) {
+            this.odinUser = odinUser;
+            return this;
+        }
+
+        public Builder setSeedVerification(String seedVerification) {
+            this.seedVerification = seedVerification;
+            return this;
+        }
+
+        public Builder setCodeVerification(String codeVerification) {
+            this.codeVerification = codeVerification;
+            return this;
+        }
+
+        public Builder setRenewCode(boolean renewCode) {
+            this.renewCode = renewCode;
+            return this;
+        }
+
         public Builder set(final User user) {
             return this.setName(user.getName())
                     .setDescription(user.getDescription())
                     .setEmail(user.getEmail())
                     .setUserName(user.getUserName())
-                    .setNickUsers(user.getNickUsers());
+                    .setNickUsers(user.getNickUsers())
+                    .setOdinUser(user.isOdinUser());
         }
 
         public static Builder newInstance() {
@@ -126,7 +244,7 @@ public class UserPayLoad implements Serializable {
         }
 
         public UserPayLoad build() {
-            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd);
+            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd, this.fone, this.odinUser, this.seedVerification, this.codeVerification, this.renewCode);
         }
     }
 }

@@ -18,7 +18,7 @@ import static br.com.muttley.model.admin.AdminUserBase.TYPE_ALIAS;
  * <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
-@Document(collection = "#{documentNameConfig.getNameCollectionUserBase()}")
+@Document(collection = "#{documentNameConfig.getNameCollectionAdminUserBase()}")
 @CompoundIndexes({
         @CompoundIndex(name = "owner_index_unique", def = "{'owner' : 1}", unique = true)
 })

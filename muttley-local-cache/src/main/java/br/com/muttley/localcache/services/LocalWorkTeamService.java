@@ -3,6 +3,7 @@ package br.com.muttley.localcache.services;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.model.workteam.WorkTeamDomain;
 
 /**
@@ -14,6 +15,8 @@ public interface LocalWorkTeamService {
     public static final String BASIC_KEY = "WORKTEAM:";
 
     public WorkTeamDomain getWorkTeamDomain(final JwtToken token, final User user);
+
+    public WorkTeamDomain getWorkTeamDomain(final XAPIToken token, final User user);
 
     public LocalWorkTeamService expire(final User user);
 

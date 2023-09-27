@@ -63,7 +63,7 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
             //criando usuário
             User user = null;
             try {
-                user = this.service.save(new UserPayLoad("Admin", "Usuário para administrar todo o ecossistema", this.defaultUser, null, null, this.passwdDefaultUser), "true");
+                user = this.service.save(new UserPayLoad("Admin", "Usuário para administrar todo o ecossistema", this.defaultUser, null, null, this.passwdDefaultUser, null, true, null, null, false), "true");
             } catch (MuttleyConflictException e) {
                 user = this.service.findByUserName(this.defaultUser);
             }

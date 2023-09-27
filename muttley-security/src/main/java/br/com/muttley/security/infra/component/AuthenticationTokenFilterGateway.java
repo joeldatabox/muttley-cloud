@@ -2,8 +2,10 @@ package br.com.muttley.security.infra.component;
 
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.localcache.services.LocalUserAuthenticationService;
+import br.com.muttley.localcache.services.LocalXAPITokenService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
+import br.com.muttley.model.security.XAPIToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,38 +28,60 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public class AuthenticationTokenFilterGateway extends OncePerRequestFilter {
 
     protected final String tokenHeader;
+    protected final String xAPIToken;
     protected final LocalUserAuthenticationService localUserAuthentication;
+    protected final LocalXAPITokenService apiTokenService;
 
     @Autowired
     public AuthenticationTokenFilterGateway(
             @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}") final String tokenHeader,
-            final LocalUserAuthenticationService localUserAuthentication) {
+            @Value("${muttley.security.jwt.controller.xAPITokenHeader:X-Api-Token}") final String xAPIToken,
+            final LocalUserAuthenticationService localUserAuthentication,
+            final LocalXAPITokenService apiTokenService) {
         this.tokenHeader = tokenHeader;
+        this.xAPIToken = xAPIToken;
         this.localUserAuthentication = localUserAuthentication;
+        this.apiTokenService = apiTokenService;
     }
 
     @Override
     protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain) throws ServletException, IOException {
         //recuperando o possivel token presente no cabeçalho
         final String authToken = request.getHeader(this.tokenHeader);
+        final String xAPIToken = request.getHeader(this.xAPIToken);
 
-        if (!isNullOrEmpty(authToken)) {
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                try {
-                    //buscando o usuário presente no token
-                    //final JwtUser userDetails = this.tokenServiceClient.getUserFromToken(new JwtToken(authToken));
-                    final JwtUser userDetails = this.localUserAuthentication.getJwtUserFrom(new JwtToken(authToken));
-                    if (userDetails != null) {
-                        final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
-                } catch (MuttleySecurityUnauthorizedException ex) {
-                }
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (!isNullOrEmpty(authToken)) {
+                this.loadJWTUser(request, authToken);
+            } else if (!isNullOrEmpty(xAPIToken)) {
+                this.loadXAPIToken(request, xAPIToken);
             }
         }
         //dispachando a requisição
         chain.doFilter(request, response);
 
+    }
+
+    private void loadXAPIToken(HttpServletRequest request, String xAPIToken) {
+        XAPIToken XAPIToken = this.apiTokenService.loadAPIToken(xAPIToken);
+        if (XAPIToken != null) {
+            final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(XAPIToken, null, XAPIToken.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+    }
+
+    private void loadJWTUser(final HttpServletRequest request, final String authToken) {
+        try {
+            //buscando o usuário presente no token
+            //final JwtUser userDetails = this.tokenServiceClient.getUserFromToken(new JwtToken(authToken));
+            final JwtUser userDetails = this.localUserAuthentication.getJwtUserFrom(new JwtToken(authToken));
+            if (userDetails != null) {
+                final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (MuttleySecurityUnauthorizedException ex) {
+        }
     }
 }

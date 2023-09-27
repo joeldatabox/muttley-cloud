@@ -20,7 +20,7 @@ import static java.util.Arrays.asList;
  * @project muttley-cloud
  */
 public class ViewMuttleyUsers implements ViewSource {
-    private final String VERSION = "1.0.7";
+    private final String VERSION = "1.0.8";
     private final String NAME;//= "view_muttley_users";
     private final String SOURCE;//= "muttley-users-base";
     private final String DESCRIPTION = "A view foi criada para facilitar a listagem de usuários e seus owners já linkados";
@@ -115,6 +115,7 @@ public class ViewMuttleyUsers implements ViewSource {
                                         new BsonElement("nickUsers", new BsonString("$user.nickUsers")),
                                         new BsonElement("owner", _TRUE),
                                         new BsonElement("description", new BsonString("$user.description")),
+                                        new BsonElement("fone", new BsonString("$user.fone")),
                                         new BsonElement("status", _TRUE),
                                         new BsonElement("_view_information",
                                                 new BsonDocument(

@@ -10,9 +10,14 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundExcep
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.JwtToken;
+import br.com.muttley.model.security.RecoveryPasswordResponse;
+import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
+import br.com.muttley.model.security.events.SendNewPasswordRecoveredEvent;
 import br.com.muttley.model.security.events.UserCreatedEvent;
+import br.com.muttley.model.security.events.ValidadeUserForeCreateEvent;
+import br.com.muttley.model.security.events.ValidatePasswordRecoveryEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
@@ -44,6 +49,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,6 +68,9 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  */
 @Service
 public class UserServiceImpl implements UserService {
+
+    @Value("${muttley.security-server.validateUserFoneNumber:false}")
+    protected boolean validateFoneNumber;
 
     private final UserRepository repository;
     private final UserPreferencesService preferencesService;
@@ -99,9 +108,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(final UserPayLoad value) {
-        final User newUser = this.save(new User(value));
-        this.passwordService.createPasswordFor(newUser, value.getPasswd());
-        return newUser;
+        //verificanso se já existe o usuário
+        this.checkIndexUser(new User(value));
+
+        if (this.validateFoneNumber && !value.isOdinUser()) {
+            final ValidadeUserForeCreateEvent validadeUserForeCreateEvent = new ValidadeUserForeCreateEvent(value);
+            this.eventPublisher.publishEvent(validadeUserForeCreateEvent);
+            if (value.seedHasBeeVerificate()) {
+                final User newUser = this.save(new User(value));
+                this.passwordService.createPasswordFor(newUser, value.getPasswd());
+                return newUser;
+            } else if (value.codeVerificationIsEmpty()) {
+                return null;
+            }
+            throw new MuttleyBadRequestException(null, null, "Código de verificação invalido");
+        } else {
+            final User newUser = this.save(new User(value));
+            this.passwordService.createPasswordFor(newUser, value.getPasswd());
+            return newUser;
+        }
+
     }
 
     @Override
@@ -510,6 +536,31 @@ public class UserServiceImpl implements UserService {
         return result.getUniqueMappedResult().getResult() > 0;
     }
 
+    @Override
+    public RecoveryPasswordResponse recoveryPassword(RecoveryPayload recovery) {
+        if (this.validateFoneNumber) {
+            //verificando se o recovery está com todas as informações necessárias
+            if (isNullOrEmpty(recovery.getEmail())) {
+                throw new MuttleyBadRequestException(null, "email", "Informe um e-mail válido");
+            }
+            final User user = this.findUserByEmailOrUserNameOrNickUser(recovery.getEmail());
+            final ValidatePasswordRecoveryEvent passwordRecoveryEvent = new ValidatePasswordRecoveryEvent(recovery.setFone(user.getFone()));
+            this.eventPublisher.publishEvent(passwordRecoveryEvent);
+            final RecoveryPasswordResponse response = new RecoveryPasswordResponse();
+            if (passwordRecoveryEvent.numberIsValid()) {
+                final SendNewPasswordRecoveredEvent sendNewPasswordRecoveredEvent = new SendNewPasswordRecoveredEvent(user, generateNewPassword());
+                this.passwordService.resetePasswordFor(user, sendNewPasswordRecoveredEvent.getHallPassword());
+
+                response.setPassword(sendNewPasswordRecoveredEvent.getHallPassword());
+                return response;
+                //this.eventPublisher.publishEvent(sendNewPasswordRecoveredEvent);
+            }
+            return response.setFone(user.getFone());
+        }
+        //SE CHEGOU AQUI É SINAL QUE A VALIDAÇÃO POR FONE NAO TA ATIVA
+        throw new MuttleyException("ERRO NO PROCESSO DE RECOVERY");
+    }
+
     private User merge(final User user) {
         checkNameIsValid(user);
 
@@ -691,6 +742,17 @@ public class UserServiceImpl implements UserService {
             return false;
         }
         return result.getUniqueMappedResult().getCount() > 0;
+    }
+
+    private String generateNewPassword() {
+        final int leftLimit = 48; // numeral '0'
+        final int leftNumber = 57; // numeral '0'
+        return new Random()
+                .ints(leftLimit, leftNumber + 1)
+                .parallel()
+                .limit(6)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
     }
 
     /*private void validatePreferences(final UserPreferences preferences) {

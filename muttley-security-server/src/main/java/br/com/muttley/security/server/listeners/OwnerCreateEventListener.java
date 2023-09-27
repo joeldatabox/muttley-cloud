@@ -1,6 +1,7 @@
 package br.com.muttley.security.server.listeners;
 
 import br.com.muttley.model.security.Passaport;
+import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBase;
 import br.com.muttley.model.security.preference.UserPreferences;
@@ -12,6 +13,8 @@ import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+
+import java.util.stream.Collectors;
 
 import static br.com.muttley.model.security.Role.ROLE_OWNER;
 import static br.com.muttley.model.security.preference.UserPreferences.OWNER_PREFERENCE;

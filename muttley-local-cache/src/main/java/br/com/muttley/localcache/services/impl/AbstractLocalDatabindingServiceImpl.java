@@ -4,11 +4,13 @@ import br.com.muttley.localcache.services.LocalDatabindingService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserDataBinding;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.redis.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,11 +32,28 @@ public abstract class AbstractLocalDatabindingServiceImpl implements LocalDatabi
         throw new NotImplementedException();
     }
 
+    @Override
+    public List<UserDataBinding> getUserDataBindings(XAPIToken token, User user) {
+        throw new NotImplementedException();
+    }
+
     protected void saveDatabindingsInCache(final JwtToken token, final User user, final List<UserDataBinding> dataBindings) {
-        this.redisService.set(this.getBasicKey(user), dataBindings != null ? new ArrayList<>(dataBindings) : dataBindings, token.getDtExpiration());
+        this.saveDatabindingsInCache(token.getDtExpiration(), user, dataBindings);
+    }
+
+    protected void saveDatabindingsInCache(final XAPIToken token, final User user, final List<UserDataBinding> dataBindings) {
+        this.saveDatabindingsInCache(token.generateDtExpiration(), user, dataBindings);
+    }
+
+    private void saveDatabindingsInCache(final Date dtExpiration, final User user, final List<UserDataBinding> dataBindings) {
+        this.redisService.set(this.getBasicKey(user), dataBindings != null ? new ArrayList<>(dataBindings) : dataBindings, dtExpiration);
     }
 
     protected List<UserDataBinding> getDatabinDataBindingsInCache(final JwtToken token, final User user) {
+        return (List<UserDataBinding>) this.redisService.get(this.getBasicKey(user));
+    }
+
+    protected List<UserDataBinding> getDatabinDataBindingsInCache(final XAPIToken token, final User user) {
         return (List<UserDataBinding>) this.redisService.get(this.getBasicKey(user));
     }
 

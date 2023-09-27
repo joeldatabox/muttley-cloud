@@ -32,4 +32,8 @@ public interface AccessPlanService extends SecurityService<AccessPlan> {
                     "   true"
     )
     AccessPlan findByDescription(String descricao);
+
+    AccessPlan findByName(final String name);
+
+    AccessPlan findByOwner(final String idOwner);
 }

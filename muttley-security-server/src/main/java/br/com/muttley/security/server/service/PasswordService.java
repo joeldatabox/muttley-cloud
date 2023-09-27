@@ -20,4 +20,6 @@ public interface PasswordService<T extends Password> {
     void createPasswordFor(final User user, final PasswdPayload password);
 
     void update(final PasswdPayload password);
+
+    void resetePasswordFor(final User user, final String password);
 }

@@ -5,6 +5,7 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.model.workteam.WorkTeam;
 import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
  * @project muttley-cloud
  */
+@Repository
 public interface WorkTeamRepository extends DocumentMongoRepository<WorkTeam> {
     @Query("{'owner': {'$ref' : ?#{@documentNameConfig.getNameCollectionOwner()}, '$id' : ?#{[0].getId()}}, 'name': '?1' }")
     WorkTeam findByName(final Owner owner, final String name);

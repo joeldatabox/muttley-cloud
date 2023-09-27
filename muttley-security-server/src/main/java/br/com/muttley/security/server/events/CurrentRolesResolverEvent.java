@@ -1,6 +1,5 @@
 package br.com.muttley.security.server.events;
 
-import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import lombok.Getter;
@@ -41,11 +40,11 @@ public class CurrentRolesResolverEvent extends ApplicationEvent {
     }
 
     @Getter
-    public static class CurrentRolesResolverEventItem {
-        private final JwtToken token;
+    public static class CurrentRolesResolverEventItem<T> {
+        private final T token;
         private final User user;
 
-        public CurrentRolesResolverEventItem(final JwtToken token, final User user) {
+        public CurrentRolesResolverEventItem(final T token, final User user) {
             this.token = token;
             this.user = user;
         }

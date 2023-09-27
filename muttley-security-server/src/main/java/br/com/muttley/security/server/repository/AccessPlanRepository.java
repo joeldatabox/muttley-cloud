@@ -12,4 +12,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AccessPlanRepository<T extends AccessPlan> extends DocumentMongoRepository<T> {
     AccessPlan findByDescription(final String name);
+
+    AccessPlan findByName(final String name);
 }
