@@ -30,6 +30,8 @@ public class Role {
     @JsonIgnore
     public static final Role ROLE_ROOT = new Role("ROLE_ROOT");
     @JsonIgnore
+    public static final Role ROLE_ROOT_READ = new Role("ROLE_ROOT_READ");
+    @JsonIgnore
     public static final Role ROLE_ODIN_USER = new Role("ROLE_ODIN_USER");
 
     @JsonIgnore

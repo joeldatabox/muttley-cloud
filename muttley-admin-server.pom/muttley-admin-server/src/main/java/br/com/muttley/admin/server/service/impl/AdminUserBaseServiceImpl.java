@@ -47,9 +47,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import static br.com.muttley.utils.TimeZoneUtils.getTimezoneFromId;
 import static br.com.muttley.model.security.Role.ROLE_USER_BASE_CREATE;
+import static br.com.muttley.utils.TimeZoneUtils.getTimezoneFromId;
 import static java.util.Arrays.asList;
+import static java.util.Objects.isNull;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
@@ -71,6 +72,7 @@ public class AdminUserBaseServiceImpl extends AdminServiceImpl<AdminUserBase> im
     //private final AdminUserDataBindingService dataBindingService;
     private final DocumentNameConfig documentNameConfig;
     private final AdminPassaportService passaportService;
+
 
     @Autowired
     public AdminUserBaseServiceImpl(
@@ -127,6 +129,58 @@ public class AdminUserBaseServiceImpl extends AdminServiceImpl<AdminUserBase> im
         this.afterSave(user, otherValue);
         //valor salvo
         return otherValue;
+    }
+
+    @Override
+    public AdminUserBase update(User user, AdminUserBase value) {
+        //verificando se realmente está alterando um registro
+        this.checkIdForUpdate(value);
+        //verificando se o registro realmente existe
+        if (this.mongoTemplate.findById(value.getId(), AdminUserBase.class, documentNameConfig.getNameCollectionAdminUserBase()) == null) {
+            throw this.createNotFoundExceptionById(user, value.getId());
+            //throw new MuttleyNotFoundException(clazz, "id", "Registro não encontrado");
+        }
+        //gerando metadata de alteração0
+
+
+        final AggregationResults result = mongoTemplate.aggregate(
+                newAggregation(
+                        match(
+                                where("_id").is(value.getObjectId())
+                        ), project().and("$metadata.timeZones").as("timeZones")
+                                .and("$metadata.versionDocument").as("versionDocument")
+                                .and("$metadata.historic").as("historic")
+                ), documentNameConfig.getNameCollectionAdminUserBase(), MetadataDocument.class);
+
+        final MetadataDocument meta = result.getUniqueMappedResult() != null ? ((MetadataDocument) result.getUniqueMappedResult()) : null;
+
+
+        try {
+            this.metadataService.generateMetaDataUpdateFor(user, meta, value);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
+        //processa regra de negocio antes de qualquer validação
+        beforeUpdate(user, value);
+        //verificando precondições
+        checkPrecondictionUpdate(user, value);
+        //validando dados
+        this.validator.validate(value);
+        this.mongoTemplate.save(value, documentNameConfig.getNameCollectionAdminUserBase());
+        final AdminUserBase otherValue = value;
+        //realizando regras de enegocio depois do objeto ter sido alterado
+        afterUpdate(user, value);
+        return otherValue;
+    }
+
+    @Override
+    public AdminUserBase findFirst(User user) {
+        final AdminUserBase result = mongoTemplate.findOne(new Query(), AdminUserBase.class);
+        if (isNull(result)) {
+            throw this.createNotFoundExceptionById(user).setField("user");
+            //*throw new MuttleyNotFoundException(clazz, "user", "Nenhum registro encontrado");
+        }
+        return result;
     }
 
     /**

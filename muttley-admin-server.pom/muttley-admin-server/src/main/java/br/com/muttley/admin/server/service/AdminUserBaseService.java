@@ -17,6 +17,10 @@ import java.util.Set;
 public interface AdminUserBaseService extends AdminService<AdminUserBase> {
     AdminUserBase save(final User user, final AdminUserBase userBase);
 
+    AdminUserBase update(final User user, final AdminUserBase userBase);
+
+    AdminUserBase findFirst(final User user);
+
     AdminUserBase save(final User user, final OwnerData owner, final AdminUserBase userBase);
 
     boolean userNameIsAvaliableForUserName(final User user, final String userName, final Set<String> userNames);
