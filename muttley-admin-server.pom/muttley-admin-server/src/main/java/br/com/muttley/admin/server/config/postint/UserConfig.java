@@ -92,20 +92,20 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
     }
 
     private void createUserRead(Owner owner) {
-        try {
-            SecurityContext ctx = SecurityContextHolder.createEmptyContext();
-            SecurityContextHolder.setContext(ctx);
-            ctx.setAuthentication(new AnonymousAuthenticationToken(owner.getUserMaster().getId(), owner.getUserMaster(), Arrays.asList(new GrantedAuthority() {
-                @Override
-                public String getAuthority() {
-                    return Role.ROLE_ROOT.toString();
-                }
-            })));
+        if (!ObjectUtils.isEmpty(this.userRead) || !ObjectUtils.isEmpty(this.passwdUserRead)) {
+            try {
+                SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+                SecurityContextHolder.setContext(ctx);
+                ctx.setAuthentication(new AnonymousAuthenticationToken(owner.getUserMaster().getId(), owner.getUserMaster(), Arrays.asList(new GrantedAuthority() {
+                    @Override
+                    public String getAuthority() {
+                        return Role.ROLE_ROOT.toString();
+                    }
+                })));
 
-            //Do what ever you want to do
+                //Do what ever you want to do
 
 
-            if (!ObjectUtils.isEmpty(this.userRead) || !ObjectUtils.isEmpty(this.passwdUserRead)) {
                 User userRead = null;
 
                 try {
@@ -123,10 +123,10 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
                     this.adminUserBaseService.update(owner.getUserMaster(), (AdminUserBase) ((AdminUserBase) this.adminUserBaseService.findFirst(owner.getUserMaster())).addUser((new UserBaseItem()).setUser(userRead).setAddedBy(userRead).setStatus(true).setDtCreate(new Date())));
                     AdminPassaport var3 = this.passaportService.save((AdminPassaport) (new AdminPassaport()).setName("Grupo principal para leitura").setUserMaster(owner.getUserMaster()).setOwner(owner).addRole(Role.ROLE_ROOT).setDescription("Não pode exister outro grupo no odin repository").addMember(userRead));
                 }
-            }
 
-        } finally {
-            SecurityContextHolder.clearContext();
+            } finally {
+                SecurityContextHolder.clearContext();
+            }
         }
     }
 
