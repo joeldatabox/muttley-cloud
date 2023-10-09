@@ -50,9 +50,9 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
     @Autowired
     public UserConfig(
             @Value("${muttley.admin-server.default-user}") String defaultUser,
-            @Value("${muttley.admin-server.user-read}") String userRead,
+            @Value("${muttley.admin-server.user-read:#{null}}") String userRead,
             @Value("${muttley.admin-server.passwd-default-user}") String passwdDefaultUser,
-            @Value("${muttley.admin-server.passwd-user-read}") String passwdUserRead,
+            @Value("${muttley.admin-server.passwd-user-read:#{null}}") String passwdUserRead,
             @Value("${muttley.admin-server.name-organization}") String nameOrganization,
             UserServiceClient service,
             AdminUserBaseService adminUserBaseService,
