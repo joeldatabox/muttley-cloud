@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toSet;
@@ -125,7 +126,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
 
     @Override
     public WorkTeamDomain loadDomain(final User user) {
-        final List<AggregationOperation> operations = this.createBasicQueryViewWorkTeamDomain(user);
+        final List<AggregationOperation> operations = this.createBasicQueryViewWorkTeamDomain(user, asList(user));
         //adicionando o critério de filtro inicial
         operations.add(match(where("_id").is(user.getObjectId())));
 
@@ -202,11 +203,11 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
         return workTeams;
     }
 
-    private List<AggregationOperation> createBasicQueryViewWorkTeamDomain(final User user) {
+    private List<AggregationOperation> createBasicQueryViewWorkTeamDomain(final User user, final Collection<User> users) {
         /**
          * var $owner = ObjectId("629f37d4e684d90007552522");
          * //var $userMaster = ObjectId("648c7726277657c615334a06");
-         * var $userMaster = ObjectId("648c7726277657c615334a06");
+         * var $userMaster = ObjectId("652e7879e2a7287ff5da2ff5");
          *
          * db.getCollection("muttley-users").aggregate([
          *     {$match:{_id:$userMaster}},
@@ -233,7 +234,11 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          *                     $filter:{
          *                         input: "$members",
          *                         as:"item",
-         *                         cond:{$ne:["$$item.$id", $userMaster]}
+         *                         cond:{
+         *                             $not:[
+         *                                 {$in:["$$item.$id", [$userMaster]]}
+         *                             ]
+         *                         }
          *                     }
          *                 }
          *             }},
@@ -281,7 +286,11 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          *                     $filter:{
          *                         input: "$usersMaster",
          *                         as:"item",
-         *                         cond:{$ne:["$$item.$id", $userMaster]}
+         *                         cond:{
+         *                             $not:[
+         *                                 {$in:["$$item.$id", [$userMaster]]}
+         *                             ]
+         *                         }
          *                     }
          *                 },
          *                 members:1
@@ -386,6 +395,8 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
          *     }}
          * ])
          */
+
+        final Set<ObjectId> membersId = users.parallelStream().map(User::getObjectId).collect(Collectors.toSet());
         final List<AggregationOperation> operations = new LinkedList<>();
         //operations.add(match(where("_id").is(user.getObjectId())));
         //carregando times de trabalho onde o mesmo faz parte de mebros
@@ -400,7 +411,12 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                                                 new BasicDBObject("$expr",
                                                         new BasicDBObject("$and", asList(
                                                                 new BasicDBObject("$eq", asList("$owner.$id", user.getCurrentOwner().getObjectId())),
-                                                                new BasicDBObject("$or", asList(new BasicDBObject("$in", asList(user.getObjectId(), "$members.$id"))))
+                                                                new BasicDBObject("$or",
+                                                                        membersId.parallelStream()
+                                                                                .map(it -> new BasicDBObject("$in", asList(it, "$members.$id")))
+                                                                                .collect(Collectors.toSet())
+
+                                                                )
                                                         ))
                                                 )
                                         ),
@@ -412,7 +428,9 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                                                                         new BasicDBObject("input", "$members")
                                                                                 .append("as", "item")
                                                                                 .append("cond",
-                                                                                        new BasicDBObject("$ne", asList("$$item.$id", user.getObjectId()))
+                                                                                        new BasicDBObject("$not", asList(
+                                                                                                new BasicDBObject("$in", asList("$$item.$id", membersId))
+                                                                                        ))
                                                                                 )
                                                                 )
                                                         ).append("aux", "_null")
@@ -456,7 +474,12 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                                                 new BasicDBObject("$expr",
                                                         new BasicDBObject("$and", asList(
                                                                 new BasicDBObject("$eq", asList("$owner.$id", user.getCurrentOwner().getObjectId())),
-                                                                new BasicDBObject("$or", asList(new BasicDBObject("$in", asList(user.getObjectId(), "$usersMaster.$id"))))
+                                                                new BasicDBObject("$or",
+                                                                        membersId.parallelStream()
+                                                                                .map(it -> new BasicDBObject("$in", asList(it, "$usersMaster.$id")))
+                                                                                .collect(Collectors.toSet())
+
+                                                                )
                                                         ))
                                                 )
                                         ),
@@ -468,7 +491,9 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
                                                                 new BasicDBObject("input", "$usersMaster")
                                                                         .append("as", "item")
                                                                         .append("cond",
-                                                                                new BasicDBObject("$ne", asList("$$item.$id", user.getObjectId()))
+                                                                                new BasicDBObject("$not", asList(
+                                                                                        new BasicDBObject("$in", asList("$$item.$id", membersId))
+                                                                                ))
                                                                         )
                                                         )
                                                 ).append("members", 1)
@@ -648,7 +673,7 @@ public class WorkTeamServiceImpl extends SecurityServiceImpl<WorkTeam> implement
     }
 
     private void checkCircularDependence(final User user, final WorkTeam workTeam) {
-        final List<AggregationOperation> operations = this.createBasicQueryViewWorkTeamDomain(user);
+        final List<AggregationOperation> operations = this.createBasicQueryViewWorkTeamDomain(user, workTeam.getMembers());
         //para realizar a checkagem de dependencia circular, precisamos verificar se os membros estão acima do usermaster
         //para isso devemos buscar os membro como userMaster e o userMaster atual não pode ser listado como membro na consulta
 
