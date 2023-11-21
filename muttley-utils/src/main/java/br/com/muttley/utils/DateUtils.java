@@ -19,6 +19,8 @@ import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
  * @project muttley-cloud
  */
 public class DateUtils {
+    public static final String DATE_REGEX = "(\\d{4}|\\d{5}|\\d{6}|\\d{7})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|[3][01])";
+    public static final String DATE_TIME_REGEX = "(\\d{4}|\\d{5}|\\d{6}|\\d{7})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|[3][01])T(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23):(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59):(00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59)([.])\\d{3}([+-])\\d{4}";
     public static final DateTimeFormatter DEFAULT_ISO_ZONED_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     public static final DateTimeFormatter DEFAULT_ISO_LOCAL_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -241,5 +243,13 @@ public class DateUtils {
                         .plusMinutes(hour.getMinute())
                         .toInstant()
         );
+    }
+
+    public static boolean isValidDate(final String value) {
+        return String.valueOf((Object) value).matches(DATE_REGEX);
+    }
+
+    public static boolean isValidDateTime(final String value) {
+        return String.valueOf((Object) value).matches(DATE_TIME_REGEX);
     }
 }
