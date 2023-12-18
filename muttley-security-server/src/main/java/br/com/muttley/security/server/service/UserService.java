@@ -5,6 +5,7 @@ import br.com.muttley.model.security.RecoveryPasswordResponse;
 import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 
@@ -55,6 +56,8 @@ public interface UserService {
     Collection<User> findAll();
 
     User getUserFromToken(final JwtToken token);
+
+    User getUserFromToken(final XAPIToken token);
 
     UserPreferences loadPreference(final User user);
 

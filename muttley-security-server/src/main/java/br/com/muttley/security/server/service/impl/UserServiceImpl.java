@@ -14,6 +14,7 @@ import br.com.muttley.model.security.RecoveryPasswordResponse;
 import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.model.security.events.SendNewPasswordRecoveredEvent;
 import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.events.ValidadeUserForeCreateEvent;
@@ -30,6 +31,7 @@ import br.com.muttley.security.server.service.PasswordService;
 import br.com.muttley.security.server.service.UserDataBindingService;
 import br.com.muttley.security.server.service.UserPreferencesService;
 import br.com.muttley.security.server.service.UserService;
+import br.com.muttley.security.server.service.XAPITokenService;
 import org.bson.types.ObjectId;
 import org.hibernate.validator.internal.util.CollectionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +79,8 @@ public class UserServiceImpl implements UserService {
     private final UserDataBindingService dataBindingService;
     private final PasswordService passwordService;
     private final JwtTokenUtilService tokenUtil;
+
+    private final XAPITokenService xAPITokenService;
     private final String tokenHeader;
     private final OwnerService ownerService;
     private final MongoTemplate template;
@@ -90,7 +94,7 @@ public class UserServiceImpl implements UserService {
                            final PasswordService passwordService,
                            @Value("${muttley.security.jwt.controller.tokenHeader}") final String tokenHeader,
                            final JwtTokenUtilService tokenUtil,
-                           final OwnerService ownerService,
+                           XAPITokenService xAPITokenService, final OwnerService ownerService,
                            final MongoTemplate template,
                            final DocumentNameConfig documentNameConfig,
                            final ApplicationEventPublisher eventPublisher) {
@@ -100,6 +104,7 @@ public class UserServiceImpl implements UserService {
         this.passwordService = passwordService;
         this.tokenHeader = tokenHeader;
         this.tokenUtil = tokenUtil;
+        this.xAPITokenService = xAPITokenService;
         this.ownerService = ownerService;
         this.template = template;
         this.documentNameConfig = documentNameConfig;
@@ -445,6 +450,26 @@ public class UserServiceImpl implements UserService {
                 }*/
                 return user;
             }
+        }
+        throw new MuttleySecurityUnauthorizedException();
+    }
+
+    @Override
+    public User getUserFromToken(XAPIToken token) {
+        if (token != null && !token.isEmpty()) {
+            //pegando o nome de usuário do tokens
+            final User user = this.xAPITokenService.loadUserByAPIToken(token.getToken()).getUser();
+            final UserPreferences preferences = this.preferencesService.getUserPreferences(user);
+            user.setPreferences(preferences);
+
+            final CurrentOwnerResolverEvent event = new CurrentOwnerResolverEvent(user);
+            this.eventPublisher.publishEvent(event);
+
+            try {
+                user.setDataBindings(this.dataBindingService.listBy(user));
+            } catch (MuttleyNoContentException ex) {
+            }
+            return user;
         }
         throw new MuttleySecurityUnauthorizedException();
     }

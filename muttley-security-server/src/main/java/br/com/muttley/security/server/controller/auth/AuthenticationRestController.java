@@ -8,6 +8,7 @@ import br.com.muttley.model.security.Password;
 import br.com.muttley.model.security.RecoveryPasswordResponse;
 import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.User;
+import br.com.muttley.model.security.XAPIToken;
 import br.com.muttley.model.security.events.UserLoggedEvent;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.PasswordService;
@@ -19,6 +20,7 @@ import org.springframework.mobile.device.Device;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -67,6 +69,22 @@ public class AuthenticationRestController {
 
             //se chegou até aqui é sinal que o usuário e senha é valido
             final User userDetails = userService.findByUserName(payload.get(USERNAME));
+            //gerando o token de autorização
+            JwtToken token = new JwtToken(jwtTokenUtil.generateToken(userDetails, device));
+            //lançando evento de usuário logado
+            this.eventPublisher.publishEvent(new UserLoggedEvent(token, userDetails));
+            //devolvendo token gerado
+            return ResponseEntity.ok(token);
+        } catch (BadCredentialsException | MuttleySecurityUnauthorizedException ex) {
+            throw new MuttleySecurityUserNameOrPasswordInvalidException();
+        }
+    }
+
+    @RequestMapping(value = "/login-by-api-token", method = POST)
+    public ResponseEntity createAuthenticationTokenByApiToken(@RequestHeader(value = "${muttley.security.jwt.controller.xAPITokenHeader:X-Api-Token}", defaultValue = "") final String tokenValue, Device device, HttpServletRequest request) {
+
+        try {
+            final User userDetails = this.userService.getUserFromToken(new XAPIToken().setToken(tokenValue));
             //gerando o token de autorização
             JwtToken token = new JwtToken(jwtTokenUtil.generateToken(userDetails, device));
             //lançando evento de usuário logado

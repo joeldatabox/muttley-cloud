@@ -20,6 +20,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.ObjectUtils;
 
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
@@ -124,4 +125,9 @@ public class XAPIToken implements Model<Owner>, UserDetails {
     public Date generateDtExpiration() {
         return Date.from(Instant.now().plus(Duration.ofHours(2)));
     }
+
+    public boolean isEmpty() {
+        return ObjectUtils.isEmpty(this.getToken());
+    }
+
 }

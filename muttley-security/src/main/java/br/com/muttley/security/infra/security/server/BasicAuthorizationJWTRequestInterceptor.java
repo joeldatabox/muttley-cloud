@@ -24,6 +24,8 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
     //${muttley.security.jwt.client.tokenHeader:Athorization-JWT}
     @Value("${muttley.security.jwt.controller.tokenHeader-jwt:Authorization-jwt}")
     private String authorizationJwt;
+    @Value("${muttley.security.jwt.controller.xAPITokenHeader:X-Api-Token}")
+    private String xAPIToken;
     @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}")
     private String authorization;
     private final String headerValue;
@@ -46,6 +48,9 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
             final String AUTH = this.getAuthorizationJWT();
             if (!isEmpty(AUTH)) {
                 template.header(authorizationJwt, AUTH);
+            } else {
+                final String xAPITokenValue = this.getxAPIToken();
+                template.header(this.xAPIToken, xAPITokenValue);
             }
         } catch (IllegalStateException ex) {
             ex.printStackTrace();
@@ -67,6 +72,22 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
             //se chegou até aqui quer dizer que ninguem ainda não fez esse tratamento
             //devemos pegar o token no "Authorization"
             return request.getHeader(this.authorization);
+        }
+        return null;
+    }
+
+    /**
+     * Deve retornar o token do usuário corrente na requisição
+     */
+    private String getxAPIToken() {
+        final RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            final HttpServletRequest request = ((ServletRequestAttributes) attributes).getRequest();
+            //Talvez a requisão já advem de outro subserviço, ou seja já contem no header o "Authorization-jwt"
+            final String xAPIToken = request.getHeader(this.xAPIToken);
+            if (!isEmpty(xAPIToken)) {
+                return xAPIToken;
+            }
         }
         return null;
     }
