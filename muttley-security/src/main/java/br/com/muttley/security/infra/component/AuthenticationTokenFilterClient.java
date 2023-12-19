@@ -5,7 +5,6 @@ import br.com.muttley.localcache.services.LocalUserAuthenticationService;
 import br.com.muttley.localcache.services.LocalXAPITokenService;
 import br.com.muttley.model.security.JwtToken;
 import br.com.muttley.model.security.JwtUser;
-import br.com.muttley.model.security.XAPIToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,11 +55,10 @@ public class AuthenticationTokenFilterClient extends OncePerRequestFilter {
     }
 
     private void loadXAPIToken(HttpServletRequest request, String xAPIToken) {
-        XAPIToken XAPIToken = this.apiTokenService.loadAPIToken(xAPIToken);
-        if (XAPIToken != null) {
-            final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(XAPIToken, null, XAPIToken.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        JwtToken jwtToken = this.apiTokenService.loadJwtTokenFrom(xAPIToken);
+        if (jwtToken != null) {
+            request.setAttribute(xAPIToken, jwtToken);
+            this.loadJWTUser(request, jwtToken.getToken());
         }
     }
 

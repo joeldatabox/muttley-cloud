@@ -4,6 +4,7 @@ import br.com.muttley.model.SyncObjectId;
 import br.com.muttley.security.infra.resource.PageableResource;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,6 +39,9 @@ public interface ModelSyncRestControllerClient<T> {
 
     @RequestMapping(value = "/synchronization", method = RequestMethod.PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
     void synchronization(@RequestBody final List<T> values);
+
+    @RequestMapping(value = "/synchronization", method = RequestMethod.PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
+    void synchronization(@RequestBody final List<T> values, @RequestHeader(value = "X-Api-Token", defaultValue = "") final String xAPIToken);
 
     @RequestMapping(value = "/{id}", method = DELETE)
     void deleteById(@PathVariable("id") String id);

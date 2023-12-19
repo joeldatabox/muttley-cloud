@@ -1,5 +1,6 @@
 package br.com.muttley.security.infra.security.server;
 
+import br.com.muttley.model.security.JwtToken;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import feign.Util;
@@ -28,6 +29,7 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
     private String xAPIToken;
     @Value("${muttley.security.jwt.controller.tokenHeader:Authorization}")
     private String authorization;
+
     private final String headerValue;
 
     public BasicAuthorizationJWTRequestInterceptor(final String username, final String password) {
@@ -49,8 +51,15 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
             if (!isEmpty(AUTH)) {
                 template.header(authorizationJwt, AUTH);
             } else {
-                final String xAPITokenValue = this.getxAPIToken();
-                template.header(this.xAPIToken, xAPITokenValue);
+                final String jwtToken = this.getAuthorizationJwtFromXAPIToken();
+                if (jwtToken != null) {
+                    template.header(this.authorizationJwt, jwtToken);
+                } else {
+                    final String xAPITokenValue = this.getxAPIToken();
+                    if (xAPITokenValue != null) {
+                        template.header(this.xAPIToken, xAPITokenValue);
+                    }
+                }
             }
         } catch (IllegalStateException ex) {
             ex.printStackTrace();
@@ -68,10 +77,39 @@ public class BasicAuthorizationJWTRequestInterceptor implements RequestIntercept
             final String jwtToken = request.getHeader(this.authorizationJwt);
             if (!isEmpty(jwtToken)) {
                 return jwtToken;
+            } else {
+                //talvez seja uma request interna usando xapitoken, logo, talvez o token jwt esteja nos atributos da request
+                //Talvez a requisão já advem de outro subserviço, ou seja já contem no header o "Authorization-jwt"
+                final String xAPIToken = request.getHeader(this.xAPIToken);
+                if (!isEmpty(xAPIToken)) {
+                    final JwtToken token = (JwtToken) request.getAttribute(xAPIToken);
+                    return token != null ? token.getToken() : null;
+                }
             }
             //se chegou até aqui quer dizer que ninguem ainda não fez esse tratamento
             //devemos pegar o token no "Authorization"
             return request.getHeader(this.authorization);
+        }
+        return null;
+    }
+
+    /**
+     * Deve retornar o token do usuário corrente na requisição
+     */
+    private String getAuthorizationJwtFromXAPIToken() {
+        final RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            final HttpServletRequest request = ((ServletRequestAttributes) attributes).getRequest();
+            //Talvez a requisão já advem de outro subserviço, ou seja já contem no header o "Authorization-jwt"
+            final String xAPIToken = request.getHeader(this.xAPIToken);
+            if (!isEmpty(xAPIToken)) {
+                final JwtToken token = (JwtToken) request.getAttribute(xAPIToken);
+                return token != null ? token.getToken() : null;
+            }
+
+            /*if (!isEmpty(xAPIToken)) {
+                return xAPIToken;
+            }*/
         }
         return null;
     }

@@ -21,5 +21,5 @@ public interface AuthenticationTokenServiceClient {
     public JwtUser getUserFromToken(final @RequestBody JwtToken token);
 
     @RequestMapping(value = "/login-by-api-token", method = POST)
-    public JwtToken getUserFromToken(@RequestHeader(value = "${muttley.security.jwt.controller.xAPITokenHeader:X-Api-Token}", defaultValue = "") final String tokenValue);
+    public JwtToken getUserFromXAPIToken(@RequestHeader(value = "X-Api-Token", defaultValue = "") final String tokenValue);
 }

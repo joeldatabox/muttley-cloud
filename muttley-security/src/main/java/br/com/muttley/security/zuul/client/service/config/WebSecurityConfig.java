@@ -122,7 +122,7 @@ public class WebSecurityConfig {
 
     @Bean
     @Autowired
-    public LocalXAPITokenService createLocalXAPITokenService(final RedisService redisService, final XAPITokenClient XAPITokenClient) {
-        return new LocalXAPITokenServiceImpl(redisService, XAPITokenClient);
+    public LocalXAPITokenService createLocalXAPITokenService(final RedisService redisService, final XAPITokenClient XAPITokenClient, final AuthenticationTokenServiceClient authenticationTokenServiceClient) {
+        return new LocalXAPITokenServiceImpl(redisService, XAPITokenClient, authenticationTokenServiceClient);
     }
 }
