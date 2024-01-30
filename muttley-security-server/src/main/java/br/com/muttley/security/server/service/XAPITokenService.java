@@ -12,5 +12,5 @@ public interface XAPITokenService extends SecurityService<XAPIToken> {
 
     XAPIToken loadUserByAPIToken(final String token);
 
-    XAPIToken generateXAPIToken(final User user);
+    XAPIToken generateXAPIToken(final User user, final String description);
 }

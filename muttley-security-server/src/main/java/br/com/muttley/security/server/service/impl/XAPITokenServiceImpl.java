@@ -75,9 +75,10 @@ public class XAPITokenServiceImpl extends SecurityServiceImpl<XAPIToken> impleme
     }
 
     @Override
-    public XAPIToken generateXAPIToken(final User user) {
+    public XAPIToken generateXAPIToken(final User user, final String description) {
         return this.save(user,
                 new XAPIToken()
+                        .setDescription(description)
                         .setUser(user)
                         .setOwner(user.getCurrentOwner())
                         .setVersion(this.currentVersion.getCurrenteFromServer())

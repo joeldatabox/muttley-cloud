@@ -28,6 +28,11 @@ public class UserDeserializer extends JsonDeserializer<User> {
     public User deserialize(final JsonParser parser, final DeserializationContext context) throws IOException, JsonProcessingException {
         final ObjectCodec oc = parser.getCodec();
         final JsonNode node = oc.readTree(parser);
+        final String username = node.asText();
+        //se vier uma string vazia, logo, podemos retornar null
+        if (username == null || username.trim().isEmpty()) {
+            return null;
+        }
         //verificando se o eventPublisher foi injetado no contexto do spring
         if (this.eventPublisher != null) {
             final UserResolverEvent event = new UserResolverEvent(node.asText());

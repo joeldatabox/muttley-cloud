@@ -7,10 +7,13 @@ import br.com.muttley.security.server.service.XAPITokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -34,8 +37,8 @@ public class XAPITokenController extends AbstractRestController<XAPIToken> {
     }
 
     @RequestMapping(value = "/generate-x-api-token", method = POST)
-    public ResponseEntity generateXAPIToken(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
-        return ResponseEntity.ok(this.service.generateXAPIToken(this.userService.getUserFromToken(new JwtToken(tokenHeader))));
+    public ResponseEntity generateXAPIToken(@RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader, @RequestBody final Map<String, String> payload) {
+        return ResponseEntity.ok(this.service.generateXAPIToken(this.userService.getUserFromToken(new JwtToken(tokenHeader)), payload.get("description")));
     }
 
     @RequestMapping(value = "/token", method = GET)

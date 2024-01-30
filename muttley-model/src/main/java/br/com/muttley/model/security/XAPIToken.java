@@ -61,6 +61,7 @@ public class XAPIToken implements Model<Owner>, UserDetails {
     private Date dtCreate;
     @NotNull
     private String version;
+    @NotNull(message = "Informe uma descrição válida")
     private String description;
     @NotEmpty(message = "É necessário ter um token devidamente gerado")
     private String token;
