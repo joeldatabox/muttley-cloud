@@ -5,6 +5,7 @@ import br.com.muttley.exception.throwables.MuttleyNotFoundException;
 import br.com.muttley.headers.components.MuttleyCurrentVersion;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.XAPIToken;
+import br.com.muttley.model.security.domain.Domain;
 import br.com.muttley.security.server.components.RSAPairKeyComponent;
 import br.com.muttley.security.server.repository.XAPITokenRepository;
 import br.com.muttley.security.server.service.XAPITokenService;
@@ -94,5 +95,10 @@ public class XAPITokenServiceImpl extends SecurityServiceImpl<XAPIToken> impleme
     @Override
     public void afterDelete(User user, XAPIToken value) {
         super.afterDelete(user, value);
+    }
+
+    @Override
+    protected void generateNewMetadataFor(User user, XAPIToken value, Domain domain) {
+        super.generateNewMetadataFor(user, value, Domain.PRIVATE);
     }
 }
