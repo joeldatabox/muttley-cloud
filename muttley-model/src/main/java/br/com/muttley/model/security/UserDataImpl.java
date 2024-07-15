@@ -1,5 +1,6 @@
 package br.com.muttley.model.security;
 
+import br.com.muttley.model.security.preference.Foto;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -22,6 +23,7 @@ public class UserDataImpl implements UserData {
     protected String id;
     protected String name;
     protected String userName;
+    protected Foto foto;
     protected String description;
     protected String email;
     protected Set<String> nickUsers = new HashSet<>();

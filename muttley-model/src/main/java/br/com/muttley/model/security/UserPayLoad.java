@@ -1,5 +1,6 @@
 package br.com.muttley.model.security;
 
+import br.com.muttley.model.security.preference.Foto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
@@ -27,6 +28,7 @@ public class UserPayLoad implements Serializable {
     @Email(message = "Informe um email válido!")
     private String email;
     private String userName;
+    private Foto foto;
     private Set<String> nickUsers;
     @NotBlank(message = "Informe uma senha valida!")
     private String passwd;
@@ -48,6 +50,7 @@ public class UserPayLoad implements Serializable {
             @JsonProperty("description") final String description,
             @JsonProperty("email") final String email,
             @JsonProperty("userName") final String userName,
+            @JsonProperty("foto") final Foto foto,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
             @JsonProperty("passwd") final String passwd,
             @JsonProperty("fone") String fone,
@@ -61,6 +64,7 @@ public class UserPayLoad implements Serializable {
         this.description = description;
         this.email = email;
         this.userName = userName;
+        this.foto = foto;
         this.nickUsers = nickUsers;
         this.passwd = passwd;
         this.fone = fone;
@@ -85,6 +89,10 @@ public class UserPayLoad implements Serializable {
 
     public String getUserName() {
         return userName;
+    }
+
+    public Foto getFoto() {
+        return foto;
     }
 
     public Set<String> getNickUsers() {
@@ -160,6 +168,7 @@ public class UserPayLoad implements Serializable {
         private String description;
         private String email;
         private String userName;
+        private Foto foto;
         private Set<String> nickUsers;
         private String passwd;
         private String fone;
@@ -192,6 +201,11 @@ public class UserPayLoad implements Serializable {
 
         public Builder setUserName(final String userName) {
             this.userName = userName;
+            return this;
+        }
+
+        public Builder setFoto(final Foto foto) {
+            this.foto = foto;
             return this;
         }
 
@@ -235,6 +249,7 @@ public class UserPayLoad implements Serializable {
                     .setDescription(user.getDescription())
                     .setEmail(user.getEmail())
                     .setUserName(user.getUserName())
+                    .setFoto(user.getFoto())
                     .setNickUsers(user.getNickUsers())
                     .setOdinUser(user.isOdinUser());
         }
@@ -244,7 +259,7 @@ public class UserPayLoad implements Serializable {
         }
 
         public UserPayLoad build() {
-            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.nickUsers, this.passwd, this.fone, this.odinUser, this.seedVerification, this.codeVerification, this.renewCode);
+            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.foto, this.nickUsers, this.passwd, this.fone, this.odinUser, this.seedVerification, this.codeVerification, this.renewCode);
         }
     }
 }

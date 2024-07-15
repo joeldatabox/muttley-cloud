@@ -13,6 +13,7 @@ import br.com.muttley.model.security.Role;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserBaseItem;
 import br.com.muttley.model.security.UserPayLoad;
+import br.com.muttley.model.security.preference.Foto;
 import br.com.muttley.security.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,7 +79,7 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
             User user = null;
 
             try {
-                user = this.service.save(new UserPayLoad("Admin", "Usuário para administrar todo o ecossistema", this.defaultUser, (String) null, (Set) null, this.passwdDefaultUser, (String) null, true, (String) null, (String) null, false), "true");
+                user = this.service.save(new UserPayLoad("Admin", "Usuário para administrar todo o ecossistema", this.defaultUser, (String) null, (Foto) null, (Set) null, this.passwdDefaultUser, (String) null, true, (String) null, (String) null, false), "true");
             } catch (MuttleyConflictException var6) {
                 user = this.service.findByUserName(this.defaultUser);
             }
@@ -115,7 +116,7 @@ public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
 
                 if (userRead == null) {
                     try {
-                        userRead = this.service.save(new UserPayLoad("AdminRead", "Usuário para consumir dados do ecossistema", this.userRead, (String) null, (Set) null, this.passwdUserRead, (String) null, true, (String) null, (String) null, false), "true");
+                        userRead = this.service.save(new UserPayLoad("AdminRead", "Usuário para consumir dados do ecossistema", this.userRead, (String) null, (Foto) null, (Set) null, this.passwdUserRead, (String) null, true, (String) null, (String) null, false), "true");
                     } catch (MuttleyConflictException var4) {
                         userRead = this.service.findByUserName(this.userRead);
                     }

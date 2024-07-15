@@ -2,6 +2,7 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.model.Document;
 import br.com.muttley.model.MetadataDocument;
+import br.com.muttley.model.security.preference.Foto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class UserView implements UserData, Document {
     private String name;
     private String description;
     private String userName;
+    private Foto foto;
     private String email;
     private Set<String> nickUsers;
     private boolean status;
@@ -42,6 +44,7 @@ public class UserView implements UserData, Document {
                 .setName(user.getName())
                 .setDescription(user.getDescription())
                 .setUserName(user.getUserName())
+                .setFoto(user.getFoto())
                 .setEmail(user.getEmail())
                 .setNickUsers(user.getNickUsers())
                 .setFone(user.getFone())

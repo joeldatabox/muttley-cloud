@@ -6,6 +6,7 @@ import br.com.muttley.model.security.RecoveryPayload;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.XAPIToken;
+import br.com.muttley.model.security.preference.Foto;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
 
@@ -34,6 +35,8 @@ public interface UserService {
     User update(final User user, final JwtToken token);
 
     User update(final User user, final User userForUpdate);
+
+    User updateProfilePic(final User user);
 
     /*User updatePasswd(final PasswdPayload user);*/
 

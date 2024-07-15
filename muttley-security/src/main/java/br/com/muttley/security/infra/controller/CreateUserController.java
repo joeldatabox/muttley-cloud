@@ -4,6 +4,7 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestExc
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserPayLoad;
 import br.com.muttley.model.security.events.UserCreatedEvent;
+import br.com.muttley.model.security.preference.Foto;
 import br.com.muttley.security.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -32,6 +33,7 @@ public class CreateUserController {
     protected static final String NOME = "name";
     protected static final String DECRIPTION = "description";
     protected static final String USER_NAME = "userName";
+    protected static final String FOTO = "foto";
     protected static final String EMAIL = "email";
     protected static final String PASSWD = "password";
     protected static final String NICK_NAMES = "nickNames";
@@ -78,6 +80,7 @@ public class CreateUserController {
                 (String) payload.get(DECRIPTION),
                 (String) payload.get(EMAIL),
                 (String) payload.get(USER_NAME),
+                (Foto) payload.get(FOTO),
                 payload.containsKey(NICK_NAMES) ? new HashSet((List) payload.get(NICK_NAMES)) : null,
                 (String) payload.get(PASSWD),
                 (String) payload.get(FONE),

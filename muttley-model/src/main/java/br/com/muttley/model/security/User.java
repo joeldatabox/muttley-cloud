@@ -4,6 +4,7 @@ import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.jackson.JsonHelper;
+import br.com.muttley.model.security.preference.Foto;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.model.workteam.WorkTeamDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -67,6 +68,7 @@ public class User implements Serializable, UserData {
     private String email;
     @NotBlank(message = "Informe um userName válido")
     private String userName;
+    private Foto foto;
     private Set<String> nickUsers = new HashSet<>();
     //@NotBlank(message = "Informe uma senha valida!")
     //private String passwd;
@@ -97,6 +99,7 @@ public class User implements Serializable, UserData {
             @JsonProperty("name") final String name,
             @JsonProperty("description") final String description,
             @JsonProperty("userName") final String userName,
+            @JsonProperty("foto") final Foto foto,
             @JsonProperty("email") final String email,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
             @JsonProperty("enable") final Boolean enable,
@@ -110,6 +113,7 @@ public class User implements Serializable, UserData {
         this.name = name;
         this.description = description;
         this.userName = userName;
+        this.foto = foto;
         this.email = email;
         this.fone = fone;
         this.setNickUsers(nickUsers);
@@ -125,6 +129,7 @@ public class User implements Serializable, UserData {
         this.setName(payLoad.getName());
         this.setDescription(payLoad.getDescription());
         this.setUserName(payLoad.getUserName());
+        this.setUserFoto(payLoad.getFoto());
         this.setEmail(payLoad.getEmail());
         this.setNickUsers(payLoad.getNickUsers());
         this.setOdinUser(payLoad.isOdinUser());
@@ -218,6 +223,17 @@ public class User implements Serializable, UserData {
 
     public User setUserName(final String userName) {
         this.userName = userName;
+        return this;
+    }
+
+
+
+    public Foto getFoto() {
+        return foto;
+    }
+
+    public User setUserFoto(final Foto foto) {
+        this.foto = foto;
         return this;
     }
 

@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -198,6 +199,26 @@ public class UserServiceImpl implements UserService {
         //validando infos do usuário
         userForUpdate.validateBasicInfoForLogin();
         return this.repository.save(userForUpdate);
+    }
+
+    @Override
+    public User updateProfilePic(User user) {
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("User or user ID cannot be null");
+        }
+
+        final User userCurrently = findById(user.getId());
+
+        if (userCurrently == null) {
+            throw new MuttleySecurityNotFoundException(User.class, "Usuario nao encontrado", "User not found");
+        }
+
+        if (user.getFoto() != null) {
+            userCurrently.setUserFoto(user.getFoto());
+            this.save(userCurrently);
+        }
+
+        return userCurrently;
     }
 
     private void checkNameIsValid(final User user) {

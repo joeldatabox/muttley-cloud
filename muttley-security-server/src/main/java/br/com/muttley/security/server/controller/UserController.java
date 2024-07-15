@@ -30,6 +30,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+import static org.springframework.web.bind.annotation.RequestMethod.PATCH;
+
+
 
 /**
  * @author Joel Rodrigues Moreira on 17/04/18.
@@ -93,6 +96,14 @@ public class UserController {
     @ResponseStatus(OK)
     public ResponseEntity updatePasswd(@RequestBody final PasswdPayload passwdPayload) {
         passwordService.update(passwdPayload);
+        return ResponseEntity.ok().build();
+    }
+
+
+    @RequestMapping(value = "/update-profile-pic", method = PATCH, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
+    public ResponseEntity updateProfilePic(@RequestBody final User user) {
+        service.updateProfilePic(user);
         return ResponseEntity.ok().build();
     }
 

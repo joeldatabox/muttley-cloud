@@ -1,5 +1,6 @@
 package br.com.muttley.model.security;
 
+import br.com.muttley.model.security.preference.Foto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Set;
@@ -18,6 +19,8 @@ public interface UserData {
     String getDescription();
 
     String getUserName();
+
+    Foto getFoto();
 
     String getEmail();
 
