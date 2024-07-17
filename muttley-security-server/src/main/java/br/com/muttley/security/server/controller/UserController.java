@@ -100,13 +100,6 @@ public class UserController {
     }
 
 
-    @RequestMapping(value = "/update-profile-pic", method = PATCH, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-    @ResponseStatus(OK)
-    public ResponseEntity updateProfilePic(@RequestBody final User user) {
-        service.updateProfilePic(user);
-        return ResponseEntity.ok().build();
-    }
-
     /**
      * Faz a deleção por userName ao invez de ID
      */

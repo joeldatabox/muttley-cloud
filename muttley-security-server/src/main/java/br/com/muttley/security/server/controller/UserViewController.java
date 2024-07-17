@@ -15,20 +15,18 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.PATCH;
 
 /**
  * @author Joel Rodrigues Moreira on 29/04/19.
@@ -114,5 +112,12 @@ public class UserViewController extends AbstractRestController<UserView> {
         final Owner owner = user.getCurrentOwner();
         checkRoleRead(user);
         return ResponseEntity.ok(String.valueOf(service.count(allRequestParams.get("q"), owner != null ? owner.getId() : null)));
+    }
+
+    @RequestMapping(value = "/update-profile-pic", method = PATCH, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
+    public ResponseEntity updateProfilePic(@RequestBody final UserView user) {
+        service.updateProfilePic(user);
+        return ResponseEntity.ok().build();
     }
 }

@@ -201,25 +201,6 @@ public class UserServiceImpl implements UserService {
         return this.repository.save(userForUpdate);
     }
 
-    @Override
-    public User updateProfilePic(User user) {
-        if (user == null || user.getId() == null) {
-            throw new IllegalArgumentException("User or user ID cannot be null");
-        }
-
-        final User userCurrently = findById(user.getId());
-
-        if (userCurrently == null) {
-            throw new MuttleySecurityNotFoundException(User.class, "Usuario nao encontrado", "User not found");
-        }
-
-        if (user.getFoto() != null) {
-            userCurrently.setUserFoto(user.getFoto());
-            this.save(userCurrently);
-        }
-
-        return userCurrently;
-    }
 
     private void checkNameIsValid(final User user) {
         if (user.getName() == null || user.getName().length() < 4) {

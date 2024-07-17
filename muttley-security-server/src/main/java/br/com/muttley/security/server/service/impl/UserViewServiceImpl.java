@@ -4,6 +4,7 @@ import br.com.muttley.domain.service.impl.ServiceImpl;
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
+import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundException;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
@@ -149,6 +150,27 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
             throw new MuttleyNoContentException(UserView.class, "", "nenhum registro encontrado");
         }
         return views;
+    }
+
+
+    @Override
+    public UserView updateProfilePic(UserView user) {
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("Id de usuario nao pode ser nulo");
+        }
+
+        final UserView userCurrently = this.repository.findOne(user.getId());
+
+        if (userCurrently == null) {
+            throw new MuttleySecurityNotFoundException(User.class, "Usuario nao encontrado", "User not found");
+        }
+
+        if (user.getFoto() != null) {
+            userCurrently.setFoto(user.getFoto());
+            this.repository.save(userCurrently);
+        }
+
+        return userCurrently;
     }
 
     @Override
