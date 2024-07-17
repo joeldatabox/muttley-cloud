@@ -114,10 +114,13 @@ public class UserViewController extends AbstractRestController<UserView> {
         return ResponseEntity.ok(String.valueOf(service.count(allRequestParams.get("q"), owner != null ? owner.getId() : null)));
     }
 
-    @RequestMapping(value = "/update-profile-pic", method = PATCH, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/update-profile-pic", method = PATCH, produces = {APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
-    public ResponseEntity updateProfilePic(@RequestBody final UserView user) {
-        service.updateProfilePic(user);
+    public ResponseEntity updateProfilePic(@RequestBody final UserView userView, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
+        final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));
+        final Owner owner = user.getCurrentOwner();
+
+        service.updateProfilePic(userView);
         return ResponseEntity.ok().build();
     }
 }
