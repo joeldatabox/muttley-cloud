@@ -36,7 +36,6 @@ public interface UserService {
 
     User update(final User user, final User userForUpdate);
 
-    User updateProfilePic(final User user);
 
     /*User updatePasswd(final PasswdPayload user);*/
 
