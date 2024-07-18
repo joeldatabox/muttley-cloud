@@ -153,25 +153,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
     }
 
 
-    @Override
-    public UserView updateProfilePic(UserView user) {
-        if (user == null || user.getId() == null) {
-            throw new IllegalArgumentException("Id de usuario nao pode ser nulo");
-        }
 
-        final UserView userCurrently = this.repository.findOne(user.getId());
-
-        if (userCurrently == null) {
-            throw new MuttleySecurityNotFoundException(UserView.class, "Usuario nao encontrado", "User not found");
-        }
-
-        if (user.getFoto() != null) {
-            userCurrently.setFoto(user.getFoto());
-            this.repository.save(userCurrently);
-        }
-
-        return userCurrently;
-    }
 
     @Override
     public long count(final String criterio, final String idOwner) {

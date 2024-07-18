@@ -17,7 +17,6 @@ public interface UserViewService extends Service<UserView> {
 
     List<UserView> list(final String criterio, final String idOwner);
 
-    UserView updateProfilePic(final UserView user);
 
     long count(final String criterio, final String idOwner);
 }

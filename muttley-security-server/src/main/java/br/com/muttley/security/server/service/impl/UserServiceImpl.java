@@ -9,12 +9,7 @@ import br.com.muttley.exception.throwables.security.MuttleySecurityConflictExcep
 import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.model.BasicAggregateResultCount;
-import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.RecoveryPasswordResponse;
-import br.com.muttley.model.security.RecoveryPayload;
-import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.UserPayLoad;
-import br.com.muttley.model.security.XAPIToken;
+import br.com.muttley.model.security.*;
 import br.com.muttley.model.security.events.SendNewPasswordRecoveredEvent;
 import br.com.muttley.model.security.events.UserCreatedEvent;
 import br.com.muttley.model.security.events.ValidadeUserForeCreateEvent;
@@ -780,6 +775,26 @@ public class UserServiceImpl implements UserService {
                 .limit(6)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
+    }
+
+    @Override
+    public User updateProfilePic(User user) {
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("Id de usuario nao pode ser nulo");
+        }
+
+        final User userCurrently = this.repository.findOne(user.getId());
+
+        if (userCurrently == null) {
+            throw new MuttleySecurityNotFoundException(User.class, "Usuario nao encontrado", "User not found");
+        }
+
+        if (user.getFoto() != null) {
+            userCurrently.setUserFoto(user.getFoto());
+            this.repository.save(userCurrently);
+        }
+
+        return userCurrently;
     }
 
     /*private void validatePreferences(final UserPreferences preferences) {

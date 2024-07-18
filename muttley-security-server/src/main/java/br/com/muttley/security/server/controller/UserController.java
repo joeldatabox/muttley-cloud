@@ -1,10 +1,7 @@
 package br.com.muttley.security.server.controller;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
-import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.PasswdPayload;
-import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.UserPayLoad;
+import br.com.muttley.model.security.*;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.PasswordService;
 import br.com.muttley.security.server.service.UserService;
@@ -147,6 +144,14 @@ public class UserController {
     @ResponseStatus(OK)
     public ResponseEntity getUserFromToken(@RequestBody final JwtToken token) {
         return ResponseEntity.ok(this.service.getUserFromToken(token).toJson());
+    }
+
+    @RequestMapping(value = "/update-profile-pic", method = PATCH, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(OK)
+    public ResponseEntity updateProfilePic(@RequestBody final User user) {
+
+        this.service.updateProfilePic(user);
+        return ResponseEntity.ok().build();
     }
 
 }

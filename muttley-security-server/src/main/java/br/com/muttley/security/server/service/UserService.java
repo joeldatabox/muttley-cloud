@@ -1,11 +1,6 @@
 package br.com.muttley.security.server.service;
 
-import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.RecoveryPasswordResponse;
-import br.com.muttley.model.security.RecoveryPayload;
-import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.UserPayLoad;
-import br.com.muttley.model.security.XAPIToken;
+import br.com.muttley.model.security.*;
 import br.com.muttley.model.security.preference.Foto;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
@@ -35,6 +30,8 @@ public interface UserService {
     User update(final User user, final JwtToken token);
 
     User update(final User user, final User userForUpdate);
+
+    User updateProfilePic(final User user);
 
 
     /*User updatePasswd(final PasswdPayload user);*/
@@ -73,4 +70,5 @@ public interface UserService {
     boolean constainsPreference(final User user, final String keyPreference);
 
     RecoveryPasswordResponse recoveryPassword(RecoveryPayload recovery);
+
 }
