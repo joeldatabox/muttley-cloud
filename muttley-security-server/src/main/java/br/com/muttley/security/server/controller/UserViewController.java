@@ -25,8 +25,7 @@ import java.util.Map;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.PATCH;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 /**
  * @author Joel Rodrigues Moreira on 29/04/19.
@@ -114,7 +113,7 @@ public class UserViewController extends AbstractRestController<UserView> {
         return ResponseEntity.ok(String.valueOf(service.count(allRequestParams.get("q"), owner != null ? owner.getId() : null)));
     }
 
-    @RequestMapping(value = "/update-profile-pic", method = PATCH, produces = {APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/update-profile-pic", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)
     public ResponseEntity updateProfilePic(@RequestBody final UserView userView, @RequestHeader(value = "${muttley.security.jwt.controller.tokenHeader-jwt}", defaultValue = "") final String tokenHeader) {
         final User user = this.userService.getUserFromToken(new JwtToken(tokenHeader));

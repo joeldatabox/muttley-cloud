@@ -162,7 +162,7 @@ public class UserViewServiceImpl extends ServiceImpl<UserView> implements UserVi
         final UserView userCurrently = this.repository.findOne(user.getId());
 
         if (userCurrently == null) {
-            throw new MuttleySecurityNotFoundException(User.class, "Usuario nao encontrado", "User not found");
+            throw new MuttleySecurityNotFoundException(UserView.class, "Usuario nao encontrado", "User not found");
         }
 
         if (user.getFoto() != null) {
