@@ -7,6 +7,8 @@ import br.com.muttley.model.hermes.notification.onesignal.Content;
 import br.com.muttley.model.hermes.notification.onesignal.Notification;
 import br.com.muttley.model.security.UserView;
 import br.com.muttley.notification.onesignal.service.OneSignalNotificationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import static br.com.muttley.model.hermes.notification.onesignal.MuttleyLanguage
 public class NotificationServiceImpl implements NotificationService {
     private final OneSignalNotificationService oneSignalNotificationServiceClient;
     private final UserTokensNotificationService userTokensNotificationService;
+    private final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
 
     @Autowired
@@ -26,7 +29,11 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendNotification(final Notification notification) {
-        this.oneSignalNotificationServiceClient.sendNotification(notification);
+        try {
+            this.oneSignalNotificationServiceClient.sendNotification(notification);
+        } catch (Throwable ex) {
+            logger.error("Erro ao enviar notificação para o serviço do OneSignal", ex);
+        }
     }
 
     @Override
@@ -50,13 +57,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendNotificationMobile(final UserView user, final Notification notification) {
         try {
-            this.sendNotification(
-                    notification.addPlayers(
-                            this.userTokensNotificationService
-                                    .findByUser(user)
-                                    .getTokensMobile()
-                    )
-            );
+            this.sendNotification(notification.addPlayers(this.userTokensNotificationService.findByUser(user).getTokensMobile()));
         } catch (final MuttleyNotFoundException ex) {
         }
     }
