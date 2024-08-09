@@ -27,7 +27,7 @@
         <spring-cloud.version>Edgware.SR3</spring-cloud.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-lang3.version>3.10</commons-lang3.version>
-        <jasperreports.version>6.20.5</jasperreports.version>
+        <jasperreports.version>6.20.6</jasperreports.version>
         <zxing-parent.version>3.4.0</zxing-parent.version>
         <bouncycastle.version>1.70</bouncycastle.version>
     </properties>
