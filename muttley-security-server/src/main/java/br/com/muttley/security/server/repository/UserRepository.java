@@ -10,6 +10,9 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserRepository extends DocumentMongoRepository<User> {
+
+    User findByResetToken(String resetToken);
+
     User findByUserName(final String userName);
 
     User findByEmail(final String email);

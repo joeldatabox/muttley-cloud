@@ -23,12 +23,8 @@ import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -74,6 +70,12 @@ public class User implements Serializable, UserData {
     //private String passwd;
     //private Date lastPasswordResetDate;
     private Boolean enable;
+
+    @JsonIgnore
+    private LocalDateTime resetTokenExpiryDate;
+
+    @JsonIgnore
+    private String resetToken;
     @Transient
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo passaport corrente
     @Transient
@@ -139,6 +141,20 @@ public class User implements Serializable, UserData {
         }*/
     }
 
+    public void setFoto(Foto foto) {
+        this.foto = foto;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+
+    public void setResetToken(String token) {
+        this.resetToken = token;
+        this.resetTokenExpiryDate = LocalDateTime.now().plusHours(1); // Expira em 1 hora.
+    }
+
     @Override
     public String getId() {
         return id;
@@ -158,6 +174,14 @@ public class User implements Serializable, UserData {
             }
         }
         return null;
+    }
+
+    public LocalDateTime getResetTokenExpiryDate() {
+        return resetTokenExpiryDate;
+    }
+
+    public void setResetTokenExpiryDate(LocalDateTime resetTokenExpiryDate) {
+        this.resetTokenExpiryDate = resetTokenExpiryDate;
     }
 
     @JsonIgnore
@@ -225,7 +249,6 @@ public class User implements Serializable, UserData {
         this.userName = userName;
         return this;
     }
-
 
 
     public Foto getFoto() {
@@ -568,6 +591,7 @@ public class User implements Serializable, UserData {
                 this.equals(userMaster) : this.getUserName().equals(userMaster.getUserName());*/
     }
 
+
     private static final class UserNameValidator {
         private static final char[] SUPPORT_SYMBOLS_CHAR = {'.', '_', '-'};
         //private static final char[] SUPPORT_SYMBOLS_CHAR = {'_', '-'};
@@ -634,5 +658,6 @@ public class User implements Serializable, UserData {
             }
             return false;
         }
+
     }
 }
