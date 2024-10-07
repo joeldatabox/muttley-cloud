@@ -3,12 +3,7 @@ package br.com.muttley.security.server.controller.auth;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityUserNameOrPasswordInvalidException;
-import br.com.muttley.model.security.JwtToken;
-import br.com.muttley.model.security.Password;
-import br.com.muttley.model.security.RecoveryPasswordResponse;
-import br.com.muttley.model.security.RecoveryPayload;
-import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.XAPIToken;
+import br.com.muttley.model.security.*;
 import br.com.muttley.model.security.events.UserLoggedEvent;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.PasswordService;
@@ -79,7 +74,6 @@ public class AuthenticationRestController {
             throw new MuttleySecurityUserNameOrPasswordInvalidException();
         }
     }
-
     @RequestMapping(value = "/login-by-api-token", method = POST)
     public ResponseEntity createAuthenticationTokenByApiToken(@RequestHeader(value = "${muttley.security.jwt.controller.xAPITokenHeader:X-Api-Token}", defaultValue = "") final String tokenValue, Device device, HttpServletRequest request) {
 

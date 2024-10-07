@@ -31,6 +31,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAdapter {
     protected final String loginEndPoint;
     protected final String refreshTokenEndPoin;
+    protected final String forgotPassword;
     protected final String createEndPoint;
     protected final String resetPassword;
     protected final UnauthorizedHandler unauthorizedHandler;
@@ -41,6 +42,7 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
     public AbstractWebSecurityGateway(
             @Value("${muttley.security.jwt.controller.loginEndPoint}") final String loginEndPoint,
             @Value("${muttley.security.jwt.controller.refreshEndPoint}") final String refreshTokenEndPoin,
+            @Value("${muttley.security.jwt.controller.forgotPassword}") final String forgotPassword,
             @Value("${muttley.security.jwt.controller.createEndPoint}") final String createEndPoint,
             @Value("${muttley.security.jwt.controller.resetPassword}") final String resetPassword,
             final UnauthorizedHandler unauthorizedHandler,
@@ -48,6 +50,7 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
             final UserServiceClient userServiceClient) {
         this.loginEndPoint = loginEndPoint;
         this.refreshTokenEndPoin = refreshTokenEndPoin;
+        this.forgotPassword = forgotPassword;
         this.createEndPoint = createEndPoint;
         this.resetPassword = resetPassword;
         this.unauthorizedHandler = unauthorizedHandler;
@@ -91,7 +94,7 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
                         this.endPointPermitAllToGet()
                 ).permitAll()
                 //permitindo acesso aos endpoint de login
-                .antMatchers(loginEndPoint, refreshTokenEndPoin, createEndPoint, resetPassword).permitAll()
+                .antMatchers(loginEndPoint, refreshTokenEndPoin, forgotPassword, createEndPoint, resetPassword).permitAll()
                 //barrando qualquer outra requisição não autenticada
                 .anyRequest().authenticated();
 

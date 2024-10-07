@@ -24,12 +24,13 @@ public class WebSecurityGatewayConfig extends AbstractWebSecurityGateway {
     public WebSecurityGatewayConfig(
             @Value("${muttley.security.jwt.controller.loginEndPoint}") final String loginEndPoint,
             @Value("${muttley.security.jwt.controller.refreshEndPoint}") final String refreshTokenEndPoin,
+            @Value("${muttley.security.jwt.controller.forgotPassword}") final String forgotPassword,
             @Value("${muttley.security.jwt.controller.createEndPoint}") final String createEndPoint,
             @Value("${muttley.security.jwt.controller.resetPassword}") final String resetPassword,
             final UnauthorizedHandler unauthorizedHandler,
             final AuthenticationTokenFilterGateway authenticationTokenFilterGateway,
             final UserServiceClient userServiceClient) {
-        super(loginEndPoint, refreshTokenEndPoin, createEndPoint, resetPassword, unauthorizedHandler, authenticationTokenFilterGateway, userServiceClient);
+        super(loginEndPoint, refreshTokenEndPoin, forgotPassword, createEndPoint, resetPassword, unauthorizedHandler, authenticationTokenFilterGateway, userServiceClient);
     }
 
     @Override
