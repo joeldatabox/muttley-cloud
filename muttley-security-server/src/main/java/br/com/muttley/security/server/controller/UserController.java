@@ -94,28 +94,28 @@ public class UserController {
         return ResponseEntity.ok(service.update(user, new JwtToken(token)));
     }
 
-    @RequestMapping(value = "/reset-password", method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-    @ResponseStatus(OK)
-    public ResponseEntity resetPassword(@RequestBody final ResetPasswordRequest passwdPayload) {
-
-        User user = userRepository.findByResetToken(passwdPayload.getToken());
-
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado.");
-        }
-
-        if (user.getResetTokenExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token expirado.");
-        }
-
-//        user.setSenha(new BCryptPasswordEncoder().encode(passwdPayload.getNewPassword()));
-        user.setResetToken(null);
-        user.setResetTokenExpiryDate(null);
-        userRepository.save(user);
-
-
-        return ResponseEntity.ok().build();
-    }
+//    @RequestMapping(value = "/reset-password", method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+//    @ResponseStatus(OK)
+//    public ResponseEntity resetPassword(@RequestBody final ResetPasswordRequest passwdPayload) {
+//
+//        User user = userRepository.findByResetToken(passwdPayload.getToken());
+//
+//        if (user == null) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado.");
+//        }
+//
+//        if (user.getResetTokenExpiryDate().isBefore(LocalDateTime.now())) {
+//            throw new RuntimeException("Token expirado.");
+//        }
+//
+////        user.setSenha(new BCryptPasswordEncoder().encode(passwdPayload.getNewPassword()));
+//        user.setResetToken(null);
+//        user.setResetTokenExpiryDate(null);
+//        userRepository.save(user);
+//
+//
+//        return ResponseEntity.ok().build();
+//    }
 
 
     @RequestMapping(value = "/password", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
