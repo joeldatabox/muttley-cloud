@@ -36,4 +36,10 @@ public class ForgotPasswordController {
 
     }
 
+    @RequestMapping(value = "/reset-password", method = POST)
+    public ResponseEntity resetPassword(@RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(this.forgotPasswordService.resetPassword(request));
+    }
+
+
 }

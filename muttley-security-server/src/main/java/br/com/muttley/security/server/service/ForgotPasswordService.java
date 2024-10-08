@@ -12,5 +12,5 @@ public interface ForgotPasswordService<T> {
 
     T forgotPassword(final String email);
 
-    void resetPassword(final ResetPasswordRequest request);
+    T resetPassword(final ResetPasswordRequest request);
 }
