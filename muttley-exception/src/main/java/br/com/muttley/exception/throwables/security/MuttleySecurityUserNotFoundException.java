@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 public class MuttleySecurityUserNotFoundException extends MuttleySecurityUnauthorizedException {
 
     public MuttleySecurityUserNotFoundException(final Class clazz, final String field, final String message) {
-        super(message, HttpStatus.BAD_REQUEST, clazz, field, "O usuário solicitado não foi encontrado. Verifique os dados e tente novamente.");
+        super(message, HttpStatus.BAD_REQUEST, clazz, field, "O token associado a este usuário expirou. Por favor, solicite um novo link de redefinição de senha.");
     }
 
 }
