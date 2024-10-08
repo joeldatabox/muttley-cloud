@@ -93,6 +93,9 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
                         HttpMethod.GET,
                         this.endPointPermitAllToGet()
                 ).permitAll()
+                .antMatchers(HttpMethod.POST, this.endPointPermitAllToPost()).permitAll()
+                .antMatchers(HttpMethod.PUT, this.endPointPermitAllToPut()).permitAll()
+                .antMatchers(HttpMethod.DELETE, this.endPointPermitAllToDelete()).permitAll()
                 //permitindo acesso aos endpoint de login
                 .antMatchers(loginEndPoint, refreshTokenEndPoin, forgotPasswordEndPoint, createEndPoint, resetPassword).permitAll()
                 //barrando qualquer outra requisição não autenticada
@@ -112,4 +115,16 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
      * @return um array de padrões de urls
      */
     protected abstract String[] endPointPermitAllToGet();
+
+    protected String[] endPointPermitAllToPost() {
+        return new String[]{};
+    }
+
+    protected String[] endPointPermitAllToPut() {
+        return new String[]{};
+    }
+
+    protected String[] endPointPermitAllToDelete() {
+        return new String[]{};
+    }
 }
