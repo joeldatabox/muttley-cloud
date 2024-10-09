@@ -65,4 +65,7 @@ public interface UserServiceClient {
 
     @RequestMapping(value = "/userNamesIsAvaliable", method = RequestMethod.GET)
     public boolean userNameIsAvaliable(@RequestParam(value = "userNames") final Set<String> userNames);
+
+
+
 }

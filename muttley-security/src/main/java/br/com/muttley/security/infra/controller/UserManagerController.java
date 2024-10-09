@@ -26,6 +26,7 @@ public class UserManagerController {
 
     protected UserServiceClient service;
 
+
     @Autowired
     public UserManagerController(final UserServiceClient service) {
         this.service = service;
@@ -36,6 +37,8 @@ public class UserManagerController {
     public ResponseEntity update(@RequestBody User user, final @RequestHeader("${muttley.security.jwt.controller.tokenHeader}") String tokenHeader) {
         return ResponseEntity.ok(service.update(user.getUserName(), tokenHeader, user));
     }
+
+
 
     @RequestMapping(value = "${muttley.security.jwt.controller.managerUserEndPoint}", method = RequestMethod.GET, consumes = MediaType.ALL_VALUE)
     @ResponseStatus(HttpStatus.OK)

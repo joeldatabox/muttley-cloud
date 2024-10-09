@@ -1,7 +1,10 @@
 package br.com.muttley.security.server.controller;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.exception.throwables.security.MuttleySecondaryEmailException;
+import br.com.muttley.exception.throwables.security.MuttleySecurityUserNotFoundException;
 import br.com.muttley.model.security.*;
+import br.com.muttley.model.userManager.IncludeSecundaryEmail;
 import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.PasswordService;
@@ -9,16 +12,9 @@ import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -94,28 +90,16 @@ public class UserController {
         return ResponseEntity.ok(service.update(user, new JwtToken(token)));
     }
 
-//    @RequestMapping(value = "/reset-password", method = POST, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
-//    @ResponseStatus(OK)
-//    public ResponseEntity resetPassword(@RequestBody final ResetPasswordRequest passwdPayload) {
-//
-//        User user = userRepository.findByResetToken(passwdPayload.getToken());
-//
-//        if (user == null) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado.");
-//        }
-//
-//        if (user.getResetTokenExpiryDate().isBefore(LocalDateTime.now())) {
-//            throw new RuntimeException("Token expirado.");
-//        }
-//
-////        user.setSenha(new BCryptPasswordEncoder().encode(passwdPayload.getNewPassword()));
-//        user.setResetToken(null);
-//        user.setResetTokenExpiryDate(null);
-//        userRepository.save(user);
-//
-//
-//        return ResponseEntity.ok().build();
-//    }
+
+    @RequestMapping(value = "/emailPrimary", method = PATCH, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> addPrimaryEmail(@RequestBody final IncludeSecundaryEmail request) {
+        if (request.getEmailSecundary().isEmpty()) {
+            throw new MuttleySecondaryEmailException(IncludeSecundaryEmail.class, "email", "O campo 'emailPrimary' está vazio Por favor, verifique os dados enviados."
+            );
+        }
+        return ResponseEntity.ok(this.service.addOrUpdateSecundaryEmail(request));
+    }
 
 
     @RequestMapping(value = "/password", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})

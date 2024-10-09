@@ -1,9 +1,9 @@
 package br.com.muttley.security.server.service;
 
 import br.com.muttley.model.security.*;
-import br.com.muttley.model.security.preference.Foto;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
+import br.com.muttley.model.userManager.IncludeSecundaryEmail;
 
 import java.util.Collection;
 import java.util.List;
@@ -70,5 +70,7 @@ public interface UserService {
     boolean constainsPreference(final User user, final String keyPreference);
 
     RecoveryPasswordResponse recoveryPassword(RecoveryPayload recovery);
+
+    User addOrUpdateSecundaryEmail(IncludeSecundaryEmail request);
 
 }
