@@ -29,10 +29,11 @@ public class MuttleyException extends RuntimeException {
 
     public MuttleyException() {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        this.message = "ERROR *-*";
-        this.objectName = "unknow :(";
-        this.field = null;
+        this.message = "Ocorreu um erro interno não esperado !";
+        this.objectName = "Erro desconhecido";
+        this.field = "Campo não identificado";
     }
+
 
     public MuttleyException(final String message, final HttpStatus status, final Class clazz, final String field, final String info) {
         this.message = message;

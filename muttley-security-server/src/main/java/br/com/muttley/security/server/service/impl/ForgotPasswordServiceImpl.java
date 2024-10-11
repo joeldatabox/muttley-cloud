@@ -47,17 +47,12 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
     @Override
     public ResponseEntity<?> forgotPassword(String email) {
         try {
+            User user = userRepository.findByEmailOrEmailSecundario(email, email);
 
-
-            User user = userRepository.findByEmail(email);
-            User userByEmailSecundary = userRepository.findByEmailSecundario(email);
-
-            if (user != null || userByEmailSecundary != null) {
-                // Gera um token de redefinição de senha e associa ao usuário
+            if (user != null) {
                 String token = UUID.randomUUID().toString();
-                User foundUser = user != null ? user : userByEmailSecundary;
-                foundUser.setResetToken(token);
-                userRepository.save(foundUser);
+                user.setResetToken(token);
+                userRepository.save(user);
 
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -71,7 +66,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
                 helper.setText(emailTemplate, true);
                 mailSender.send(message);
 
-                return ResponseEntity.ok("Email de recuperação de senha enviado com sucesso.");
+                return ResponseEntity.ok(user);
             } else {
                 throw new MuttleySecurityEmailNotFoundtException(User.class, "email", "Email não encontrado. Contate o suporte.");
             }
@@ -86,6 +81,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
     public ResponseEntity<?> resetPassword(ResetPasswordRequest request) {
 
         User user = userRepository.findByResetToken(request.getToken());
+
 
         if (user == null) {
             throw new MuttleySecurityUserNotFoundException(User.class, "token", "Token expirado. Solicite uma nova recuperação de senha.");
@@ -102,7 +98,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
         user.setResetTokenExpiryDate(null);
         userRepository.save(user);
 
-        return ResponseEntity.ok("Senha redefinida com sucesso.");
+        return ResponseEntity.ok(user);
     }
 
 

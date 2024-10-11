@@ -33,20 +33,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
-
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -595,13 +589,17 @@ public class UserServiceImpl implements UserService {
         }
 
 
-        user.setEmailSecundario(request.getEmailSecundary());
+        User existingUserWithSecundaryEmail = repository.findByEmailOrEmailSecundario(request.getEmailSecundary(),request.getEmailSecundary());
+        if (existingUserWithSecundaryEmail != null) {
+            throw new MuttleySecurityUserNotFoundException(User.class, "email", "Este e-mail secundário já está associado a outro usuário.");
+        }
 
+
+        user.setEmailSecundario(request.getEmailSecundary());
         repository.save(user);
 
         return user;
     }
-
 
 
     private User merge(final User user) {

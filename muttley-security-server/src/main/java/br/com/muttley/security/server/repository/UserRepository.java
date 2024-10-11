@@ -23,5 +23,7 @@ public interface UserRepository extends DocumentMongoRepository<User> {
 
     User findByEmailSecundario(String email);
 
+    User findByEmailOrEmailSecundario(String email, String emailSecundario);
+
 }
 
