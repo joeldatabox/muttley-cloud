@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Email;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.util.Set;
@@ -28,6 +29,8 @@ public class UserView implements UserData, Document {
     private String userName;
     private Foto foto;
     private String email;
+    @Email(message = "Informe um email secundário válido!")
+    private String emailSecundario;
     private Set<String> nickUsers;
     private boolean status;
     private String fone;
@@ -46,6 +49,7 @@ public class UserView implements UserData, Document {
                 .setUserName(user.getUserName())
                 .setFoto(user.getFoto())
                 .setEmail(user.getEmail())
+                .setEmailSecundario(user.getEmailSecundario())
                 .setNickUsers(user.getNickUsers())
                 .setFone(user.getFone())
                 .setOwner(user.getCurrentOwner());

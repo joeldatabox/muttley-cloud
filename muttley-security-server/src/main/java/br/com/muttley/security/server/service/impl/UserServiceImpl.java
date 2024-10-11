@@ -588,27 +588,20 @@ public class UserServiceImpl implements UserService {
             throw new MuttleySecurityUserNotFoundException(User.class, "currentUser", "Usuário atual não encontrado.");
         }
 
-        // Encontrar o usuário com base no email ou nome de usuário
+
         final User user = this.findUserByEmailOrUserNameOrNickUser(currentUser.getEmail());
         if (user == null) {
-            throw new MuttleySecurityUserNotFoundException(User.class, "currentUser", "Usuário não encontrado.");
+            throw new MuttleySecurityUserNotFoundException(User.class, "email", "Usuário não encontrado pelo email atual.");
         }
 
-        // Recuperar os emails existentes
-        Set<String> nickUsers = user.getNickUsers() != null ? new LinkedHashSet<>(user.getNickUsers()) : new LinkedHashSet<>();
 
-        // Remover o email secundário se ele já existir e adicioná-lo novamente (garantindo a atualização)
-        nickUsers.remove(request.getEmailSecundary());
-        nickUsers.add(request.getEmailSecundary());
-
-
-        user.setNickUsers(nickUsers);
-
+        user.setEmailSecundario(request.getEmailSecundary());
 
         repository.save(user);
 
         return user;
     }
+
 
 
     private User merge(final User user) {

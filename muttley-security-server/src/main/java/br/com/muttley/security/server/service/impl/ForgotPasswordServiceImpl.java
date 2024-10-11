@@ -47,16 +47,15 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
     @Override
     public ResponseEntity<?> forgotPassword(String email) {
         try {
-            Set<String> nickUsers = new HashSet<>();
-            nickUsers.add(email);
+
 
             User user = userRepository.findByEmail(email);
-            User userByNickUsers = userRepository.findByNickUsers(nickUsers);
+            User userByEmailSecundary = userRepository.findByEmailSecundario(email);
 
-            if (user != null || userByNickUsers != null) {
+            if (user != null || userByEmailSecundary != null) {
                 // Gera um token de redefinição de senha e associa ao usuário
                 String token = UUID.randomUUID().toString();
-                User foundUser = user != null ? user : userByNickUsers;
+                User foundUser = user != null ? user : userByEmailSecundary;
                 foundUser.setResetToken(token);
                 userRepository.save(foundUser);
 

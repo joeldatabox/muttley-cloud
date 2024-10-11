@@ -24,5 +24,7 @@ public interface UserData {
 
     String getEmail();
 
+    String getEmailSecundario();
+
     Set<String> getNickUsers();
 }

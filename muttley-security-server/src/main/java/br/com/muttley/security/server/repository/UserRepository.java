@@ -21,5 +21,7 @@ public interface UserRepository extends DocumentMongoRepository<User> {
 
     User findByNickUsers(Set<String> nickUsers);
 
+    User findByEmailSecundario(String email);
+
 }
 

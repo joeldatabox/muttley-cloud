@@ -4,6 +4,7 @@ import br.com.muttley.model.security.preference.Foto;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Email;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +27,8 @@ public class UserDataImpl implements UserData {
     protected Foto foto;
     protected String description;
     protected String email;
+    @Email(message = "Informe um email secundário válido!")
+    protected String emailSecundario;
     protected Set<String> nickUsers = new HashSet<>();
 
     public UserDataImpl setNickUsers(final Set<String> nickUsers) {

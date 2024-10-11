@@ -62,6 +62,8 @@ public class User implements Serializable, UserData {
     private String description;
     @Email(message = "Informe um email válido!")
     private String email;
+    @Email(message = "Informe um email secundário válido!")
+    private String emailSecundario;
     @NotBlank(message = "Informe um userName válido")
     private String userName;
     private Foto foto;
@@ -103,6 +105,7 @@ public class User implements Serializable, UserData {
             @JsonProperty("userName") final String userName,
             @JsonProperty("foto") final Foto foto,
             @JsonProperty("email") final String email,
+            @JsonProperty("emailSecundario") final String emailSecundario,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
             @JsonProperty("enable") final Boolean enable,
             @JsonProperty("authorities") final Set<Authority> authorities,
@@ -117,6 +120,7 @@ public class User implements Serializable, UserData {
         this.userName = userName;
         this.foto = foto;
         this.email = email;
+        this.emailSecundario = emailSecundario;
         this.fone = fone;
         this.setNickUsers(nickUsers);
         this.enable = enable;
@@ -154,6 +158,8 @@ public class User implements Serializable, UserData {
         this.resetToken = token;
         this.resetTokenExpiryDate = LocalDateTime.now().plusHours(1); // Expira em 1 hora.
     }
+
+
 
     @Override
     public String getId() {
@@ -263,6 +269,11 @@ public class User implements Serializable, UserData {
     @Override
     public String getEmail() {
         return email;
+    }
+
+    @Override
+    public String getEmailSecundario() {
+        return emailSecundario;
     }
 
     public User setEmail(final String email) {
@@ -550,6 +561,13 @@ public class User implements Serializable, UserData {
                 throw new MuttleySecurityBadRequestException(User.class, "email", "Informe um email válido!");
             }
         }
+
+        if (!isEmpty(this.emailSecundario)) {
+            if (!this.isValidEmail()) {
+                throw new MuttleySecurityBadRequestException(User.class, "email secundário", "Informe um email secundário válido!");
+            }
+        }
+
         if (!CollectionUtils.isEmpty(this.nickUsers)) {
 
             this.nickUsers.forEach(it -> {
@@ -591,6 +609,9 @@ public class User implements Serializable, UserData {
                 this.equals(userMaster) : this.getUserName().equals(userMaster.getUserName());*/
     }
 
+    public void setEmailSecundario(String emailSecundario) {
+        this.emailSecundario = emailSecundario;
+    }
 
     private static final class UserNameValidator {
         private static final char[] SUPPORT_SYMBOLS_CHAR = {'.', '_', '-'};
