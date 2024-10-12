@@ -35,6 +35,7 @@ public class CreateUserController {
     protected static final String USER_NAME = "userName";
     protected static final String FOTO = "foto";
     protected static final String EMAIL = "email";
+    protected static final String EMAIL_SECUNDARIO = "emailSecundario";
     protected static final String PASSWD = "password";
     protected static final String NICK_NAMES = "nickNames";
     protected static final String FONE = "fone";
@@ -79,6 +80,7 @@ public class CreateUserController {
                 (String) payload.get(NOME),
                 (String) payload.get(DECRIPTION),
                 (String) payload.get(EMAIL),
+                (String) payload.get(EMAIL_SECUNDARIO),
                 (String) payload.get(USER_NAME),
                 (Foto) payload.get(FOTO),
                 payload.containsKey(NICK_NAMES) ? new HashSet((List) payload.get(NICK_NAMES)) : null,

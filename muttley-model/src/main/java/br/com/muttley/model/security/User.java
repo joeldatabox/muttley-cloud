@@ -23,12 +23,8 @@ import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -66,6 +62,8 @@ public class User implements Serializable, UserData {
     private String description;
     @Email(message = "Informe um email válido!")
     private String email;
+    @Email(message = "Informe um email secundário válido!")
+    private String emailSecundario;
     @NotBlank(message = "Informe um userName válido")
     private String userName;
     private Foto foto;
@@ -74,6 +72,12 @@ public class User implements Serializable, UserData {
     //private String passwd;
     //private Date lastPasswordResetDate;
     private Boolean enable;
+
+    @JsonIgnore
+    private LocalDateTime resetTokenExpiryDate;
+
+    @JsonIgnore
+    private String resetToken;
     @Transient
     private Set<Authority> authorities;//Os authorities devem ser repassado pelo passaport corrente
     @Transient
@@ -101,6 +105,7 @@ public class User implements Serializable, UserData {
             @JsonProperty("userName") final String userName,
             @JsonProperty("foto") final Foto foto,
             @JsonProperty("email") final String email,
+            @JsonProperty("emailSecundario") final String emailSecundario,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
             @JsonProperty("enable") final Boolean enable,
             @JsonProperty("authorities") final Set<Authority> authorities,
@@ -115,6 +120,7 @@ public class User implements Serializable, UserData {
         this.userName = userName;
         this.foto = foto;
         this.email = email;
+        this.emailSecundario = emailSecundario;
         this.fone = fone;
         this.setNickUsers(nickUsers);
         this.enable = enable;
@@ -139,6 +145,22 @@ public class User implements Serializable, UserData {
         }*/
     }
 
+    public void setFoto(Foto foto) {
+        this.foto = foto;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+
+    public void setResetToken(String token) {
+        this.resetToken = token;
+        this.resetTokenExpiryDate = LocalDateTime.now().plusHours(1); // Expira em 1 hora.
+    }
+
+
+
     @Override
     public String getId() {
         return id;
@@ -158,6 +180,14 @@ public class User implements Serializable, UserData {
             }
         }
         return null;
+    }
+
+    public LocalDateTime getResetTokenExpiryDate() {
+        return resetTokenExpiryDate;
+    }
+
+    public void setResetTokenExpiryDate(LocalDateTime resetTokenExpiryDate) {
+        this.resetTokenExpiryDate = resetTokenExpiryDate;
     }
 
     @JsonIgnore
@@ -227,7 +257,6 @@ public class User implements Serializable, UserData {
     }
 
 
-
     public Foto getFoto() {
         return foto;
     }
@@ -240,6 +269,11 @@ public class User implements Serializable, UserData {
     @Override
     public String getEmail() {
         return email;
+    }
+
+    @Override
+    public String getEmailSecundario() {
+        return emailSecundario;
     }
 
     public User setEmail(final String email) {
@@ -527,6 +561,13 @@ public class User implements Serializable, UserData {
                 throw new MuttleySecurityBadRequestException(User.class, "email", "Informe um email válido!");
             }
         }
+
+        if (!isEmpty(this.emailSecundario)) {
+            if (!this.isValidEmail()) {
+                throw new MuttleySecurityBadRequestException(User.class, "email secundário", "Informe um email secundário válido!");
+            }
+        }
+
         if (!CollectionUtils.isEmpty(this.nickUsers)) {
 
             this.nickUsers.forEach(it -> {
@@ -566,6 +607,10 @@ public class User implements Serializable, UserData {
         return this.getUserName().equals(userMaster.getUserName());
         /*return !isEmpty(userMaster.getId()) && !isEmpty(userMaster.getEmail()) && !isEmpty(userMaster.getUserName()) ?
                 this.equals(userMaster) : this.getUserName().equals(userMaster.getUserName());*/
+    }
+
+    public void setEmailSecundario(String emailSecundario) {
+        this.emailSecundario = emailSecundario;
     }
 
     private static final class UserNameValidator {
@@ -634,5 +679,6 @@ public class User implements Serializable, UserData {
             }
             return false;
         }
+
     }
 }

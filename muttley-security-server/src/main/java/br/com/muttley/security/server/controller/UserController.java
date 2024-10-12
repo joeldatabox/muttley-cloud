@@ -1,19 +1,18 @@
 package br.com.muttley.security.server.controller;
 
 import br.com.muttley.exception.throwables.MuttleyBadRequestException;
+import br.com.muttley.exception.throwables.security.MuttleySecondaryEmailException;
+import br.com.muttley.exception.throwables.security.MuttleySecurityUserNotFoundException;
 import br.com.muttley.model.security.*;
+import br.com.muttley.model.userManager.IncludeSecundaryEmail;
+import br.com.muttley.security.server.repository.UserRepository;
 import br.com.muttley.security.server.service.JwtTokenUtilService;
 import br.com.muttley.security.server.service.PasswordService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Set;
@@ -30,7 +29,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 import static org.springframework.web.bind.annotation.RequestMethod.PATCH;
 
 
-
 /**
  * @author Joel Rodrigues Moreira on 17/04/18.
  * e-mail: <a href="mailto:joel.databox@gmail.com">joel.databox@gmail.com</a>
@@ -42,12 +40,15 @@ public class UserController {
 
     private final UserService service;
     private final PasswordService passwordService;
+
+    private final UserRepository userRepository;
     private final JwtTokenUtilService tokenUtil;
 
     @Autowired
-    public UserController(final UserService service, final PasswordService passwordService, final JwtTokenUtilService tokenUtil) {
+    public UserController(final UserService service, final PasswordService passwordService, UserRepository userRepository, final JwtTokenUtilService tokenUtil) {
         this.service = service;
         this.passwordService = passwordService;
+        this.userRepository = userRepository;
         this.tokenUtil = tokenUtil;
     }
 
@@ -88,6 +89,18 @@ public class UserController {
 
         return ResponseEntity.ok(service.update(user, new JwtToken(token)));
     }
+
+
+    @RequestMapping(value = "/emailPrimary", method = PATCH, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> addPrimaryEmail(@RequestBody final IncludeSecundaryEmail request) {
+        if (request.getEmailSecundary().isEmpty()) {
+            throw new MuttleySecondaryEmailException(IncludeSecundaryEmail.class, "email", "O campo 'emailPrimary' está vazio Por favor, verifique os dados enviados."
+            );
+        }
+        return ResponseEntity.ok(this.service.addOrUpdateSecundaryEmail(request));
+    }
+
 
     @RequestMapping(value = "/password", method = PUT, consumes = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_UTF8_VALUE, APPLICATION_JSON_VALUE})
     @ResponseStatus(OK)

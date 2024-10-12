@@ -5,6 +5,7 @@ import br.com.muttley.security.infra.component.UnauthorizedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -48,19 +49,10 @@ public class AbstractWebSecurityClient extends WebSecurityConfigurerAdapter {
                 //desativando o controle de sessão
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                //.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // permite acesso a qualquer recurso estatico
-                //.antMatchers(
-                //        HttpMethod.GET,
-                //        "/",
-                //        "/*.html",
-                //        "/**/*.{png,jpg,jpeg,svg.ico}",
-                //        "/**/*.{html,css,js,svg,woff,woff2}",
-                //        //endpoit padrão da aplicação
-                //        "/login",
-                //        "/create-user",
-                //        "/home/**"
-                // ).permitAll()
+                .antMatchers(HttpMethod.GET, this.endPointPermitAllToGet()).permitAll()
+                .antMatchers(HttpMethod.POST, this.endPointPermitAllToPost()).permitAll()
+                .antMatchers(HttpMethod.PUT, this.endPointPermitAllToPut()).permitAll()
+                .antMatchers(HttpMethod.DELETE, this.endPointPermitAllToDelete()).permitAll()
                 //permitindo acesso aos endpoint de login
                 //.antMatchers(loginEndPoint, refreshTokenEndPoin, createEndPoint).permitAll()
                 //barrando qualquer outra requisição não autenticada
@@ -71,6 +63,28 @@ public class AbstractWebSecurityClient extends WebSecurityConfigurerAdapter {
 
         //desabilitando controle de cache
         http.headers().cacheControl();
+    }
+
+    /**
+     * Informa uma lista de endpoits que são livres de segurança.
+     * Por exemplo, deve-se listar aqui os end points referente a arquivos estaticos
+     *
+     * @return um array de padrões de urls
+     */
+    protected String[] endPointPermitAllToGet() {
+        return new String[]{};
+    }
+
+    protected String[] endPointPermitAllToPost() {
+        return new String[]{};
+    }
+
+    protected String[] endPointPermitAllToPut() {
+        return new String[]{};
+    }
+
+    protected String[] endPointPermitAllToDelete() {
+        return new String[]{};
     }
 
 

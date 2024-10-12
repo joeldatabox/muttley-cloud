@@ -71,6 +71,8 @@ public class PasswordServiceImpl<T extends Password> implements PasswordService<
         //valor salvo
     }
 
+
+
     @Override
     public void createPasswordFor(final User user, final String password) {
         final Password newPassword = Password.Builder

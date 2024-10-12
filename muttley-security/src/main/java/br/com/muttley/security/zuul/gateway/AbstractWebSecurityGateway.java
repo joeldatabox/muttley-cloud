@@ -31,6 +31,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAdapter {
     protected final String loginEndPoint;
     protected final String refreshTokenEndPoin;
+    protected final String forgotPasswordEndPoint;
     protected final String createEndPoint;
     protected final String resetPassword;
     protected final UnauthorizedHandler unauthorizedHandler;
@@ -41,6 +42,7 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
     public AbstractWebSecurityGateway(
             @Value("${muttley.security.jwt.controller.loginEndPoint}") final String loginEndPoint,
             @Value("${muttley.security.jwt.controller.refreshEndPoint}") final String refreshTokenEndPoin,
+            @Value("${muttley.security.jwt.controller.forgotPasswordEndPoint}") final String forgotPassword,
             @Value("${muttley.security.jwt.controller.createEndPoint}") final String createEndPoint,
             @Value("${muttley.security.jwt.controller.resetPassword}") final String resetPassword,
             final UnauthorizedHandler unauthorizedHandler,
@@ -48,6 +50,7 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
             final UserServiceClient userServiceClient) {
         this.loginEndPoint = loginEndPoint;
         this.refreshTokenEndPoin = refreshTokenEndPoin;
+        this.forgotPasswordEndPoint = forgotPassword;
         this.createEndPoint = createEndPoint;
         this.resetPassword = resetPassword;
         this.unauthorizedHandler = unauthorizedHandler;
@@ -90,8 +93,11 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
                         HttpMethod.GET,
                         this.endPointPermitAllToGet()
                 ).permitAll()
+                .antMatchers(HttpMethod.POST, this.endPointPermitAllToPost()).permitAll()
+                .antMatchers(HttpMethod.PUT, this.endPointPermitAllToPut()).permitAll()
+                .antMatchers(HttpMethod.DELETE, this.endPointPermitAllToDelete()).permitAll()
                 //permitindo acesso aos endpoint de login
-                .antMatchers(loginEndPoint, refreshTokenEndPoin, createEndPoint, resetPassword).permitAll()
+                .antMatchers(loginEndPoint, refreshTokenEndPoin, forgotPasswordEndPoint, createEndPoint, resetPassword).permitAll()
                 //barrando qualquer outra requisição não autenticada
                 .anyRequest().authenticated();
 
@@ -109,4 +115,16 @@ public abstract class AbstractWebSecurityGateway extends WebSecurityConfigurerAd
      * @return um array de padrões de urls
      */
     protected abstract String[] endPointPermitAllToGet();
+
+    protected String[] endPointPermitAllToPost() {
+        return new String[]{};
+    }
+
+    protected String[] endPointPermitAllToPut() {
+        return new String[]{};
+    }
+
+    protected String[] endPointPermitAllToDelete() {
+        return new String[]{};
+    }
 }

@@ -4,10 +4,7 @@ import br.com.muttley.exception.throwables.MuttleyBadRequestException;
 import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.MuttleyNoContentException;
 import br.com.muttley.exception.throwables.MuttleyNotFoundException;
-import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
-import br.com.muttley.exception.throwables.security.MuttleySecurityConflictException;
-import br.com.muttley.exception.throwables.security.MuttleySecurityNotFoundException;
-import br.com.muttley.exception.throwables.security.MuttleySecurityUnauthorizedException;
+import br.com.muttley.exception.throwables.security.*;
 import br.com.muttley.model.BasicAggregateResultCount;
 import br.com.muttley.model.security.*;
 import br.com.muttley.model.security.events.SendNewPasswordRecoveredEvent;
@@ -16,22 +13,18 @@ import br.com.muttley.model.security.events.ValidadeUserForeCreateEvent;
 import br.com.muttley.model.security.events.ValidatePasswordRecoveryEvent;
 import br.com.muttley.model.security.preference.Preference;
 import br.com.muttley.model.security.preference.UserPreferences;
+import br.com.muttley.model.userManager.IncludeSecundaryEmail;
 import br.com.muttley.security.server.config.model.DocumentNameConfig;
 import br.com.muttley.security.server.events.CheckUserHasBeenIncludedAnyGroupEvent;
 import br.com.muttley.security.server.events.CurrentOwnerResolverEvent;
 import br.com.muttley.security.server.repository.UserRepository;
-import br.com.muttley.security.server.service.JwtTokenUtilService;
-import br.com.muttley.security.server.service.OwnerService;
-import br.com.muttley.security.server.service.PasswordService;
-import br.com.muttley.security.server.service.UserDataBindingService;
-import br.com.muttley.security.server.service.UserPreferencesService;
-import br.com.muttley.security.server.service.UserService;
-import br.com.muttley.security.server.service.XAPITokenService;
+import br.com.muttley.security.server.service.*;
 import org.bson.types.ObjectId;
 import org.hibernate.validator.internal.util.CollectionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -40,24 +33,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -71,6 +54,7 @@ public class UserServiceImpl implements UserService {
     protected boolean validateFoneNumber;
 
     private final UserRepository repository;
+    private final AuthService authService;
     private final UserPreferencesService preferencesService;
     private final UserDataBindingService dataBindingService;
     private final PasswordService passwordService;
@@ -84,7 +68,7 @@ public class UserServiceImpl implements UserService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public UserServiceImpl(final UserRepository repository,
+    public UserServiceImpl(final UserRepository repository, @Lazy AuthService authService,
                            final UserPreferencesService preferencesService,
                            final UserDataBindingService dataBindingService,
                            final PasswordService passwordService,
@@ -95,6 +79,7 @@ public class UserServiceImpl implements UserService {
                            final DocumentNameConfig documentNameConfig,
                            final ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
+        this.authService = authService;
         this.preferencesService = preferencesService;
         this.dataBindingService = dataBindingService;
         this.passwordService = passwordService;
@@ -583,6 +568,40 @@ public class UserServiceImpl implements UserService {
         throw new MuttleyException("ERRO NO PROCESSO DE RECOVERY");
     }
 
+    @Override
+    public User addOrUpdateSecundaryEmail(@RequestBody IncludeSecundaryEmail request) {
+
+
+        if (request == null || request.getEmailSecundary() == null || request.getEmailSecundary().isEmpty()) {
+            throw new IllegalArgumentException("Requisição inválida: email secundário não fornecido.");
+        }
+
+
+        User currentUser = authService.getCurrentUser();
+        if (currentUser == null) {
+            throw new MuttleySecurityUserNotFoundException(User.class, "currentUser", "Usuário atual não encontrado.");
+        }
+
+
+        final User user = this.findUserByEmailOrUserNameOrNickUser(currentUser.getEmail());
+        if (user == null) {
+            throw new MuttleySecurityUserNotFoundException(User.class, "email", "Usuário não encontrado pelo email atual.");
+        }
+
+
+        User existingUserWithSecundaryEmail = repository.findByEmailOrEmailSecundario(request.getEmailSecundary(),request.getEmailSecundary());
+        if (existingUserWithSecundaryEmail != null) {
+            throw new MuttleySecurityUserNotFoundException(User.class, "email", "Este e-mail secundário já está associado a outro usuário.");
+        }
+
+
+        user.setEmailSecundario(request.getEmailSecundary());
+        repository.save(user);
+
+        return user;
+    }
+
+
     private User merge(final User user) {
         checkNameIsValid(user);
 
@@ -639,6 +658,7 @@ public class UserServiceImpl implements UserService {
             return repository.save(user);
         }
     }
+
 
     private void checkIndexUser(final User user) {
         final Set<String> userNames = new HashSet<>(user.getNickUsers());

@@ -99,6 +99,7 @@ public class AuthenticationRestController {
         }
     }
 
+
     @RequestMapping(value = "${muttley.security.jwt.controller.refreshEndPoint}", method = RequestMethod.GET)
     public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
         final JwtToken currentToken = new JwtToken(request.getHeader(tokenHeader));

@@ -27,6 +27,9 @@ public class UserPayLoad implements Serializable {
     private String description;
     @Email(message = "Informe um email válido!")
     private String email;
+    @Email(message = "Informe um email secundário válido!")
+    private String emailSecundario;
+
     private String userName;
     private Foto foto;
     private Set<String> nickUsers;
@@ -49,6 +52,7 @@ public class UserPayLoad implements Serializable {
             @JsonProperty("name") final String name,
             @JsonProperty("description") final String description,
             @JsonProperty("email") final String email,
+            @JsonProperty("emailSecundario") final String emailSecundario,
             @JsonProperty("userName") final String userName,
             @JsonProperty("foto") final Foto foto,
             @JsonProperty("nickUsers") final Set<String> nickUsers,
@@ -63,6 +67,7 @@ public class UserPayLoad implements Serializable {
         this.name = name;
         this.description = description;
         this.email = email;
+        this.emailSecundario = emailSecundario;
         this.userName = userName;
         this.foto = foto;
         this.nickUsers = nickUsers;
@@ -86,6 +91,11 @@ public class UserPayLoad implements Serializable {
     public String getEmail() {
         return email;
     }
+
+    public String getEmailSecundario() {
+        return emailSecundario;
+    }
+
 
     public String getUserName() {
         return userName;
@@ -167,6 +177,7 @@ public class UserPayLoad implements Serializable {
         private String name;
         private String description;
         private String email;
+        private String emailSecundario;
         private String userName;
         private Foto foto;
         private Set<String> nickUsers;
@@ -198,6 +209,12 @@ public class UserPayLoad implements Serializable {
             this.email = email;
             return this;
         }
+
+        public Builder setEmailSecundario(final String emailSecundario) {
+            this.emailSecundario = emailSecundario;
+            return this;
+        }
+
 
         public Builder setUserName(final String userName) {
             this.userName = userName;
@@ -248,6 +265,7 @@ public class UserPayLoad implements Serializable {
             return this.setName(user.getName())
                     .setDescription(user.getDescription())
                     .setEmail(user.getEmail())
+                    .setEmailSecundario(user.getEmailSecundario())
                     .setUserName(user.getUserName())
                     .setFoto(user.getFoto())
                     .setNickUsers(user.getNickUsers())
@@ -259,7 +277,7 @@ public class UserPayLoad implements Serializable {
         }
 
         public UserPayLoad build() {
-            return new UserPayLoad(this.name, this.description, this.email, this.userName, this.foto, this.nickUsers, this.passwd, this.fone, this.odinUser, this.seedVerification, this.codeVerification, this.renewCode);
+            return new UserPayLoad(this.name, this.description, this.email, this.emailSecundario, this.userName, this.foto, this.nickUsers, this.passwd, this.fone, this.odinUser, this.seedVerification, this.codeVerification, this.renewCode);
         }
     }
 }
