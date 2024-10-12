@@ -66,7 +66,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
                 helper.setText(emailTemplate, true);
                 mailSender.send(message);
 
-                return ResponseEntity.ok(user);
+                return ResponseEntity.ok("Email de recuperação de senha enviado com sucesso. Por favor, verifique sua caixa de entrada e a pasta de spam.");
             } else {
                 throw new MuttleySecurityEmailNotFoundtException(User.class, "email", "Email não encontrado. Contate o suporte.");
             }
@@ -98,7 +98,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService {
         user.setResetTokenExpiryDate(null);
         userRepository.save(user);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok("Senha redefinida com sucesso.");
     }
 
 
