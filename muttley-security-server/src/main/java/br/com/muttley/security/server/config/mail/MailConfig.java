@@ -13,9 +13,10 @@ import java.util.Properties;
 @Configuration
 public class MailConfig {
 
+    @Value("${MAIL_PASSWORD}")
+    private String emailPassword;
+
     private final Dotenv dotenv = Dotenv.configure().load();
-
-
 
 
     @Bean
@@ -25,7 +26,7 @@ public class MailConfig {
         mailSender.setPort(587);
 
         mailSender.setUsername("agrifocus@maxxsoft.com.br");
-        mailSender.setPassword(dotenv.get("EMAIL_PASSWORD_MAXXSOFT"));
+        mailSender.setPassword(emailPassword);
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
