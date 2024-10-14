@@ -1,8 +1,6 @@
 package br.com.muttley.security.server.config.mail;
-import io.github.cdimascio.dotenv.Dotenv;
+
 import org.springframework.beans.factory.annotation.Value;
-
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,10 +11,8 @@ import java.util.Properties;
 @Configuration
 public class MailConfig {
 
-    @Value("${MAIL_PASSWORD}")
+    @Value("${mail.password}")
     private String emailPassword;
-
-    private final Dotenv dotenv = Dotenv.configure().load();
 
 
     @Bean
