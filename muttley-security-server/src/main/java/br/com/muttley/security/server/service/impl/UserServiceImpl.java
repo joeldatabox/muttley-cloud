@@ -205,7 +205,8 @@ public class UserServiceImpl implements UserService {
                         new Criteria().orOperator(
                                 where("userName").is(userName),
                                 where("email").is(userName),
-                                where("nickUsers").in(userName)
+                                where("nickUsers").in(userName),
+                                where("emailSecundario").is(userName)
                         )
                 )
         ), User.class, User.class);
@@ -238,7 +239,8 @@ public class UserServiceImpl implements UserService {
                         new Criteria().orOperator(
                                 where("userName").in(nicks),
                                 where("email").in(nicks),
-                                where("nickUsers").in(nicks)
+                                where("nickUsers").in(nicks),
+                                where("emailSecundario").is(nicks)
                         )
                 )
         ), User.class, User.class);
@@ -269,7 +271,8 @@ public class UserServiceImpl implements UserService {
                         new Criteria().orOperator(
                                 where("userName").in(nicks),
                                 where("email").in(nicks),
-                                where("nickUsers").in(nicks)
+                                where("nickUsers").in(nicks),
+                                where("emailSecundario").is(nicks)
                         )
                 ), Aggregation.count().as("count")
         ), User.class, UserViewServiceImpl.ResultCount.class);
@@ -310,7 +313,8 @@ public class UserServiceImpl implements UserService {
                                     .orOperator(
                                             where("userName").in(nicks),
                                             where("email").in(nicks),
-                                            where("nickUsers").in(nicks)
+                                            where("nickUsers").in(nicks),
+                                            where("emailSecundario").is(nicks)
                                     )
                     ), Aggregation.count().as("count")
             ), User.class, UserViewServiceImpl.ResultCount.class);
@@ -348,7 +352,9 @@ public class UserServiceImpl implements UserService {
                         new Criteria().orOperator(
                                 where("userName").in(nicks),
                                 where("email").in(nicks),
-                                where("nickUsers").in(nicks)
+                                where("nickUsers").in(nicks),
+                                where("emailSecundario").is(nicks)
+
                         )
                 ), Aggregation.count().as("count")
         ), User.class, UserViewServiceImpl.ResultCount.class);
@@ -718,7 +724,9 @@ public class UserServiceImpl implements UserService {
                                 new Criteria().orOperator(
                                         where("userName").in(userName),
                                         where("email").in(userName),
-                                        where("nickUsers").in(userName)
+                                        where("nickUsers").in(userName),
+                                        where("emailSecundario").is(userName)
+
                                 )
                         ),
                         Aggregation.count().as("count")
@@ -729,7 +737,9 @@ public class UserServiceImpl implements UserService {
                                 new Criteria().orOperator(
                                         where("userName").in(userName),
                                         where("email").in(userName),
-                                        where("nickUsers").in(userName)
+                                        where("nickUsers").in(userName),
+                                        where("emailSecundario").is(userName)
+
                                 ).and("_id").ne(new ObjectId(id))
                         ),
                         Aggregation.count().as("count")
