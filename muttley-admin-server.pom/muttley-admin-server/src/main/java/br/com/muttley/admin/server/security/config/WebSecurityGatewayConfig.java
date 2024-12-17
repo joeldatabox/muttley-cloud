@@ -42,7 +42,7 @@ public class WebSecurityGatewayConfig extends AbstractWebSecurityGateway {
                 "/**/*.{html,css,js,svg,woff,woff2}",
                 //endpoit padrão da aplicação
                 "/login",
-                "/reset-password",
+                "/reset-password/**",
                 "/forgot-password",
                 "/create-user",
                 "/home/**"};
