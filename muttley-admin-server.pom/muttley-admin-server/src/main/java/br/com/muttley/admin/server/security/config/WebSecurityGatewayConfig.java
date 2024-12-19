@@ -45,6 +45,13 @@ public class WebSecurityGatewayConfig extends AbstractWebSecurityGateway {
                 "/reset-password/**",
                 "/forgot-password",
                 "/create-user",
+                "/**/swagger-ui.html",
+                "swagger-resources/**",
+                "/swagger-ui.html",
+                "/v3/api-docs",
+                "/v3/api-docs/**",
+                "/**/webjars/springfox-swagger-ui/**",
+                "/**/v2/api-docs/**",
                 "/home/**"};
     }
 }

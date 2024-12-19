@@ -49,6 +49,7 @@ public class AbstractWebSecurityClient extends WebSecurityConfigurerAdapter {
                 //desativando o controle de sessão
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
+                .antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .antMatchers(HttpMethod.GET, this.endPointPermitAllToGet()).permitAll()
                 .antMatchers(HttpMethod.POST, this.endPointPermitAllToPost()).permitAll()
                 .antMatchers(HttpMethod.PUT, this.endPointPermitAllToPut()).permitAll()
@@ -63,6 +64,8 @@ public class AbstractWebSecurityClient extends WebSecurityConfigurerAdapter {
 
         //desabilitando controle de cache
         http.headers().cacheControl();
+        http.headers().frameOptions().disable();
+
     }
 
     /**
