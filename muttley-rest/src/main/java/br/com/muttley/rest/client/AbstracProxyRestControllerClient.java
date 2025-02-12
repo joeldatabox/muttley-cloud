@@ -50,6 +50,11 @@ public abstract class AbstracProxyRestControllerClient<T> implements ProxyRestCo
     }
 
     @Override
+    public void synchronization(List<T> values, String xAPIToken) {
+        this.client.synchronization(values, xAPIToken);
+    }
+
+    @Override
     public void deleteById(final String id) {
         this.client.deleteById(id);
     }
