@@ -8,11 +8,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 
-import static br.com.muttley.model.SerializeType.KEY_FROM_HEADER;
-import static br.com.muttley.model.SerializeType.OBJECT_ID_AND_SYNC_TYPE;
-import static br.com.muttley.model.SerializeType.OBJECT_ID_TYPE;
-import static br.com.muttley.model.SerializeType.SYNC_TYPE;
+import static br.com.muttley.model.SerializeType.*;
 
 /**
  * @author Joel Rodrigues Moreira on 29/07/19.
@@ -26,9 +25,24 @@ import static br.com.muttley.model.SerializeType.SYNC_TYPE;
  * SerializeType = null => devemos serializar o nosso próprio ObjectId
  * </p>
  */
+
+/**
+ * Em 26/02/2025, foram implementadas várias variações do campo "SerializeType"
+ * para atender a uma necessidade identificada pelo Eduardo(mobile), que percebeu a importância
+ * de permitir o envio do cabeçalho em diferentes formatos.
+ *
+ * Diante disso, Joel orientou a modificação da classe principal para garantir que
+ * valores como "SerializeType", "serializetype", "Serialize-Type" e "serialize-type"
+ * fossem aceitos corretamente, evitando problemas de compatibilidade.
+ */
+
 @Component("serializeType")
 @RequestScope
 public class MuttleySerializeTypeImpl extends MuttleyHeader implements MuttleySerializeType {
+    private static final List<String> KEY_VARIATIONS = Arrays.asList(
+            "SerializeType", "serializetype", "Serialize-Type", "serialize-type"
+    );
+
     private final SerializeType type;
 
     /*public MuttleySerializeType(@Autowired final ObjectProvider<HttpServletRequest> request) {
@@ -37,7 +51,7 @@ public class MuttleySerializeTypeImpl extends MuttleyHeader implements MuttleySe
 
     @Autowired
     public MuttleySerializeTypeImpl(final HttpServletRequest request) {
-        super(KEY_FROM_HEADER, request);
+        super(getHeaderValue(request, KEY_VARIATIONS), request);
         this.type = SerializeType.Builder.build(request);
     }
 
@@ -64,6 +78,19 @@ public class MuttleySerializeTypeImpl extends MuttleyHeader implements MuttleySe
     @Override
     public boolean containsValidValue() {
         return getCurrentValue() != null && (getCurrentValue().equals(SYNC_TYPE) || getCurrentValue().equals(OBJECT_ID_TYPE) || getCurrentValue().equals(OBJECT_ID_AND_SYNC_TYPE));
+    }
+
+    /**
+     * Busca o valor do cabeçalho considerando diferentes variações de nome.
+     */
+    private static String getHeaderValue(HttpServletRequest request, List<String> possibleKeys) {
+        for (String key : possibleKeys) {
+            String value = request.getHeader(key);
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
     }
 
 }
