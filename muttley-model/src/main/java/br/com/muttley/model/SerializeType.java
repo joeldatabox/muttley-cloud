@@ -1,6 +1,8 @@
 package br.com.muttley.model;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -16,8 +18,20 @@ import java.util.Objects;
  * </p>
  */
 
+/**
+ * Em 26/02/2025, foram implementadas várias variações do campo "SerializeType"
+ * para atender a uma necessidade identificada pelo Eduardo(mobile), que percebeu a importância
+ * de permitir o envio do cabeçalho em diferentes formatos.
+ * <p>
+ * Diante disso, Joel orientou a modificação da classe principal para garantir que
+ * valores como "SerializeType", "serializetype", "Serialize-Type" e "serialize-type"
+ * fossem aceitos corretamente, evitando problemas de compatibilidade.
+ */
+
 public class SerializeType {
-    public static final String KEY_FROM_HEADER = "SerializeType";
+    public static final List<String> KEY_VARIATIONS = Arrays.asList(
+            "SerializeType", "serializetype", "Serialize-Type", "serialize-type"
+    );
     public static final String KEY_INTERNAL_FROM_HEADER = "SerializeTypeInternal";
 
     public static final String SYNC_TYPE = "sync";
@@ -90,7 +104,7 @@ public class SerializeType {
         }
 
         public Builder setRequest(final HttpServletRequest request) {
-            return setType(request == null ? null : request.getHeader(KEY_FROM_HEADER));
+            return setType(request == null ? null : getHeaderValue(request, KEY_VARIATIONS));
         }
 
         public Builder setType(final String type) {
@@ -123,6 +137,19 @@ public class SerializeType {
 
         public static SerializeType build(final HttpServletRequest request) {
             return Builder.newInstance().setRequest(request).build();
+        }
+
+        /**
+         * Busca o valor do cabeçalho considerando diferentes variações de nome.
+         */
+        private static String getHeaderValue(HttpServletRequest request, List<String> possibleKeys) {
+            for (String key : possibleKeys) {
+                String value = request.getHeader(key);
+                if (value != null) {
+                    return value;
+                }
+            }
+            return null;
         }
 
 
