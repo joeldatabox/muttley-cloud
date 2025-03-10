@@ -29,9 +29,8 @@ import java.util.Objects;
  */
 
 public class SerializeType {
-    public static final List<String> KEY_VARIATIONS = Arrays.asList(
-            "SerializeType", "serializetype", "Serialize-Type", "serialize-type"
-    );
+    public static final String KEY_FROM_HEADER = "SerializeType";
+
     public static final String KEY_INTERNAL_FROM_HEADER = "SerializeTypeInternal";
 
     public static final String SYNC_TYPE = "sync";
@@ -104,7 +103,7 @@ public class SerializeType {
         }
 
         public Builder setRequest(final HttpServletRequest request) {
-            return setType(request == null ? null : getHeaderValue(request, KEY_VARIATIONS));
+            return setType(request == null ? null : request.getHeader(KEY_FROM_HEADER));
         }
 
         public Builder setType(final String type) {
@@ -129,30 +128,14 @@ public class SerializeType {
                     serializeType = new SerializeType(type, false);
                     break;
                 default:
-                    serializeType = new SerializeType(SerializeType.OBJECT_ID_TYPE, false); // Garantia do valor padrão
+                    serializeType = new SerializeType(SerializeType.OBJECT_ID_TYPE, false);
             }
             serializeType.setInternal(this.internal);
             return serializeType;
         }
 
-
         public static SerializeType build(final HttpServletRequest request) {
             return Builder.newInstance().setRequest(request).build();
         }
-
-        /**
-         * Busca o valor do cabeçalho considerando diferentes variações de nome.
-         */
-        private static String getHeaderValue(HttpServletRequest request, List<String> possibleKeys) {
-            for (String key : possibleKeys) {
-                String value = request.getHeader(key);
-                if (value != null) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-
     }
 }
