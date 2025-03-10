@@ -129,11 +129,12 @@ public class SerializeType {
                     serializeType = new SerializeType(type, false);
                     break;
                 default:
-                    serializeType = new SerializeType(SerializeType.OBJECT_ID_TYPE, false);
+                    serializeType = new SerializeType(SerializeType.OBJECT_ID_TYPE, false); // Garantia do valor padrão
             }
             serializeType.setInternal(this.internal);
             return serializeType;
         }
+
 
         public static SerializeType build(final HttpServletRequest request) {
             return Builder.newInstance().setRequest(request).build();
