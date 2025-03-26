@@ -21,6 +21,13 @@ public class MailConfig {
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
 
+        System.out.println("Email configurado: " + mailSender.getUsername());
+        System.out.println("Senha configurada: " + emailPassword);
+
+        if (emailPassword == null || emailPassword.isEmpty()) {
+            throw new IllegalArgumentException("A senha do e-mail não pode ser nula ou vazia!");
+        }
+
         mailSender.setUsername("agrifocususuario@gmail.com");
         mailSender.setPassword(emailPassword);
 
