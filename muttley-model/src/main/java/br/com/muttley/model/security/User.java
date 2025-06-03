@@ -83,6 +83,8 @@ public class User implements Serializable, UserData {
     @Transient
     private UserPreferences preferences;
     @Transient
+    private UserPreferences parametrizacao;
+    @Transient
     private WorkTeamDomain workTeamDomain;
     private List<UserDataBinding> dataBindings;
     //Define se o usuário é do odin ou de algum outro owner

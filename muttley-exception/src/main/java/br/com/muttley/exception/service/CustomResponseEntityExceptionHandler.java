@@ -115,12 +115,12 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
 
     @ExceptionHandler(value = NullPointerException.class)
     public ResponseEntity handleNullPointerException(final NullPointerException ex) {
-        return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
+        return messageBuilder.buildMessage(new MuttleyException("Foi encontrado um valor nulo onde não era esperado.", ex)).toResponseEntity();
     }
 
     @ExceptionHandler(value = SerializationException.class)
     public ResponseEntity handleSerializationException(final SerializationException ex) {
-        return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
+        return messageBuilder.buildMessage(new MuttleyException("Falha na serialização ou desserialização dos dados.", ex)).toResponseEntity();
     }
 
     @ExceptionHandler(value = Exception.class)
@@ -128,7 +128,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         if (ex instanceof MuttleyException) {
             return handleMuttleyException(request, (MuttleyException) ex);
         }
-        return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
+        return messageBuilder.buildMessage(new MuttleyException("Ocorreu um erro geral no sistema.", ex)).toResponseEntity();
     }
 
     @ExceptionHandler(value = RuntimeException.class)
@@ -139,7 +139,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         if (ex.getCause() instanceof MuttleyConflictException) {
             return handleMuttleyException(request, (MuttleyException) ex.getCause());
         }
-        return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
+        return messageBuilder.buildMessage(new MuttleyException("Ocorreu um erro inesperado em tempo de execução.", ex)).toResponseEntity();
     }
 
     @ExceptionHandler(value = Throwable.class)
@@ -147,7 +147,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         if (ex instanceof MuttleyException) {
             return handleMuttleyException(request, (MuttleyException) ex);
         }
-        return messageBuilder.buildMessage(new MuttleyException("ERROR *-*", ex)).toResponseEntity();
+        return messageBuilder.buildMessage(new MuttleyException("Ocorreu um erro inesperado no sistema.", ex)).toResponseEntity();
     }
 
 

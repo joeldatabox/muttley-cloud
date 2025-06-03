@@ -18,7 +18,7 @@ public class MuttleySecurityUnauthorizedException extends MuttleyException {
 
     public MuttleySecurityUnauthorizedException() {
         this.status = HttpStatus.UNAUTHORIZED;
-        this.message = "ERROR *-*";
+        this.message = "Acesso não autorizado: credenciais inválidas ou ausência de permissão.";
         this.objectName = "unknow :(";
     }
 
@@ -62,7 +62,7 @@ public class MuttleySecurityUnauthorizedException extends MuttleyException {
     public MuttleySecurityUnauthorizedException(final Throwable cause) {
         super(cause);
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        this.message = "ERROR *-*";
+        this.message = "Acesso não autorizado: credenciais inválidas ou ausência de permissão.";
         this.objectName = "unknow :(";
     }
 

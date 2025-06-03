@@ -72,7 +72,7 @@ public class MuttleyException extends RuntimeException {
     public MuttleyException(final Throwable cause) {
         super(cause);
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        this.message = "ERROR *-*";
+        this.message = "Erro interno no servidor: ocorreu uma exceção inesperada.";
         this.objectName = "unknow :(";
         this.field = null;
     }
