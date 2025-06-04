@@ -1,6 +1,5 @@
 package br.com.muttley.security.server.service.impl;
 
-import br.com.muttley.domain.service.impl.ModelSyncServiceImpl;
 import br.com.muttley.model.parametrizacao.ParametrizacaoToggle;
 import br.com.muttley.model.parametrizacao.Parametro;
 import br.com.muttley.model.security.User;
@@ -19,10 +18,10 @@ import java.util.Optional;
  * @project agrifocus-cloud
  */
 @Service
-public class ToogleClienteServiceImpl extends ModelSyncServiceImpl<ParametrizacaoToggle> implements ToggleClienteService {
+public class ParametrizacaoToggleServiceImpl extends SecurityServiceImpl<ParametrizacaoToggle> implements ToggleClienteService {
 
     private static final String[] basicRoles = new String[]{"parametrizacao"};
-    
+
     private final ToggleClienteRepository repository;
 
     @Override
@@ -31,11 +30,11 @@ public class ToogleClienteServiceImpl extends ModelSyncServiceImpl<Parametrizaca
     }
 
     @Autowired
-    public ToogleClienteServiceImpl(
+    public ParametrizacaoToggleServiceImpl(
             final ToggleClienteRepository repository,
             final MongoTemplate mongoTemplate
     ) {
-        super(repository, ParametrizacaoToggle.class, mongoTemplate);
+        super(repository, mongoTemplate, ParametrizacaoToggle.class);
         this.repository = repository;
     }
 
@@ -63,18 +62,13 @@ public class ToogleClienteServiceImpl extends ModelSyncServiceImpl<Parametrizaca
     public ParametrizacaoToggle salvarOuAtualizarParametro(final User user, final Parametro parametro) {
         ParametrizacaoToggle toggle = repository.findByUserId(user)
                 .orElseGet(() -> new ParametrizacaoToggle()
-                        .setUser(user)
-                        .setSync("sync-" + user)
-                        .setDtSync(new Date()));
+                        .setUser(user));
 
         // Remove se já existe com essa chave
         toggle.getParametros().removeIf(p -> p.getChave().equalsIgnoreCase(parametro.getChave()));
 
         // Adiciona o novo
         toggle.getParametros().add(parametro);
-
-        // Atualiza data de sync
-        toggle.setDtSync(new Date());
 
         return repository.save(toggle);
     }

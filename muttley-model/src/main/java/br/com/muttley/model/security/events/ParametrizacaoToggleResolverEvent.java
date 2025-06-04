@@ -1,23 +1,24 @@
 package br.com.muttley.model.security.events;
 
+import br.com.muttley.model.parametrizacao.ParametrizacaoToggle;
 import br.com.muttley.model.parametrizacao.Parametro;
 import org.springframework.context.ApplicationEvent;
 
-public class ParametroResolverEvent extends ApplicationEvent {
+public class ParametrizacaoToggleResolverEvent extends ApplicationEvent {
 
     final String id;
-    protected Parametro valueResolved;
+    protected ParametrizacaoToggle valueResolved;
 
-    public ParametroResolverEvent(String id) {
+    public ParametrizacaoToggleResolverEvent(String id) {
         super(id);
         this.id = id;
     }
 
-    public Parametro getUserResolver() {
+    public ParametrizacaoToggle getUserResolver() {
         return valueResolved;
     }
 
-    public ParametroResolverEvent setValueResolved(final Parametro valueResolved) {
+    public ParametrizacaoToggleResolverEvent setValueResolved(final ParametrizacaoToggle valueResolved) {
         this.valueResolved = valueResolved;
         return this;
     }

@@ -2,7 +2,7 @@ package br.com.muttley.security.server.repository;
 
 import br.com.muttley.model.parametrizacao.ParametrizacaoToggle;
 import br.com.muttley.model.security.User;
-import br.com.muttley.mongo.service.repository.CustomMongoRepository;
+import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -13,7 +13,7 @@ import java.util.Optional;
  * @project agrifocus-cloud
  */
 @Repository
-public interface ToggleClienteRepository extends CustomMongoRepository<ParametrizacaoToggle> {
+public interface ToggleClienteRepository extends DocumentMongoRepository<ParametrizacaoToggle> {
 
     Optional<ParametrizacaoToggle> findByUserId(User userView);
 

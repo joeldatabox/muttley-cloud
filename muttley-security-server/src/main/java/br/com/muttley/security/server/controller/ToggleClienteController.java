@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping(value = "/api/v1/parametrizacoes", produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE})
-public class ToggleClienteController extends AbstractModelSyncRestController<ParametrizacaoToggle> {
+public class ToggleClienteController extends AbstractRestController<ParametrizacaoToggle> {
 
     private final ToggleClienteService service;
 

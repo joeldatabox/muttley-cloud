@@ -2,7 +2,7 @@ package br.com.muttley.security.server.repository;
 
 
 import br.com.muttley.model.parametrizacao.Parametro;
-import br.com.muttley.mongo.service.repository.CustomMongoRepository;
+import br.com.muttley.mongo.service.repository.DocumentMongoRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
  * @project agrifocus-cloud
  */
 @Repository
-public interface ParametroRepository extends CustomMongoRepository<Parametro> {
+public interface ParametroRepository extends DocumentMongoRepository<Parametro> {
 
 
 }

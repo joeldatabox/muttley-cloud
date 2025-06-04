@@ -1,22 +1,19 @@
 package br.com.muttley.model.parametrizacao;
 
 import br.com.muttley.model.MetadataDocument;
-import br.com.muttley.model.ModelSync;
 import br.com.muttley.model.NameAlias;
-import br.com.muttley.model.jackson.converter.CollectionModelSyncSerializer;
-import br.com.muttley.model.security.Owner;
 import br.com.muttley.model.security.User;
-import br.com.muttley.model.security.jackson.UserCollectionSerializer;
+import br.com.muttley.model.security.jackson.ParametroCollectionSerializer;
+import br.com.muttley.model.security.jackson.ParametroSetDeserializer;
 import br.com.muttley.model.security.jackson.UserDeserializer;
+import br.com.muttley.model.security.jackson.UserSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
@@ -25,7 +22,6 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,11 +43,10 @@ import static br.com.muttley.model.parametrizacao.ParametrizacaoToggle.COLLECTIO
 @Getter
 @Setter
 @TypeAlias(COLLECTION_PARAMETRIZACAO)
-@Data
 @Accessors(chain = true)
 @EqualsAndHashCode(of = "id")
 @NameAlias(singularName = "Parametrizacao-Toggle", pluralName = "Parametrizacaos-toggle")
-public class ParametrizacaoToggle implements ModelSync {
+public class ParametrizacaoToggle implements br.com.muttley.model.Document {
 
     @Transient
     @JsonIgnore
@@ -61,27 +56,20 @@ public class ParametrizacaoToggle implements ModelSync {
     private String id;
 
     @DBRef
-    @JsonSerialize(using = UserCollectionSerializer.class)
+    @JsonSerialize(using = UserSerializer.class)
     @JsonDeserialize(using = UserDeserializer.class)
     private User user;
 
     @NotNull(message = "Informe um parametro válido")
     @DBRef
-    @JsonSerialize(using = CollectionModelSyncSerializer.class)
-    @JsonDeserialize(using = SetParametroDeserializer.class)
+    @JsonSerialize(using = ParametroCollectionSerializer.class)
+    @JsonDeserialize(using = ParametroSetDeserializer.class)
     private Set<Parametro> parametros = new HashSet<>();
 
-    @NotBlank(message = "Informe um sync válido!")
-    private String sync;
-
-    @NotNull(message = "Informe a data de sincronização")
-    private Date dtSync;
-
-    @JsonIgnore
-    @DBRef
-    private Owner owner;
 
     private MetadataDocument metadata;
 
+    public ParametrizacaoToggle() {
+    }
 }
 

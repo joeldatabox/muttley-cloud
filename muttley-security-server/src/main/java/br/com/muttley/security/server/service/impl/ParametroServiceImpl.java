@@ -1,6 +1,5 @@
 package br.com.muttley.security.server.service.impl;
 
-import br.com.muttley.domain.service.impl.ModelSyncServiceImpl;
 import br.com.muttley.model.parametrizacao.Parametro;
 import br.com.muttley.security.server.repository.ParametroRepository;
 import br.com.muttley.security.server.service.ParametroService;
@@ -15,24 +14,17 @@ import org.springframework.stereotype.Service;
  * @project agrifocus-cloud
  */
 @Service
-public class ParametroServiceImpl extends ModelSyncServiceImpl<Parametro> implements ParametroService {
-    private static final String[] basicRoles = new String[]{"parametro"};
-
+public class ParametroServiceImpl extends SecurityServiceImpl<Parametro> implements ParametroService {
 
     private final ParametroRepository repository;
 
-
-    @Override
-    public String[] getBasicRoles() {
-        return basicRoles;
-    }
 
     @Autowired
     public ParametroServiceImpl(
             final ParametroRepository repository,
             final MongoTemplate mongoTemplate
     ) {
-        super(repository, Parametro.class, mongoTemplate);
+        super(repository, mongoTemplate, Parametro.class);
         this.repository = repository;
     }
 
