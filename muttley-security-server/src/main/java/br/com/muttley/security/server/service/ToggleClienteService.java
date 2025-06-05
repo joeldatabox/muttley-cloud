@@ -7,6 +7,7 @@ import br.com.muttley.model.parametrizacao.Parametro;
 import br.com.muttley.model.security.User;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Carolina Cedro on 14/05/25.
@@ -20,6 +21,9 @@ public interface ToggleClienteService extends Service<ParametrizacaoToggle> {
      * Busca uma parametrização pelo ID da empresa
      */
     Optional<ParametrizacaoToggle> buscarPorUser(User userView);
+
+
+    Set<String> parametrosPorUser(User userView);
 
     /**
      * Busca o valor de uma chave específica de uma empresa
