@@ -13,6 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+import java.util.Set;
+
 /**
  * @author Carolina Cedro
  * @since 14/05/2025
@@ -36,17 +39,31 @@ public class ToggleClienteController extends AbstractRestController<Parametrizac
     /**
      * Lista todos os parâmetros de uma empresa
      */
-    @GetMapping("/empresa/{user}")
+    @GetMapping("/user/{user}")
     public ResponseEntity<ParametrizacaoToggle> buscarPorUser(@PathVariable User user) {
         return service.buscarPorUser(user)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/list-parametros")
+    public ResponseEntity<Set<String>> listParametros(@RequestParam String user) {
+        User userOpt = userService.findByUserName(user);
+
+        if (userOpt == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+
+        Set<String> parametros = service.parametrosPorUser(userOpt);
+        return ResponseEntity.ok(parametros);
+    }
+
+
     /**
      * Busca o valor de uma chave específica
      */
-    @GetMapping("/empresa/{user}/chave/{chave}")
+    @GetMapping("/user/{user}/chave/{chave}")
     public ResponseEntity<String> buscarPorChave(
             @PathVariable User user,
             @PathVariable String chave
@@ -59,7 +76,7 @@ public class ToggleClienteController extends AbstractRestController<Parametrizac
     /**
      * Adiciona ou atualiza um parâmetro
      */
-    @PostMapping("/empresa/{user}")
+    @PostMapping("/user/{user}")
     public ResponseEntity<ParametrizacaoToggle> adicionarOuAtualizarParametro(
             @PathVariable User user,
             @RequestBody Parametro parametro

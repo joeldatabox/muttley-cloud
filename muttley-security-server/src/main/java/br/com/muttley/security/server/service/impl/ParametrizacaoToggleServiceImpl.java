@@ -9,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Carolina Cedro on 14/05/25.
@@ -42,8 +45,21 @@ public class ParametrizacaoToggleServiceImpl extends SecurityServiceImpl<Paramet
      * Busca uma parametrização pelo ID da empresa
      */
     public Optional<ParametrizacaoToggle> buscarPorUser(final User user) {
-        return repository.findByUserId(user);
+        return repository.findByUserId(user.getId());
     }
+
+    @Override
+    public Set<String> parametrosPorUser(User userView) {
+        return repository.findByUserId(userView.getId())
+                .map(parametrizacao -> parametrizacao.getParametros().stream()
+                        .filter(Parametro::isValor)  // Filtra apenas os ativos
+                        .map(Parametro::getChave)    // Pega a chave
+                        .collect(Collectors.toSet()) // Junta em Set
+                )
+                .orElse(Collections.emptySet()); // Se não achar, retorna Set vazio
+    }
+
+
 
     /**
      * Busca o valor de um parâmetro específico de uma empresa
@@ -60,7 +76,7 @@ public class ParametrizacaoToggleServiceImpl extends SecurityServiceImpl<Paramet
      * Adiciona ou atualiza um parâmetro na lista
      */
     public ParametrizacaoToggle salvarOuAtualizarParametro(final User user, final Parametro parametro) {
-        ParametrizacaoToggle toggle = repository.findByUserId(user)
+        ParametrizacaoToggle toggle = repository.findByUserId(user.getId())
                 .orElseGet(() -> new ParametrizacaoToggle()
                         .setUser(user));
 
