@@ -5,8 +5,10 @@ import br.com.muttley.model.NameAlias;
 import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.jackson.ParametroCollectionSerializer;
 import br.com.muttley.model.security.jackson.ParametroSetDeserializer;
+import br.com.muttley.model.security.jackson.UserCollectionSerializer;
 import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;
+import br.com.muttley.model.security.jackson.UserSetDeserializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -55,10 +57,14 @@ public class ParametrizacaoToggle implements br.com.muttley.model.Document {
     @Id
     private String id;
 
+    @NotNull(message = "Informe um nome de parametrizacao válido")
+    private String parametrizacao;
+
     @DBRef
-    @JsonSerialize(using = UserSerializer.class)
-    @JsonDeserialize(using = UserDeserializer.class)
-    private User user;
+    @JsonSerialize(using = UserCollectionSerializer.class)
+    @JsonDeserialize(using = UserSetDeserializer.class)
+    private Set<User> users = new HashSet<>();
+
 
     @NotNull(message = "Informe um parametro válido")
     @DBRef

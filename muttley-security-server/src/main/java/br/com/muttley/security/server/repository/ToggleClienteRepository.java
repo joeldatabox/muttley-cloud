@@ -15,6 +15,7 @@ import java.util.Optional;
 @Repository
 public interface ToggleClienteRepository extends DocumentMongoRepository<ParametrizacaoToggle> {
 
-    Optional<ParametrizacaoToggle> findByUserId(String userView);
+
+    Optional<ParametrizacaoToggle> findByUsersId(String id);
 
 }

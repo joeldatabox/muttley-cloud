@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,16 +40,14 @@ public class ParametrizacaoToggleServiceImpl extends SecurityServiceImpl<Paramet
         this.repository = repository;
     }
 
-    /**
-     * Busca uma parametrização pelo ID da empresa
-     */
+
     public Optional<ParametrizacaoToggle> buscarPorUser(final User user) {
-        return repository.findByUserId(user.getId());
+        return repository.findByUsersId(user.getId());
     }
 
     @Override
     public Set<String> parametrosPorUser(User userView) {
-        return repository.findByUserId(userView.getId())
+        return repository.findByUsersId(userView.getId())
                 .map(parametrizacao -> parametrizacao.getParametros().stream()
                         .filter(Parametro::isValor)  // Filtra apenas os ativos
                         .map(Parametro::getChave)    // Pega a chave
@@ -76,17 +73,18 @@ public class ParametrizacaoToggleServiceImpl extends SecurityServiceImpl<Paramet
      * Adiciona ou atualiza um parâmetro na lista
      */
     public ParametrizacaoToggle salvarOuAtualizarParametro(final User user, final Parametro parametro) {
-        ParametrizacaoToggle toggle = repository.findByUserId(user.getId())
-                .orElseGet(() -> new ParametrizacaoToggle()
-                        .setUser(user));
-
-        // Remove se já existe com essa chave
-        toggle.getParametros().removeIf(p -> p.getChave().equalsIgnoreCase(parametro.getChave()));
-
-        // Adiciona o novo
-        toggle.getParametros().add(parametro);
-
-        return repository.save(toggle);
+//        ParametrizacaoToggle toggle = repository.findByUsersId(user.getId())
+//                .orElseGet(() -> new ParametrizacaoToggle()
+//                        .setUsers(user));
+//
+//        // Remove se já existe com essa chave
+//        toggle.getParametros().removeIf(p -> p.getChave().equalsIgnoreCase(parametro.getChave()));
+//
+//        // Adiciona o novo
+//        toggle.getParametros().add(parametro);
+//
+//        return repository.save(toggle);
+        return null;
     }
 }
 
