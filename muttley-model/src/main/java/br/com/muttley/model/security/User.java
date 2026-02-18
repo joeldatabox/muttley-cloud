@@ -4,7 +4,6 @@ import br.com.muttley.exception.throwables.MuttleyException;
 import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
 import br.com.muttley.exception.throwables.security.MuttleySecurityBadRequestException;
 import br.com.muttley.model.jackson.JsonHelper;
-import br.com.muttley.model.parametrizacao.ParametrizacaoToggle;
 import br.com.muttley.model.security.preference.Foto;
 import br.com.muttley.model.security.preference.UserPreferences;
 import br.com.muttley.model.workteam.WorkTeamDomain;
@@ -86,8 +85,8 @@ public class User implements Serializable, UserData {
     @Transient
     private WorkTeamDomain workTeamDomain;
     private List<UserDataBinding> dataBindings;
-    @Transient
-    private ParametrizacaoToggle parametrizacao;
+//    @Transient
+//    private ParametrizacaoToggle parametrizacao;
     //Define se o usuário é do odin ou de algum outro owner
     private boolean odinUser = false;
     private String fone;
