@@ -3,17 +3,20 @@ package br.com.muttley.security.server.controller;
 import br.com.muttley.model.parametrizacao.ParametrizacaoToggle;
 import br.com.muttley.model.parametrizacao.Parametro;
 import br.com.muttley.model.security.User;
-import br.com.muttley.rest.AbstractModelSyncRestController;
-import br.com.muttley.security.server.service.AuthService;
 import br.com.muttley.security.server.service.ToggleClienteService;
 import br.com.muttley.security.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
 import java.util.Set;
 
 /**

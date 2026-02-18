@@ -1,10 +1,8 @@
 package br.com.muttley.security.server.service;
 
 
-import br.com.muttley.domain.service.ModelSyncService;
 import br.com.muttley.domain.service.Service;
 import br.com.muttley.model.parametrizacao.Parametro;
-import org.springframework.stereotype.Repository;
 
 /**
  * @author Carolina Cedro on 14/05/25.
