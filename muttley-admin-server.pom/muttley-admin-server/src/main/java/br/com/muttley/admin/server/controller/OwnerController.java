@@ -87,7 +87,10 @@ public class OwnerController implements RestController<Owner>, RestResource {
     @Override
     @RequestMapping(value = "/{id}", method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity update(@PathVariable("id") final String id, @RequestBody final Owner model) {
-        return ResponseEntity.ok(client.update(id, model));
+        final Owner record = model;
+
+
+        return ResponseEntity.ok(client.update(id, record));
     }
 
     @Override
