@@ -2,6 +2,7 @@ package br.com.muttley.model.security;
 
 import br.com.muttley.exception.throwables.MuttleyInvalidObjectIdException;
 import br.com.muttley.model.security.jackson.OwnerDataDeserializerDefault;
+import br.com.muttley.model.security.preference.Foto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.bson.types.ObjectId;
@@ -24,6 +25,10 @@ public interface OwnerData {
     String getDescription();
 
     UserData getUserMaster();
+
+    Foto getUserFoto();
+
+    String getEmailAlias();
 
     @JsonIgnore
     default ObjectId getObjectId() {

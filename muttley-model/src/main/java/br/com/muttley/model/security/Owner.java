@@ -7,6 +7,7 @@ import br.com.muttley.model.jackson.converter.DocumentSerializer;
 import br.com.muttley.model.security.jackson.AccessPlanDeserializer;
 import br.com.muttley.model.security.jackson.UserDeserializer;
 import br.com.muttley.model.security.jackson.UserSerializer;
+import br.com.muttley.model.security.preference.Foto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -44,6 +45,8 @@ public class Owner implements br.com.muttley.model.Document, OwnerData {
     protected String id;
     protected String name;
     protected String description;
+    protected Foto userFoto;
+    protected String emailAlias;
     @NotNull(message = "Informe o usuário master")
     @JsonSerialize(using = UserSerializer.class)
     @JsonDeserialize(using = UserDeserializer.class)
@@ -95,6 +98,27 @@ public class Owner implements br.com.muttley.model.Document, OwnerData {
         this.userMaster = userMaster;
         return this;
     }
+
+    @Override
+    public Foto getUserFoto() {
+        return userFoto;
+    }
+
+    public Owner setUserFoto(final Foto foto) {
+        this.userFoto = foto;
+        return this;
+    }
+
+    @Override
+    public String getEmailAlias() {
+        return emailAlias ;
+    }
+
+    public Owner setEmailAlias(final String emailAlias) {
+        this.emailAlias = emailAlias;
+        return this;
+    }
+
 
     public AccessPlan getAccessPlan() {
         return this.accessPlan;
