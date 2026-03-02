@@ -10,6 +10,7 @@ import br.com.muttley.model.security.User;
 import br.com.muttley.model.security.events.AccessPlanResolver;
 import br.com.muttley.model.security.events.OwnerResolverEvent;
 import br.com.muttley.model.security.events.UserResolverEvent;
+import br.com.muttley.model.security.preference.Foto;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -44,7 +45,12 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
                 final Owner owner = new Owner();
                 owner.setId(readAsText("id", node));
                 owner.setDescription(readAsText("description", node));
+                owner.setEmailAlias(readAsText("emailAlias", node));
                 owner.setName(readAsText("name", node));
+
+                owner.setUserFoto(
+                        this.readUserFoto(node.get("userFoto"), parser)
+                );
 
                 owner.setUserMaster(
                         this.readUserMaster(node.get("userMaster"), parser)
@@ -61,6 +67,8 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
                         readAsText("id", node),
                         readAsText("name", node),
                         readAsText("description", node),
+                        this.readUserFoto(node.get("userFoto"), parser),
+                        readAsText("emailAlias", node),
                         this.readUserMaster(node.get("userMaster"), parser)
                 );
             }
@@ -79,6 +87,16 @@ public class OwnerDataDeserializerDefault extends JsonDeserializer<OwnerData> {
 
             return node.isNull() ? null : new Owner().setId(node.asText());
         }
+    }
+
+    private Foto readUserFoto
+            (final JsonNode node, final JsonParser parser) throws IOException {
+        if (node != null && !node.isNull()) {
+            if (node.isObject()) {
+                return readNodeAsType(node, parser, new TypeReference<Foto>() {});
+            }
+        }
+        return null;
     }
 
     private User readUserMaster(final JsonNode node, final JsonParser parser) throws IOException {
